@@ -1,0 +1,123 @@
+window:
+    type: graphics.window
+    
+    children:
+        gui:
+            type: graphics.gui.guiCamera
+            children:
+                quitButton:
+                    type: graphics.gui.button
+                    vars:
+                        position: Vec2(0.9,0.9)
+                        scale: Vec2(0.1,0.1)
+                        text: Quit
+                        clickMsg: shutdownApp
+
+                panel:
+                    type: graphics.gui.panel
+                    vars:
+                        position: Vec2(0.9,0.1)
+                        scale: Vec2(0.5,0.5)
+                        title: panel
+                    children:
+                        textBox:
+                            type: graphics.gui.textBox
+                            vars:
+                                position: Vec2(0.1,0.1)
+                                scale: Vec2(0.5,0.1)
+                        okButton:
+                            type: graphics.gui.button
+                            vars:
+                                position: Vec2(0.85,0.85)
+                                scale: Vec2(0.1,0.1)
+                                text: OK
+                        spinner:
+                            type: graphics.gui.spinner
+                            vars:
+                                position: Vec2(0.1,0.5)
+                                scale: Vec2(0.8,0.1)
+                                #options: ['these','are','some','options']
+                                options: "[-1 + i*0.1 for i in map(float,range(20))]"
+
+        world:
+            type: physics.world
+            children:
+                camera:
+                    type: graphics.prims3d.camera
+                    vars:
+                        position: Vec3(0,0,25)
+                        lookAt: Vec3(0,0,0)
+        
+                    children:
+                        ball:
+                            type: physics.circle
+                            
+                            vars:
+                                position: Vec3(0,10,0)
+                            
+                            children:
+                                graphics:
+                                    type: graphics.prims3d.cylinder
+                                    vars:
+                                        scale: Vec3(0.5,0.5,1)
+                                        material:
+                                            texture: test.jpg
+
+                        ballDropper:
+                            type: test.ballDropper
+
+                            vars:
+                                ballTime: 0.25
+                                maxBalls: 40
+                                size: 2
+
+                        poly:
+                            type: physics.poly
+
+                            vars:
+                                vertices: '[Vec2(0,0),Vec2(0,1),Vec2(0.5,1.5),Vec2(1,1),Vec2(1,0),Vec2(0.5,-0.5)]'
+                                position: Vec3(-5,5,0)
+
+                            children:
+                                graphics:
+                                    type: graphics.prims3d.poly
+                                    vars:
+                                        material:
+                                            texture: test.jpg
+                                        vertices: '[Vec2(0,0),Vec2(0,1),Vec2(0.5,1.5),Vec2(1,1),Vec2(1,0),Vec2(0.5,-0.5)]'
+
+                        box:
+                            type: physics.rect
+
+                            vars:
+                                position: Vec3(0,5.2,0)
+                                angle: -1
+
+                            children:
+                                graphics:
+                                    type: graphics.prims3d.cube
+                                    vars:
+                                        scale: Vec3(1,1,1)
+                                        material:
+                                            texture: test.jpg
+
+                        floor:
+                            type: physics.segment
+                            #type: physics.rect
+                            
+                            vars:
+                                v1: Vec2(-10,0)
+                                v2: Vec2(10,0)
+                                #angle: 0.1
+                                bodySize: Vec2(20,1)
+                                staticBody: true
+                                position: Vec3(0,-8,0)
+                                
+                            children:
+                                graphics:
+                                    type: graphics.prims3d.cube
+                                    vars:
+                                        material:
+                                            texture: test.jpg
+                                            scale: Vec2(20,1)
+                                        scale: Vec3(20,1,1)

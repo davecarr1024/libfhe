@@ -1,0 +1,11 @@
+window:
+    type: graphics.window
+    children:
+        world:
+            type: physics.world
+            children:
+                gui:
+                    type: graphics.gui.menuServer
+                    children:
+                        acce:
+                            type: acce.acce
