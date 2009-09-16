@@ -1,0 +1,39 @@
+floor:
+    type: acce.block
+    vars:
+        position: Vec3(0,-10,0)
+        bodySize: Vec2(40,5)
+        angle: angle(-10)
+        material:
+            texture: test.jpg
+
+wall:
+    type: acce.block
+    vars:
+        position: Vec3(-20,10,0)
+        bodySize: Vec2(2,40)
+        material:
+            texture: test.jpg
+
+ramp:
+    type: acce.block
+    vars:
+        position: Vec3(-10,0,0)
+        bodySize: Vec2(30,2)
+        angle: angle(-45)
+        material:
+            texture: test.jpg
+
+lives:
+    type: acce.rules.livesDisplay
+
+fallDeath:
+    type: acce.rules.fallDeath
+    vars:
+        decLives: False
+
+ballDropper:
+    type: test.ballDropper
+    vars:
+        miny: -25
+        size: 4
