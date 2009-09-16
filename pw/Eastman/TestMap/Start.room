@@ -1,0 +1,21 @@
+type: Eastman.Room
+
+children:
+    block1:
+        type: Text.Box
+        vars:
+            pos: 0.4,0.3
+            size: 0.1,0.2
+            
+                    
+    door:
+        type: Text.Box
+        vars:
+            pos: -1,5
+            size: 1,10
+            
+            bg: white
+            fg: black
+            
+            contactRoom: Eastman/TestMap/Right.room
+            contactPos: 1,10

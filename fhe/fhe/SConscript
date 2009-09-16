@@ -1,0 +1,5 @@
+Import("env")
+
+core = env.SharedLibrary("fhe", env.Glob("*.cpp") + env.Glob("tinyxml/*.cpp"))
+
+Return("core")
