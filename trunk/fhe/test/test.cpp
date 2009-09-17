@@ -136,7 +136,7 @@ void funcVarTest()
 
 void loadTest()
 {
-    NodePtr node( Node::load( "test/test.xml" ) );
+    NodePtr node( Node::load( "test.xml" ) );
     
     assert(node);
     TestNodePtr testNode = boost::dynamic_pointer_cast<TestNode,Node>(node);
@@ -159,7 +159,7 @@ void pythonTest()
     
     node->addChild( new Node("pychild","Node") );
     
-    node->runScript("test/test.py");
+    node->runScript("test.py");
     
     node->callFunc<void,std::string>("hello","world");
     std::string helloMsg = node->getVar<std::string>("hello_msg");

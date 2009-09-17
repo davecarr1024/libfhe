@@ -1,0 +1,5 @@
+Import("env")
+
+ois = env.SConscript("ois/SConscript")
+cegui = env.SConscript("cegui/SConscript")
+ogre = env.SConscript("ogre/SConscript")
