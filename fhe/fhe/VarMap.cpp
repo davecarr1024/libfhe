@@ -282,7 +282,7 @@ namespace fhe
     }
 
     template <class T>
-    T VarMap::getVar( const std::string& name, T def )
+    T VarMap::getVar( const std::string& name, const T& def )
     {
         if ( canGetVar<T>(name) )
         {

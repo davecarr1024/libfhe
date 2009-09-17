@@ -11,7 +11,9 @@ libs = ["ois/src/.libs/libOIS.so","ois/src/.libs/libOIS-1.2.0.so"]
 
 env.Command(libs,"ois/Makefile","cd ext/ois/ois && make -j 4")
 
-env.Alias('ext',env.Install("#bin",libs))
+ilibs = env.Install("#bin",libs)
+
+env.Alias('ext',ilibs)
 
 env.Append(CPPPATH = env.Dir("ois/includes").abspath)
-env.Append(LIBS = "OIS")
+env.Append(LIBS = ilibs)

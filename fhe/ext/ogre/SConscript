@@ -12,8 +12,11 @@ env.Command("ogre/configure",tarfile,"cd ext/ogre && tar xjf %s" % tarfile)
 env.Command("ogre/Makefile","ogre/configure","cd ext/ogre/ogre && aclocal && ./bootstrap && ./configure")
 
 libs = ["ogre/OgreMain/src/.libs/libOgreMain.so","ogre/OgreMain/src/.libs/libOgreMain-1.6.3.so"]
-ilibs = env.Command(libs,"ogre/Makefile","cd ext/ogre/ogre && make -j 4")
+env.Command(libs,"ogre/Makefile","cd ext/ogre/ogre && make -j 4")
 
-env.Alias("ext",env.Install("#bin",ilibs))
+ilibs = env.Install("#bin",libs)
 
-env.Append(LIBS = "OgreMain")
+env.Alias("ext",ilibs)
+
+env.Append(CPPPATH = env.Dir("ogre/OgreMain/include").abspath)
+env.Append(LIBS = ilibs)

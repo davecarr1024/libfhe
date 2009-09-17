@@ -11,6 +11,9 @@ env.Command("cegui/Makefile", "cegui/configure", "cd ext/cegui/cegui && aclocal 
 libs = ["cegui/src/.libs/libCEGUIBase.so", "cegui/src/.libs/libCEGUIBase.so.1", "cegui/src/.libs/libCEGUIBase.so.1.0.0"]
 env.Command(libs,"cegui/Makefile","cd ext/cegui/cegui && make -j 4")
 
-env.Alias("ext",env.Install("#bin",libs))
+ilibs = env.Install("#bin",libs)
 
-env.Append(LIBS = "CEGUIBase")
+env.Alias("ext",ilibs)
+
+env.Append(CPPPATH = env.Dir("cegui/include").abspath)
+env.Append(LIBS = ilibs)
