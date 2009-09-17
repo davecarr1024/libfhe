@@ -2,11 +2,10 @@ env = Environment()
 
 env.Append(CPPPATH = ["#", '/usr/include/python2.6'])
 env.Append(LIBS = ['python2.6','boost_python-mt-py26'])
+env.Append(LIBPATH = "#bin")
 
 Export("env")
 
-core = env.SConscript("fhe/SConscript")
-
-Export("core")
-
+env.SConscript("ext/SConscript")
+env.SConscript("fhe/SConscript")
 env.SConscript("test/SConscript")

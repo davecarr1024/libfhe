@@ -1,12 +1,3 @@
 Import("env")
-Import("core")
 
-tests = []
-
-for file in env.Glob("*.cpp"):
-    name = file.name.split('.')[0]
-    test = env.Program(name,[file,core])
-    env.Command("run_%s" % name,test,test[0].abspath)
-    tests.append(test)
-    
-Return("tests")
+env.Install("#bin",[env.Program("test","test.cpp"),Glob("*.py"),Glob("*.xml")])
