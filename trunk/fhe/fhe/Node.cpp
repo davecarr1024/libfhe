@@ -264,7 +264,7 @@ namespace fhe
         }
         else
         {
-            throw std::runtime_error("ERROR: no file " + path);
+            throw std::runtime_error("can't load node file " + path);
         }
     }
     
@@ -531,8 +531,8 @@ namespace fhe
         }
         catch ( boost::python::error_already_set const& )
         {
-            throw std::runtime_error("ERROR: running script " + filename );
             PyErr_Print();
+            error("running script %s", filename.c_str());
         }
     }
     
@@ -556,6 +556,17 @@ namespace fhe
         vsnprintf( buffer, 1024, format, ap );
         va_end(ap);
         printf("%s: %s\n", m_path.c_str(), buffer);
+    }
+
+    void
+    Node::error( const char* format, ... )
+    {
+        char buffer[1024];
+        va_list ap;
+        va_start(ap,format);
+        vsnprintf( buffer, 1024, format, ap );
+        va_end(ap);
+        throw std::runtime_error( m_path + ": ERROR: " + buffer );
     }
 
     void Node::removeFunc( const std::string& name )

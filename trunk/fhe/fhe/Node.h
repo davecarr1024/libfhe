@@ -106,6 +106,7 @@ namespace fhe
             void runScript( const std::string& filename );
             
             void log( const char* fmt, ...);
+            void error( const char* fmt, ...);
 
             void removeFunc( const std::string& name );
 

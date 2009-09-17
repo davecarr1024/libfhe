@@ -1,8 +1,9 @@
 Import("env")
 
-fheenv = env.Clone()
-fhe = fheenv.Install("#bin",fheenv.SharedLibrary("fhe", fheenv.Glob("*.cpp") + fheenv.Glob("tinyxml/*.cpp")))
-fheenv.Depends(fhe,"ext")
-fheenv.Install("#bin","PyNode.py")
+_env = env
 
-env.Append(LIBS = "fhe")
+env = env.Clone()
+fhe = env.Install("#bin",[env.SharedLibrary("fhe", env.Glob("*.cpp") + env.Glob("tinyxml/*.cpp")),"PyNode.py"])
+env.Depends(fhe,"ext")
+
+_env.Append(LIBS = fhe[0].name)

@@ -37,9 +37,9 @@ namespace fhe
             
             bool pyHasVar( const std::string& name );
             bool pyCanSetVar( const std::string& name, boost::python::object val );
-            void pySetVar( const std::string& name, boost::python::object val );
+            virtual void pySetVar( const std::string& name, boost::python::object val );
             boost::python::object pyGetVar( const std::string& name );
-            boost::python::object pyGetVarDef( const std::string& name, boost::python::object def );
+            virtual boost::python::object pyGetVarDef( const std::string& name, boost::python::object def );
             boost::python::object pyGetVarNames();
             
             template <class T>
@@ -61,7 +61,7 @@ namespace fhe
             T getVar( const std::string& name );
 
             template <class T>
-            T getVar( const std::string& name, T def );
+            T getVar( const std::string& name, const T& def );
 
             boost::python::object toPy();
             
