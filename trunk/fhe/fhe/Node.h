@@ -8,6 +8,7 @@
 
 #include <boost/intrusive_ptr.hpp>
 #include <boost/bind.hpp>
+#include <boost/python.hpp>
 
 #include "tinyxml/tinyxml.h"
 
@@ -29,7 +30,7 @@ namespace fhe
 
     NODE_DECL(Node);
     
-    class Node : public VarMap
+    class Node
     {
         friend class PyNode;
         
@@ -108,6 +109,10 @@ namespace fhe
             void log( const char* fmt, ...);
             void error( const char* fmt, ...);
 
+            void removeVar( const std::string& name );
+            
+            void clearVars();
+
             void removeFunc( const std::string& name );
 
             void clearFuncs();
@@ -174,6 +179,87 @@ namespace fhe
                 bool has = hasFunc<TRet,void>(name);
                 assert( has );
                 return m_funcs[name]->cast<TRet,void>()->call();
+            }
+
+            template <class T>
+            bool hasVar( const std::string& name )
+            {
+                std::string getName = "get_" + name;
+                return hasFunc<T,void>(getName) || (m_vars.find(name) != m_vars.end() && m_vars[name]->cast<T>());
+            }
+
+            template <class T>
+            bool canSetVar( const std::string& name )
+            {
+                std::string setName = "set_" + name;
+                return hasFunc<void,T>(setName) || (hasVar<T>(name) && m_vars[name]->cast<T>()->canSet());
+            }
+
+            template <class T>
+            bool canGetVar( const std::string& name )
+            {
+                std::string getName = "get_" + name;
+                return hasFunc<T,void>(getName) || (hasVar<T>(name) && m_vars[name]->cast<T>()->canGet());
+            }
+
+            template <class T>
+            void setVar( const std::string& name, const T& val )
+            {
+                std::string setName = "set_" + name;
+                if ( hasFunc<void,T>(setName) )
+                {
+                    callFunc<void,T>(setName, val );
+                }
+                else if ( hasVar<T>( name ) )
+                {
+                    IVar<T>* var = m_vars[name]->cast<T>();
+                    assert( var->canSet() );
+                    var->set( val );
+                }
+                else
+                {
+                    connectVar( name, new Var<T>( val ) );
+                }
+            }
+
+            template <class T>
+            void connectVar( const std::string& name, IVar<T>* val )
+            {
+                assert(val);
+                removeVar( name );
+                m_vars[name] = val;
+            }
+
+            template <class T>
+            T getVar( const std::string& name )
+            {
+                std::string getName = "get_" + name;
+                if ( hasFunc<T,void>(getName) )
+                {
+                    return callFunc<T>(getName);
+                }
+                
+                assert( canGetVar<T>(name) );
+                return m_vars[name]->cast<T>()->get();
+            }
+
+            template <class T>
+            T getVar( const std::string& name, const T& def )
+            {
+                std::string getName = "get_" + name;
+                if ( hasFunc<T,void>(getName) )
+                {
+                    return callFunc<T>(getName);
+                }
+                
+                if ( canGetVar<T>(name) )
+                {
+                    return m_vars[name]->cast<T>()->get();
+                }
+                else
+                {
+                    return def;
+                }
             }
     };
 }

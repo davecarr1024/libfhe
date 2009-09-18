@@ -22,8 +22,14 @@ namespace fhe
             static boost::python::object m_addFunc;
             
             PyNode( NodePtr node );
+            
+            template <class TArg>
+            boost::python::object callFuncWithArg( const std::string& name, const TArg& arg );
+            
+            boost::python::object callFuncNoArg( const std::string& name );
 
         public:
+            
             static boost::python::object create( NodePtr node );
             
             static boost::python::object defineClass();
@@ -57,8 +63,6 @@ namespace fhe
             bool hasVar( const std::string& name );
             
             bool hasFunc( const std::string& name );
-            
-            bool canCallFunc( const std::string& name, boost::python::object arg );
             
             void addFunc( boost::python::object tret, boost::python::object targ, boost::python::object func );
             

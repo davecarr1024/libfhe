@@ -57,6 +57,7 @@ namespace fhe
     Node::~Node()
     {
         clearFuncs();
+        clearVars();
     }
     
     void intrusive_ptr_add_ref(Node* p)
@@ -586,4 +587,23 @@ namespace fhe
         }
         m_funcs.clear();
     }
+    
+    void Node::removeVar( const std::string& name )
+    {
+        if ( m_vars.find( name ) != m_vars.end() )
+        {
+            delete m_vars[name];
+            m_vars.erase( name );
+        }
+    }
+
+    void Node::clearVars()
+    {
+        for (std::map<std::string, IVarWrapper*>::iterator i = m_vars.begin(); i != m_vars.end(); ++i)
+        {
+            delete i->second;
+        }
+        m_vars.clear();
+    }
+
 }

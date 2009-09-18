@@ -130,6 +130,10 @@ namespace fhe
             {
                 d[name] = boost::python::object( getVar<std::string>(name) );
             }
+            else if ( hasVar<VarMap>(name) )
+            {
+                d[name] = getVar<VarMap>(name).toPy();
+            }
         }
         return d;
     }
@@ -168,6 +172,10 @@ namespace fhe
                 {
                     val.setVar<std::string>(name,boost::python::extract<std::string>(items[i][1]));
                 }
+                else if ( type == "VarMap" )
+                {
+                    val.setVar<VarMap>(name,boost::python::extract<VarMap>(items[i][1]));
+                }
             }
         }
         else
@@ -184,24 +192,40 @@ namespace fhe
     
     bool VarMap::pyHasVar( const std::string& name )
     {
-        return m_vars.find(name) != m_vars.end();
-    }
-    
-    bool VarMap::pyCanSetVar( const std::string& name, boost::python::object val )
-    {
-        return pyHasVar( name ) && m_vars[name]->canSetPy(val);
+        return hasVar<bool>(name) ||
+               hasVar<int>(name) ||
+               hasVar<float>(name) ||
+               hasVar<std::string>(name) ||
+               hasVar<VarMap>(name);
     }
     
     void VarMap::pySetVar( const std::string& name, boost::python::object val )
     {
-        if ( pyCanSetVar( name, val ) )
+        std::string type = getType(val);
+        
+        if ( type == "bool" )
         {
-            m_vars[name]->setPy(val);
+            setVar<bool>(name,boost::python::extract<bool>(val));
+        }
+        else if ( type == "int" )
+        {
+            setVar<int>(name,boost::python::extract<int>(val));
+        }
+        else if ( type == "float" )
+        {
+            setVar<float>(name,boost::python::extract<float>(val));
+        }
+        else if ( type == "str" )
+        {
+            setVar<std::string>(name,boost::python::extract<std::string>(val));
+        }
+        else if ( type == "VarMap" )
+        {
+            setVar<VarMap>(name,boost::python::extract<VarMap>(val));
         }
         else
         {
-            removeVar(name);
-            m_vars[name] = IVarWrapper::newPy(val);
+            throw std::runtime_error( "unable to set var " + name + " to unknown python type " + type );
         }
     }
     
@@ -212,9 +236,25 @@ namespace fhe
     
     boost::python::object VarMap::pyGetVarDef( const std::string& name, boost::python::object def )
     {
-        if ( pyHasVar( name ) )
+        if ( hasVar<bool>(name) )
         {
-            return m_vars[name]->getPy();
+            return boost::python::object( getVar<bool>(name) );
+        }
+        else if ( hasVar<int>(name) )
+        {
+            return boost::python::object( getVar<int>(name) );
+        }
+        else if ( hasVar<float>(name) )
+        {
+            return boost::python::object( getVar<float>(name) );
+        }
+        else if ( hasVar<std::string>(name) )
+        {
+            return boost::python::object( getVar<std::string>(name) );
+        }
+        else if ( hasVar<VarMap>(name) )
+        {
+            return boost::python::object( getVar<VarMap>(name) );
         }
         else
         {
