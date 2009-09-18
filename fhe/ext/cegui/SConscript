@@ -5,6 +5,7 @@ dl = "http://downloads.sourceforge.net/crayzedsgui/%s" % tarfile
 folder = "CEGUI-0.6.0"
 
 env.Command(tarfile,None,"cd ext/cegui && wget %s" % dl)
+env.NoClean(tarfile)
 env.Command("cegui/configure", tarfile, "cd ext/cegui && tar xif %s && rm -rf cegui && mv %s cegui" % (tarfile,folder))
 env.Command("cegui/Makefile", "cegui/configure", "cd ext/cegui/cegui && aclocal && ./bootstrap && ./configure --disable-devil --disable-samples")
 
@@ -12,8 +13,6 @@ libs = ["cegui/src/.libs/libCEGUIBase.so", "cegui/src/.libs/libCEGUIBase.so.1", 
 env.Command(libs,"cegui/Makefile","cd ext/cegui/cegui && make -j 4")
 
 ilibs = env.Install("#bin",libs)
-
-env.Alias("ext",ilibs)
 
 env.Append(CPPPATH = env.Dir("cegui/include").abspath)
 env.Append(LIBS = ilibs)
