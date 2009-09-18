@@ -1,0 +1,8 @@
+Import("env")
+
+_env = env
+
+env = env.Clone()
+ogre = env.Install("#bin",env.SharedLibrary("fheOgre",env.Glob("*.cpp")))
+
+_env.Append(LIBS = ogre[0].name)
