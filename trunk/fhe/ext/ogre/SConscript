@@ -8,6 +8,7 @@ deps = """ sudo apt-get install
 tarfile = "ogre-v1-6-3.tar.bz2"
 dl = "http://downloads.sourceforge.net/project/ogre/ogre/1.6.3/%s" % tarfile
 env.Command(tarfile,None,"cd ext/ogre && wget %s" % dl)
+env.NoClean(tarfile)
 env.Command("ogre/configure",tarfile,"cd ext/ogre && tar xjf %s" % tarfile)
 env.Command("ogre/Makefile","ogre/configure","cd ext/ogre/ogre && aclocal && ./bootstrap && ./configure")
 
@@ -15,8 +16,6 @@ libs = ["ogre/OgreMain/src/.libs/libOgreMain.so","ogre/OgreMain/src/.libs/libOgr
 env.Command(libs,"ogre/Makefile","cd ext/ogre/ogre && make -j 4")
 
 ilibs = env.Install("#bin",libs)
-
-env.Alias("ext",ilibs)
 
 env.Append(CPPPATH = env.Dir("ogre/OgreMain/include").abspath)
 env.Append(LIBS = ilibs)

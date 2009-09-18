@@ -4,6 +4,7 @@ tarfile = "ois_1.2.0.tar.gz"
 dl = "http://downloads.sourceforge.net/wgois/%s" % tarfile
 
 env.Command(tarfile,None,"cd ext/ois && wget %s" % dl)
+env.NoClean(tarfile)
 env.Command("ois/configure",tarfile,"cd ext/ois && tar xif %s" % tarfile)
 env.Command("ois/Makefile","ois/configure","cd ext/ois/ois && aclocal && ./bootstrap && ./configure")
 
@@ -12,8 +13,6 @@ libs = ["ois/src/.libs/libOIS.so","ois/src/.libs/libOIS-1.2.0.so"]
 env.Command(libs,"ois/Makefile","cd ext/ois/ois && make -j 4")
 
 ilibs = env.Install("#bin",libs)
-
-env.Alias('ext',ilibs)
 
 env.Append(CPPPATH = env.Dir("ois/includes").abspath)
 env.Append(LIBS = ilibs)
