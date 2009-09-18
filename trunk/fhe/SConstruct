@@ -8,4 +8,5 @@ Export("env")
 
 env.SConscript("ext/SConscript")
 env.SConscript("fhe/SConscript")
+env.SConscript("ogre/SConscript")
 env.SConscript("test/SConscript")
