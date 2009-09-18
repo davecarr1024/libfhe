@@ -139,10 +139,3 @@ if __name__ == "__main__":
     assert equal(v - t, Mat4.translation(t).inverse() * v)
     assert equal(v / s, Mat4.scale(s).inverse() * v)
     assert equal(r.inverse() * v, Mat4.rotation(r).inverse() * v)
-
-    q = Mat4.rotation(r).getRotation()
-    rAxis, rAngle = r.toAxisAngle()
-    qAxis, qAngle = q.toAxisAngle()
-    assert abs(rAngle - qAngle) < 1e-3 and equal(rAxis,qAxis)
-
-    assert equal(t,Mat4.translation(t).getTranslation())

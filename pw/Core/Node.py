@@ -20,7 +20,7 @@ class Node:
         self.getChild = self.children.get
         
         self.vars = {}
-        self.setVar = self.vars.__setitem__
+        #self.setVar = self.vars.__setitem__
         self.hasVar = self.vars.__contains__
         self.removeVar = self.vars.pop
         self.defaultVar = self.vars.setdefault
@@ -82,6 +82,10 @@ class Node:
         return self.__class__.__module__
     
     #vars
+    
+    def setVar(self, name, val):
+        self.vars[name] = val
+        self.call("set_%s" % name, val)
     
     def getVar(self, name, default = None):
         val = self.vars.get(name,default)
