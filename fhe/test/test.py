@@ -124,3 +124,18 @@ def msg_publishTest(i):
 assert not child.hasVar("i")
 self.publish("publishTest",1)
 assert child.getVar("i") == 1
+
+@self.func(None,int)
+def set_setTest(i):
+    self.setVar("setTestVal",i)
+    
+assert not self.hasVar("setTestVal")
+self.setVar("setTest",11)
+assert self.hasVar("setTestVal")
+assert self.getVar("setTestVal") == 11
+
+@self.func(str,None)
+def get_getTest():
+    return "got"
+    
+assert self.getVar("getTest") == "got"

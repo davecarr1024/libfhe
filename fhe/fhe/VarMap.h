@@ -7,6 +7,8 @@
 #include <map>
 #include <string>
 
+#include <boost/python.hpp>
+
 namespace fhe
 {
     
@@ -36,10 +38,9 @@ namespace fhe
             std::vector<std::string> getVarNames();
             
             bool pyHasVar( const std::string& name );
-            bool pyCanSetVar( const std::string& name, boost::python::object val );
-            virtual void pySetVar( const std::string& name, boost::python::object val );
+            void pySetVar( const std::string& name, boost::python::object val );
             boost::python::object pyGetVar( const std::string& name );
-            virtual boost::python::object pyGetVarDef( const std::string& name, boost::python::object def );
+            boost::python::object pyGetVarDef( const std::string& name, boost::python::object def );
             boost::python::object pyGetVarNames();
             
             template <class T>

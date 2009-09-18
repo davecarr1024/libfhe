@@ -195,42 +195,184 @@ namespace fhe
         return m_node->m_funcs.find(name) != m_node->m_funcs.end();
     }
     
-    bool PyNode::canCallFunc( const std::string& name, boost::python::object arg )
+    boost::python::object PyNode::callFuncNoArg( const std::string& name )
     {
-        return hasFunc( name ) && m_node->m_funcs[name]->pyCanCall( arg );
+        if ( m_node->hasFunc<void,void>( name ) )
+        {
+            m_node->callFunc<void>( name );
+            return boost::python::object();
+        }
+        else if ( m_node->hasFunc<bool,void>( name ) )
+        {
+            return boost::python::object( m_node->callFunc<bool>( name ));
+        }
+        else if ( m_node->hasFunc<int,void>( name ) )
+        {
+            return boost::python::object( m_node->callFunc<int>( name ));
+        }
+        else if ( m_node->hasFunc<float,void>( name ) )
+        {
+            return boost::python::object( m_node->callFunc<float>( name ));
+        }
+        else if ( m_node->hasFunc<std::string,void>( name ) )
+        {
+            return boost::python::object( m_node->callFunc<std::string>( name ));
+        }
+        else if ( m_node->hasFunc<VarMap,void>( name ) )
+        {
+            return boost::python::object( m_node->callFunc<VarMap>( name ));
+        }
+        else
+        {
+            m_node->error( "unable to find func %s for python call", name.c_str() );
+        }
+    }
+    
+    template <class TArg>
+    boost::python::object PyNode::callFuncWithArg( const std::string& name, const TArg& arg )
+    {
+        if ( m_node->hasFunc<void,TArg>( name ) )
+        {
+            m_node->callFunc<void,TArg>( name, arg );
+            return boost::python::object();
+        }
+        else if ( m_node->hasFunc<bool,TArg>( name ) )
+        {
+            return boost::python::object( m_node->callFunc<bool,TArg>( name, arg ) );
+        }
+        else if ( m_node->hasFunc<int,TArg>( name ) )
+        {
+            return boost::python::object( m_node->callFunc<int,TArg>( name, arg ) );
+        }
+        else if ( m_node->hasFunc<float,TArg>( name ) )
+        {
+            return boost::python::object( m_node->callFunc<float,TArg>( name, arg ) );
+        }
+        else if ( m_node->hasFunc<std::string,TArg>( name ) )
+        {
+            return boost::python::object( m_node->callFunc<std::string,TArg>( name, arg ) );
+        }
+        else if ( m_node->hasFunc<VarMap,TArg>( name ) )
+        {
+            return boost::python::object( m_node->callFunc<VarMap,TArg>( name, arg ) );
+        }
+        else
+        {
+            m_node->error( "unable to fnid func %s for python call", name.c_str() );
+        }
     }
     
     boost::python::object PyNode::callFunc( const std::string& name, boost::python::object arg )
     {
-        assert( canCallFunc( name, arg ) );
-        return m_node->m_funcs[name]->pyCall( arg );
+        if ( arg == boost::python::object() )
+        {
+            return callFuncNoArg( name );
+        }
+        
+        std::string type = getPyType( arg );
+        if ( type == "bool" )
+        {
+            return callFuncWithArg<bool>( name, boost::python::extract<bool>(arg) );
+        }
+        else if ( type == "int" )
+        {
+            return callFuncWithArg<int>( name, boost::python::extract<int>(arg) );
+        }
+        else if ( type == "float" )
+        {
+            return callFuncWithArg<float>( name, boost::python::extract<float>(arg) );
+        }
+        else if ( type == "str" )
+        {
+            return callFuncWithArg<std::string>( name, boost::python::extract<std::string>(arg) );
+        }
+        else if ( type == "VarMap" )
+        {
+            return callFuncWithArg<VarMap>( name, boost::python::extract<VarMap>(arg) );
+        }
+        else
+        {
+            m_node->error( "unable to call func %s with arg type %s", name.c_str(), type.c_str() );
+        }
     }
     
     boost::python::object PyNode::getVar( const std::string& name )
     {
-        return m_node->pyGetVar( name );
+        return getVarDef( name, boost::python::object() );
     }
     
     boost::python::object PyNode::getVarDef( const std::string& name, boost::python::object def )
     {
-        return m_node->pyGetVarDef( name, def );
+        if ( m_node->hasVar<bool>( name ) )
+        {
+            return boost::python::object( m_node->getVar<bool>( name ) );
+        }
+        else if ( m_node->hasVar<int>( name ) )
+        {
+            return boost::python::object( m_node->getVar<int>( name ) );
+        }
+        else if ( m_node->hasVar<float>( name ) )
+        {
+            return boost::python::object( m_node->getVar<float>( name ) );
+        }
+        else if ( m_node->hasVar<std::string>( name ) )
+        {
+            return boost::python::object( m_node->getVar<std::string>( name ) );
+        }
+        else if ( m_node->hasVar<VarMap>( name ) )
+        {
+            return boost::python::object( m_node->getVar<VarMap>( name ) );
+        }
+        else
+        {
+            return def;
+        }
     }
     
     void PyNode::setVar( const std::string& name, boost::python::object val )
     {
-        m_node->pySetVar( name, val );
+        std::string type = getPyType( val );
+        
+        if ( type == "bool" )
+        {
+            m_node->setVar<bool>( name, boost::python::extract<bool>( val ) );
+        }
+        else if ( type == "int" )
+        {
+            m_node->setVar<int>( name, boost::python::extract<int>( val ) );
+        }
+        else if ( type == "float" )
+        {
+            m_node->setVar<float>( name, boost::python::extract<float>( val ) );
+        }
+        else if ( type == "str" )
+        {
+            m_node->setVar<std::string>( name, boost::python::extract<std::string>( val ) );
+        }
+        else if ( type == "VarMap" )
+        {
+            m_node->setVar<VarMap>( name, boost::python::extract<VarMap>( val ) );
+        }
+        else
+        {
+            m_node->error( "unable to set var %s to unknown python type %s", name.c_str(), type.c_str() );
+        }
     }
     
     bool PyNode::hasVar( const std::string& name )
     {
-        return m_node->pyHasVar( name );
+        return m_node->hasVar<bool>(name) || 
+               m_node->hasVar<int>(name) || 
+               m_node->hasVar<float>(name) || 
+               m_node->hasVar<std::string>(name) || 
+               m_node->hasVar<VarMap>(name);
     }
     
     void PyNode::addFunc( boost::python::object tret, boost::python::object targ, boost::python::object func )
     {
         std::string name = boost::python::extract<std::string>(func.attr("__name__"));
         m_node->removeFunc(name);
-        m_node->m_funcs[name] = PyFuncUtil::bind( tret, targ, func);
+        m_node->m_funcs[name] = PyFuncUtil::bind( tret, targ, func );
     }
     
     bool PyNode::equals( PyNode* pynode )

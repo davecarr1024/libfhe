@@ -40,8 +40,8 @@ namespace fhe
                 }
                 catch ( boost::python::error_already_set const& )
                 {
-                    throw std::runtime_error("ERROR: calling pyfunc\n");
                     PyErr_Print();
+                    throw std::runtime_error("ERROR: calling pyfunc\n");
                 }
                 
                 return boost::python::extract<TRet>(pyRet);
@@ -68,8 +68,8 @@ namespace fhe
                 }
                 catch ( boost::python::error_already_set const& )
                 {
-                    throw std::runtime_error("ERROR: calling pyfunc\n");
                     PyErr_Print();
+                    throw std::runtime_error("ERROR: calling pyfunc\n");
                 }
             }
     };
@@ -94,8 +94,8 @@ namespace fhe
                 }
                 catch ( boost::python::error_already_set const& )
                 {
-                    throw std::runtime_error("ERROR: calling pyfunc\n");
                     PyErr_Print();
+                    throw std::runtime_error("ERROR: calling pyfunc\n");
                 }
                 
                 return boost::python::extract<TRet>(pyRet);
@@ -122,8 +122,8 @@ namespace fhe
                 }
                 catch ( boost::python::error_already_set const& )
                 {
-                    throw std::runtime_error("ERROR: calling pyfunc\n");
                     PyErr_Print();
+                    throw std::runtime_error("ERROR: calling pyfunc\n");
                 }
             }
     };

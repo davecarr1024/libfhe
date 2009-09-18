@@ -110,30 +110,6 @@ void varTest()
     assert(node->getVar<int>("i") == 1);
 }
 
-int funcVarVal;
-
-void setFuncVarVal(const int& i)
-{
-    funcVarVal = i;
-}
-
-int getFuncVarVal()
-{
-    return funcVarVal;
-}
-
-void funcVarTest()
-{
-    funcVarVal = 0;
-    
-    NodePtr node(new Node("node","Node"));
-    
-    node->connectVar("i", new FuncVar<int>(boost::bind(&setFuncVarVal,_1),boost::bind(&getFuncVarVal)));
-    node->setVar<int>("i",1);
-    assert(node->getVar<int>("i") == 1);
-    assert(funcVarVal == 1);
-}
-
 void loadTest()
 {
     NodePtr node( Node::load( "test.xml" ) );
@@ -183,7 +159,6 @@ int main()
     nodeTreeTest();
     nodeFactoryTest();
     varTest();
-    funcVarTest();
     msgTest();
     funcTest();
     loadTest();
