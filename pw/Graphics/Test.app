@@ -32,3 +32,5 @@ children:
             pos: Vec2(0.1,0.8)
             scale: Vec2(0.5,0.1)
             text: button
+            fill:
+                texture: raptor.jpg
