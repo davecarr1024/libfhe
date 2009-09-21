@@ -1,28 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from Core.Node import Node
-
 import pygame
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
-class Material(Node):
-    textures = {}
+from Core.FileServer import fileServer
+
+class MaterialManager:
+    def __init__(self):
+        self.textures = {}
     
-    def msg_render2(self):
-        self.bind()
-        
-    def unmsg_render2(self):
-        self.unbind()
-        
-    def msg_render3(self):
-        self.bind()
-        
-    def msg_unrender3(self):
-        self.unbind()
-        
-    @classmethod
     def loadTexture(self, filename):
         texture = pygame.image.load(fileServer.getFile(filename))
         w,h = texture.get_size()
@@ -40,25 +28,21 @@ class Material(Node):
         glBindTexture(GL_TEXTURE_2D,0)
         return textureId
 
-    @classmethod
     def bindTexture(self, filename):
         if filename not in self.textures:
             self.textures[filename] = self.loadTexture(filename)
         glBindTexture(GL_TEXTURE_2D,self.textures[filename])
 
-    @classmethod
     def unbindTexture(self):
         glBindTexture(GL_TEXTURE_2D,0)
 
-    def bind(self):
-        glPushAttrib(GL_CURRENT_BIT | GL_LIGHTING_BIT)
+    def bind(self, material):
+        glPushAttrib(GL_TEXTURE_BIT | GL_CURRENT_BIT | GL_LIGHTING_BIT)
         glMatrixMode(GL_TEXTURE)
         glPushMatrix()
         
-        for func in filter(lambda f: f.startswith("bind_"),self.funcs.iterkeys()):
-            prop = f[len("bind_")+1:]
-            if self.hasVar(prop):
-                self.call(func,self.getVar(prop))
+        for key, data in material.iteritems():
+            self.call("bind_%s" % key,data)
                 
         glMatrixMode(GL_MODELVIEW)
         
@@ -67,6 +51,12 @@ class Material(Node):
         glMatrixMode(GL_TEXTURE)
         glPopMatrix()
         glMatrixMode(GL_MODELVIEW)
+        
+    def call(self, name, *args, **kwargs):
+        if hasattr(self,name):
+            f = getattr(self,name)
+            if callable(f):
+                return f(*args,**kwargs)
         
     def bind_texture(self, filename):
         self.bindTexture(filename)
@@ -100,3 +90,5 @@ class Material(Node):
         
     def bind_transform(self, m):
         glMultMatrixf(*m)
+
+materialManager = MaterialManager()

@@ -25,7 +25,7 @@ class Mat4:
 
     def __mul__(self, m):
         if isinstance(m,Mat4):
-            result = Mat4(0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0)
+            result = Mat4.zero()
             for i in range(4):
                 for j in range(4):
                     for k in range(4):

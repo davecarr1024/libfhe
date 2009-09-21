@@ -6,6 +6,8 @@ from OpenGL.GLUT import *
 
 from Core.Node import Node
 from Core import Util
+from Core.Math.Vec2 import Vec2
+from Core.Math.SpatialNode2 import SpatialNode2 
 
 class Window(Node):
     def onAttach(self):
@@ -37,7 +39,8 @@ class Window(Node):
         if self.getVar("fullscreen",False):
             flags |= pygame.FULLSCREEN
             
-        self.res = self.getVar("res",(800,600))
+        self.res = self.getVar("res",(100,100))
+        self.frameTime = 1.0 / self.getVar("fps",60)
         self.screen = pygame.display.set_mode(self.res,flags)
         pygame.display.set_caption(self.getVar("title","pw"))
         
@@ -46,7 +49,7 @@ class Window(Node):
         
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA)
-        glLineWidth(2)
+        glLineWidth(self.getVar("lineWidth",1))
         glClearColor(*self.getVar("clearColor",(1,1,1,1)))
         
         self.lastFrameTime = None
@@ -59,7 +62,7 @@ class Window(Node):
     def onDetach(self):
         pygame.quit()
         
-    def msg_tick(self, time, dtime):
+    def msg_update(self, time, dtime):
         if not self.lastFrameTime: self.lastFrameTime = time
         
         if time - self.lastFrameTime > self.frameTime:
@@ -67,10 +70,10 @@ class Window(Node):
             
             glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT)
             
-            self.set3dProjection(False)
-            self.publish("render3", picking = False)
-            self.set2dProjection(False)
-            self.publish("render2", picking = False)
+            self.set3dProjection()
+            self.publish("render3")
+            self.set2dProjection()
+            self.publish("render2")
             
             glFlush()
             pygame.display.flip()
@@ -81,11 +84,11 @@ class Window(Node):
             self.call("input_%s" % eventName, event)
                 
     def input_quit(self, event):
-        self.publish('shutdown')
+        self.globalPublish('shutdown')
 
     def input_keyDown(self, event):
         if event.key == pygame.K_ESCAPE:
-            self.publish('shutdown')
+            self.globalPublish('shutdown')
         else:
             name, mods = self.keyInfo(event)
             self.publish('keyDown', name = name, mods = mods, key = event.key)
@@ -104,19 +107,20 @@ class Window(Node):
         self.publish('joyAxisMotion',joy = event.joy, value = event.value, axis = event.axis)
 
     def input_mouseButtonDown(self, event):
-        buttonName, relPos, pos = self.mouseInfo(event)
-        hitObjects = self.doPicking(event)
-        self.publish('mouseButtonDown',button = event.button, pos = pos, relPos = relPos, buttonName = buttonName, hitObjects = hitObjects)
+        buttonName, pos, absPos = self.mouseInfo(event)
+        hitObjects = self.doPicking(pos)
+        self.publish('mouseButtonDown',button = event.button, pos = pos, absPos = absPos, buttonName = buttonName, hitObjects = hitObjects)
 
     def input_mouseButtonUp(self, event):
-        buttonName, relPos, pos = self.mouseInfo(event)
-        hitObjects = self.doPicking(event)
-        self.publish('mouseButtonUp', button = event.button, pos = pos, relPos = relPos, buttonName = buttonName, hitObjects = hitObjects)
+        buttonName, pos, absPos = self.mouseInfo(event)
+        hitObjects = self.doPicking(pos)
+        self.publish('mouseButtonUp', button = event.button, pos = pos, absPos = absPos, buttonName = buttonName, hitObjects = hitObjects)
 
     def input_mouseMotion(self, event):
-        relPos, pos = self.mousePos(event)
+        pos, absPos = self.mousePos(event)
+        self.setVar("mousePos",pos)
         buttonNames = [self.mouseButtonNames.get(i) for i in event.buttons]
-        self.publish('mouseMotion', pos = pos, relPos = relPos, buttons = event.buttons, buttonNames = buttonNames)
+        self.publish('mouseMotion', pos = pos, absPos = absPos, buttons = event.buttons, buttonNames = buttonNames)
         
     def keyInfo(self, event):
         name = self.keyNames.get(event.key)
@@ -129,39 +133,22 @@ class Window(Node):
         return name, mods
 
     def mousePos(self, event):
-        pos = Vec2(*event.pos)
-        relPos = pos / Vec2(*map(float,self.res))
-        return relPos, pos
+        absPos = Vec2(*event.pos)
+        pos = absPos / Vec2(*map(float,self.res))
+        return pos, absPos
 
     def mouseInfo(self, event):
-        relPos, pos = self.mousePos(event)
-        return self.mouseButtonNames.get(event.button), relPos, pos
+        pos, absPos = self.mousePos(event)
+        return self.mouseButtonNames.get(event.button), pos, absPos
 
-    def doPicking(self, event):
-        pickObjects = []
+    def doPicking(self, pos):
+        children = self.filterDescendents(lambda node: isinstance(node,SpatialNode2))
+        return sum([child.collide(pos) for child in children],[])
         
-        def pickRender3d():
-            self.set3dProjection(True)
-            self.publish("render3",picking = True, pickObjects = pickObjects)
-
-        def pickRender2d():
-            self.set2dProjection(True)
-            self.publish("render2",picking = True, pickObjects = pickObjects)
-        
-        from OpenGL import GL
-        selectFunction = getattr(GL,"glSelectWithCallback",my_glSelectWithCallback)
-
-        buf = list(selectFunction(event.pos[0],event.pos[1],pickRender2d,5,5))
-        buf.extend(list(selectFunction(event.pos[0],event.pos[1],pickRender3d,5,5)))
-        hits = [i[2][0] for i in buf]
-        hits = [i[1] for i in filter(lambda i: i[1] not in hits[i[0]+1:],enumerate(hits))]
-        return [pickObjects[hit-1] for hit in hits]
-
-    def set2dProjection(self, picking):
-        if not picking:
-            glMatrixMode(GL_PROJECTION)
-            glLoadIdentity()
-            gluOrtho2D(0,self.res[0],0,self.res[1])
+    def set2dProjection(self):
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        gluOrtho2D(0,self.res[0],0,self.res[1])
 
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
@@ -175,11 +162,10 @@ class Window(Node):
         glDisable(GL_DEPTH_TEST)
         glDisable(GL_NORMALIZE)
 
-    def set3dProjection(self, picking):
-        if not picking:
-            glMatrixMode(GL_PROJECTION)
-            glLoadIdentity()
-            gluPerspective(45,float(self.res[0])/float(self.res[1]),1,1000)
+    def set3dProjection(self):
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        gluPerspective(45,float(self.res[0])/float(self.res[1]),1,1000)
 
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
@@ -191,79 +177,3 @@ class Window(Node):
         glEnable(GL_DEPTH_TEST)
         glEnable(GL_NORMALIZE)
 
-def my_glSelectWithCallback(x, y, callback, xsize = 5, ysize = 5, buffer_size = 512):
-    viewport = glGetIntegerv(GL_VIEWPORT)
-    glSelectBuffer(buffer_size)
-    glRenderMode(GL_SELECT)
-    glInitNames()
-    glMatrixMode(GL_PROJECTION)
-    previousviewmatrix = glGetDoublev(GL_PROJECTION_MATRIX)
-    glLoadIdentity()
-    gluPickMatrix(x, viewport[3] - y, xsize, ysize, viewport)
-    glMultMatrixd(previousviewmatrix)
-    callback()
-    glFlush()
-    glMatrixMode(GL_PROJECTION)
-    glLoadMatrixd(previousviewmatrix)
-    return glRenderMode(GL_RENDER)
-
-#class Window(Node):
-    #def onAttach(self):
-        #self.inputFuncs = Util.getFuncs(self,'input_')
-        
-        #pygame.init()
-        
-        #res = self.getVar("res",(800,600))
-        #flags = pygame.OPENGL | pygame.DOUBLEBUF | pygame.HWSURFACE
-        #if self.getVar("fullscreen",False):
-            #flags |= pygame.FULLSCREEN
-        #self.screen = pygame.display.set_mode(res, flags)
-        
-        #glClearColor(*self.getVar("clearColor",(1,1,1,1)))
-        
-        #self.initKeys()
-        
-    #def initGfx():
-        
-        
-    #def initKeys(self):
-        #self.keyNames = dict([(getattr(pygame,name),name[2:].lower()) for name in dir(pygame) if name.startswith('K_')])
-        #self.keyMods = dict([(getattr(pygame,name),name[5:].lower()) for name in dir(pygame) if name.startswith('KMOD_')])
-
-    #def msg_update(self, time, dtime):
-        #for event in pygame.event.get():
-            #name = pygame.event.event_name(event.type).lower()
-            #if name in self.inputFuncs:
-                #self.inputFuncs[name](event)
-            #else:
-                #self.log("unhandled event",event)
-        
-        #if time - self.getVar("lastRenderTime",0) > 1.0 / self.getVar("fps",60):
-            #self.setVar("lastRenderTime",time)
-            #self.render()
-
-    #def render(self):
-        #glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT)
-        
-        #self.publish("render")
-        
-        #glFlush()
-        #pygame.display.flip()
-        
-    #def input_quit(self, event):
-        #self.globalPublish("shutdown")
-        
-    #def input_keydown(self, event):
-        #key = self.keyNames.get(event.key,None)
-        #if key:
-            #self.publish("keyDown",key)
-            #self.publish('keyDown_%s' % key)
-
-    #def input_keyup(self, event):
-        #key = self.keyNames.get(event.key,None)
-        #if key:
-            #self.publish("keyUp",key)
-            #self.publish('keyUp_%s' % key)
-            
-    #def msg_keyDown_escape(self):
-        #self.globalPublish("shutdown")

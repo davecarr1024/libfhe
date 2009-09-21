@@ -29,8 +29,8 @@ def deepEval(d, env = None):
     else:
         return d
 
-def evalLoad(filename):
-    return deepEval(load(filename))
+def evalLoad(filename, env = None):
+    return deepEval(load(filename),env)
     
 def load(filename):
     return yaml.load(open(filename))

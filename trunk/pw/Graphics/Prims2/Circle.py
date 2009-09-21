@@ -1,19 +1,18 @@
 # -*- coding: utf-8 -*-
 
 from SceneNode import SceneNode
+from Core.Math.Vec2 import Vec2
+from Core.Math.Box2 import Box2
 
 from OpenGL.GL import *
 import math
 
 class Circle(SceneNode):
+    def onAttach(self):
+        SceneNode.onAttach(self)
+        self.setVar("box",Box2(Vec2(-1,-1),Vec2(1,1)))
+    
     def geom(self):
-        SpatialNode2.msg_render2()
-        
-        center = self.getVar("center",False)
-        
-        if not center:
-            glTranslatef(0.5,0.5,0)
-        
         if self.getVar("filled",True):
             glBegin(GL_TRIANGLE_FAN)
             glTexCoord2f(0.5,0.5)
@@ -30,5 +29,5 @@ class Circle(SceneNode):
             glVertex2f(x,y)
         glEnd()
 
-        if not center:
-            glTranslatef(-0.5,-0.5,0)
+    def collideVec(self, v):
+        return v.length() < 1
