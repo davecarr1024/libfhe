@@ -13,11 +13,12 @@ class Box3:
     def corners(self):
         return Vec3(self.min.x,self.min.y,self.min.z), \
                Vec3(self.min.x,self.min.y,self.max.z), \
+               Vec3(self.min.x,self.max.y,self.min.z), \
                Vec3(self.min.x,self.max.y,self.max.z), \
-               Vec3(self.max.x,self.max.y,self.max.z), \
-               Vec3(self.max.x,self.max.y,self.min.z), \
                Vec3(self.max.x,self.min.y,self.min.z), \
-               Vec3(self.min.x,self.max.y,self.min.z)
+               Vec3(self.max.x,self.min.y,self.max.z), \
+               Vec3(self.max.x,self.max.y,self.min.z), \
+               Vec3(self.max.x,self.max.y,self.max.z)
                                
     def transform(self, mat):
         corners = map(mat.__mul__, self.corners())
@@ -43,3 +44,7 @@ class Box3:
     def overlaps(self, box):
         return self.max.x > box.min.x and self.max.y > box.min.y and self.max.z > box.min.z and \
             self.min.x < box.max.x and self.min.y < box.max.y and self.min.z < box.max.z
+            
+    def containsVec(self, v):
+        return v.x > self.min.x and v.y > self.min.y and v.z > self.min.z and \
+               v.x < self.max.x and v.y < self.max.y and v.z < self.max.z

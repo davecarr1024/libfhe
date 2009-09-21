@@ -2,14 +2,17 @@
 
 from SceneNode import SceneNode
 
+from Core.Math.Vec2 import Vec2
+from Core.Math.Box2 import Box2
+
 from OpenGL.GL import *
 
 class Rect(SceneNode):
+    def onAttach(self):
+        SceneNode.onAttach(self)
+        self.setVar("box",Box2(Vec2(0,0),Vec2(1,1)))
+    
     def geom(self):
-        center = self.getVar("center",False)
-        if center:
-            glTranslatef(-0.5,-0.5,0)
-            
         if self.getVar("filled",True):
             glBegin(GL_QUADS)
         else:
@@ -25,5 +28,5 @@ class Rect(SceneNode):
         glVertex2f(1,0)
         glEnd()
         
-        if center:
-            glTranslatef(0.5,0.5,0)
+    def collideVec(self, v):
+        return v.x > 0 and v.y > 0 and v.x < 1 and v.y < 1

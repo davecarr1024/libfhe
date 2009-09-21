@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import Util
 
+from Math.Vec2 import Vec2
+
 class Node:
     nameCounts = {}
     logFile = open("pw.log","w")
@@ -43,7 +45,8 @@ class Node:
     
     @staticmethod
     def load(filename):
-        return Node.buildNode(**Util.evalLoad(filename))
+        namespace = dict(Vec2 = Vec2)
+        return Node.buildNode(**Util.evalLoad(filename,namespace))
     
     def doLoad(self, **data):
         for key, val in data.iteritems():
@@ -91,6 +94,8 @@ class Node:
         val = self.vars.get(name,default)
         if callable(val):
             return val()
+        elif isinstance(val,str) and val[0] == "=":
+            return Util.deepEval(val[1:],dict(self = self, Vec2 = Vec2))
         else:
             return val
         
@@ -98,6 +103,7 @@ class Node:
     
     def attachToParent(self, parent):
         if parent != self.parent:
+            assert not parent.hasAncestor(self)
             self.detachFromParent()
             self.parent = parent
             if self.parent:
@@ -113,20 +119,13 @@ class Node:
             
     def addChild(self, child):
         if child.name not in self.children:
+            assert not self.hasAncestor(child)
             self.children[child.name] = child
             child.attachToParent(self)
             
     def removeChild(self, child):
         if child.name in self.children:
             self.children.pop(child.name).detachFromParent()
-            
-    def getPath(self):
-        if not self.parent:
-            return "/"
-        elif not self.parent.parent:
-            return "/" + self.name
-        else:
-            return self.parent.getPath() + "/" + self.name
             
     def onAttach(self):
         pass
@@ -139,6 +138,14 @@ class Node:
     def __repr__(self):
         return "<Node %s>" % self.getPath()
     
+    def getPath(self):
+        if not self.parent:
+            return "/"
+        elif not self.parent.parent:
+            return "/" + self.name
+        else:
+            return self.parent.getPath() + "/" + self.name
+            
     def getRoot(self):
         if self.parent:
             return self.parent.getRoot()
@@ -222,9 +229,9 @@ class Node:
     
     #messages
     
-    def call(self, name, *args, **kwargs):
-        if name in self.funcs:
-            return self.funcs[name](*args,**kwargs)
+    def call(self, __funcName__, *args, **kwargs):
+        if __funcName__ in self.funcs:
+            return self.funcs[__funcName__](*args,**kwargs)
     
     def globalPublish(self, cmd, *args, **kwargs):
         self.getRoot().publish(cmd,*args,**kwargs)

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from Core.SpatialNode3 import SpatialNode3
+from Core.Math.SpatialNode3 import SpatialNode3
+from Graphics.MaterialManager import materialManager
+from Graphics.Window import Window
 
 from OpenGL.GL import *
 
@@ -21,35 +23,29 @@ class SceneNode(SpatialNode3):
     def geom(self):
         pass
     
-    def msg_render3(self, **args):
+    def msg_render3(self):
         self.transform()
+        materialManager.bind(self.getVar("material",{}))
     
-        picking = args.get('picking')
-
-        if picking:
-            args['pickObjects'].append(self)
-            glPushName(len(args['pickObjects']))
-            
-        doGeom = True
-
-        if not picking and self.getVar("static",False) and not self.listNode:
+        if self.getVar("static",False) and not self.listNode:
             if self.list:
                 glCallList(self.list)
-                doGeom = False
+                return
             else:
                 self.list = glGenLists(1)
                 glNewList(self.list,GL_COMPILE_AND_EXECUTE)
                 self.listNode = self
-
-        if doGeom:
-            self.geom()
-        
-        if picking:
-            glPopName()
-
+        self.geom()
+            
     def unmsg_render3(self, **args):
+        self.untransform()
+        materialManager.unbind()
+        
         if self.listNode == self:
             glEndList()
             self.listNode = None
-        
-        self.untransform()
+            
+    def getWindow(self):
+        window = self.searchAncestors(lambda node: isinstance(node,Window))
+        assert window
+        return window
