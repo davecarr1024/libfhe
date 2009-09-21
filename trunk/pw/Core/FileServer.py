@@ -41,4 +41,4 @@ class FileServer:
 fileServer = FileServer()
 
 if __name__ == "__main__":
-    assert fileServer.getFile("fileServer.py") == "./Core/FileServer.py"
+    assert fileServer.getFile("FileServer.py") == "./Core/FileServer.py"
