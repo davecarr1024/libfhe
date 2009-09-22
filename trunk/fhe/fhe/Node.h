@@ -10,7 +10,7 @@
 #include <boost/bind.hpp>
 #include <boost/python.hpp>
 
-#include "tinyxml/tinyxml.h"
+#include "tinyxml.h"
 
 #include <string>
 #include <vector>
