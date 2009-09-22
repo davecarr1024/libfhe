@@ -34,7 +34,12 @@ namespace fhe
     
     void OgreWindow::msg_update( float time )
     {
-        log("update %f", time);
+        static float lastTime = time;
+        if ( time - lastTime > 1.0 / getVar<float>("fps",60) )
+        {
+            lastTime = time;
+            m_root->renderOneFrame();
+        }
     }
     
     bool OgreWindow::setup()
