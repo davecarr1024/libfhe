@@ -4,6 +4,7 @@
 #include <boost/bind.hpp>
 
 #include "fhe/Node.h"
+#include "fhe/FileSystem.h"
 using namespace fhe;
 
 class TestNode : public Node
@@ -163,5 +164,6 @@ int main()
     funcTest();
     loadTest();
     pythonTest();
+    FileSystem::instance();
     return 0;
 }
