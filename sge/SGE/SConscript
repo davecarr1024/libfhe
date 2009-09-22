@@ -1,0 +1,7 @@
+Import("env")
+
+env = env.Clone()
+
+coreLib = env.SharedLibrary("SGECore", env.Glob("Math/*.cpp") + env.Glob("Core/*.cpp"))
+
+Return("coreLib")

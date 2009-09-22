@@ -1,0 +1,11 @@
+Import("env")
+
+env = env.Clone()
+
+testApp = env.Program("Test",env.Split("Test.cpp"))
+
+dynNode = env.SharedLibrary("DynamicNode","DynamicNode.cpp",SHLIBPREFIX="")
+
+env.Depends(testApp, dynNode)
+
+Return("testApp")
