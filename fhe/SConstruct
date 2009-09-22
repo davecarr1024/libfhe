@@ -1,12 +1,16 @@
 env = Environment()
 
-env.Append(CPPPATH = ["#", '/usr/include/python2.6'])
+env.Append(CPPPATH = ["#", '/usr/include/python2.6', 'ext/tinyxml'])
 env.Append(LIBS = ['python2.6','boost_python-mt-py26'])
 env.Append(LIBPATH = "#bin")
 
 Export("env")
 
-env.SConscript("ext/SConscript")
-env.SConscript("fhe/SConscript")
-env.SConscript("ogre/SConscript")
-env.SConscript("test/SConscript")
+#env.SConscript("ext/SConscript")
+#fhe = env.SConscript("fhe/SConscript")
+#env.SConscript("ogre/SConscript")
+#env.SConscript("test/SConscript")
+
+tinyxml = env.SharedLibrary("fhe_tinyxml",env.Glob("ext/tinyxml/*.cpp"))
+fhe = env.SharedLibrary("fhe", [env.Glob("fhe/*.cpp"),tinyxml])
+ogre = env.SharedLibrary("fhe_ogre", [env.Glob("ogre/*.cpp"),fhe,tinyxml])
