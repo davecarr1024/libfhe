@@ -31,10 +31,10 @@ class SceneNode(SpatialNode2):
         pass
     
     def msg_render2(self):
-        self.transform()
-    
-        if self.getVar("static",False) and not SceneNode.listNode:
+        self.calledList = False
+        if self.getVar("static",True) and not SceneNode.listNode:
             if self.list:
+                self.calledList = True
                 glCallList(self.list)
                 return
             else:
@@ -42,10 +42,13 @@ class SceneNode(SpatialNode2):
                 glNewList(self.list,GL_COMPILE_AND_EXECUTE)
                 SceneNode.listNode = self
 
+        self.transform()
         materialManager.bind(self.getVar("material",{}))
         self.geom()
         
     def unmsg_render2(self, **args):
+        if self.calledList: return
+        
         materialManager.unbind()
         self.untransform()
 
