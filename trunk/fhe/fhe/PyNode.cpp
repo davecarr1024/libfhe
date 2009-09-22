@@ -18,7 +18,7 @@ namespace fhe
             
             boost::python::dict ns;
 
-            boost::python::exec_file("PyNode.py",ns,ns);
+            boost::python::exec_file("fhe/PyNode.py",ns,ns);
             
             m_addFunc = ns["addFunc"];
         }

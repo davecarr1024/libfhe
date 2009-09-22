@@ -1,8 +1,11 @@
 env = Environment()
 
-env.Append(CPPPATH = ["#", '/usr/include/python2.6', 'ext/tinyxml'])
-env.Append(LIBS = ['python2.6','boost_python-mt-py26'])
-env.Append(LIBPATH = "#bin")
+env.Append(CPPPATH = [
+    "#", '/usr/include/python2.6', 'ext/tinyxml', '/usr/local/include/OGRE', '/usr/local/include/OIS', 
+    '/usr/local/include/CEGUI'
+    ])
+env.Append(LIBPATH = ["#bin","/usr/local/lib"])
+env.Append(LIBS = ['python2.6','boost_python-mt-py26',"CEGUIBase","CEGUIOgreRenderer","OgreMain","OIS"])
 
 Export("env")
 
@@ -11,6 +14,10 @@ Export("env")
 #env.SConscript("ogre/SConscript")
 #env.SConscript("test/SConscript")
 
+fhesrcs = filter(lambda f: "Main" not in f, map(str,env.Glob("fhe/*.cpp")))
+
 tinyxml = env.SharedLibrary("fhe_tinyxml",env.Glob("ext/tinyxml/*.cpp"))
-fhe = env.SharedLibrary("fhe", [env.Glob("fhe/*.cpp"),tinyxml])
+fhe = env.SharedLibrary("fhe", [fhesrcs,tinyxml])
+unittest = env.Program("unittest",[env.Glob("test/*.cpp"),fhe,tinyxml])
 ogre = env.SharedLibrary("fhe_ogre", [env.Glob("ogre/*.cpp"),fhe,tinyxml])
+main = env.Program("main",["fhe/Main.cpp",fhe,ogre,fhe,tinyxml])

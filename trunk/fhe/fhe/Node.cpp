@@ -272,7 +272,7 @@ namespace fhe
     NodePtr
     Node::load( TiXmlHandle h )
     {
-        std::string type = "Node", name = "node";
+        std::string type = "Node", name;
         for ( TiXmlElement* e = h.FirstChildElement().ToElement(); e; e = e->NextSiblingElement() )
         {
             if ( !strcmp(e->Value(),"type") )
@@ -284,6 +284,12 @@ namespace fhe
                 name = e->GetText();
             }
         }
+        
+        if ( name.empty() )
+        {
+            name = type;
+        }
+        
         NodePtr node = NodeFactory::instance().buildNode(type,name);
         
         if ( node )
