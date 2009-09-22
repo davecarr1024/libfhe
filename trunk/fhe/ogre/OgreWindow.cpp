@@ -1,4 +1,5 @@
 #include "OgreWindow.h"
+#include "fhe/FileSystem.h"
 #include <stdexcept>
 
 namespace fhe
@@ -97,7 +98,14 @@ namespace fhe
     
     void OgreWindow::setupResources()
     {
-        Ogre::ConfigFile cf;
+        std::vector<std::string> dirs = FileSystem::instance().getAllDirs();
+        for ( std::vector<std::string>::iterator i = dirs.begin(); i != dirs.end(); ++i )
+        {
+            log("add %s", i->c_str() );
+            Ogre::ResourceGroupManager::getSingleton().addResourceLocation( *i, "FileSystem");
+        }
+        
+/*        Ogre::ConfigFile cf;
         cf.load("ogre/resources.cfg");
 
         Ogre::ConfigFile::SectionIterator seci = cf.getSectionIterator();
@@ -115,7 +123,7 @@ namespace fhe
                 Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
                     archName, typeName, secName);
             }
-        }
+        }*/
     }
     
     void OgreWindow::loadResources()

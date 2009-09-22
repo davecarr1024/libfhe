@@ -1,11 +1,12 @@
 env = Environment()
 
+env['SHOBJSUFFIX'] = '.oss'
 env.Append(CPPPATH = [
     "#", '/usr/include/python2.6', 'ext/tinyxml', '/usr/local/include/OGRE', '/usr/local/include/OIS', 
     '/usr/local/include/CEGUI'
     ])
 env.Append(LIBPATH = ["#bin","/usr/local/lib"])
-env.Append(LIBS = ['python2.6','boost_python-mt-py26',"CEGUIBase","CEGUIOgreRenderer","OgreMain","OIS"])
+env.Append(LIBS = ['python2.6','boost_python-mt-py26','boost_filesystem-mt',"CEGUIBase","CEGUIOgreRenderer","OgreMain","OIS"])
 
 Export("env")
 
