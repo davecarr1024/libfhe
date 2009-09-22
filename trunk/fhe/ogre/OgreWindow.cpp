@@ -101,29 +101,8 @@ namespace fhe
         std::vector<std::string> dirs = FileSystem::instance().getAllDirs();
         for ( std::vector<std::string>::iterator i = dirs.begin(); i != dirs.end(); ++i )
         {
-            log("add %s", i->c_str() );
             Ogre::ResourceGroupManager::getSingleton().addResourceLocation( *i, "FileSystem");
         }
-        
-/*        Ogre::ConfigFile cf;
-        cf.load("ogre/resources.cfg");
-
-        Ogre::ConfigFile::SectionIterator seci = cf.getSectionIterator();
-
-        Ogre::String secName, typeName, archName;
-        while (seci.hasMoreElements())
-        {
-            secName = seci.peekNextKey();
-            Ogre::ConfigFile::SettingsMultiMap *settings = seci.getNext();
-            Ogre::ConfigFile::SettingsMultiMap::iterator i;
-            for (i = settings->begin(); i != settings->end(); ++i)
-            {
-                typeName = i->first;
-                archName = i->second;
-                Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
-                    archName, typeName, secName);
-            }
-        }*/
     }
     
     void OgreWindow::loadResources()
