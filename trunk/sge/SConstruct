@@ -1,0 +1,13 @@
+env = Environment()
+
+env.AppendUnique(CPPPATH = "#")
+env.AppendUnique(LIBS = ["PocoFoundation","PocoXML"])
+
+Export("env")
+
+core = SConscript("SGE/SConscript")
+env.Append(LIBS = core)
+
+testApp = SConscript("Test/SConscript")
+
+env.Command('UnitTests',testApp,testApp[0].abspath)

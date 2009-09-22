@@ -1,0 +1,15 @@
+<children>
+    <child name="LoadTest" type="TestNode">
+        <vars>
+            <bool name="b">1</bool>
+            <list name="list">
+                <int>11</int>
+                <int>12</int>
+            </list>
+            <dict name="d">
+                <float name="f">3.14</float>
+                <string name="s">hello</string>
+            </dict>
+        </vars>
+    </child>
+</children>
