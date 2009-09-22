@@ -1,4 +1,5 @@
 #include "VarMap.h"
+#include "math/Vec2.h"
 
 namespace fhe
 {
@@ -57,6 +58,10 @@ namespace fhe
             else if ( val.hasVar<VarMap>(*i) )
             {
                 setVar<VarMap>(*i,val.getVar<VarMap>(*i));
+            }
+            else if ( val.hasVar<Vec2>(*i) )
+            {
+                setVar<Vec2>(*i,val.getVar<Vec2>(*i));
             }
             else
             {
@@ -134,6 +139,10 @@ namespace fhe
             {
                 d[name] = getVar<VarMap>(name).toPy();
             }
+            else if ( hasVar<Vec2>(name) )
+            {
+                d[name] = boost::python::object( getVar<Vec2>(name) );
+            }
         }
         return d;
     }
@@ -176,6 +185,10 @@ namespace fhe
                 {
                     val.setVar<VarMap>(name,boost::python::extract<VarMap>(items[i][1]));
                 }
+                else if ( type == "Vec2" )
+                {
+                    val.setVar<Vec2>(name,boost::python::extract<Vec2>(items[i][1]));
+                }
             }
         }
         else
@@ -196,7 +209,8 @@ namespace fhe
                hasVar<int>(name) ||
                hasVar<float>(name) ||
                hasVar<std::string>(name) ||
-               hasVar<VarMap>(name);
+               hasVar<VarMap>(name) ||
+               hasVar<Vec2>(name);
     }
     
     void VarMap::pySetVar( const std::string& name, boost::python::object val )
@@ -222,6 +236,10 @@ namespace fhe
         else if ( type == "VarMap" )
         {
             setVar<VarMap>(name,boost::python::extract<VarMap>(val));
+        }
+        else if ( type == "Vec2" )
+        {
+            setVar<Vec2>(name,boost::python::extract<Vec2>(val));
         }
         else
         {
@@ -255,6 +273,10 @@ namespace fhe
         else if ( hasVar<VarMap>(name) )
         {
             return boost::python::object( getVar<VarMap>(name) );
+        }
+        else if ( hasVar<Vec2>(name) )
+        {
+            return boost::python::object( getVar<Vec2>(name) );
         }
         else
         {

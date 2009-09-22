@@ -1,5 +1,6 @@
 #include "PyNode.h"
 #include "NodeFactory.h"
+#include "math/Vec2.h"
 #include <cassert>
 #include <cstdio>
 
@@ -222,6 +223,10 @@ namespace fhe
         {
             return boost::python::object( m_node->callFunc<VarMap>( name ));
         }
+        else if ( m_node->hasFunc<Vec2,void>( name ) )
+        {
+            return boost::python::object( m_node->callFunc<Vec2>( name ));
+        }
         else
         {
             m_node->error( "unable to find func %s for python call", name.c_str() );
@@ -255,6 +260,10 @@ namespace fhe
         else if ( m_node->hasFunc<VarMap,TArg>( name ) )
         {
             return boost::python::object( m_node->callFunc<VarMap,TArg>( name, arg ) );
+        }
+        else if ( m_node->hasFunc<Vec2,TArg>( name ) )
+        {
+            return boost::python::object( m_node->callFunc<Vec2,TArg>( name, arg ) );
         }
         else
         {
@@ -290,6 +299,10 @@ namespace fhe
         {
             return callFuncWithArg<VarMap>( name, boost::python::extract<VarMap>(arg) );
         }
+        else if ( type == "Vec2" )
+        {
+            return callFuncWithArg<Vec2>( name, boost::python::extract<Vec2>(arg) );
+        }
         else
         {
             m_node->error( "unable to call func %s with arg type %s", name.c_str(), type.c_str() );
@@ -323,6 +336,10 @@ namespace fhe
         {
             return boost::python::object( m_node->getVar<VarMap>( name ) );
         }
+        else if ( m_node->hasVar<Vec2>( name ) )
+        {
+            return boost::python::object( m_node->getVar<Vec2>( name ) );
+        }
         else
         {
             return def;
@@ -353,6 +370,10 @@ namespace fhe
         {
             m_node->setVar<VarMap>( name, boost::python::extract<VarMap>( val ) );
         }
+        else if ( type == "Vec2" )
+        {
+            m_node->setVar<Vec2>( name, boost::python::extract<Vec2>( val ) );
+        }
         else
         {
             m_node->error( "unable to set var %s to unknown python type %s", name.c_str(), type.c_str() );
@@ -365,7 +386,8 @@ namespace fhe
                m_node->hasVar<int>(name) || 
                m_node->hasVar<float>(name) || 
                m_node->hasVar<std::string>(name) || 
-               m_node->hasVar<VarMap>(name);
+               m_node->hasVar<VarMap>(name) ||
+               m_node->hasVar<Vec2>(name);
     }
     
     void PyNode::addFunc( boost::python::object tret, boost::python::object targ, boost::python::object func )
@@ -413,6 +435,10 @@ namespace fhe
         else if ( type == "VarMap" )
         {
             m_node->publish<VarMap>(cmd,boost::python::extract<VarMap>(obj));
+        }
+        else if ( type == "Vec2" )
+        {
+            m_node->publish<Vec2>(cmd,boost::python::extract<Vec2>(obj));
         }
         else
         {

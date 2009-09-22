@@ -11,6 +11,11 @@
 #include <boost/bind.hpp>
 #include <boost/python.hpp>
 
+#include "math/Vec2.h"
+#include "math/Rot.h"
+#include "math/Vec3.h"
+#include "math/Quat.h"
+
 namespace fhe
 {
     
@@ -517,6 +522,10 @@ namespace fhe
             m_mainNamespace = m_mainModule.attr("__dict__");
             
             m_mainNamespace["VarMap"] = VarMap::defineClass();
+            m_mainNamespace["Vec2"] = Vec2::defineClass();
+            m_mainNamespace["Rot"] = Rot::defineClass();
+            m_mainNamespace["Vec3"] = Vec3::defineClass();
+            m_mainNamespace["Quat"] = Quat::defineClass();
             
             m_nodeClass = PyNode::defineClass(); 
         }

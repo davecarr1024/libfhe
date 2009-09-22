@@ -37,13 +37,16 @@ def filename(path):
     return path.split('/')[-1]
     
 def ext(path):
-    return path.split('.')[-1]
+    if '.' in path:
+        return path.split('.')[-1]
+    else:
+        return ''
 
 files = enumerateFiles()
 
 sources = filter(lambda path: ext(path) == "cpp", files)
 mainSources = filter(lambda path: 'main' in filename(path).lower(), sources)
-libSources = filter(lambda path: filename(path) != "main.cpp", sources)
+libSources = filter(lambda path: 'main' not in filename(path).lower(), sources)
 
 lib = env.SharedLibrary("fhe",libSources)
 

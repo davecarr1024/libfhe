@@ -1,5 +1,42 @@
 # -*- coding: utf-8 -*-
 
+import math
+
+r = Rot(1)
+assert r.angle == 1
+r.angle = 2
+assert r.angle == 2
+
+assert Rot(3) == Rot(3)
+assert Rot(1) + Rot(2) == Rot(3)
+assert Rot(10) - Rot(5) == Rot(5)
+assert Rot(3) * 4 == Rot(12)
+assert Rot(4) / 2 == Rot(2)
+assert Rot(math.pi/2) * Vec2(1,0) == Vec2(0,1)
+assert Rot(math.pi/2 * 101).norm() == Rot(math.pi/2)
+
+v = Vec2(1,2)
+assert v.x == 1
+assert v.y == 2
+v.x = 3
+v.y = 4
+assert v.x == 3
+assert v.y == 4
+
+assert Vec2(5,6) == Vec2(5,6)
+
+assert Vec2(10,20) * 2 == Vec2(20,40)
+assert Vec2(100,-50) / 5 == Vec2(20,-10)
+assert Vec2(-10,0) + Vec2(20,-5) == Vec2(10,-5)
+assert Vec2(200,150) - Vec2(100,100) == Vec2(100,50)
+assert Vec2(-1,0).dot(Vec2(1,0)) == -1
+assert Vec2(3,4).length() == 5
+assert Vec2(10,0).norm() == Vec2(1,0)
+
+v = Vec2(1,2)
+self.setVar("v2",v)
+assert self.getVar("v2") == v
+
 assert self.name == "pythonTest"
 assert self.type == "TestNode"
 assert self.path == "/"

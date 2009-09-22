@@ -1,5 +1,5 @@
 #include "App.h"
-#include "boost/date_time/posix_time/posix_time_types.hpp"
+#include <boost/date_time/posix_time/posix_time_types.hpp>
 
 namespace fhe
 {
@@ -20,7 +20,7 @@ namespace fhe
     {
         int numFrames = 0;
         float startTime = getTime(), time = 0;
-        while ( !getVar<bool>("shutdown",false) && (maxTime < 0 || time< maxTime) )
+        while ( !getVar<bool>("shutdown",false) && (maxTime < 0 || time < maxTime) )
         {
             ++numFrames;
             time = getTime() - startTime;
