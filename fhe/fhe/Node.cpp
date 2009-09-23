@@ -11,6 +11,7 @@
 #include <boost/bind.hpp>
 #include <boost/python.hpp>
 
+#include "math/fheMath.h"
 #include "math/Vec2.h"
 #include "math/Rot.h"
 #include "math/Vec3.h"
@@ -168,6 +169,24 @@ namespace fhe
     }
     
     void
+    Node::addChild( const std::string& path )
+    {
+        NodePtr child = Node::create(path);
+        assert(child);
+        addChild(child);
+        child->load(path);
+    }
+    
+    void
+    Node::addChild( TiXmlHandle h )
+    {
+        NodePtr child = Node::create(h);
+        assert(child);
+        addChild(child);
+        child->load(h);
+    }
+    
+    void
     Node::addChild( NodePtr child )
     {
         if ( child && !hasChild( child ) )
@@ -261,12 +280,12 @@ namespace fhe
     }
     
     NodePtr
-    Node::load( const std::string& path )
+    Node::create( const std::string& path )
     {
         TiXmlDocument doc;
         if ( doc.LoadFile( path.c_str() ) )
         {
-            return Node::load( &doc );
+            return Node::create( &doc );
         }
         else
         {
@@ -275,7 +294,7 @@ namespace fhe
     }
     
     NodePtr
-    Node::load( TiXmlHandle h )
+    Node::create( TiXmlHandle h )
     {
         std::string type = "Node", name;
         for ( TiXmlElement* e = h.FirstChildElement().ToElement(); e; e = e->NextSiblingElement() )
@@ -296,21 +315,29 @@ namespace fhe
         }
         
         NodePtr node = NodeFactory::instance().buildNode(type,name);
-        
-        if ( node )
+        if ( !node )
         {
-            node->doLoad( h );
+            throw std::runtime_error("couldn't create a node of type " + type );
         }
-        else
-        {
-            throw std::runtime_error("unable to create node of type " + type);
-        }
-        
         return node;
     }
     
     void
-    Node::doLoad( TiXmlHandle h )
+    Node::load( const std::string& path )
+    {
+        TiXmlDocument doc;
+        if ( doc.LoadFile( path.c_str() ) )
+        {
+            load( &doc );
+        }
+        else
+        {
+            error("can't load file %s", path.c_str());
+        }
+    }
+    
+    void
+    Node::load( TiXmlHandle h )
     {
         for ( TiXmlElement* e = h.FirstChildElement().ToElement(); e; e = e->NextSiblingElement() )
         {
@@ -369,6 +396,30 @@ namespace fhe
                 {
                     setVar<std::string>(name,valueAttr);
                 }
+                else if ( type == "Vec2" )
+                {
+                    float x, y;
+                    ins >> x >> y;
+                    setVar<Vec2>(name,Vec2(x,y));
+                }
+                else if ( type == "Vec3" )
+                {
+                    float x, y, z;
+                    ins >> x >> y >> z;
+                    setVar<Vec3>(name,Vec3(x,y,z));
+                }
+                else if ( type == "Rot" )
+                {
+                    float a;
+                    ins >> a;
+                    setVar<Rot>(name,Rot(Math::radians(a)));
+                }
+                else if ( type == "Quat" )
+                {
+                    float x, y, z, a;
+                    ins >> x >> y >> z >> a;
+                    setVar<Quat>(name,Quat(Vec3(x,y,z),Math::radians(a)));
+                }
                 else
                 {
                     throw std::runtime_error("can't load var " + name + ", is unknown type " + type );
@@ -385,7 +436,7 @@ namespace fhe
             TiXmlDocument doc;
             if ( doc.LoadFile( e->GetText() ) )
             {
-                doLoad( &doc );
+                load( &doc );
             }
             else
             {
@@ -399,10 +450,11 @@ namespace fhe
     {
         for ( TiXmlElement* e = elem->FirstChildElement("child"); e; e = e->NextSiblingElement("child") )
         {
-            NodePtr child = Node::load( e );
+            NodePtr child = Node::create( e );
             if ( child )
             {
                 addChild( child );
+                child->load(e);
             }
             else
             {

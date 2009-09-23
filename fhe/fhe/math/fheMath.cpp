@@ -58,4 +58,14 @@ namespace fhe
     {
         return fmodf(x,y);
     }
+    
+    float Math::degrees( float radians )
+    {
+        return radians * 180.0 / PI;
+    }
+    
+    float Math::radians( float degrees )
+    {
+        return degrees * PI / 180.0;
+    }
 }

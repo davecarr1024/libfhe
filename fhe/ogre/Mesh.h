@@ -11,7 +11,7 @@ namespace fhe
         public:
             Mesh( const std::string& name, const std::string& type );
     
-            Ogre::MovableObject* create( Ogre::SceneManager* sceneManager );
+            void on_set_name( std::string name );
     };
     
     NODE_DECL(Mesh);

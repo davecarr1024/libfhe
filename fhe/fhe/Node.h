@@ -49,8 +49,6 @@ namespace fhe
             
             static std::map<std::string, int> m_nameCount;
             
-            void doLoad( TiXmlHandle h );
-            
             void saveInto( TiXmlNode* node );
             
             static bool m_pythonInitialized;
@@ -61,10 +59,16 @@ namespace fhe
             
             void updatePath();
             
+            void load( const std::string& path );
+            void load( TiXmlHandle h );
+            
+            static NodePtr create( const std::string& path );
+            static NodePtr create( TiXmlHandle h );
+
         public:
             Node( const std::string& name, const std::string& type );
             virtual ~Node();
-            
+
             void release();
             
             void attachToParent( NodePtr parent );
@@ -82,13 +86,13 @@ namespace fhe
             NodePtr getNode( const std::string& path );
             std::vector<std::string> getChildNames();
             
+            void addChild( TiXmlHandle h );
+            void addChild( const std::string& path );
+            
             void addChild( NodePtr child );
             void removeChild( NodePtr child );
             void removeAllChildren();
             
-            static NodePtr load( const std::string& path );
-            static NodePtr load( TiXmlHandle h );
-
             void load_vars( TiXmlElement* elem );
             void load_children( TiXmlElement* elem );
             void load_includes( TiXmlElement* elem );
@@ -205,6 +209,12 @@ namespace fhe
             template <class T>
             void setVar( const std::string& name, const T& val )
             {
+                std::string onsetName = "on_set_" + name;
+                if ( hasFunc<void,T>(onsetName) )
+                {
+                    callFunc<void,T>(onsetName,val);
+                }
+                
                 std::string setName = "set_" + name;
                 if ( hasFunc<void,T>(setName) )
                 {
@@ -233,6 +243,12 @@ namespace fhe
             template <class T>
             T getVar( const std::string& name )
             {
+                std::string ongetName = "on_get_" + name;
+                if ( hasFunc<void,void>( ongetName ) )
+                {
+                    callFunc<void>(ongetName);
+                }
+                
                 std::string getName = "get_" + name;
                 if ( hasFunc<T,void>(getName) )
                 {

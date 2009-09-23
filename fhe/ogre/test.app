@@ -11,6 +11,16 @@
         <type>Mesh</type>
         <vars>
             <var name="name" type="string">robot.mesh</var>
+            <var name="rot" type="Quat">0 1 0 90</var>
+            <var name="scale" type="Vec3">1 2 1</var>
+        </vars>
+    </child>
+    <child>
+        <type>Button</type>
+        <vars>
+            <var name="pos" type="Vec2">0 0</var>
+            <var name="size" type="Vec2">0.2 0.1</var>
+            <var name="text" type="string">quit</var>
         </vars>
     </child>
 </children>
