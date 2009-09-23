@@ -130,12 +130,12 @@ namespace fhe
             if ( m_parent )
             {
                 m_parent->addChild( this );
+                updatePath();
                 if ( hasFunc<void,void>("on_attach") )
                 {
                     callFunc<void>("on_attach");
                 }
             }
-            updatePath();
         }
     }
     
@@ -300,6 +300,10 @@ namespace fhe
         if ( node )
         {
             node->doLoad( h );
+        }
+        else
+        {
+            throw std::runtime_error("unable to create node of type " + type);
         }
         
         return node;

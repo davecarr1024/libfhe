@@ -10,7 +10,7 @@ int main( int argc, char** argv )
         app->addChild( Node::load( argv[i] ) );
     }
     
-    app->run(5);
+    app->run();
     
     return 0;
 }
