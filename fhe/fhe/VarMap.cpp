@@ -1,5 +1,8 @@
 #include "VarMap.h"
 #include "math/Vec2.h"
+#include "math/Vec3.h"
+#include "math/Rot.h"
+#include "math/Quat.h"
 
 namespace fhe
 {
@@ -62,6 +65,18 @@ namespace fhe
             else if ( val.hasVar<Vec2>(*i) )
             {
                 setVar<Vec2>(*i,val.getVar<Vec2>(*i));
+            }
+            else if ( val.hasVar<Vec3>(*i) )
+            {
+                setVar<Vec3>(*i,val.getVar<Vec3>(*i));
+            }
+            else if ( val.hasVar<Rot>(*i) )
+            {
+                setVar<Rot>(*i,val.getVar<Rot>(*i));
+            }
+            else if ( val.hasVar<Quat>(*i) )
+            {
+                setVar<Quat>(*i,val.getVar<Quat>(*i));
             }
             else
             {
@@ -143,6 +158,18 @@ namespace fhe
             {
                 d[name] = boost::python::object( getVar<Vec2>(name) );
             }
+            else if ( hasVar<Vec3>(name) )
+            {
+                d[name] = boost::python::object( getVar<Vec3>(name) );
+            }
+            else if ( hasVar<Rot>(name) )
+            {
+                d[name] = boost::python::object( getVar<Rot>(name) );
+            }
+            else if ( hasVar<Quat>(name) )
+            {
+                d[name] = boost::python::object( getVar<Quat>(name) );
+            }
         }
         return d;
     }
@@ -189,6 +216,18 @@ namespace fhe
                 {
                     val.setVar<Vec2>(name,boost::python::extract<Vec2>(items[i][1]));
                 }
+                else if ( type == "Vec3" )
+                {
+                    val.setVar<Vec3>(name,boost::python::extract<Vec3>(items[i][1]));
+                }
+                else if ( type == "Rot" )
+                {
+                    val.setVar<Rot>(name,boost::python::extract<Rot>(items[i][1]));
+                }
+                else if ( type == "Quat" )
+                {
+                    val.setVar<Quat>(name,boost::python::extract<Quat>(items[i][1]));
+                }
             }
         }
         else
@@ -210,7 +249,11 @@ namespace fhe
                hasVar<float>(name) ||
                hasVar<std::string>(name) ||
                hasVar<VarMap>(name) ||
-               hasVar<Vec2>(name);
+               hasVar<Vec2>(name) ||
+               hasVar<Vec3>(name) ||
+               hasVar<Rot>(name) ||
+               hasVar<Quat>(name)
+               ;
     }
     
     void VarMap::pySetVar( const std::string& name, boost::python::object val )
@@ -240,6 +283,18 @@ namespace fhe
         else if ( type == "Vec2" )
         {
             setVar<Vec2>(name,boost::python::extract<Vec2>(val));
+        }
+        else if ( type == "Vec3" )
+        {
+            setVar<Vec3>(name,boost::python::extract<Vec3>(val));
+        }
+        else if ( type == "Rot" )
+        {
+            setVar<Rot>(name,boost::python::extract<Rot>(val));
+        }
+        else if ( type == "Quat" )
+        {
+            setVar<Quat>(name,boost::python::extract<Quat>(val));
         }
         else
         {
@@ -277,6 +332,18 @@ namespace fhe
         else if ( hasVar<Vec2>(name) )
         {
             return boost::python::object( getVar<Vec2>(name) );
+        }
+        else if ( hasVar<Vec3>(name) )
+        {
+            return boost::python::object( getVar<Vec3>(name) );
+        }
+        else if ( hasVar<Rot>(name) )
+        {
+            return boost::python::object( getVar<Rot>(name) );
+        }
+        else if ( hasVar<Quat>(name) )
+        {
+            return boost::python::object( getVar<Quat>(name) );
         }
         else
         {

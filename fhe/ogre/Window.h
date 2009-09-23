@@ -1,15 +1,15 @@
-#ifndef OGRE_WINDOW_H
-#define OGRE_WINDOW_H
+#ifndef WINDOW_H
+#define WINDOW_H
 
 #include <fhe/Node.h>
 
-#include "Ogre.h"
-#include "OgreConfigFile.h"
+#include <Ogre.h>
+#include <OgreConfigFile.h>
 
 namespace fhe
 {
     
-    class OgreWindow : public Node
+    class Window : public Node
     {
         private:
             Ogre::Root* m_root;
@@ -27,13 +27,19 @@ namespace fhe
             void createFrameListener();
 
         public:
-            OgreWindow( const std::string& type, const std::string& name  );
-            ~OgreWindow();
+            Window( const std::string& type, const std::string& name  );
+            ~Window();
             
             void msg_update(float time);
+            
+            Ogre::Root* getRoot();
+            Ogre::Camera* getCamera();
+            Ogre::SceneManager* getSceneManager();
+            Ogre::RenderWindow* getRenderWindow();
+            Ogre::SceneNode* getSceneNode();
     };
     
-    NODE_DECL(OgreWindow);
+    NODE_DECL(Window);
     
 }
 

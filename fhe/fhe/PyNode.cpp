@@ -1,6 +1,9 @@
 #include "PyNode.h"
 #include "NodeFactory.h"
 #include "math/Vec2.h"
+#include "math/Vec3.h"
+#include "math/Rot.h"
+#include "math/Quat.h"
 #include <cassert>
 #include <cstdio>
 
@@ -227,6 +230,18 @@ namespace fhe
         {
             return boost::python::object( m_node->callFunc<Vec2>( name ));
         }
+        else if ( m_node->hasFunc<Vec3,void>( name ) )
+        {
+            return boost::python::object( m_node->callFunc<Vec3>( name ));
+        }
+        else if ( m_node->hasFunc<Rot,void>( name ) )
+        {
+            return boost::python::object( m_node->callFunc<Rot>( name ));
+        }
+        else if ( m_node->hasFunc<Quat,void>( name ) )
+        {
+            return boost::python::object( m_node->callFunc<Quat>( name ));
+        }
         else
         {
             m_node->error( "unable to find func %s for python call", name.c_str() );
@@ -264,6 +279,18 @@ namespace fhe
         else if ( m_node->hasFunc<Vec2,TArg>( name ) )
         {
             return boost::python::object( m_node->callFunc<Vec2,TArg>( name, arg ) );
+        }
+        else if ( m_node->hasFunc<Vec3,TArg>( name ) )
+        {
+            return boost::python::object( m_node->callFunc<Vec3,TArg>( name, arg ) );
+        }
+        else if ( m_node->hasFunc<Rot,TArg>( name ) )
+        {
+            return boost::python::object( m_node->callFunc<Rot,TArg>( name, arg ) );
+        }
+        else if ( m_node->hasFunc<Quat,TArg>( name ) )
+        {
+            return boost::python::object( m_node->callFunc<Quat,TArg>( name, arg ) );
         }
         else
         {
@@ -303,6 +330,18 @@ namespace fhe
         {
             return callFuncWithArg<Vec2>( name, boost::python::extract<Vec2>(arg) );
         }
+        else if ( type == "Vec3" )
+        {
+            return callFuncWithArg<Vec3>( name, boost::python::extract<Vec3>(arg) );
+        }
+        else if ( type == "Rot" )
+        {
+            return callFuncWithArg<Rot>( name, boost::python::extract<Rot>(arg) );
+        }
+        else if ( type == "Quat" )
+        {
+            return callFuncWithArg<Quat>( name, boost::python::extract<Quat>(arg) );
+        }
         else
         {
             m_node->error( "unable to call func %s with arg type %s", name.c_str(), type.c_str() );
@@ -340,6 +379,18 @@ namespace fhe
         {
             return boost::python::object( m_node->getVar<Vec2>( name ) );
         }
+        else if ( m_node->hasVar<Vec3>( name ) )
+        {
+            return boost::python::object( m_node->getVar<Vec3>( name ) );
+        }
+        else if ( m_node->hasVar<Rot>( name ) )
+        {
+            return boost::python::object( m_node->getVar<Rot>( name ) );
+        }
+        else if ( m_node->hasVar<Quat>( name ) )
+        {
+            return boost::python::object( m_node->getVar<Quat>( name ) );
+        }
         else
         {
             return def;
@@ -374,6 +425,18 @@ namespace fhe
         {
             m_node->setVar<Vec2>( name, boost::python::extract<Vec2>( val ) );
         }
+        else if ( type == "Vec3" )
+        {
+            m_node->setVar<Vec3>( name, boost::python::extract<Vec3>( val ) );
+        }
+        else if ( type == "Rot" )
+        {
+            m_node->setVar<Rot>( name, boost::python::extract<Rot>( val ) );
+        }
+        else if ( type == "Quat" )
+        {
+            m_node->setVar<Quat>( name, boost::python::extract<Quat>( val ) );
+        }
         else
         {
             m_node->error( "unable to set var %s to unknown python type %s", name.c_str(), type.c_str() );
@@ -387,7 +450,11 @@ namespace fhe
                m_node->hasVar<float>(name) || 
                m_node->hasVar<std::string>(name) || 
                m_node->hasVar<VarMap>(name) ||
-               m_node->hasVar<Vec2>(name);
+               m_node->hasVar<Vec2>(name) ||
+               m_node->hasVar<Vec3>(name) ||
+               m_node->hasVar<Rot>(name) ||
+               m_node->hasVar<Quat>(name)
+               ;
     }
     
     void PyNode::addFunc( boost::python::object tret, boost::python::object targ, boost::python::object func )
@@ -439,6 +506,18 @@ namespace fhe
         else if ( type == "Vec2" )
         {
             m_node->publish<Vec2>(cmd,boost::python::extract<Vec2>(obj));
+        }
+        else if ( type == "Vec3" )
+        {
+            m_node->publish<Vec3>(cmd,boost::python::extract<Vec3>(obj));
+        }
+        else if ( type == "Rot" )
+        {
+            m_node->publish<Rot>(cmd,boost::python::extract<Rot>(obj));
+        }
+        else if ( type == "Quat" )
+        {
+            m_node->publish<Quat>(cmd,boost::python::extract<Quat>(obj));
         }
         else
         {

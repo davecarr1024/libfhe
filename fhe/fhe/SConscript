@@ -1,9 +1,0 @@
-Import("env")
-
-_env = env
-
-env = env.Clone()
-fhe = env.Install("#bin",env.SharedLibrary("fhe", env.Glob("*.cpp") + env.Glob("tinyxml/*.cpp")))
-env.Install("#bin","PyNode.py")
-
-_env.Append(LIBS = "fhe") #lame
