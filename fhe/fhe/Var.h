@@ -1,69 +1,85 @@
-#ifndef IVAR_H
-#define IVAR_H
+#ifndef VAR_H
+#define VAR_H
 
-#include <boost/function.hpp>
-#include <cassert>
+#include <string>
+#include <boost/python.hpp>
 
 namespace fhe
 {
-    template <class TVal>
-    class IVar;
+    class Vec2;
+    class Rot;
+    class Mat3;
+    class Vec3;
+    class Quat;
+    class Mat4;
+    class VarMap;
     
-    class IVarWrapper
+    class Var
     {
         public:
-            virtual ~IVarWrapper() {}
-            
-            template <class TVal>
-            IVar<TVal>* cast()
+            enum Type
             {
-                return dynamic_cast<IVar<TVal>*>(this);
-            }
-    };
-    
-    template <class TVal>
-    class IVar : public IVarWrapper
-    {
-        public:
-            virtual void set(const TVal& val)=0;
-            virtual TVal get()=0;
+                NONE,
+                BOOL,
+                INT,
+                FLOAT,
+                STRING,
+                VEC2,
+                ROT,
+                MAT3,
+                VEC3,
+                QUAT,
+                MAT4,
+                VARMAP
+            };
             
-            virtual bool canSet()=0;
-            virtual bool canGet()=0;
-    };
-
-    template <class TVal>
-    class Var : public IVar<TVal>
-    {
         private:
-            TVal m_val;
+            Type m_type;
+            
+            union VarData
+            {
+                bool b;
+                int i;
+                float f;
+                std::string* s;
+                Vec2* v2;
+                Rot* r;
+                Mat3* m3;
+                Vec3* v3;
+                Quat* q;
+                Mat4* m4;
+                VarMap* vm;
+            };
+            
+            VarData m_data;
+            
+            void setType( Type type );
             
         public:
-            Var(const TVal val) :
-                m_val(val)
-            {
-            }
+            Var();
             
-            void set(const TVal& val)
-            {
-                m_val = val;
-            }
+            ~Var();
             
-            TVal get()
-            {
-                return m_val;
-            }
+            Var( const Var& var );
             
-            bool canSet()
-            {
-                return true;
-            }
+            Var& operator=( const Var& var );
             
-            bool canGet()
-            {
-                return true;
-            }
+            Type getType();
+            
+            template <class T>
+            void set( const T& val );
+            
+            template <class T>
+            T get();
+            
+            template <class T>
+            bool is();
+            
+            boost::python::object toPy();
+            
+            static Var fromPy( boost::python::object obj );
     };
-}
     
+}
+
 #endif
