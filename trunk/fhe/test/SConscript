@@ -1,4 +1,0 @@
-Import("env")
-
-test = env.Install("#bin",[env.Program("test","test.cpp"),Glob("*.py"),Glob("*.xml")])
-env.Command("unittests",test,'cd bin && LD_LIBRARY_PATH=. ./test')

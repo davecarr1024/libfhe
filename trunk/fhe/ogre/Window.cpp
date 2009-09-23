@@ -1,12 +1,12 @@
-#include "OgreWindow.h"
+#include "Window.h"
 #include "fhe/FileSystem.h"
 #include <stdexcept>
 
 namespace fhe
 {
-    NODE_IMPL(OgreWindow);
+    NODE_IMPL(Window);
     
-    OgreWindow::OgreWindow( const std::string& type, const std::string& name ) :
+    Window::Window( const std::string& type, const std::string& name ) :
         Node( type, name ),
         m_root(0),
         m_camera(0),
@@ -15,13 +15,18 @@ namespace fhe
     {
         if (!setup())
         {
-            throw std::runtime_error("Failed to initialize ogre");
+            error("Failed to initialize ogre");
         }
         
-        addFunc("msg_update",&OgreWindow::msg_update,this);
+        addFunc("msg_update",&Window::msg_update,this);
+        addFunc("getRoot",&Window::getRoot,this);
+        addFunc("getCamera",&Window::getCamera,this);
+        addFunc("getSceneManager",&Window::getSceneManager,this);
+        addFunc("getRenderWindow",&Window::getRenderWindow,this);
+        addFunc("getSceneNode",&Window::getSceneNode,this);
     }
     
-    OgreWindow::~OgreWindow()
+    Window::~Window()
     {
 /*        if ( m_frameListener )
         {
@@ -33,7 +38,7 @@ namespace fhe
         }
     }
     
-    void OgreWindow::msg_update( float time )
+    void Window::msg_update( float time )
     {
         static float lastTime = time;
         if ( time - lastTime > 1.0 / getVar<float>("fps",60) )
@@ -43,7 +48,7 @@ namespace fhe
         }
     }
     
-    bool OgreWindow::setup()
+    bool Window::setup()
     {
         m_root = new Ogre::Root("ogre/plugins.cfg","ogre/ogre.cfg","ogre/ogre.log");
         
@@ -63,7 +68,7 @@ namespace fhe
         return true;
     }
     
-    bool OgreWindow::configure()
+    bool Window::configure()
     {
         if ( m_root->restoreConfig() || m_root->showConfigDialog() )
         {
@@ -73,30 +78,30 @@ namespace fhe
         return false;
     }
     
-    void OgreWindow::chooseSceneManager()
+    void Window::chooseSceneManager()
     {
         m_sceneManager = m_root->createSceneManager(Ogre::ST_GENERIC, "fhe");
     }
     
-    void OgreWindow::createCamera()
+    void Window::createCamera()
     {
         m_camera = m_sceneManager->createCamera("fhe_cam");
         m_camera->setPosition(Ogre::Vector3(0,0,500));
         m_camera->lookAt(Ogre::Vector3(0,0,-300));
     }
     
-    void OgreWindow::createFrameListener()
+    void Window::createFrameListener()
     {
     }
     
-    void OgreWindow::createViewports()
+    void Window::createViewports()
     {
         Ogre::Viewport* vp = m_renderWindow->addViewport(m_camera);
         vp->setBackgroundColour(Ogre::ColourValue(0,0,0));
         m_camera->setAspectRatio(Ogre::Real(vp->getActualWidth())/Ogre::Real(vp->getActualHeight()));
     }
     
-    void OgreWindow::setupResources()
+    void Window::setupResources()
     {
         std::vector<std::string> dirs = FileSystem::instance().getAllDirs();
         for ( std::vector<std::string>::iterator i = dirs.begin(); i != dirs.end(); ++i )
@@ -105,8 +110,33 @@ namespace fhe
         }
     }
     
-    void OgreWindow::loadResources()
+    void Window::loadResources()
     {
         Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
+    }
+    
+    Ogre::Root* Window::getRoot()
+    {
+        return m_root;
+    }
+    
+    Ogre::Camera* Window::getCamera()
+    {
+        return m_camera;
+    }
+    
+    Ogre::SceneManager* Window::getSceneManager()
+    {
+        return m_sceneManager;
+    }
+    
+    Ogre::RenderWindow* Window::getRenderWindow()
+    {
+        return m_renderWindow;
+    }
+    
+    Ogre::SceneNode* Window::getSceneNode()
+    {
+        return m_sceneManager ? m_sceneManager->getRootSceneNode() : 0;
     }
 }

@@ -59,6 +59,22 @@ assert self.getVar("f") == 3.0
 self.setVar("s","what")
 assert self.getVar("s") == "what"
 
+v = Vec2(1,2)
+self.setVar("v2",v)
+assert self.getVar("v2") == v
+
+r = Rot(1)
+self.setVar("r",r)
+assert self.getVar("r") == r
+
+v = Vec3(4,5,6)
+self.setVar("v3",v)
+assert self.getVar("v3") == v
+
+q = Quat(Vec3(0,1,0),2)
+self.setVar("q",q)
+assert self.getVar("q") == q
+
 @self.func(None,str)
 def hello(msg):
     self.setVar("hello_msg",msg)
