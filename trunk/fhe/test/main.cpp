@@ -111,7 +111,7 @@ void varTest()
     assert(node->getVar<int>("i") == 1);
 }
 
-void loadTest()
+/*void loadTest()
 {
     NodePtr node( Node::load( "test/test.xml" ) );
     
@@ -129,7 +129,7 @@ void loadTest()
     
 //     node->save("dump");
 }
-
+*/
 void pythonTest()
 {
     NodePtr node( new TestNode("pythonTest","TestNode") );
@@ -162,7 +162,7 @@ int main()
     varTest();
     msgTest();
     funcTest();
-    loadTest();
+//     loadTest();
     pythonTest();
     FileSystem::instance();
     return 0;

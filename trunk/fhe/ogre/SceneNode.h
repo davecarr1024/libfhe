@@ -13,6 +13,7 @@ namespace fhe
     {
         private:
             Ogre::SceneNode* m_sceneNode;
+            Ogre::MovableObject* m_content;
             
         public:
             SceneNode( const std::string& type, const std::string& name );
@@ -31,6 +32,11 @@ namespace fhe
             
             void set_rot( Quat rot );
             Quat get_rot();
+            
+            void set_scale( Vec3 scale );
+            Vec3 get_scale();
+            
+            void setContent( Ogre::MovableObject* content );
     };
     
     NODE_DECL(SceneNode);

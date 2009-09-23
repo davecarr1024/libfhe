@@ -7,7 +7,8 @@ namespace fhe
     
     SceneNode::SceneNode( const std::string& type, const std::string& name ) :
         Node( type, name ),
-        m_sceneNode(0)
+        m_sceneNode(0),
+        m_content(0)
     {
         addFunc("getSceneNode",&SceneNode::getSceneNode,this);
         addFunc("on_attach",&SceneNode::on_attach,this);
@@ -16,6 +17,8 @@ namespace fhe
         addFunc("get_pos",&SceneNode::get_pos,this);
         addFunc("set_rot",&SceneNode::set_rot,this);
         addFunc("get_rot",&SceneNode::get_rot,this);
+        addFunc("set_scale",&SceneNode::set_scale,this);
+        addFunc("get_scale",&SceneNode::get_scale,this);
     }
     
     void SceneNode::on_attach()
@@ -38,16 +41,32 @@ namespace fhe
             else
             {
                 m_sceneNode = parentSceneNode->createChildSceneNode();
-                Ogre::MovableObject* obj = create( sceneManager );
-                if ( obj )
-                {
-                    m_sceneNode->attachObject( obj );
-                }
+                setContent(create( sceneManager ));
             }
         }
         else
         {
             parentSceneNode->addChild( m_sceneNode );
+        }
+    }
+    
+    void SceneNode::setContent( Ogre::MovableObject* content )
+    {
+        if ( m_sceneNode )
+        {
+            if ( m_content )
+            {
+                m_sceneNode->detachObject( m_content );
+            }
+            m_content = content;
+            if ( m_content )
+            {
+                m_sceneNode->attachObject( m_content );
+            }
+        }
+        else
+        {
+            log("warning: discarding content");
         }
     }
     
@@ -103,6 +122,10 @@ namespace fhe
         {
             m_sceneNode->setPosition( OgreUtil::VecToOgreVec( pos ) );
         }
+        else
+        {
+            log("warning: discarding pos");
+        }
     }
     
     Vec3 SceneNode::get_pos()
@@ -116,6 +139,27 @@ namespace fhe
         {
             m_sceneNode->setOrientation( OgreUtil::QuatToOgreQuat( rot ) );
         }
+        else
+        {
+            log("warning: discarding rot");
+        }
+    }
+    
+    void SceneNode::set_scale( Vec3 scale )
+    {
+        if ( m_sceneNode )
+        {
+            m_sceneNode->setScale( OgreUtil::VecToOgreVec( scale ) );
+        }
+        else
+        {
+            log("warning: discarding scale");
+        }
+    }
+    
+    Vec3 SceneNode::get_scale()
+    {
+        return m_sceneNode ? OgreUtil::OgreVecToVec( m_sceneNode->getScale() ) : Vec3(1,1,1);
     }
     
     Quat SceneNode::get_rot()
