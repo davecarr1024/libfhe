@@ -62,6 +62,7 @@ namespace fhe
     Node::~Node()
     {
         clearFuncs();
+        clearVars();
     }
     
     void intrusive_ptr_add_ref(Node* p)
@@ -440,7 +441,7 @@ namespace fhe
     {
         TiXmlElement* vars = new TiXmlElement("vars");
         
-        for ( std::map<std::string,Var>::iterator i = m_vars.begin(); i != m_vars.end(); ++i )
+        for ( std::map<std::string, IVarWrapper*>::iterator i = m_vars.begin(); i != m_vars.end(); ++i )
         {
             TiXmlElement* var = new TiXmlElement("var");
             
@@ -602,31 +603,22 @@ namespace fhe
         m_funcs.clear();
     }
     
-    bool Node::pyHasVar( const std::string& name )
+    void Node::removeVar( const std::string& name )
     {
-        return m_vars.find(name) != m_vars.end();
-    }
-    
-    boost::python::object Node::pyGetVar( const std::string& name )
-    {
-        assert( pyHasVar( name ) );
-        return m_vars[name].toPy();
-    }
-    
-    boost::python::object Node::pyGetVarDef( const std::string& name, boost::python::object def )
-    {
-        if ( pyHasVar( name ) )
+        if ( m_vars.find( name ) != m_vars.end() )
         {
-            return pyGetVar( name );
-        }
-        else
-        {
-            return def;
+            delete m_vars[name];
+            m_vars.erase( name );
         }
     }
-    
-    void Node::pySetVar( const std::string& name, boost::python::object val )
+
+    void Node::clearVars()
     {
-        m_vars[name] = Var::fromPy( val );
+        for (std::map<std::string, IVarWrapper*>::iterator i = m_vars.begin(); i != m_vars.end(); ++i)
+        {
+            delete i->second;
+        }
+        m_vars.clear();
     }
+
 }
