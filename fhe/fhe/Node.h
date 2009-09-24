@@ -109,6 +109,7 @@ namespace fhe
             friend void intrusive_ptr_release(Node* p);
             
             void runScript( const std::string& filename );
+            boost::python::object evalScript( const std::string& s );
             
             void log( const char* fmt, ...);
             void error( const char* fmt, ...);

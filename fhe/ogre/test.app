@@ -26,4 +26,12 @@
             <script>quitButton.py</script>
         </scripts>
     </child>
+    <child>
+        <type>CubeMesh</type>
+        <vars>
+            <var name="pos" type="Vec3">-100 0 0</var>
+            <!--var name="scale" type="Vec3">0.1 0.1 0.1</var-->
+            <var name="material" type="string">Examples/Robot</var>
+        </vars>
+    </child>
 </children>

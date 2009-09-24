@@ -613,6 +613,25 @@ namespace fhe
         }
     }
     
+    boost::python::object
+    Node::evalScript( const std::string& s )
+    {
+        boost::python::dict ns;
+        ns.update( m_mainNamespace );
+        
+        ns["self"] = PyNode::create( this );
+        
+        try
+        {
+            return boost::python::eval(s, ns, ns);
+        }
+        catch ( boost::python::error_already_set const& )
+        {
+            PyErr_Print();
+            error("evaling script: %s", s.c_str());
+        }
+    }
+    
     std::vector<std::string>
     Node::getChildNames()
     {
