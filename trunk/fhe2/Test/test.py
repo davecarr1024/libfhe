@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-print dir(self)
-
 self.setVar("b",True)
 assert self.getVar("b") == True
 
