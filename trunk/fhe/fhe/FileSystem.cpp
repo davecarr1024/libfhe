@@ -56,6 +56,7 @@ namespace fhe
     
     std::string FileSystem::getFile( const std::string& filename )
     {
+        if ( boost::filesystem::exists( filename ) ) return filename;
         assert( m_filesByName.find( filename ) != m_filesByName.end() );
         return m_filesByName[filename];
     }

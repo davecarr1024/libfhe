@@ -35,7 +35,7 @@ namespace fhe
     
     bool Button::onClick( const CEGUI::EventArgs& evt )
     {
-        log("clicked!");
+        publish<std::string>("buttonClicked",getPath());
     }
     
 }
