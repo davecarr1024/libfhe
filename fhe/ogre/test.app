@@ -18,9 +18,12 @@
     <child>
         <type>Button</type>
         <vars>
-            <var name="pos" type="Vec2">0 0</var>
+            <var name="pos" type="Vec2">0.8 0.9</var>
             <var name="size" type="Vec2">0.2 0.1</var>
             <var name="text" type="string">quit</var>
         </vars>
+        <scripts>
+            <script>quitButton.py</script>
+        </scripts>
     </child>
 </children>

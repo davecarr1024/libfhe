@@ -2,20 +2,23 @@
 #include "NodeFactory.h"
 #include "PyNode.h"
 #include "VarMap.h"
-#include <cstdio>
-#include <sstream>
-#include <cassert>
-#include <cstring>
-#include <cstdarg>
-#include <stdexcept>
-#include <boost/bind.hpp>
-#include <boost/python.hpp>
+#include "FileSystem.h"
 
 #include "math/fheMath.h"
 #include "math/Vec2.h"
 #include "math/Rot.h"
 #include "math/Vec3.h"
 #include "math/Quat.h"
+
+#include <cstdio>
+#include <sstream>
+#include <cassert>
+#include <cstring>
+#include <cstdarg>
+#include <stdexcept>
+
+#include <boost/bind.hpp>
+#include <boost/python.hpp>
 
 namespace fhe
 {
@@ -588,9 +591,11 @@ namespace fhe
     }
     
     void
-    Node::runScript( const std::string& filename )
+    Node::runScript( const std::string& _filename )
     {
         initializePython();
+        
+        std::string filename = FileSystem::instance().getFile( _filename );
         
         boost::python::dict ns;
         ns.update( m_mainNamespace );
