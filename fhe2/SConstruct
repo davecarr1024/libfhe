@@ -1,0 +1,54 @@
+env = Environment()
+
+env['SHOBJSUFFIX'] = '.oss'
+
+env.Append(CPPPATH = env.Split("""
+    #
+    /usr/include/python2.6
+    ext/tinyxml
+    /usr/local/include/OGRE
+    /usr/local/include/OIS
+    /usr/local/include/CEGUI
+    """))
+
+env.Append(LIBPATH = env.Split("""
+    /usr/local/lib
+    """))
+    
+env.Append(LIBS = env.Split("""
+    python2.6
+    boost_python-mt-py26
+    boost_filesystem-mt
+    CEGUIBase
+    CEGUIOgreRenderer
+    OgreMain
+    OIS
+    """))
+
+import os.path
+from glob import glob
+
+def enumerateFiles(path = ".", pattern = "*"):
+    rawFiles = glob("%s/%s" % (path,pattern))
+    dirs = filter(os.path.isdir,rawFiles)
+    return map(lambda path: path.lstrip("./"),sum(map(enumerateFiles,dirs,pattern*len(dirs)),filter(os.path.isfile,rawFiles)))
+
+def filename(path):
+    return path.split('/')[-1]
+    
+def ext(path):
+    if '.' in path:
+        return path.split('.')[-1]
+    else:
+        return ''
+
+files = enumerateFiles()
+
+sources = filter(lambda path: ext(path) == "cpp", files)
+mainSources = filter(lambda path: 'main' in filename(path).lower(), sources)
+libSources = filter(lambda path: 'main' not in filename(path).lower(), sources)
+
+lib = env.SharedLibrary("fhe",libSources)
+
+for main in mainSources:
+    env.Program(main[:-len(ext(main))-1].replace("/","."), [main,lib])
