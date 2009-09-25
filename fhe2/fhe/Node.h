@@ -10,6 +10,7 @@
 #include <map>
 
 #include <boost/intrusive_ptr.hpp>
+#include <tinyxml.h>
 
 namespace fhe
 {
@@ -34,15 +35,22 @@ namespace fhe
             Node* m_parent;
             NodeMap m_children;
             
-            std::string m_name, m_type;
+            std::string m_name, m_type, m_path;
             
-            static boost::python::object m_mainNamespace, m_mainModule, m_addFunc;
+            static boost::python::object m_mainModule;
+            static boost::python::dict m_mainNamespace;
             
             static bool m_pythonInitialized;
             
             static void initializePython();
             
             void init( const std::string& type, const std::string& name );
+            
+            NodePtr loadChildData( TiXmlHandle h );
+            
+            NodePtr createChild( TiXmlHandle h );
+            
+            void fillChild( NodePtr child, TiXmlHandle h );
 
         public:
             Node();
@@ -59,9 +67,13 @@ namespace fhe
             void clearChildren();
             void release();
             
+            std::string getName();
+            std::string getPath();
+            
             NodePtr getParent();
             bool hasChild( const std::string& name );
             NodePtr getChild( const std::string& name );
+            NodePtr getRoot();
             
             boost::python::object evalScript( const std::string& s);
             boost::python::object tryEvalScript( const std::string& s);
@@ -70,12 +82,21 @@ namespace fhe
             boost::python::object toPy();
             
             void onSetVar( const std::string& name, const Var& val );
-            void onGetVar( const std::string& name );
+            Var onGetVar( const std::string& name );
             
             void publish( const std::string& cmd, const VarMap& args );
             
             boost::python::object pyBuildNode( const std::string& type, const std::string& name );
             bool pyEquals( NodePtr node );
+
+            void log( const char* fmt, ...);
+            void error( const char* fmt, ...);
+            
+            NodePtr loadChild( const std::string& filename );
+            
+            void load_children( TiXmlHandle h );
+            void load_vars( TiXmlHandle h );
+            void load_scripts( TiXmlHandle h );
     };
     
 }

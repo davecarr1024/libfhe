@@ -1,5 +1,11 @@
 #include "Var.h"
 #include "VarMap.h"
+
+#include "math/Vec2.h"
+#include "math/Rot.h"
+#include "math/Vec3.h"
+#include "math/Quat.h"
+
 #include <cassert>
 
 namespace fhe
@@ -32,6 +38,18 @@ namespace fhe
             case VARMAP:
                 *m_data.vm = *var.m_data.vm;
                 break;
+            case VEC2:
+                *m_data.v2 = *var.m_data.v2;
+                break;
+            case ROT:
+                *m_data.r = *var.m_data.r;
+                break;
+            case VEC3:
+                *m_data.v3 = *var.m_data.v3;
+                break;
+            case QUAT:
+                *m_data.q = *var.m_data.q;
+                break;
         }
     }
     
@@ -56,6 +74,18 @@ namespace fhe
                 break;
             case VARMAP:
                 *m_data.vm = *var.m_data.vm;
+                break;
+            case VEC2:
+                *m_data.v2 = *var.m_data.v2;
+                break;
+            case ROT:
+                *m_data.r = *var.m_data.r;
+                break;
+            case VEC3:
+                *m_data.v3 = *var.m_data.v3;
+                break;
+            case QUAT:
+                *m_data.q = *var.m_data.q;
                 break;
         }
         
@@ -90,6 +120,18 @@ namespace fhe
                 case VARMAP:
                     delete m_data.vm;
                     break;
+                case VEC2:
+                    delete m_data.v2;
+                    break;
+                case ROT:
+                    delete m_data.r;
+                    break;
+                case VEC3:
+                    delete m_data.v3;
+                    break;
+                case QUAT:
+                    delete m_data.q;
+                    break;
             }
             m_type = type;
             switch ( m_type )
@@ -99,6 +141,18 @@ namespace fhe
                     break;
                 case VARMAP:
                     m_data.vm = new VarMap();
+                    break;
+                case VEC2:
+                    m_data.v2 = new Vec2();
+                    break;
+                case ROT:
+                    m_data.r = new Rot();
+                    break;
+                case VEC3:
+                    m_data.v3 = new Vec3();
+                    break;
+                case QUAT:
+                    m_data.q = new Quat();
                     break;
             }
         }
@@ -135,6 +189,30 @@ namespace fhe
     }
     
     template <>
+    bool Var::is<Vec2>()
+    {
+        return m_type == VEC2;
+    }
+    
+    template <>
+    bool Var::is<Rot>()
+    {
+        return m_type == ROT;
+    }
+    
+    template <>
+    bool Var::is<Vec3>()
+    {
+        return m_type == VEC3;
+    }
+    
+    template <>
+    bool Var::is<Quat>()
+    {
+        return m_type == QUAT;
+    }
+    
+    template <>
     bool Var::get<bool>()
     {
         assert(is<bool>());
@@ -167,6 +245,34 @@ namespace fhe
     {
         assert(is<VarMap>());
         return *m_data.vm;
+    }
+    
+    template <>
+    Vec2 Var::get<Vec2>()
+    {
+        assert(is<Vec2>());
+        return *m_data.v2;
+    }
+    
+    template <>
+    Rot Var::get<Rot>()
+    {
+        assert(is<Rot>());
+        return *m_data.r;
+    }
+    
+    template <>
+    Vec3 Var::get<Vec3>()
+    {
+        assert(is<Vec3>());
+        return *m_data.v3;
+    }
+    
+    template <>
+    Quat Var::get<Quat>()
+    {
+        assert(is<Quat>());
+        return *m_data.q;
     }
     
     template <class T>
@@ -217,6 +323,34 @@ namespace fhe
         *m_data.vm = val;
     }
     
+    template <>
+    void Var::set<Vec2>( const Vec2& val )
+    {
+        setType(VEC2);
+        *m_data.v2 = val;
+    }
+    
+    template <>
+    void Var::set<Rot>( const Rot& val )
+    {
+        setType(ROT);
+        *m_data.r = val;
+    }
+    
+    template <>
+    void Var::set<Vec3>( const Vec3& val )
+    {
+        setType(VEC3);
+        *m_data.v3 = val;
+    }
+    
+    template <>
+    void Var::set<Quat>( const Quat& val )
+    {
+        setType(QUAT);
+        *m_data.q = val;
+    }
+    
     boost::python::object Var::toPy()
     {
         if ( is<bool>() )
@@ -238,6 +372,22 @@ namespace fhe
         else if ( is<VarMap>() )
         {
             return get<VarMap>().toPy();
+        }
+        else if ( is<Vec2>() )
+        {
+            return boost::python::object(get<Vec2>());
+        }
+        else if ( is<Rot>() )
+        {
+            return boost::python::object(get<Rot>());
+        }
+        else if ( is<Vec3>() )
+        {
+            return boost::python::object(get<Vec3>());
+        }
+        else if ( is<Quat>() )
+        {
+            return boost::python::object(get<Quat>());
         }
         else
         {
@@ -270,6 +420,22 @@ namespace fhe
         else if ( type == "VarMap" )
         {
             var.set<VarMap>(VarMap::fromPy(obj));
+        }
+        else if ( type == "Vec2" )
+        {
+            var.set<Vec2>(boost::python::extract<Vec2>(obj));
+        }
+        else if ( type == "Rot" )
+        {
+            var.set<Rot>(boost::python::extract<Rot>(obj));
+        }
+        else if ( type == "Vec3" )
+        {
+            var.set<Vec3>(boost::python::extract<Vec3>(obj));
+        }
+        else if ( type == "Quat" )
+        {
+            var.set<Quat>(boost::python::extract<Quat>(obj));
         }
         
         return var;

@@ -1,6 +1,12 @@
 #include "FuncMap.h"
 #include "Var.h"
 #include "VarMap.h"
+
+#include "math/Vec2.h"
+#include "math/Rot.h"
+#include "math/Vec3.h"
+#include "math/Quat.h"
+
 #include <cassert>
 
 namespace fhe
@@ -25,45 +31,11 @@ namespace fhe
         m_funcs.erase(name);
     }
     
-    template <class TRet, class TArg>
-    bool FuncMap::hasFunc( const std::string& name )
-    {
-        return m_funcs.find(name) != m_funcs.end() && m_funcs[name]->cast<TRet,TArg>();
-    }
-    
     void FuncMap::addFunc( const std::string& name, AbstractFunc* func )
     {
         assert(func);
         removeFunc(name);
         m_funcs[name] = func;
-    }
-    
-    template <class TRet, class TArg>
-    TRet FuncMap::call( const std::string& name, const TArg& arg )
-    {
-        bool hasThisFunc = hasFunc<TRet,TArg>(name);
-        assert(hasThisFunc);
-        return m_funcs[name]->cast<TRet,TArg>()->call(arg);
-    }
-    
-    template <class TRet>
-    TRet FuncMap::call( const std::string& name )
-    {
-        bool hasThisFunc = hasFunc<TRet,void>(name);
-        assert(hasThisFunc);
-        return m_funcs[name]->cast<TRet,void>()->call();
-    }
-    
-    template <class TObj, class TRet, class TArg>
-    void FuncMap::addFunc( const std::string& name, TRet (TObj::*method)(TArg), TObj* obj )
-    {
-        addFunc( name, new Func<TRet,TArg>(boost::bind(method,obj,_1)) );
-    }
-    
-    template <class TObj, class TRet>
-    void FuncMap::addFunc( const std::string& name, TRet (TObj::*method)(), TObj* obj )
-    {
-        addFunc( name, new Func<TRet,void>(boost::bind(method,obj,_1)) );
     }
     
     void FuncMap::pyAddFunc( const std::string& name, boost::python::object tret, 
@@ -100,6 +72,22 @@ namespace fhe
             else if ( type == "VarMap" )
             {
                 pyAddFuncWithRet<VarMap>(name,targ,func);
+            }
+            else if ( type == "Vec2" )
+            {
+                pyAddFuncWithRet<Vec2>(name,targ,func);
+            }
+            else if ( type == "Rot" )
+            {
+                pyAddFuncWithRet<Rot>(name,targ,func);
+            }
+            else if ( type == "Vec3" )
+            {
+                pyAddFuncWithRet<Vec3>(name,targ,func);
+            }
+            else if ( type == "Quat" )
+            {
+                pyAddFuncWithRet<Quat>(name,targ,func);
             }
             else
             {
@@ -143,6 +131,22 @@ namespace fhe
             {
                 addFunc(name, new PyFunc<TRet,VarMap>(func) );
             }
+            else if ( type == "Vec2" )
+            {
+                addFunc(name, new PyFunc<TRet,Vec2>(func) );
+            }
+            else if ( type == "Rot" )
+            {
+                addFunc(name, new PyFunc<TRet,Rot>(func) );
+            }
+            else if ( type == "Vec3" )
+            {
+                addFunc(name, new PyFunc<TRet,Vec3>(func) );
+            }
+            else if ( type == "Quat" )
+            {
+                addFunc(name, new PyFunc<TRet,Quat>(func) );
+            }
             else
             {
                 throw std::runtime_error( "unable to bind arg type " + type + " for func " + name );
@@ -184,6 +188,22 @@ namespace fhe
             {
                 return pyCallWithArg<VarMap>(name, boost::python::extract<VarMap>(arg));
             }
+            else if ( type == "Vec2" )
+            {
+                return pyCallWithArg<Vec2>(name, boost::python::extract<Vec2>(arg));
+            }
+            else if ( type == "Rot" )
+            {
+                return pyCallWithArg<Rot>(name, boost::python::extract<Rot>(arg));
+            }
+            else if ( type == "Vec3" )
+            {
+                return pyCallWithArg<Vec3>(name, boost::python::extract<Vec3>(arg));
+            }
+            else if ( type == "Quat" )
+            {
+                return pyCallWithArg<Quat>(name, boost::python::extract<Quat>(arg));
+            }
             else
             {
                 throw std::runtime_error( "unable to bind arg type " + type + " to call func " + name );
@@ -222,6 +242,22 @@ namespace fhe
         {
             return boost::python::object(call<VarMap>(name));
         }
+        else if ( hasFunc<Vec2,void>(name) )
+        {
+            return boost::python::object(call<Vec2>(name));
+        }
+        else if ( hasFunc<Rot,void>(name) )
+        {
+            return boost::python::object(call<Rot>(name));
+        }
+        else if ( hasFunc<Vec3,void>(name) )
+        {
+            return boost::python::object(call<Vec3>(name));
+        }
+        else if ( hasFunc<Quat,void>(name) )
+        {
+            return boost::python::object(call<Quat>(name));
+        }
         else
         {
             throw std::runtime_error( "no convertable function for " + name );
@@ -259,6 +295,22 @@ namespace fhe
         else if ( hasFunc<VarMap,TArg>(name) )
         {
             return boost::python::object(call<VarMap,TArg>(name,arg));
+        }
+        else if ( hasFunc<Vec2,TArg>(name) )
+        {
+            return boost::python::object(call<Vec2,TArg>(name,arg));
+        }
+        else if ( hasFunc<Rot,TArg>(name) )
+        {
+            return boost::python::object(call<Rot,TArg>(name,arg));
+        }
+        else if ( hasFunc<Vec3,TArg>(name) )
+        {
+            return boost::python::object(call<Vec3,TArg>(name,arg));
+        }
+        else if ( hasFunc<Quat,TArg>(name) )
+        {
+            return boost::python::object(call<Quat,TArg>(name,arg));
         }
         else
         {
@@ -299,6 +351,22 @@ namespace fhe
             else if ( type == "VarMap" )
             {
                 return pyHasFuncWithRet<VarMap>(name,targ);
+            }
+            else if ( type == "Vec2" )
+            {
+                return pyHasFuncWithRet<Vec2>(name,targ);
+            }
+            else if ( type == "Rot" )
+            {
+                return pyHasFuncWithRet<Rot>(name,targ);
+            }
+            else if ( type == "Vec3" )
+            {
+                return pyHasFuncWithRet<Vec3>(name,targ);
+            }
+            else if ( type == "Quat" )
+            {
+                return pyHasFuncWithRet<Quat>(name,targ);
             }
             else
             {
@@ -341,6 +409,22 @@ namespace fhe
             else if ( type == "VarMap" )
             {
                 return hasFunc<TRet,VarMap>(name);
+            }
+            else if ( type == "Vec2" )
+            {
+                return hasFunc<TRet,Vec2>(name);
+            }
+            else if ( type == "Rot" )
+            {
+                return hasFunc<TRet,Rot>(name);
+            }
+            else if ( type == "Vec3" )
+            {
+                return hasFunc<TRet,Vec3>(name);
+            }
+            else if ( type == "Quat" )
+            {
+                return hasFunc<TRet,Quat>(name);
             }
             else
             {
