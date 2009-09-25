@@ -42,45 +42,6 @@ namespace fhe
         m_vars.erase( name );
     }
     
-    template <class T>
-    bool VarMap::hasVar( const std::string& name )
-    {
-        return m_vars.find(name) != m_vars.end() && m_vars[name].is<T>();
-    }
-    
-    template <class T>
-    T VarMap::getVar( const std::string& name )
-    {
-        onGetVar(name);
-        assert(hasVar<T>(name));
-        return m_vars[name].get<T>();
-    }
-    
-    template <class T>
-    T VarMap::getVar( const std::string& name, const T& def )
-    {
-        onGetVar(name);
-        if ( hasVar<T>(name) )
-        {
-            return m_vars[name].get<T>();
-        }
-        else
-        {
-            return def;
-        }
-    }
-    
-    template <class T>
-    void VarMap::setVar( const std::string& name, const T& val )
-    {
-        if ( m_vars.find(name) == m_vars.end() )
-        {
-            m_vars[name] = Var();
-        }
-        m_vars[name].set<T>(val);
-        onSetVar(name,m_vars[name]);
-    }
-    
     bool VarMap::pyHasVar( const std::string& name )
     {
         return m_vars.find(name) != m_vars.end();
@@ -88,15 +49,26 @@ namespace fhe
     
     boost::python::object VarMap::pyGetVar( const std::string& name )
     {
-        onGetVar(name);
-        assert(pyHasVar(name));
-        return m_vars[name].toPy();
+        Var var = onGetVar(name);
+        if ( var.getType() != Var::NONE )
+        {
+            return var.toPy();
+        }
+        else
+        {
+            assert(pyHasVar(name));
+            return m_vars[name].toPy();
+        }
     }
     
     boost::python::object VarMap::pyGetVarDef( const std::string& name, boost::python::object def )
     {
-        onGetVar(name);
-        if ( pyHasVar(name) )
+        Var var = onGetVar(name);
+        if ( var.getType() != Var::NONE )
+        {
+            return var.toPy();
+        }
+        else if ( pyHasVar(name) )
         {
             return m_vars[name].toPy();
         }
@@ -146,6 +118,17 @@ namespace fhe
         {
             throw std::runtime_error( "can't create VarMap from python type " + type );
         }
+    }
+    
+    bool VarMap::hasVarRaw( const std::string& name )
+    {
+        return m_vars.find(name) != m_vars.end();
+    }
+    
+    Var VarMap::getVarRaw( const std::string& name )
+    {
+        assert(hasVarRaw(name));
+        return m_vars[name];
     }
     
     boost::python::object VarMap::defineClass()

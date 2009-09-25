@@ -12,6 +12,18 @@ assert self.getVar("f") == 2
 self.setVar("s","hello")
 assert self.getVar("s") == "hello"
 
+self.setVar("v2",Vec2(1,2))
+assert self.getVar("v2") == Vec2(1,2)
+
+self.setVar("v3",Vec3(3,4,5))
+assert self.getVar("v3") == Vec3(3,4,5)
+
+self.setVar("r",Rot(-1))
+assert self.getVar("r") == Rot(-1)
+
+self.setVar("q",Quat(Vec3(0,1,0),1))
+assert self.getVar("q") == Quat(Vec3(0,1,0),1)
+
 @self.func(None,None)
 def noArgOrRet():
     self.setVar("noArgOrRet",True)
@@ -62,3 +74,19 @@ def msg_msgTest(args):
     
 self.publish("msgTest",VarMap(dict(msgTest = 21)))
 assert child.getVar("msgTest") == 21
+
+fileChild = self.loadChild("test.xml")
+assert fileChild
+
+assert fileChild.getVar("b") == True
+assert fileChild.getVar("i") == 11
+assert fileChild.getVar("f") == 2.5
+assert fileChild.getVar("s") == "hi"
+assert fileChild.getVar("v2") == Vec2(1,2)
+assert fileChild.getVar("v3") == Vec3(3,4,5)
+assert fileChild.getVar("r") == Rot(-1)
+assert fileChild.getVar("q") == Quat(Vec3(0,1,0),1)
+
+assert fileChild.getVar("x") == 2
+fileChild.setVar("y",2)
+assert fileChild.getVar("x") == 4

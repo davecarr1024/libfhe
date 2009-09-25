@@ -8,6 +8,10 @@ namespace fhe
 {
     
     class VarMap;
+    class Vec2;
+    class Rot;
+    class Vec3;
+    class Quat;
     
     class Var
     {
@@ -19,7 +23,11 @@ namespace fhe
                 INT,
                 FLOAT,
                 STRING,
-                VARMAP
+                VARMAP,
+                VEC2,
+                ROT,
+                VEC3,
+                QUAT
             };
             
         private:
@@ -32,6 +40,10 @@ namespace fhe
                 float f;
                 std::string* s;
                 VarMap* vm;
+                Vec2* v2;
+                Rot* r;
+                Vec3* v3;
+                Quat* q;
             };
             
             Data m_data;

@@ -1,4 +1,4 @@
-#include <Core/Node.h>
+#include <fhe/Node.h>
 
 using namespace fhe;
 
@@ -6,6 +6,6 @@ int main()
 {
     NodePtr n(NodeFactory::instance().buildNode("Node","root"));
     assert(n);
-    n->runScript("Test/test.py");
+    n->runScript("test.py");
     return 0;
 }
