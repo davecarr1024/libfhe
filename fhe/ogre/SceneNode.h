@@ -27,14 +27,14 @@ namespace fhe
             Ogre::SceneNode* getSceneNode();
             Ogre::SceneNode* getParentSceneNode();
             
-            void set_pos( Vec3 pos );
-            Vec3 get_pos();
+            void set_pos( Var val );
+            Var get_pos();
             
-            void set_rot( Quat rot );
-            Quat get_rot();
+            void set_rot( Var val );
+            Var get_rot();
             
-            void set_scale( Vec3 scale );
-            Vec3 get_scale();
+            void set_scale( Var val );
+            Var get_scale();
             
             void setContent( Ogre::MovableObject* content );
     };

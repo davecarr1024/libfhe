@@ -9,7 +9,7 @@ namespace fhe
         SceneNode( name, type ),
         m_entity(0)
     {
-        addFunc("on_set_material",&CubeMesh::on_set_material,this);
+        addFunc("set_material",&CubeMesh::set_material,this);
     }
     
     Ogre::MovableObject* CubeMesh::create( Ogre::SceneManager* sceneManager )
@@ -18,11 +18,11 @@ namespace fhe
         return m_entity;
     }
     
-    void CubeMesh::on_set_material( std::string material )
+    void CubeMesh::set_material( Var val )
     {
-        if ( m_entity )
+        if ( m_entity && val.is<std::string>() )
         {
-            m_entity->setMaterialName(material);
+            m_entity->setMaterialName(val.get<std::string>());
         }
     }
     

@@ -90,37 +90,39 @@ namespace fhe
         return 0;
     }
     
-    void Widget::set_pos( Vec2 pos )
+    void Widget::set_pos( Var val )
     {
+        if ( m_window && val.is<Vec2>() )
+        {
+            m_window->setPosition( CEGUIUtil::Vec2ToCEGUIVec2( val.get<Vec2>() ) );
+        }
+    }
+    
+    Var Widget::get_pos()
+    {
+        Var val;
         if ( m_window )
         {
-            m_window->setPosition( CEGUIUtil::Vec2ToCEGUIVec2( pos ) );
+            val.set<Vec2>(CEGUIUtil::CEGUIVec2ToVec2( m_window->getPosition() ));
         }
-        else
+        return val;
+    }
+    
+    void Widget::set_size( Var val )
+    {
+        if ( m_window && val.is<Vec2>() )
         {
-            log("warning: discarding size");
+            m_window->setSize( CEGUIUtil::Vec2ToCEGUIVec2( val.get<Vec2>() ) );
         }
     }
     
-    Vec2 Widget::get_pos()
+    Var Widget::get_size()
     {
-        return m_window ? CEGUIUtil::CEGUIVec2ToVec2( m_window->getPosition() ) : Vec2();
-    }
-    
-    void Widget::set_size( Vec2 size )
-    {
+        Var val;
         if ( m_window )
         {
-            m_window->setSize( CEGUIUtil::Vec2ToCEGUIVec2( size ) );
+            val.set<Vec2>(CEGUIUtil::CEGUIVec2ToVec2( m_window->getSize() ));
         }
-        else
-        {
-            log("warning: discarding size");
-        }
-    }
-    
-    Vec2 Widget::get_size()
-    {
-        return m_window ? CEGUIUtil::CEGUIVec2ToVec2( m_window->getSize() ) : Vec2(1,1);
+        return val;
     }
 }

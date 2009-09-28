@@ -116,54 +116,57 @@ namespace fhe
         return 0;
     }
     
-    void SceneNode::set_pos( Vec3 pos )
+    void SceneNode::set_pos( Var val )
     {
+        if ( m_sceneNode && val.is<Vec3>() )
+        {
+            m_sceneNode->setPosition( OgreUtil::VecToOgreVec( val.get<Vec3>() ) );
+        }
+    }
+    
+    Var SceneNode::get_pos()
+    {
+        Var val;
         if ( m_sceneNode )
         {
-            m_sceneNode->setPosition( OgreUtil::VecToOgreVec( pos ) );
+            val.set<Vec3>(OgreUtil::OgreVecToVec( m_sceneNode->getPosition() ));
         }
-        else
+        return val;
+    }
+    
+    void SceneNode::set_rot( Var val )
+    {
+        if ( m_sceneNode && val.is<Quat>() )
         {
-            log("warning: discarding pos");
+            m_sceneNode->setOrientation( OgreUtil::QuatToOgreQuat( val.get<Quat>() ) );
         }
     }
     
-    Vec3 SceneNode::get_pos()
+    Var SceneNode::get_rot()
     {
-        return m_sceneNode ? OgreUtil::OgreVecToVec( m_sceneNode->getPosition() ) : Vec3();
-    }
-    
-    void SceneNode::set_rot( Quat rot )
-    {
+        Var val;
         if ( m_sceneNode )
         {
-            m_sceneNode->setOrientation( OgreUtil::QuatToOgreQuat( rot ) );
+            val.set<Quat>(OgreUtil::OgreQuatToQuat( m_sceneNode->getOrientation() ));
         }
-        else
+        return val;
+    }
+    
+    void SceneNode::set_scale( Var val )
+    {
+        if ( m_sceneNode && val.is<Vec3>() )
         {
-            log("warning: discarding rot");
+            m_sceneNode->setScale( OgreUtil::VecToOgreVec( val.get<Vec3>() ) );
         }
     }
     
-    void SceneNode::set_scale( Vec3 scale )
+    Var SceneNode::get_scale()
     {
+        Var val;
         if ( m_sceneNode )
         {
-            m_sceneNode->setScale( OgreUtil::VecToOgreVec( scale ) );
+            val.set<Vec3>(OgreUtil::OgreVecToVec( m_sceneNode->getScale() ));
         }
-        else
-        {
-            log("warning: discarding scale");
-        }
-    }
-    
-    Vec3 SceneNode::get_scale()
-    {
-        return m_sceneNode ? OgreUtil::OgreVecToVec( m_sceneNode->getScale() ) : Vec3(1,1,1);
-    }
-    
-    Quat SceneNode::get_rot()
-    {
-        return m_sceneNode ? OgreUtil::OgreQuatToQuat( m_sceneNode->getOrientation() ) : Quat();
+        return val;
     }
 }

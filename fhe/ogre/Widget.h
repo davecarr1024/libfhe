@@ -26,11 +26,11 @@ namespace fhe
             CEGUI::Window* getParentWindow();
             CEGUI::WindowManager* getWindowManager();
             
-            void set_pos( Vec2 pos );
-            Vec2 get_pos();
+            void set_pos( Var val );
+            Var get_pos();
             
-            void set_size( Vec2 size );
-            Vec2 get_size();
+            void set_size( Var val );
+            Var get_size();
     };
 
     NODE_DECL(Widget);

@@ -8,16 +8,19 @@ namespace fhe
     Mesh::Mesh( const std::string& name, const std::string& type ) : 
         SceneNode(name,type)
     {
-        addFunc("on_set_name",&Mesh::on_set_name,this);
+        addFunc("set_name",&Mesh::set_name,this);
     }
     
-    void Mesh::on_set_name( std::string name )
+    void Mesh::set_name( Var val )
     {
         Ogre::SceneManager* sceneManager = getSceneManager();
         if ( sceneManager )
         {
             setContent(0);
-            setContent(sceneManager->createEntity(getPath(),name));
+            if ( val.is<std::string>() )
+            {
+                setContent(sceneManager->createEntity(getPath(),val.get<std::string>()));
+            }
         }
         else
         {
