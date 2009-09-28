@@ -111,11 +111,8 @@ namespace fhe
         boost::python::dict ns;
         ns.update( m_mainNamespace );
         
-        printf("add self\n");
         ns["self"] = toPy();
-        printf("/add self\n");
 
-        printf("run\n");
         try
         {
             boost::python::exec_file( FileSystem::instance().getFile(filename).c_str(), ns, ns );
@@ -125,9 +122,10 @@ namespace fhe
             PyErr_Print();
             throw std::runtime_error( "error running python file " + filename );
         }
-        printf("/run\n");
         
+        log("remove self");
         ns["self"] = boost::python::object();
+        log("/remove self");
     }
     
     boost::python::object Node::tryEvalScript( const std::string& s )
@@ -189,7 +187,7 @@ namespace fhe
             m_parent = parent.get();
             if ( m_parent )
             {
-                log("attach to parent %s", m_parent->m_name.c_str());
+//                 log("attach to parent %s", m_parent->m_name.c_str());
                 m_parent->addChild(this);
                 if ( hasFunc<void,void>("on_attach") )
                 {
@@ -229,10 +227,6 @@ namespace fhe
     
     void Node::pyAddChild( boost::python::object child )
     {
-        NodePtr childPtr = fromPy(child);
-        log("pyAddChild %p %p %d %d",childPtr.get(),boost::python::extract<Node*>(child)(),
-//             (child == boost::python::object()),
-            boost::python::extract<Node*>(child).check());
         addChild(fromPy(child));
     }
     
@@ -266,7 +260,7 @@ namespace fhe
     
     void Node::release()
     {
-        log("release");
+//         log("release");
         detachFromParent();
 
         NodeList children;
@@ -341,12 +335,12 @@ namespace fhe
     
     void Node::publish( const std::string& cmd, const VarMap& args )
     {
-        if ( cmd != "update" ) log("publish %s",cmd.c_str());
+//         if ( cmd != "update" ) log("publish %s",cmd.c_str());
         
         std::string msgName = "msg_" + cmd;
         if ( hasFunc<void,VarMap>(msgName) )
         {
-            if ( cmd != "update" ) log("call msg");
+//             if ( cmd != "update" ) log("call msg");
             call<void,VarMap>(msgName,args);
         }
         
