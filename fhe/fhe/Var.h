@@ -1,69 +1,127 @@
-#ifndef IVAR_H
-#define IVAR_H
+#ifndef VAR_H
+#define VAR_H
 
-#include <boost/function.hpp>
+#include <boost/python.hpp>
+#include <typeinfo>
 #include <cassert>
 
 namespace fhe
 {
-    template <class TVal>
-    class IVar;
     
-    class IVarWrapper
-    {
-        public:
-            virtual ~IVarWrapper() {}
-            
-            template <class TVal>
-            IVar<TVal>* cast()
-            {
-                return dynamic_cast<IVar<TVal>*>(this);
-            }
-    };
-    
-    template <class TVal>
-    class IVar : public IVarWrapper
-    {
-        public:
-            virtual void set(const TVal& val)=0;
-            virtual TVal get()=0;
-            
-            virtual bool canSet()=0;
-            virtual bool canGet()=0;
-    };
-
-    template <class TVal>
-    class Var : public IVar<TVal>
+    class Var
     {
         private:
-            TVal m_val;
+            
+            template <class T>
+            class Data;
+            
+            class AbstractData
+            {
+                public:
+                    virtual const std::type_info& getType()=0;
+                    virtual AbstractData* clone()=0;
+                    
+                    template <class T>
+                    bool is()
+                    {
+                        return getType() == typeid(T);
+                    }
+                    
+                    template <class T>
+                    Data<T>* cast()
+                    {
+                        return is<T>() ? static_cast<Data<T>*>(this) : 0;
+                    }
+            };
+            
+            template <class T>
+            class Data : public AbstractData
+            {
+                private:
+                    T m_val;
+                    
+                public:
+                    Data( const T& val ) :
+                        m_val(val)
+                    {
+                    }
+
+                    const std::type_info& getType()
+                    {
+                        return typeid(T);
+                    }
+                    
+                    T get()
+                    {
+                        return m_val;
+                    }
+                    
+                    void set( const T& val )
+                    {
+                        m_val = val;
+                    }
+                    
+                    AbstractData* clone()
+                    {
+                        return new Data<T>(m_val);
+                    }
+            };
+            
+            AbstractData* m_data;
             
         public:
-            Var(const TVal val) :
-                m_val(val)
+            Var();
+            
+            Var( const Var& var);
+            
+            Var( boost::python::object obj );
+            
+            ~Var();
+            
+            Var& operator=( const Var& var );
+            
+            void clear();
+            
+            bool empty();
+            
+            template <class T>
+            bool is()
             {
+                return m_data && m_data->is<T>();
             }
             
-            void set(const TVal& val)
+            template <class T>
+            T get()
             {
-                m_val = val;
+                assert(is<T>());
+                return m_data->cast<T>()->get();
             }
             
-            TVal get()
+            template <class T>
+            void set( const T& val )
             {
-                return m_val;
+                if (is<T>())
+                {
+                    m_data->cast<T>()->set(val);
+                }
+                else
+                {
+                    clear();
+                    m_data = new Data<T>(val);
+                }
             }
             
-            bool canSet()
-            {
-                return true;
-            }
+            boost::python::object pyGet();
             
-            bool canGet()
-            {
-                return true;
-            }
+            void pySet( boost::python::object obj );
+            
+            boost::python::object toPy();
+            
+            static Var fromPy( boost::python::object obj );
+            
+            static boost::python::object defineClass();
     };
-}
     
+}
+
 #endif

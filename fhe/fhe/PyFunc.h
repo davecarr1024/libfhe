@@ -13,10 +13,10 @@ namespace fhe
     {
         private:
             template <class TRet>
-            static IFuncWrapper* bind2( boost::python::object targ, boost::python::object func );
+            static AbstractFunc* bind2( boost::python::object targ, boost::python::object func );
         
         public:
-            static IFuncWrapper* bind( boost::python::object tret, boost::python::object targ, boost::python::object func );
+            static AbstractFunc* bind( boost::python::object tret, boost::python::object targ, boost::python::object func );
     };
     
     template <class TRet, class TArg>

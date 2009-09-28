@@ -2,12 +2,9 @@
 #define VARMAP_H
 
 #include "Var.h"
-
-#include <vector>
 #include <map>
 #include <string>
-
-#include <boost/python.hpp>
+#include <cassert>
 
 namespace fhe
 {
@@ -15,60 +12,83 @@ namespace fhe
     class VarMap
     {
         private:
-            std::map<std::string, IVarWrapper*> m_vars;
-            
-            std::string getType( boost::python::object obj );
+            std::map<std::string,Var> m_vars;
             
         public:
             VarMap();
-            VarMap( const VarMap& val );
             
-            VarMap( boost::python::object obj );
-            
-            VarMap& operator=( const VarMap& val );
-            
-            virtual ~VarMap();
-            
-            void clone( const VarMap& val );
+            VarMap( boost::python::dict dict );
             
             void removeVar( const std::string& name );
             
             void clearVars();
             
-            std::vector<std::string> getVarNames();
-            
-            bool pyHasVar( const std::string& name );
-            void pySetVar( const std::string& name, boost::python::object val );
-            boost::python::object pyGetVar( const std::string& name );
-            boost::python::object pyGetVarDef( const std::string& name, boost::python::object def );
-            boost::python::object pyGetVarNames();
+            template <class T>
+            bool hasVar( const std::string& name )
+            {
+                return m_vars.find(name) != m_vars.end() && m_vars[name].is<T>();
+            }
             
             template <class T>
-            bool hasVar( const std::string& name );
-
-            template <class T>
-            bool canSetVar( const std::string& name );
+            T getVar( const std::string& name )
+            {
+                Var var = onGetVar(name);
+                if (var.is<T>())
+                {
+                    m_vars[name] = var;
+                }
+                
+                assert(hasVar<T>(name));
+                return m_vars[name].get<T>();
+            }
             
             template <class T>
-            bool canGetVar( const std::string& name );
+            T getVar( const std::string& name, const T& def )
+            {
+                Var var = onGetVar(name);
+                if (var.is<T>())
+                {
+                    m_vars[name] = var;
+                }
+                
+                if ( hasVar<T>(name) )
+                {
+                    return m_vars[name].get<T>();
+                }
+                else
+                {
+                    return def;
+                }
+            }
             
             template <class T>
-            void setVar( const std::string& name, const T& val );
-
-            template <class T>
-            void connectVar( const std::string& name, IVar<T>* val );
-
-            template <class T>
-            T getVar( const std::string& name );
-
-            template <class T>
-            T getVar( const std::string& name, const T& def );
+            void setVar( const std::string& name, const T& val )
+            {
+                if ( m_vars.find(name) == m_vars.end() )
+                {
+                    m_vars[name] = Var();
+                }
+                m_vars[name].set<T>(val);
+                
+                onSetVar(name,m_vars[name]);
+            }
 
             boost::python::object toPy();
             
             static VarMap fromPy( boost::python::object obj );
             
+            bool pyHasVar( const std::string& name );
+            
+            boost::python::object pyGetVar( const std::string& name );
+            
+            boost::python::object pyGetVarDef( const std::string& name, boost::python::object def );
+            
+            void pySetVar( const std::string& name, boost::python::object val );
+            
             static boost::python::object defineClass();
+            
+            virtual Var onGetVar( const std::string& name );
+            virtual void onSetVar( const std::string& name, const Var& val );
     };
     
 }

@@ -1,9 +1,8 @@
 #ifndef NODE_H
 #define NODE_H
 
-#include "Var.h"
 #include "VarMap.h"
-#include "Func.h"
+#include "FuncMap.h"
 #include "NodeBuilder.h"
 
 #include <boost/intrusive_ptr.hpp>
@@ -30,7 +29,7 @@ namespace fhe
 
     NODE_DECL(Node);
     
-    class Node
+    class Node : public VarMap, public FuncMap
     {
         friend class PyNode;
         
@@ -42,9 +41,6 @@ namespace fhe
             
             std::string m_name, m_type, m_path;
             
-            std::map<std::string, IVarWrapper*> m_vars;
-            std::map<std::string, IFuncWrapper*> m_funcs;
-
             NodePtr getLocalNode( const std::string& path );
             
             static std::map<std::string, int> m_nameCount;
@@ -110,18 +106,11 @@ namespace fhe
             
             void runScript( const std::string& filename );
             boost::python::object evalScript( const std::string& s );
+            boost::python::object tryEvalScript( const std::string& s );
             
             void log( const char* fmt, ...);
             void error( const char* fmt, ...);
 
-            void removeVar( const std::string& name );
-            
-            void clearVars();
-
-            void removeFunc( const std::string& name );
-
-            void clearFuncs();
-            
             template <class T>
             void publish( const std::string& name, const T& arg )
             {
@@ -144,140 +133,9 @@ namespace fhe
                 }
             }
             
-            template <class TRet, class TArg>
-            bool hasFunc( const std::string& name )
-            {
-                return m_funcs.find( name ) != m_funcs.end() && m_funcs[name]->cast<TRet,TArg>();
-            }
+            void onSetVar( const std::string& name, const Var& val );
             
-            template <class TRet, class TArg>
-            void addFunc( const std::string& name, IFunc<TRet,TArg>* func )
-            {
-                assert(func);
-                removeFunc(name);
-                m_funcs[name] = func;
-            }
-            
-            template <class TObj, class TRet, class TArg>
-            void addFunc( const std::string& name, TRet (TObj::*method)(TArg), TObj* obj )
-            {
-                addFunc( name, new Func<TRet,TArg>(boost::bind(method,obj,_1)) );
-            }
-            
-            template <class TObj, class TRet>
-            void addFunc( const std::string& name, TRet (TObj::*method)(), TObj* obj )
-            {
-                addFunc( name, new Func<TRet,void>(boost::bind(method,obj)));
-            }
-            
-            template <class TRet, class TArg>
-            TRet callFunc( const std::string& name, TArg arg )
-            {
-                bool has = hasFunc<TRet,TArg>(name);
-                assert( has );
-                return m_funcs[name]->cast<TRet,TArg>()->call(arg);
-            }
-            
-            template <class TRet>
-            TRet callFunc( const std::string& name )
-            {
-                bool has = hasFunc<TRet,void>(name);
-                assert( has );
-                return m_funcs[name]->cast<TRet,void>()->call();
-            }
-
-            template <class T>
-            bool hasVar( const std::string& name )
-            {
-                std::string getName = "get_" + name;
-                return hasFunc<T,void>(getName) || (m_vars.find(name) != m_vars.end() && m_vars[name]->cast<T>());
-            }
-
-            template <class T>
-            bool canSetVar( const std::string& name )
-            {
-                std::string setName = "set_" + name;
-                return hasFunc<void,T>(setName) || (hasVar<T>(name) && m_vars[name]->cast<T>()->canSet());
-            }
-
-            template <class T>
-            bool canGetVar( const std::string& name )
-            {
-                std::string getName = "get_" + name;
-                return hasFunc<T,void>(getName) || (hasVar<T>(name) && m_vars[name]->cast<T>()->canGet());
-            }
-
-            template <class T>
-            void setVar( const std::string& name, const T& val )
-            {
-                std::string onsetName = "on_set_" + name;
-                if ( hasFunc<void,T>(onsetName) )
-                {
-                    callFunc<void,T>(onsetName,val);
-                }
-                
-                std::string setName = "set_" + name;
-                if ( hasFunc<void,T>(setName) )
-                {
-                    callFunc<void,T>(setName, val );
-                }
-                else if ( hasVar<T>( name ) )
-                {
-                    IVar<T>* var = m_vars[name]->cast<T>();
-                    assert( var->canSet() );
-                    var->set( val );
-                }
-                else
-                {
-                    connectVar( name, new Var<T>( val ) );
-                }
-            }
-
-            template <class T>
-            void connectVar( const std::string& name, IVar<T>* val )
-            {
-                assert(val);
-                removeVar( name );
-                m_vars[name] = val;
-            }
-
-            template <class T>
-            T getVar( const std::string& name )
-            {
-                std::string ongetName = "on_get_" + name;
-                if ( hasFunc<void,void>( ongetName ) )
-                {
-                    callFunc<void>(ongetName);
-                }
-                
-                std::string getName = "get_" + name;
-                if ( hasFunc<T,void>(getName) )
-                {
-                    return callFunc<T>(getName);
-                }
-                
-                assert( canGetVar<T>(name) );
-                return m_vars[name]->cast<T>()->get();
-            }
-
-            template <class T>
-            T getVar( const std::string& name, const T& def )
-            {
-                std::string getName = "get_" + name;
-                if ( hasFunc<T,void>(getName) )
-                {
-                    return callFunc<T>(getName);
-                }
-                
-                if ( canGetVar<T>(name) )
-                {
-                    return m_vars[name]->cast<T>()->get();
-                }
-                else
-                {
-                    return def;
-                }
-            }
+            Var onGetVar( const std::string& name );
     };
 }
 

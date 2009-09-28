@@ -65,8 +65,6 @@ namespace fhe
     
     Node::~Node()
     {
-        clearFuncs();
-        clearVars();
     }
     
     void intrusive_ptr_add_ref(Node* p)
@@ -478,13 +476,7 @@ namespace fhe
     void
     Node::saveInto( TiXmlNode* node )
     {
-        for ( std::map<std::string, IFuncWrapper*>::iterator i = m_funcs.begin(); i != m_funcs.end(); ++i )
-        {
-            if ( i->first.substr(0,5) == "save_" && hasFunc<TiXmlElement*,void>(i->first) )
-            {
-                node->LinkEndChild( callFunc<TiXmlElement*>(i->first) );
-            }
-        }
+        //TODO
     }
     
     void
@@ -498,43 +490,7 @@ namespace fhe
     TiXmlElement*
     Node::save_vars()
     {
-        TiXmlElement* vars = new TiXmlElement("vars");
-        
-        for ( std::map<std::string, IVarWrapper*>::iterator i = m_vars.begin(); i != m_vars.end(); ++i )
-        {
-            TiXmlElement* var = new TiXmlElement("var");
-            
-            std::string name( i->first );
-            
-            var->SetAttribute( "name", name.c_str() );
-            
-            std::ostringstream outs;
-            if ( hasVar<bool>(name) )
-            {
-                var->SetAttribute( "type", "bool" );
-                outs << (int)getVar<bool>(name);
-            }
-            else if ( hasVar<int>(name) )
-            {
-                var->SetAttribute( "type", "int" );
-                outs << getVar<int>(name);
-            }
-            else if ( hasVar<float>(name) )
-            {
-                var->SetAttribute( "type", "float" );
-                outs << getVar<float>(name);
-            }
-            else if ( hasVar<std::string>(name) )
-            {
-                var->SetAttribute( "type", "string" );
-                outs << getVar<std::string>(name);
-            }
-            
-            var->LinkEndChild( new TiXmlText( outs.str().c_str() ) );
-            vars->LinkEndChild( var );
-        }
-        
-        return vars;
+        //TODO
     }
     
     TiXmlElement*
@@ -580,6 +536,7 @@ namespace fhe
             m_mainModule = boost::python::import("__main__");
             m_mainNamespace = m_mainModule.attr("__dict__");
             
+            m_mainNamespace["Var"] = Var::defineClass();
             m_mainNamespace["VarMap"] = VarMap::defineClass();
             m_mainNamespace["Vec2"] = Vec2::defineClass();
             m_mainNamespace["Rot"] = Rot::defineClass();
@@ -623,12 +580,31 @@ namespace fhe
         
         try
         {
-            return boost::python::eval(s, ns, ns);
+            return boost::python::eval(s.c_str(), ns, ns);
         }
         catch ( boost::python::error_already_set const& )
         {
             PyErr_Print();
             error("evaling script: %s", s.c_str());
+        }
+    }
+    
+    boost::python::object
+    Node::tryEvalScript( const std::string& s )
+    {
+        boost::python::dict ns;
+        ns.update( m_mainNamespace );
+        
+        ns["self"] = PyNode::create( this );
+        
+        try
+        {
+            return boost::python::eval(s.c_str(), ns, ns);
+        }
+        catch ( boost::python::error_already_set const& )
+        {
+            PyErr_Clear();
+            return boost::python::str(s);
         }
     }
     
@@ -664,41 +640,25 @@ namespace fhe
         va_end(ap);
         throw std::runtime_error( m_path + ": ERROR: " + buffer );
     }
-
-    void Node::removeFunc( const std::string& name )
+    
+    void
+    Node::onSetVar( const std::string& name, const Var& val )
     {
-        if ( m_funcs.find( name ) != m_funcs.end() )
+        std::string setName = "set_" + name;
+        if ( hasFunc<void,Var>(setName) )
         {
-            delete m_funcs[name];
-            m_funcs.erase(name);
+            callFunc<void,Var>(setName,val);
         }
-    }
-
-    void Node::clearFuncs()
-    {
-        for ( std::map<std::string, IFuncWrapper*>::iterator i = m_funcs.begin(); i != m_funcs.end(); ++i )
-        {
-            delete i->second;
-        }
-        m_funcs.clear();
     }
     
-    void Node::removeVar( const std::string& name )
+    Var
+    Node::onGetVar( const std::string& name )
     {
-        if ( m_vars.find( name ) != m_vars.end() )
+        std::string getName = "get_" + name;
+        if ( hasFunc<Var,void>(getName) )
         {
-            delete m_vars[name];
-            m_vars.erase( name );
+            return callFunc<Var>(getName);
         }
+        return Var();
     }
-
-    void Node::clearVars()
-    {
-        for (std::map<std::string, IVarWrapper*>::iterator i = m_vars.begin(); i != m_vars.end(); ++i)
-        {
-            delete i->second;
-        }
-        m_vars.clear();
-    }
-
 }

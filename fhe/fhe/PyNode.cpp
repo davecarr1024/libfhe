@@ -196,7 +196,7 @@ namespace fhe
     
     bool PyNode::hasFunc( const std::string& name )
     {
-        return m_node->m_funcs.find(name) != m_node->m_funcs.end();
+        return m_node->hasFuncName(name);
     }
     
     boost::python::object PyNode::callFuncNoArg( const std::string& name )
@@ -225,6 +225,10 @@ namespace fhe
         else if ( m_node->hasFunc<VarMap,void>( name ) )
         {
             return boost::python::object( m_node->callFunc<VarMap>( name ));
+        }
+        else if ( m_node->hasFunc<Var,void>( name ) )
+        {
+            return boost::python::object( m_node->callFunc<Var>( name ));
         }
         else if ( m_node->hasFunc<Vec2,void>( name ) )
         {
@@ -276,6 +280,10 @@ namespace fhe
         {
             return boost::python::object( m_node->callFunc<VarMap,TArg>( name, arg ) );
         }
+        else if ( m_node->hasFunc<Var,TArg>( name ) )
+        {
+            return boost::python::object( m_node->callFunc<Var,TArg>( name, arg ) );
+        }
         else if ( m_node->hasFunc<Vec2,TArg>( name ) )
         {
             return boost::python::object( m_node->callFunc<Vec2,TArg>( name, arg ) );
@@ -326,6 +334,10 @@ namespace fhe
         {
             return callFuncWithArg<VarMap>( name, boost::python::extract<VarMap>(arg) );
         }
+        else if ( type == "Var" )
+        {
+            return callFuncWithArg<Var>( name, boost::python::extract<Var>(arg) );
+        }
         else if ( type == "Vec2" )
         {
             return callFuncWithArg<Vec2>( name, boost::python::extract<Vec2>(arg) );
@@ -350,118 +362,29 @@ namespace fhe
     
     boost::python::object PyNode::getVar( const std::string& name )
     {
-        return getVarDef( name, boost::python::object() );
+        return m_node->pyGetVar(name);
     }
     
     boost::python::object PyNode::getVarDef( const std::string& name, boost::python::object def )
     {
-        if ( m_node->hasVar<bool>( name ) )
-        {
-            return boost::python::object( m_node->getVar<bool>( name ) );
-        }
-        else if ( m_node->hasVar<int>( name ) )
-        {
-            return boost::python::object( m_node->getVar<int>( name ) );
-        }
-        else if ( m_node->hasVar<float>( name ) )
-        {
-            return boost::python::object( m_node->getVar<float>( name ) );
-        }
-        else if ( m_node->hasVar<std::string>( name ) )
-        {
-            return boost::python::object( m_node->getVar<std::string>( name ) );
-        }
-        else if ( m_node->hasVar<VarMap>( name ) )
-        {
-            return boost::python::object( m_node->getVar<VarMap>( name ) );
-        }
-        else if ( m_node->hasVar<Vec2>( name ) )
-        {
-            return boost::python::object( m_node->getVar<Vec2>( name ) );
-        }
-        else if ( m_node->hasVar<Vec3>( name ) )
-        {
-            return boost::python::object( m_node->getVar<Vec3>( name ) );
-        }
-        else if ( m_node->hasVar<Rot>( name ) )
-        {
-            return boost::python::object( m_node->getVar<Rot>( name ) );
-        }
-        else if ( m_node->hasVar<Quat>( name ) )
-        {
-            return boost::python::object( m_node->getVar<Quat>( name ) );
-        }
-        else
-        {
-            return def;
-        }
+        return m_node->pyGetVarDef(name,def);
     }
     
     void PyNode::setVar( const std::string& name, boost::python::object val )
     {
-        std::string type = getPyType( val );
-        
-        if ( type == "bool" )
-        {
-            m_node->setVar<bool>( name, boost::python::extract<bool>( val ) );
-        }
-        else if ( type == "int" )
-        {
-            m_node->setVar<int>( name, boost::python::extract<int>( val ) );
-        }
-        else if ( type == "float" )
-        {
-            m_node->setVar<float>( name, boost::python::extract<float>( val ) );
-        }
-        else if ( type == "str" )
-        {
-            m_node->setVar<std::string>( name, boost::python::extract<std::string>( val ) );
-        }
-        else if ( type == "VarMap" )
-        {
-            m_node->setVar<VarMap>( name, boost::python::extract<VarMap>( val ) );
-        }
-        else if ( type == "Vec2" )
-        {
-            m_node->setVar<Vec2>( name, boost::python::extract<Vec2>( val ) );
-        }
-        else if ( type == "Vec3" )
-        {
-            m_node->setVar<Vec3>( name, boost::python::extract<Vec3>( val ) );
-        }
-        else if ( type == "Rot" )
-        {
-            m_node->setVar<Rot>( name, boost::python::extract<Rot>( val ) );
-        }
-        else if ( type == "Quat" )
-        {
-            m_node->setVar<Quat>( name, boost::python::extract<Quat>( val ) );
-        }
-        else
-        {
-            m_node->error( "unable to set var %s to unknown python type %s", name.c_str(), type.c_str() );
-        }
+        m_node->pySetVar(name,val);
     }
     
     bool PyNode::hasVar( const std::string& name )
     {
-        return m_node->hasVar<bool>(name) || 
-               m_node->hasVar<int>(name) || 
-               m_node->hasVar<float>(name) || 
-               m_node->hasVar<std::string>(name) || 
-               m_node->hasVar<VarMap>(name) ||
-               m_node->hasVar<Vec2>(name) ||
-               m_node->hasVar<Vec3>(name) ||
-               m_node->hasVar<Rot>(name) ||
-               m_node->hasVar<Quat>(name)
-               ;
+        return m_node->pyHasVar(name);
     }
     
     void PyNode::addFunc( boost::python::object tret, boost::python::object targ, boost::python::object func )
     {
         std::string name = boost::python::extract<std::string>(func.attr("__name__"));
         m_node->removeFunc(name);
-        m_node->m_funcs[name] = PyFuncUtil::bind( tret, targ, func );
+        m_node->addFunc(name,PyFuncUtil::bind( tret, targ, func ));
     }
     
     bool PyNode::equals( PyNode* pynode )
@@ -502,6 +425,10 @@ namespace fhe
         else if ( type == "VarMap" )
         {
             m_node->publish<VarMap>(cmd,boost::python::extract<VarMap>(obj));
+        }
+        else if ( type == "Var" )
+        {
+            m_node->publish<Var>(cmd,boost::python::extract<Var>(obj));
         }
         else if ( type == "Vec2" )
         {

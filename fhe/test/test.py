@@ -178,17 +178,17 @@ assert not child.hasVar("i")
 self.publish("publishTest",1)
 assert child.getVar("i") == 1
 
-@self.func(None,int)
-def set_setTest(i):
-    self.setVar("setTestVal",i)
+@self.func(None,Var)
+def set_setTest(val):
+    self.setVar("setTestVal",val.get())
     
 assert not self.hasVar("setTestVal")
 self.setVar("setTest",11)
 assert self.hasVar("setTestVal")
 assert self.getVar("setTestVal") == 11
 
-@self.func(str,None)
+@self.func(Var,None)
 def get_getTest():
-    return "got"
+    return Var("got")
     
 assert self.getVar("getTest") == "got"

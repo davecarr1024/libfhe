@@ -5,7 +5,7 @@
 namespace fhe
 {
     
-    IFuncWrapper* PyFuncUtil::bind( boost::python::object tret, boost::python::object targ, boost::python::object func )
+    AbstractFunc* PyFuncUtil::bind( boost::python::object tret, boost::python::object targ, boost::python::object func )
     {
         if ( tret == boost::python::object() )
         {
@@ -34,6 +34,10 @@ namespace fhe
         {
             return bind2<VarMap>(targ, func);
         }
+        else if ( type == "Var" )
+        {
+            return bind2<Var>(targ, func);
+        }
         else
         {
             std::string name = boost::python::extract<std::string>(func.attr("__name__"));
@@ -42,7 +46,7 @@ namespace fhe
     }
     
     template <class TRet>
-    IFuncWrapper* PyFuncUtil::bind2( boost::python::object targ, boost::python::object func )
+    AbstractFunc* PyFuncUtil::bind2( boost::python::object targ, boost::python::object func )
     {
         if ( targ == boost::python::object() )
         {
@@ -70,6 +74,10 @@ namespace fhe
         else if ( type == "VarMap" )
         {
             return new PyFunc<TRet,VarMap>(func);
+        }
+        else if ( type == "Var" )
+        {
+            return new PyFunc<TRet,Var>(func);
         }
         else
         {
