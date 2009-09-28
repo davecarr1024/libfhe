@@ -2,7 +2,6 @@
 #define PYNODE_H
 
 #include "Node.h"
-#include "PyFunc.h"
 #include "VarMap.h"
 
 namespace fhe
@@ -23,11 +22,6 @@ namespace fhe
             
             PyNode( NodePtr node );
             
-            template <class TArg>
-            boost::python::object callFuncWithArg( const std::string& name, const TArg& arg );
-            
-            boost::python::object callFuncNoArg( const std::string& name );
-
         public:
             
             static boost::python::object create( NodePtr node );

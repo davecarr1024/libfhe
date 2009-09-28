@@ -2,6 +2,7 @@
 #define FUNCMAP_H
 
 #include "Func.h"
+#include <boost/python.hpp>
 #include <boost/bind.hpp>
 #include <string>
 #include <map>
@@ -14,6 +15,14 @@ namespace fhe
         private:
             std::map<std::string, AbstractFunc*> m_funcs;
             
+            template <class TRet>
+            void pyAddFuncWithRet( const std::string& name, boost::python::object targ, boost::python::object func );
+            
+            boost::python::object pyCallFuncNoArg( const std::string& name );
+            
+            template <class TArg>
+            boost::python::object pyCallFuncWithArg( const std::string& name, const TArg& arg );
+            
         public:
             FuncMap();
             ~FuncMap();
@@ -21,8 +30,6 @@ namespace fhe
             void clearFuncs();
             
             void removeFunc( const std::string& name );
-            
-            bool hasFuncName( const std::string& name );
             
             template <class TRet, class TArg>
             bool hasFunc( const std::string& name )
@@ -60,6 +67,11 @@ namespace fhe
                 return m_funcs[name]->cast<TRet,void>()->call();
             }
             
+            bool pyHasFunc( const std::string& name );
+            
+            void pyAddFunc( const std::string& name, boost::python::object tret, boost::python::object targ, boost::python::object func );
+            
+            boost::python::object pyCallFunc( const std::string& name, boost::python::object arg );
         };
     
 }
