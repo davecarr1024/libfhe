@@ -15,8 +15,8 @@ namespace fhe
             
             CEGUI::Window* create( CEGUI::WindowManager* windowManager );
             
-            void set_text( std::string text );
-            std::string get_text();
+            void set_text( Var val );
+            Var get_text();
             
             bool onClick( const CEGUI::EventArgs& evt );
     };

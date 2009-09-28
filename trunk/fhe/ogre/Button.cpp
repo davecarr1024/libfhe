@@ -20,17 +20,22 @@ namespace fhe
         return m_button;
     }
     
-    void Button::set_text( std::string text )
+    void Button::set_text( Var val )
     {
-        if ( m_button )
+        if ( m_button && val.is<std::string>() )
         {
-            m_button->setText(text);
+            m_button->setText(val.get<std::string>());
         }
     }
     
-    std::string Button::get_text()
+    Var Button::get_text()
     {
-        return m_button ? m_button->getText().c_str() : "";
+        Var val;
+        if ( m_button )
+        {
+            val.set<std::string>(m_button->getText().c_str());
+        }
+        return val;
     }
     
     bool Button::onClick( const CEGUI::EventArgs& evt )

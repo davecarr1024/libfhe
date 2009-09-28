@@ -16,7 +16,7 @@ namespace fhe
             
             Ogre::MovableObject* create( Ogre::SceneManager* sceneManager );
             
-            void on_set_material( std::string material );
+            void set_material( Var material );
     };
     
     NODE_DECL(CubeMesh);

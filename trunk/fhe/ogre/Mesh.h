@@ -11,7 +11,7 @@ namespace fhe
         public:
             Mesh( const std::string& name, const std::string& type );
     
-            void on_set_name( std::string name );
+            void set_name( Var val );
     };
     
     NODE_DECL(Mesh);
