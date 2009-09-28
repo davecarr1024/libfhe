@@ -25,6 +25,34 @@ namespace fhe
             bool pyHasFuncWithRet( const std::string& name, boost::python::object targ );
         
         public:
+            class FuncClosure
+            {
+                private:
+                    FuncMap* m_funcMap;
+                    boost::python::object m_tret, m_targ;
+                    
+                public:
+                    FuncClosure( FuncMap* funcMap, boost::python::object tret, boost::python::object targ ) :
+                        m_funcMap(funcMap),
+                        m_tret(tret),
+                        m_targ(targ)
+                    {
+                    }
+                    
+                    void func( boost::python::object func )
+                    {
+                        std::string name = boost::python::extract<std::string>(func.attr("__name__"));
+                        m_funcMap->pyAddFunc(name,m_tret,m_targ,func);
+                    }
+                    
+                    static boost::python::object defineClass()
+                    {
+                        return boost::python::class_<FuncClosure>("FuncClosure",boost::python::no_init)
+                            .def("__call__",&FuncClosure::func)
+                        ;
+                    }
+            };
+
             FuncMap();
             ~FuncMap();
             
@@ -35,6 +63,17 @@ namespace fhe
             template <class TRet, class TArg>
             bool hasFunc( const std::string& name )
             {
+/*                for ( std::map<std::string,AbstractFunc*>::iterator i = m_funcs.begin(); i != m_funcs.end(); ++i )
+                {
+                    printf("%s(%p) ",i->first.c_str(),i->second);
+                    assert(i->second);
+                }
+                printf("hasFunc %s %d %d\n",name.c_str(),m_funcs.find(name) != m_funcs.end(), m_funcs.find(name) != m_funcs.end() && m_funcs[name]->cast<TRet,TArg>());
+                for ( std::map<std::string,AbstractFunc*>::iterator i = m_funcs.begin(); i != m_funcs.end(); ++i )
+                {
+                    printf("%s(%p) ",i->first.c_str(),i->second);
+                }
+                printf("after\n");*/
                 return m_funcs.find(name) != m_funcs.end() && m_funcs[name]->cast<TRet,TArg>();
             }
             
@@ -76,7 +115,10 @@ namespace fhe
             bool pyHasFunc( const std::string& name, boost::python::object tret, boost::python::object targ );
             
             static boost::python::object defineClass();
-    };
+
+            boost::python::object func( boost::python::object tret, boost::python::object targ );
+            
+        };
     
 }
 

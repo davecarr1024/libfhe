@@ -63,10 +63,16 @@ def get_getTest():
     
 assert self.getVar("getTest") == "got"
 
-child = self.buildNode("Node","child")
+child = self.buildChild("Node","child")
 assert child
-self.addChild(child)
 assert child.getParent() == self
+
+@self.func(None,VarMap)
+def vmTest(vm):
+    self.setVar("vmVal",vm.getVar("val"))
+    
+self.call("vmTest",VarMap(dict(val = 10)))
+assert self.getVar("vmVal") == 10
 
 @child.func(None,VarMap)
 def msg_msgTest(args):
@@ -87,6 +93,7 @@ assert fileChild.getVar("v3") == Vec3(3,4,5)
 assert fileChild.getVar("r") == Rot(-1)
 assert fileChild.getVar("q") == Quat(Vec3(0,1,0),1)
 
-assert fileChild.getVar("x") == 2
-fileChild.setVar("y",2)
-assert fileChild.getVar("x") == 4
+@self.func(None,VarMap)
+def msg_pub(args):
+    self.log("pub!")
+    self.setVar("pub","sub")
