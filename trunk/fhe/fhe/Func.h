@@ -6,14 +6,13 @@
 
 namespace fhe
 {
-    
     template <class TRet, class TArg>
     class IFunc;
     
-    class IFuncWrapper
+    class AbstractFunc
     {
         public:
-            virtual ~IFuncWrapper() {}
+            virtual ~AbstractFunc() {}
             
             template <class TRet, class TArg>
             IFunc<TRet,TArg>* cast()
@@ -23,14 +22,14 @@ namespace fhe
     };
     
     template <class TRet, class TArg>
-    class IFunc : public IFuncWrapper
+    class IFunc : public AbstractFunc
     {
         public:
-            virtual TRet call( const TArg& arg )=0;
+            virtual TRet call( const TArg& )=0;
     };
     
     template <class TRet>
-    class IFunc<TRet,void> : public IFuncWrapper
+    class IFunc<TRet,void> : public AbstractFunc
     {
         public:
             virtual TRet call()=0;
@@ -40,23 +39,22 @@ namespace fhe
     class Func : public IFunc<TRet,TArg>
     {
         public:
-            typedef boost::function<TRet (TArg)> FuncPtr;
+            typedef boost::function<TRet(TArg)> FuncPtr;
             
         private:
             FuncPtr m_func;
             
         public:
             Func( FuncPtr func ) :
-                m_func( func )
+                m_func(func)
             {
+                assert(m_func);
             }
             
             TRet call( const TArg& arg )
             {
-                assert( m_func );
-                return m_func( arg );
+                return m_func(arg);
             }
-            
     };
     
     template <class TRet>
@@ -72,11 +70,11 @@ namespace fhe
             Func( FuncPtr func ) :
                 m_func( func )
             {
+                assert(m_func);
             }
             
             TRet call()
             {
-                assert( m_func );
                 return m_func();
             }
     };
