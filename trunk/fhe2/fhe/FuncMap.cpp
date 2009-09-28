@@ -437,8 +437,14 @@ namespace fhe
     {
         return boost::python::class_<FuncMap>("FuncMap",boost::python::init<>())
             .def("hasFunc",&FuncMap::pyHasFunc)
-            .def("addFunc",&FuncMap::pyAddFunc)
+//             .def("addFunc",&FuncMap::pyAddFunc)
             .def("call",&FuncMap::pyCall)
+            .def("func",&FuncMap::func)
         ;
+    }
+
+    boost::python::object FuncMap::func( boost::python::object tret, boost::python::object targ )
+    {
+        return boost::python::object( FuncClosure( this, tret, targ ) );
     }
 }

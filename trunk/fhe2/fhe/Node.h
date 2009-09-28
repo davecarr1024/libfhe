@@ -51,9 +51,11 @@ namespace fhe
             NodePtr createChild( TiXmlHandle h );
             
             void fillChild( NodePtr child, TiXmlHandle h );
-
+            
         public:
+            
             Node();
+            virtual ~Node();
             
             friend void intrusive_ptr_add_ref(Node* p);
             friend void intrusive_ptr_release(Node* p);
@@ -61,9 +63,12 @@ namespace fhe
             static boost::python::object defineClass();
             
             void attachToParent( NodePtr parent );
+            void pyAttachToParent( boost::python::object parent );
             void detachFromParent();
             void addChild( NodePtr child );
+            void pyAddChild( boost::python::object child );
             void removeChild( NodePtr child );
+            void pyRemoveChild( boost::python::object child );
             void clearChildren();
             void release();
             
@@ -71,32 +76,39 @@ namespace fhe
             std::string getPath();
             
             NodePtr getParent();
+            Node* pyGetParent();
             bool hasChild( const std::string& name );
             NodePtr getChild( const std::string& name );
+            Node* pyGetChild( const std::string& name );
             NodePtr getRoot();
+            Node* pyGetRoot();
             
             boost::python::object evalScript( const std::string& s);
             boost::python::object tryEvalScript( const std::string& s);
             void runScript( const std::string& filename );
 
             boost::python::object toPy();
+            static NodePtr fromPy( boost::python::object obj );
             
             void onSetVar( const std::string& name, const Var& val );
             Var onGetVar( const std::string& name );
             
             void publish( const std::string& cmd, const VarMap& args );
             
-            boost::python::object pyBuildNode( const std::string& type, const std::string& name );
-            bool pyEquals( NodePtr node );
+            bool pyEquals( boost::python::object node );
 
             void log( const char* fmt, ...);
             void error( const char* fmt, ...);
             
             NodePtr loadChild( const std::string& filename );
+            Node* pyLoadChild( const std::string& filename );
+            Node* pyBuildChild( const std::string& type, const std::string& name );
             
             void load_children( TiXmlHandle h );
             void load_vars( TiXmlHandle h );
             void load_scripts( TiXmlHandle h );
+            
+            void pyLog( const std::string& s );
     };
     
 }
