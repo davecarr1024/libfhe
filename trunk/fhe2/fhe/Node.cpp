@@ -135,13 +135,17 @@ namespace fhe
         
         try
         {
-            return boost::python::eval( s.c_str(), ns, ns );
+            Var val = Var::fromPy(boost::python::eval( s.c_str(), ns, ns ) );
+            if ( !val.empty() )
+            {
+                return val.toPy();
+            }
         }
         catch ( boost::python::error_already_set const& )
         {
             PyErr_Clear();
-            return boost::python::str(s);
         }
+        return boost::python::str(s);
     }
     
     boost::python::object Node::evalScript( const std::string& s )
