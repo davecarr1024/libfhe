@@ -30,21 +30,21 @@ namespace fhe
     
     Node::~Node()
     {
-        log("dtor");
+//         log("dtor %d",m_children.size());
     }
     
     void intrusive_ptr_add_ref(Node* p)
     {
         p->m_refCount++;
-        p->log("inc %d",p->m_refCount);
+//         p->log("inc %d",p->m_refCount);
     }
     
     void intrusive_ptr_release(Node* p)
     {
-        p->log("dec %d",p->m_refCount-1);
+//         p->log("dec %d",p->m_refCount-1);
         if (!--p->m_refCount)
         {
-            p->log("delete");
+//             p->log("delete");
             delete p;
         }
     }
@@ -54,12 +54,12 @@ namespace fhe
         m_type = type;
         m_name = name;
         m_path = name;
-        log("ctor");
+//         log("ctor");
     }
     
     boost::python::object Node::defineClass()
     {
-        return boost::python::class_<Node, /*NodePtr,*/ boost::python::bases<VarMap,FuncMap> >("Node", boost::python::no_init )
+        return boost::python::class_<Node, boost::python::bases<VarMap,FuncMap> >("Node", boost::python::no_init )
             .add_property("name",&Node::getName)
             .add_property("path",&Node::getPath)
             .def("__eq__",&Node::pyEquals)
@@ -69,14 +69,14 @@ namespace fhe
             .def("removeChild",&Node::pyRemoveChild)
             .def("clearChildren",&Node::clearChildren)
             .def("release",&Node::release)
-            .def("getParent",&Node::pyGetParent, boost::python::return_value_policy<boost::python::reference_existing_object>())
+            .def("getParent",&Node::pyGetParent)
             .def("hasChild",&Node::hasChild)
-            .def("getChild",&Node::pyGetChild, boost::python::return_value_policy<boost::python::reference_existing_object>())
+            .def("getChild",&Node::pyGetChild)
             .def("runScript",&Node::runScript)
             .def("publish",&Node::publish)
-            .def("loadChild",&Node::pyLoadChild, boost::python::return_value_policy<boost::python::reference_existing_object>())
-            .def("buildChild",&Node::pyBuildChild, boost::python::return_value_policy<boost::python::reference_existing_object>())
-            .def("getRoot",&Node::pyGetRoot, boost::python::return_value_policy<boost::python::reference_existing_object>())
+            .def("loadChild",&Node::pyLoadChild)
+            .def("buildChild",&Node::pyBuildChild)
+            .def("getRoot",&Node::pyGetRoot)
             .def("log",&Node::pyLog)
         ;
     }
@@ -122,10 +122,6 @@ namespace fhe
             PyErr_Print();
             throw std::runtime_error( "error running python file " + filename );
         }
-        
-        log("remove self");
-        ns["self"] = boost::python::object();
-        log("/remove self");
     }
     
     boost::python::object Node::tryEvalScript( const std::string& s )
@@ -170,7 +166,7 @@ namespace fhe
 
     boost::python::object Node::toPy()
     {
-        return boost::python::object(this);
+        return boost::python::object(boost::python::ptr(this));
     }
     
     NodePtr Node::fromPy( boost::python::object obj )
@@ -280,9 +276,9 @@ namespace fhe
         return m_parent;
     }
     
-    Node* Node::pyGetParent()
+    boost::python::object Node::pyGetParent()
     {
-        return m_parent;
+        return m_parent ? m_parent->toPy() : boost::python::object();
     }
     
     bool Node::hasChild( const std::string& name )
@@ -296,9 +292,10 @@ namespace fhe
         return m_children[name];
     }
     
-    Node* Node::pyGetChild( const std::string& name )
+    boost::python::object Node::pyGetChild( const std::string& name )
     {
-        return getChild(name).get();
+        NodePtr child = getChild(name);
+        return child ? child->toPy() : boost::python::object();
     }
     
     void Node::onSetVar( const std::string& name, const Var& val )
@@ -398,9 +395,9 @@ namespace fhe
         return m_parent ? m_parent->getRoot() : this;
     }
     
-    Node* Node::pyGetRoot()
+    boost::python::object Node::pyGetRoot()
     {
-        return getRoot().get();
+        return getRoot()->toPy();
     }
     
     NodePtr Node::loadChild( const std::string& filename )
@@ -416,16 +413,16 @@ namespace fhe
         }
     }
     
-    Node* Node::pyLoadChild( const std::string& filename )
+    boost::python::object Node::pyLoadChild( const std::string& filename )
     {
-        return loadChild(filename).get();
+        return loadChild(filename)->toPy();
     }
     
-    Node* Node::pyBuildChild( const std::string& type, const std::string& name )
+    boost::python::object Node::pyBuildChild( const std::string& type, const std::string& name )
     {
         NodePtr child = NodeFactory::instance().buildNode(type,name);
         addChild(child);
-        return child.get();
+        return child->toPy();
     }
     
     NodePtr Node::loadChildData( TiXmlHandle h )

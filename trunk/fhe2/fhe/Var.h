@@ -1,80 +1,125 @@
 #ifndef VAR_H
 #define VAR_H
 
-#include <string>
 #include <boost/python.hpp>
+#include <typeinfo>
+#include <cassert>
 
 namespace fhe
 {
     
-    class VarMap;
-    class Vec2;
-    class Rot;
-    class Vec3;
-    class Quat;
-    
     class Var
     {
-        public:
-            enum Type
-            {
-                NONE,
-                BOOL,
-                INT,
-                FLOAT,
-                STRING,
-                VARMAP,
-                VEC2,
-                ROT,
-                VEC3,
-                QUAT
-            };
-            
         private:
-            Type m_type;
             
-            union Data
+            template <class T>
+            class Data;
+            
+            class AbstractData
             {
-                bool b;
-                int i;
-                float f;
-                std::string* s;
-                VarMap* vm;
-                Vec2* v2;
-                Rot* r;
-                Vec3* v3;
-                Quat* q;
+                public:
+                    virtual const std::type_info& getType()=0;
+                    virtual AbstractData* clone()=0;
+                    
+                    template <class T>
+                    bool is()
+                    {
+                        return getType() == typeid(T);
+                    }
+                    
+                    template <class T>
+                    Data<T>* cast()
+                    {
+                        return is<T>() ? static_cast<Data<T>*>(this) : 0;
+                    }
             };
             
-            Data m_data;
+            template <class T>
+            class Data : public AbstractData
+            {
+                private:
+                    T m_val;
+                    
+                public:
+                    Data( const T& val ) :
+                        m_val(val)
+                    {
+                    }
+                    
+                    const std::type_info& getType()
+                    {
+                        return typeid(T);
+                    }
+                    
+                    T get()
+                    {
+                        return m_val;
+                    }
+                    
+                    void set( const T& val )
+                    {
+                        m_val = val;
+                    }
+                    
+                    AbstractData* clone()
+                    {
+                        return new Data<T>(m_val);
+                    }
+            };
             
-            void setType( Type type );
+            AbstractData* m_data;
             
         public:
             Var();
-            Var( const Var& var );
-            Var& operator=( const Var& var );
+            
+            Var( const Var& var);
+            
             Var( boost::python::object obj );
+            
+            template <class T> 
+            Var( const T& val ) :
+                m_data( new Data<T>(val) )
+            {
+            }
             
             ~Var();
             
-            Type getType();
+            Var& operator=( const Var& var );
+            
+            void clear();
+            
+            bool empty();
             
             template <class T>
-            bool is();
+            bool is()
+            {
+                return m_data && m_data->is<T>();
+            }
             
             template <class T>
-            T get();
+            T get()
+            {
+                assert(is<T>());
+                return m_data->cast<T>()->get();
+            }
             
             template <class T>
-            T get(const T& def);
-            
-            template <class T>
-            void set(const T& val);
+            void set( const T& val )
+            {
+                if (is<T>())
+                {
+                    m_data->cast<T>()->set(val);
+                }
+                else
+                {
+                    clear();
+                    m_data = new Data<T>(val);
+                }
+            }
             
             boost::python::object pyGet();
             
-            void pySet( boost::python::object val );
+            void pySet( boost::python::object obj );
             
             boost::python::object toPy();
             

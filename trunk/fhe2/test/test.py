@@ -81,21 +81,18 @@ def msg_msgTest(args):
 self.publish("msgTest",VarMap(dict(msgTest = 21)))
 assert child.getVar("msgTest") == 21
 
-#fileChild = self.loadChild("test.xml")
-#assert fileChild
+fileChild = self.loadChild("test.xml")
+assert fileChild
 
-#assert fileChild.getVar("b") == True
-#assert fileChild.getVar("i") == 11
-#assert fileChild.getVar("f") == 2.5
-#assert fileChild.getVar("s") == "hi"
-#assert fileChild.getVar("v2") == Vec2(1,2)
-#assert fileChild.getVar("v3") == Vec3(3,4,5)
-#assert fileChild.getVar("r") == Rot(-1)
-#assert fileChild.getVar("q") == Quat(Vec3(0,1,0),1)
+assert fileChild.getVar("b") == True
+assert fileChild.getVar("i") == 11
+assert fileChild.getVar("f") == 2.5
+assert fileChild.getVar("s") == "hi"
+assert fileChild.getVar("v2") == Vec2(1,2)
+assert fileChild.getVar("v3") == Vec3(3,4,5)
+assert fileChild.getVar("r") == Rot(-1)
+assert fileChild.getVar("q") == Quat(Vec3(0,1,0),1)
 
 @self.func(None,VarMap)
 def msg_pub(args):
-    self.log("pub!")
     self.setVar("pub","sub")
-
-print "/script"

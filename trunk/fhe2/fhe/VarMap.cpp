@@ -1,45 +1,50 @@
 #include "VarMap.h"
-#include <cassert>
-#include <stdexcept>
 
 namespace fhe
 {
-    
     VarMap::VarMap()
     {
     }
     
-    VarMap::VarMap( const VarMap& varMap )
+    VarMap::VarMap( boost::python::dict dict )
     {
-        for ( std::map<std::string, Var>::const_iterator i = varMap.m_vars.begin(); i != varMap.m_vars.end(); ++i )
-        {
-            m_vars[i->first] = Var(i->second);
-        }
+        *this = VarMap::fromPy(dict);
     }
-    
-    VarMap& VarMap::operator=( const VarMap& varMap )
+
+    void VarMap::removeVar( const std::string& name )
     {
-        clearVars();
-        
-        for ( std::map<std::string, Var>::const_iterator i = varMap.m_vars.begin(); i != varMap.m_vars.end(); ++i )
-        {
-            m_vars[i->first] = Var(i->second);
-        }
-    }
-    
-    VarMap::VarMap( boost::python::object obj )
-    {
-        *this = VarMap::fromPy(obj);
+        m_vars.erase(name);
     }
     
     void VarMap::clearVars()
     {
         m_vars.clear();
     }
-    
-    void VarMap::removeVar( const std::string& name )
+
+    boost::python::object VarMap::toPy()
     {
-        m_vars.erase( name );
+        boost::python::dict dict;
+        
+        for ( std::map<std::string,Var>::iterator i = m_vars.begin(); i != m_vars.end(); ++i )
+        {
+            dict[i->first] = i->second.toPy();
+        }
+        
+        return dict;
+    }
+    
+    VarMap VarMap::fromPy( boost::python::object obj )
+    {
+        VarMap varMap;
+
+        boost::python::object items = obj.attr("items")();
+        
+        for ( int i = 0; i < boost::python::len(items); ++i )
+        {
+            varMap.pySetVar(boost::python::extract<std::string>(items[i][0]),items[i][1]);
+        }
+        
+        return varMap;
     }
     
     bool VarMap::pyHasVar( const std::string& name )
@@ -49,26 +54,18 @@ namespace fhe
     
     boost::python::object VarMap::pyGetVar( const std::string& name )
     {
-        Var var = onGetVar(name);
-        if ( var.getType() != Var::NONE )
-        {
-            return var.toPy();
-        }
-        else
-        {
-            assert(pyHasVar(name));
-            return m_vars[name].toPy();
-        }
+        return pyGetVarDef(name,boost::python::object());
     }
     
     boost::python::object VarMap::pyGetVarDef( const std::string& name, boost::python::object def )
     {
         Var var = onGetVar(name);
-        if ( var.getType() != Var::NONE )
+        if (!var.empty())
         {
-            return var.toPy();
+            m_vars[name] = var;
         }
-        else if ( pyHasVar(name) )
+        
+        if ( pyHasVar( name ) )
         {
             return m_vars[name].toPy();
         }
@@ -84,63 +81,25 @@ namespace fhe
         onSetVar(name,m_vars[name]);
     }
     
-    boost::python::object VarMap::toPy()
-    {
-        boost::python::dict dict;
-        
-        for ( std::map<std::string, Var>::iterator i = m_vars.begin(); i != m_vars.end(); ++i )
-        {
-            dict[i->first] = i->second.toPy();
-        }
-        
-        return dict;
-    }
-    
-    VarMap VarMap::fromPy( boost::python::object obj )
-    {
-        std::string type = boost::python::extract<std::string>(obj.attr("__class__").attr("__name__"));
-        
-        if ( type == "VarMap" )
-        {
-            return boost::python::extract<VarMap>(obj);
-        }
-        else if ( type == "dict" )
-        {
-            VarMap varMap;
-            boost::python::object items = obj.attr("items")();
-            for ( int i = 0; i < boost::python::len(items); ++i )
-            {
-                varMap.pySetVar( boost::python::extract<std::string>(items[i][0]), items[i][1] );
-            }
-            return varMap;
-        }
-        else
-        {
-            throw std::runtime_error( "can't create VarMap from python type " + type );
-        }
-    }
-    
-    bool VarMap::hasVarRaw( const std::string& name )
-    {
-        return m_vars.find(name) != m_vars.end();
-    }
-    
-    Var VarMap::getVarRaw( const std::string& name )
-    {
-        assert(hasVarRaw(name));
-        return m_vars[name];
-    }
-    
     boost::python::object VarMap::defineClass()
     {
-        return boost::python::class_<VarMap>("VarMap", boost::python::init<>())
+        return boost::python::class_<VarMap>("VarMap",boost::python::init<>())
             .def(boost::python::init<boost::python::dict>())
+            .def("removeVar",&VarMap::removeVar)
+            .def("clearVars",&VarMap::clearVars)
             .def("hasVar",&VarMap::pyHasVar)
             .def("getVar",&VarMap::pyGetVar)
             .def("getVar",&VarMap::pyGetVarDef)
             .def("setVar",&VarMap::pySetVar)
-            .def("removeVar",&VarMap::removeVar)
-            .def("clearVars",&VarMap::clearVars)
         ;
+    }
+    
+    Var VarMap::onGetVar( const std::string& name )
+    {
+        return Var();
+    }
+    
+    void VarMap::onSetVar( const std::string& name, const Var& val )
+    {
     }
 }

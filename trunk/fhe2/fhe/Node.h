@@ -52,6 +52,9 @@ namespace fhe
             
             void fillChild( NodePtr child, TiXmlHandle h );
             
+//             Node( const Node& node ) {}
+//             void operator=( const Node& node ) {}
+            
         public:
             
             Node();
@@ -76,12 +79,12 @@ namespace fhe
             std::string getPath();
             
             NodePtr getParent();
-            Node* pyGetParent();
+            boost::python::object pyGetParent();
             bool hasChild( const std::string& name );
             NodePtr getChild( const std::string& name );
-            Node* pyGetChild( const std::string& name );
+            boost::python::object pyGetChild( const std::string& name );
             NodePtr getRoot();
-            Node* pyGetRoot();
+            boost::python::object pyGetRoot();
             
             boost::python::object evalScript( const std::string& s);
             boost::python::object tryEvalScript( const std::string& s);
@@ -101,8 +104,8 @@ namespace fhe
             void error( const char* fmt, ...);
             
             NodePtr loadChild( const std::string& filename );
-            Node* pyLoadChild( const std::string& filename );
-            Node* pyBuildChild( const std::string& type, const std::string& name );
+            boost::python::object pyLoadChild( const std::string& filename );
+            boost::python::object pyBuildChild( const std::string& type, const std::string& name );
             
             void load_children( TiXmlHandle h );
             void load_vars( TiXmlHandle h );
