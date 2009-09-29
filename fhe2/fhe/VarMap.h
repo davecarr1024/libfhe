@@ -72,6 +72,12 @@ namespace fhe
                 
                 onSetVar(name,m_vars[name]);
             }
+            
+            template <class T>
+            void defaultVar( const std::string& name, const T& val )
+            {
+                setVar<T>(name,getVar<T>(name,val));
+            }
 
             boost::python::object toPy();
             
