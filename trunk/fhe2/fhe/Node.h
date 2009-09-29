@@ -52,9 +52,6 @@ namespace fhe
             
             void fillChild( NodePtr child, TiXmlHandle h );
             
-//             Node( const Node& node ) {}
-//             void operator=( const Node& node ) {}
-            
         public:
             
             Node();

@@ -4,12 +4,14 @@
 #include "INodeBuilder.h"
 #include <string>
 #include <map>
+#include <boost/intrusive_ptr.hpp>
 
 namespace fhe
 {
     class NodeFactory
     {
         friend class Node;
+        typedef boost::intrusive_ptr<Node> NodePtr;
         
         private:
             std::map<std::string,INodeBuilder*> m_builders;
@@ -23,7 +25,7 @@ namespace fhe
             
             void addBuilder( const std::string& name, INodeBuilder* builder );
             
-            Node* buildNode( const std::string& type, const std::string& name );
+            NodePtr buildNode( const std::string& type, const std::string& name );
     };
     
 }

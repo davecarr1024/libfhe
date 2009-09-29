@@ -26,7 +26,7 @@ namespace fhe
         m_builders[name] = builder;
     }
     
-    Node* NodeFactory::buildNode( const std::string& type, const std::string& name )
+    NodePtr NodeFactory::buildNode( const std::string& type, const std::string& name )
     {
         assert(hasBuilder(type));
         Node* node = m_builders[type]->buildNode();
