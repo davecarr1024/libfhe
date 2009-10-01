@@ -72,7 +72,6 @@ namespace fhe
             .def("getParent",&Node::pyGetParent)
             .def("hasChild",&Node::hasChild)
             .def("getChild",&Node::pyGetChild)
-            .def("runScript",&Node::runScript)
             .def("publish",&Node::publish)
             .def("loadChild",&Node::pyLoadChild)
             .def("buildChild",&Node::pyBuildChild)
@@ -104,15 +103,23 @@ namespace fhe
         }
     }
     
-    void Node::runScript( const std::string& filename )
+    boost::python::dict Node::defaultNamespace()
     {
         initializePython();
         
         boost::python::dict ns;
-        ns.update( m_mainNamespace );
-        
+        ns.update(m_mainNamespace);
         ns["self"] = toPy();
-
+        return ns;
+    }
+    
+    void Node::runScript( const std::string& filename )
+    {
+        runScript(filename,defaultNamespace());
+    }
+    
+    void Node::runScript( const std::string& filename, boost::python::dict ns )
+    {
         try
         {
             boost::python::exec_file( FileSystem::instance().getFile(filename).c_str(), ns, ns );
@@ -126,13 +133,11 @@ namespace fhe
     
     boost::python::object Node::tryEvalScript( const std::string& s )
     {
-        initializePython();
-        
-        boost::python::dict ns;
-        ns.update( m_mainNamespace );
-        
-        ns["self"] = toPy();
-        
+        return tryEvalScript(s,defaultNamespace());
+    }
+    
+    boost::python::object Node::tryEvalScript( const std::string& s, boost::python::dict ns )
+    {
         try
         {
             Var val = Var::fromPy(boost::python::eval( s.c_str(), ns, ns ) );
@@ -150,22 +155,22 @@ namespace fhe
     
     boost::python::object Node::evalScript( const std::string& s )
     {
-        initializePython();
-        
-        boost::python::dict ns;
-        ns.update( m_mainNamespace );
-        
-        ns["self"] = toPy();
-        
-        try
-        {
-            return boost::python::eval( s.c_str(), ns, ns );
-        }
-        catch ( boost::python::error_already_set const& )
-        {
-            PyErr_Print();
-            throw std::runtime_error( "error running python script: " + s );
-        }
+        return evalScript(s,defaultNamespace());
+    }
+    
+    boost::python::object Node::evalScript( const std::string& s, boost::python::dict ns )
+    {
+        return boost::python::eval(s.c_str(),ns,ns);
+    }
+    
+    void Node::execScript( const std::string& s )
+    {
+        execScript(s,defaultNamespace());
+    }
+    
+    void Node::execScript( const std::string& s, boost::python::dict ns )
+    {
+        boost::python::exec(s.c_str(),ns,ns);
     }
 
     boost::python::object Node::toPy()
