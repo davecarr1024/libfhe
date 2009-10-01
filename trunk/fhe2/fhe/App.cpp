@@ -31,6 +31,8 @@ namespace fhe
             args.setVar("time",time);
             args.setVar("dtime",time);
             publish("update",args);
+            
+            Node::threadPool.joinAll();
         }
         float totalTime = getTime() - startTime;
         log("fps %f", float(numFrames) / totalTime );
