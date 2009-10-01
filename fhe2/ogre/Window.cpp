@@ -47,7 +47,7 @@ namespace fhe
     {
         float time = args.getVar<float>("time",0);
         static float lastTime = time;
-        if ( time - lastTime > 1.0 / getVar<float>("fps",60) )
+        if ( time - lastTime > 1.0 / 60.0 ) //getVar<float>("fps",60) )
         {
             lastTime = time;
             m_root->renderOneFrame();

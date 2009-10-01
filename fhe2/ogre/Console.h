@@ -1,14 +1,14 @@
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
-#include "Widget.h"
+#include "FrameWindow.h"
 #include "EditBox.h"
 #include "MultilineEditBox.h"
 
 namespace fhe
 {
     
-    class Console : public Widget
+    class Console : public FrameWindow
     {
         private:
             EditBoxPtr m_input;

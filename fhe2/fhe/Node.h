@@ -83,8 +83,14 @@ namespace fhe
             NodePtr getRoot();
             boost::python::object pyGetRoot();
             
+            boost::python::dict defaultNamespace();
+            void execScript( const std::string& s );
+            void execScript( const std::string& s, boost::python::dict ns );
             boost::python::object evalScript( const std::string& s);
+            boost::python::object evalScript( const std::string& s, boost::python::dict ns);
             boost::python::object tryEvalScript( const std::string& s);
+            boost::python::object tryEvalScript( const std::string& s, boost::python::dict ns);
+            void runScript( const std::string& filename, boost::python::dict ns );
             void runScript( const std::string& filename );
 
             boost::python::object toPy();

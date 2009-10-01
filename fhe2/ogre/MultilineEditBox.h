@@ -17,6 +17,11 @@ namespace fhe
             
             void set_text( Var val );
             Var get_text();
+            
+            void set_readOnly( Var val );
+            Var get_readOnly();
+            
+            void scrollToEnd();
     };
     
     FHE_NODE_DECL(MultilineEditBox);

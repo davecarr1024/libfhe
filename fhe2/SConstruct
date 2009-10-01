@@ -1,6 +1,14 @@
+
+import subprocess
+
+def run(cmd):
+    return subprocess.Popen(cmd.split(),stdout = subprocess.PIPE).communicate()[0]
+
 env = Environment()
 
 env['SHOBJSUFFIX'] = '.oss'
+
+#env.Append(CXXFLAGS = run("wx-config --cxxflags"))
 
 env.Append(CPPPATH = env.Split("""
     #
@@ -23,7 +31,10 @@ env.Append(LIBS = env.Split("""
     CEGUIOgreRenderer
     OgreMain
     OIS
-    """))
+    PocoFoundation
+    """) 
+    #+ [i.lstrip("-l") for i in run("wx-config --libs").split() if 'sym' not in i]
+    )
 
 import os.path
 from glob import glob

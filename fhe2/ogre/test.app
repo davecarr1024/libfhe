@@ -27,7 +27,7 @@
         </vars>
     </child>
     <child>
-        <type>Console</type>
+        <type>PythonConsole</type>
         <vars>
             <var name="pos">Vec2(0,0)</var>
             <var name="size">Vec2(0.4,0.4)</var>
