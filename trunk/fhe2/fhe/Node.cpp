@@ -18,7 +18,9 @@ namespace fhe
     boost::python::object Node::m_mainModule;
     boost::python::dict Node::m_mainNamespace;
     bool Node::m_pythonInitialized = false;
+    #ifdef FHE_THREAD
     Poco::ThreadPool Node::threadPool;
+    #endif
     
     Node::Node() :
         m_refCount(0),
@@ -52,8 +54,6 @@ namespace fhe
     
     void Node::init( const std::string& type, const std::string& name )
     {
-        Poco::Mutex::ScopedLock lock(m_lock);
-        
         m_type = type;
         m_name = name;
         m_path = name;
@@ -342,6 +342,7 @@ namespace fhe
         }
     }
     
+    #ifdef FHE_THREAD
     Node::PublishThread::PublishThread( NodePtr node, const std::string& cmd, const VarMap& args ) :
         m_node(node),
         m_cmd(cmd),
@@ -359,6 +360,7 @@ namespace fhe
     {
         m_event.wait();
     }
+    #endif
     
     void Node::publish( const std::string& cmd, const VarMap& args )
     {
@@ -368,6 +370,7 @@ namespace fhe
             call<void,VarMap>(msgName,args);
         }
         
+        #ifdef FHE_THREAD
         if ( !m_children.empty() )
         {
             std::vector<PublishThread*> threads;
@@ -392,6 +395,12 @@ namespace fhe
                 delete *i;
             }
         }
+        #else
+        for ( NodeMap::iterator i = m_children.begin(); i != m_children.end(); ++i )
+        {
+            i->second->publish(cmd,args);
+        }
+        #endif
         
         std::string unmsgName = "unmsg_" + cmd;
         if ( hasFunc<void,VarMap>(unmsgName) )
@@ -408,8 +417,6 @@ namespace fhe
     void
     Node::log( const char* format, ... )
     {
-        Poco::Mutex::ScopedLock lock(m_lock);
-        
         char buffer[1024];
         va_list ap;
         va_start(ap,format);
@@ -421,8 +428,6 @@ namespace fhe
     void
     Node::error( const char* format, ... )
     {
-        Poco::Mutex::ScopedLock lock(m_lock);
-        
         char buffer[1024];
         va_list ap;
         va_start(ap,format);
@@ -438,8 +443,6 @@ namespace fhe
     
     std::string Node::getPath()
     {
-        Poco::Mutex::ScopedLock lock(m_lock);
-        
         return m_path;
     }
     

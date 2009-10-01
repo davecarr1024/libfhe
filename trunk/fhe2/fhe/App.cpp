@@ -32,7 +32,9 @@ namespace fhe
             args.setVar("dtime",time);
             publish("update",args);
             
+            #ifdef FHE_THREAD
             Node::threadPool.joinAll();
+            #endif
         }
         float totalTime = getTime() - startTime;
         log("fps %f", float(numFrames) / totalTime );
