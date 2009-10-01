@@ -12,6 +12,11 @@
 #include <boost/intrusive_ptr.hpp>
 #include <tinyxml.h>
 
+#include <Poco/ThreadPool.h>
+#include <Poco/Runnable.h>
+#include <Poco/Event.h>
+#include <Poco/Mutex.h>
+
 namespace fhe
 {
     
@@ -30,6 +35,8 @@ namespace fhe
         friend class INodeBuilder;
         
         private:
+            Poco::Mutex m_lock;
+            
             int m_refCount;
             
             Node* m_parent;
@@ -52,7 +59,25 @@ namespace fhe
             
             void fillChild( NodePtr child, TiXmlHandle h );
             
+            class PublishThread : public Poco::Runnable
+            {
+                private:
+                    NodePtr m_node;
+                    const std::string& m_cmd;
+                    const VarMap& m_args;
+                    Poco::Event m_event;
+                    
+                public:
+                    PublishThread( NodePtr node, const std::string& cmd, const VarMap& args );
+                    
+                    void run();
+                    
+                    void wait();
+            };
+            
         public:
+            
+            static Poco::ThreadPool threadPool;
             
             Node();
             virtual ~Node();

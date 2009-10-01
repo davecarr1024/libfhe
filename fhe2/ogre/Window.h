@@ -39,7 +39,9 @@ namespace fhe
 
         public:
             Window();
-            ~Window();
+            
+            void on_attach();
+            void on_detach();
             
             void msg_update(VarMap args);
             

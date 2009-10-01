@@ -15,11 +15,9 @@ namespace fhe
         m_sceneManager(0),
         m_renderWindow(0)
     {
-        if (!setup())
-        {
-            error("Failed to initialize ogre");
-        }
-        
+        setVar("thread",false);
+        addFunc("on_detach",&Window::on_detach,this);
+        addFunc("on_attach",&Window::on_attach,this);
         addFunc("msg_update",&Window::msg_update,this);
         addFunc("getOgreRoot",&Window::getOgreRoot,this);
         addFunc("getCamera",&Window::getCamera,this);
@@ -31,7 +29,7 @@ namespace fhe
         addFunc("getWindowManager",&Window::getWindowManager,this);
     }
     
-    Window::~Window()
+    void Window::on_detach()
     {
         if ( m_frameListener )
         {
@@ -43,11 +41,20 @@ namespace fhe
         }
     }
     
+    void Window::on_attach()
+    {
+        on_detach();
+        if (!setup())
+        {
+            error("Failed to initialize ogre");
+        }
+    }
+    
     void Window::msg_update( VarMap args )
     {
         float time = args.getVar<float>("time",0);
         static float lastTime = time;
-        if ( time - lastTime > 1.0 / 60.0 ) //getVar<float>("fps",60) )
+        if ( time - lastTime > 1.0 / getVar<float>("fps",60) )
         {
             lastTime = time;
             m_root->renderOneFrame();

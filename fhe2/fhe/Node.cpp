@@ -18,6 +18,7 @@ namespace fhe
     boost::python::object Node::m_mainModule;
     boost::python::dict Node::m_mainNamespace;
     bool Node::m_pythonInitialized = false;
+    Poco::ThreadPool Node::threadPool;
     
     Node::Node() :
         m_refCount(0),
@@ -51,6 +52,8 @@ namespace fhe
     
     void Node::init( const std::string& type, const std::string& name )
     {
+        Poco::Mutex::ScopedLock lock(m_lock);
+        
         m_type = type;
         m_name = name;
         m_path = name;
@@ -59,7 +62,7 @@ namespace fhe
     
     boost::python::object Node::defineClass()
     {
-        return boost::python::class_<Node, boost::python::bases<VarMap,FuncMap> >("Node", boost::python::no_init )
+        return boost::python::class_<Node, boost::python::bases<VarMap,FuncMap>, boost::noncopyable >("Node", boost::python::no_init )
             .add_property("name",&Node::getName)
             .add_property("path",&Node::getPath)
             .def("__eq__",&Node::pyEquals)
@@ -339,20 +342,55 @@ namespace fhe
         }
     }
     
+    Node::PublishThread::PublishThread( NodePtr node, const std::string& cmd, const VarMap& args ) :
+        m_node(node),
+        m_cmd(cmd),
+        m_args(args)
+    {
+    }
+    
+    void Node::PublishThread::run()
+    {
+        m_node->publish(m_cmd,m_args);
+        m_event.set();
+    }
+    
+    void Node::PublishThread::wait()
+    {
+        m_event.wait();
+    }
+    
     void Node::publish( const std::string& cmd, const VarMap& args )
     {
-//         if ( cmd != "update" ) log("publish %s",cmd.c_str());
-        
         std::string msgName = "msg_" + cmd;
         if ( hasFunc<void,VarMap>(msgName) )
         {
-//             if ( cmd != "update" ) log("call msg");
             call<void,VarMap>(msgName,args);
         }
         
-        for ( NodeMap::iterator i = m_children.begin(); i != m_children.end(); ++i )
+        if ( !m_children.empty() )
         {
-            i->second->publish(cmd,args);
+            std::vector<PublishThread*> threads;
+        
+            for ( NodeMap::iterator i = m_children.begin(); i != m_children.end(); ++i )
+            {
+                if ( i->second->getVar<bool>("thread",true) )
+                {
+                    PublishThread* thread = new PublishThread(i->second,cmd,args);
+                    Node::threadPool.start(*thread);
+                    threads.push_back(thread);
+                }
+                else
+                {
+                    i->second->publish(cmd,args);
+                }
+            }
+            
+            for ( std::vector<PublishThread*>::iterator i = threads.begin(); i != threads.end(); ++i )
+            {
+                (*i)->wait();
+                delete *i;
+            }
         }
         
         std::string unmsgName = "unmsg_" + cmd;
@@ -370,17 +408,21 @@ namespace fhe
     void
     Node::log( const char* format, ... )
     {
+        Poco::Mutex::ScopedLock lock(m_lock);
+        
         char buffer[1024];
         va_list ap;
         va_start(ap,format);
         vsnprintf( buffer, 1024, format, ap );
         va_end(ap);
-        printf("%s: %s\n", m_path.c_str(), buffer);
+        printf("%s: %s\n", getPath().c_str(), buffer);
     }
 
     void
     Node::error( const char* format, ... )
     {
+        Poco::Mutex::ScopedLock lock(m_lock);
+        
         char buffer[1024];
         va_list ap;
         va_start(ap,format);
@@ -396,6 +438,8 @@ namespace fhe
     
     std::string Node::getPath()
     {
+        Poco::Mutex::ScopedLock lock(m_lock);
+        
         return m_path;
     }
     
