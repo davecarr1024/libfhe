@@ -11,6 +11,9 @@ namespace fhe
     class Var
     {
         private:
+            template <class T>
+            class Data;
+            
             class AbstractData
             {
                 public:
@@ -29,6 +32,7 @@ namespace fhe
                         return is<T>() ? static_cast<Data<T>*>(this) : 0;
                     }
                     
+                    virtual boost::python::object toPy()=0;
             };
             
             template <class T>
@@ -62,6 +66,8 @@ namespace fhe
                     {
                         return new Data<T>(m_val);
                     }
+                    
+                    boost::python::object toPy();
             };
             
             AbstractData* m_data;

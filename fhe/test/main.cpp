@@ -109,6 +109,10 @@ void varTest()
     assert(node->hasVar<int>("i"));
     assert(!node->hasVar<float>("i"));
     assert(node->getVar<int>("i") == 1);
+    
+    Var v(1);
+    assert(v.is<int>());
+    assert(v.get<int>() == 1);
 }
 
 /*void loadTest()
@@ -134,11 +138,11 @@ void pythonTest()
 {
     NodePtr node( new TestNode("pythonTest","TestNode") );
     
-    node->addChild( new Node("pychild","Node") );
+//     node->addChild( new Node("pychild","Node") );
     
     node->runScript("test/test.py");
     
-    node->callFunc<void,std::string>("hello","world");
+/*    node->callFunc<void,std::string>("hello","world");
     std::string helloMsg = node->getVar<std::string>("hello_msg");
     assert(helloMsg == "world");
     
@@ -152,18 +156,17 @@ void pythonTest()
     assert( msg == "msg" );
     
     node->publish<std::string>("pyTest","python");
-    assert(node->getVar<std::string>("pyTestVal") == "python");
+    assert(node->getVar<std::string>("pyTestVal") == "python");*/
 }
 
 int main()
 {
-    nodeTreeTest();
+/*    nodeTreeTest();
     nodeFactoryTest();
     varTest();
     msgTest();
-    funcTest();
+    funcTest();*/
 //     loadTest();
     pythonTest();
-    FileSystem::instance();
     return 0;
 }

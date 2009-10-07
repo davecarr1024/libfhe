@@ -6,11 +6,13 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <boost/intrusive_ptr.hpp>
 
 namespace fhe
 {
     
     class Node;
+    typedef boost::intrusive_ptr<Node> NodePtr;
     
     class NodeFactory
     {
@@ -24,7 +26,7 @@ namespace fhe
         public:
             static NodeFactory& instance();
             
-            Node* buildNode( const std::string& type, const std::string& name );
+            NodePtr buildNode( const std::string& type, const std::string& name );
             
             void addBuilder( const std::string& type, INodeBuilder* builder );
     };

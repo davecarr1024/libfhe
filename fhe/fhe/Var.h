@@ -45,7 +45,7 @@ namespace fhe
                         m_val(val)
                     {
                     }
-
+                    
                     const std::type_info& getType()
                     {
                         return typeid(T);
@@ -75,6 +75,12 @@ namespace fhe
             Var( const Var& var);
             
             Var( boost::python::object obj );
+            
+            template <class T> 
+            Var( const T& val ) :
+                m_data( new Data<T>(val) )
+            {
+            }
             
             ~Var();
             
