@@ -10,24 +10,6 @@
 namespace fhe
 {
     
-    bool PyNode::m_initialized = false;
-    
-    boost::python::object PyNode::m_addFunc;
-    
-    void PyNode::initialize()
-    {
-        if ( !m_initialized )
-        {
-            m_initialized = true;
-            
-            boost::python::dict ns;
-
-            boost::python::exec_file("fhe/PyNode.py",ns,ns);
-            
-            m_addFunc = ns["addFunc"];
-        }
-    }
-    
     boost::python::object PyNode::defineClass()
     {
         return boost::python::class_<PyNode>( "Node", boost::python::no_init )
@@ -41,13 +23,14 @@ namespace fhe
             .def( "getChild", &PyNode::getChild )
             .def( "getRoot", &PyNode::getRoot )
             .def( "getNode", &PyNode::getNode )
+            .def( "func", &PyNode::func )
             .def( "call", &PyNode::callFunc )
+            .def( "hasFunc", &PyNode::hasFunc )
             .def( "publish", &PyNode::publish )
             .def( "setVar", &PyNode::setVar )
             .def( "getVar", &PyNode::getVar )
             .def( "getVar", &PyNode::getVarDef )
             .def( "hasVar", &PyNode::hasVar )
-            .def( "_addFunc", &PyNode::addFunc )
             .def( "attachToParent", &PyNode::attachToParent )
             .def( "detachFromParent", &PyNode::detachFromParent )
             .def( "addChild", &PyNode::addChild )
@@ -62,9 +45,7 @@ namespace fhe
     {
         if ( node )
         {
-            boost::python::object pyNode(new PyNode( node ));
-            
-            pyNode.attr("func") = m_addFunc(pyNode);
+            boost::python::object pyNode = boost::python::object(PyNode( node ));
             
             return pyNode;
         }
@@ -74,11 +55,16 @@ namespace fhe
         }
     }
     
+    int g_PyNodeCount = 0;
+    
     PyNode::PyNode( NodePtr node ) :
         m_node( node )
     {
         assert( m_node );
-        initialize();
+    }
+    
+    PyNode::~PyNode()
+    {
     }
     
     void PyNode::release()
@@ -224,12 +210,6 @@ namespace fhe
         return m_node->pyHasVar(name);
     }
     
-    void PyNode::addFunc( boost::python::object tret, boost::python::object targ, boost::python::object func )
-    {
-        std::string name = boost::python::extract<std::string>(func.attr("__name__"));
-        m_node->pyAddFunc(name,tret,targ,func);
-    }
-    
     bool PyNode::equals( PyNode* pynode )
     {
         return pynode && m_node.get() == pynode->m_node.get();
@@ -293,5 +273,30 @@ namespace fhe
         {
             throw std::runtime_error( "Unable to bind type " + type + " to publish " + cmd );
         }
+    }
+    
+    PyNode::FuncClosure::FuncClosure( NodePtr node, boost::python::object tret, boost::python::object targ ) :
+        m_node(node),
+        m_tret(tret),
+        m_targ(targ)
+    {
+    }
+    
+    void PyNode::FuncClosure::func( boost::python::object func )
+    {
+        std::string name = boost::python::extract<std::string>(func.attr("__name__"));
+        m_node->pyAddFunc(name,m_tret,m_targ,func);
+    }
+    
+    boost::python::object PyNode::FuncClosure::defineClass()
+    {
+        return boost::python::class_<FuncClosure>("FuncClosure",boost::python::no_init)
+            .def("__call__",&FuncClosure::func)
+        ;
+    }
+    
+    boost::python::object PyNode::func( boost::python::object tret, boost::python::object targ )
+    {
+        return boost::python::object(FuncClosure(m_node,tret,targ));
     }
 }

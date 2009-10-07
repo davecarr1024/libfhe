@@ -23,6 +23,8 @@
 namespace fhe
 {
     
+    int g_count = 0;
+    
     NODE_IMPL(Node);
     
     bool Node::m_pythonInitialized = false;
@@ -61,21 +63,27 @@ namespace fhe
         addFunc("save_type",&Node::save_type,this);
         
         updatePath();
+        
+        log("ctor %d", ++g_count);
     }
     
     Node::~Node()
     {
+        log("dtor %d", --g_count);
     }
     
     void intrusive_ptr_add_ref(Node* p)
     {
         p->m_refCount++;
+        p->log("inc %d",p->m_refCount);
     }
     
     void intrusive_ptr_release(Node* p)
     {
+        p->log("dec %d",p->m_refCount-1);
         if (!--p->m_refCount)
         {
+            p->log("delete");
             delete p;
         }
     }
@@ -535,7 +543,8 @@ namespace fhe
             
             m_mainModule = boost::python::import("__main__");
             m_mainNamespace = m_mainModule.attr("__dict__");
-            
+
+            m_mainNamespace["FuncClosure"] = PyNode::FuncClosure::defineClass();
             m_mainNamespace["Var"] = Var::defineClass();
             m_mainNamespace["VarMap"] = VarMap::defineClass();
             m_mainNamespace["Vec2"] = Vec2::defineClass();
@@ -556,9 +565,13 @@ namespace fhe
         
         boost::python::dict ns;
         ns.update( m_mainNamespace );
+        
+        log("add self");
 
         ns["self"] = PyNode::create( this );
-        
+
+        log("run script");
+
         try
         {
             exec_file(filename.c_str(), ns, ns);
@@ -568,6 +581,8 @@ namespace fhe
             PyErr_Print();
             error("running script %s", filename.c_str());
         }
+        
+        log("/run script");
     }
     
     boost::python::object
@@ -627,7 +642,7 @@ namespace fhe
         va_start(ap,format);
         vsnprintf( buffer, 1024, format, ap );
         va_end(ap);
-        printf("%s: %s\n", m_path.c_str(), buffer);
+        printf("%s: %s\n", m_name.c_str(), buffer);
     }
 
     void

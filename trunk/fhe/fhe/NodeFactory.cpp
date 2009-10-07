@@ -19,7 +19,7 @@ namespace fhe
         return instance;
     }
     
-    Node* NodeFactory::buildNode( const std::string& type, const std::string& name )
+    NodePtr NodeFactory::buildNode( const std::string& type, const std::string& name )
     {
         if ( m_nodeTypeIds.find( type ) != m_nodeTypeIds.end() )
         {
