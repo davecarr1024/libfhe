@@ -27,7 +27,10 @@ namespace fhe
             
             AspectPtr buildAspect()
             {
-                return AspectPtr(static_cast<Aspect*>(new T(m_name)),true);
+                AspectPtr aspect(static_cast<Aspect*>(new T()),true);
+                assert(aspect);
+                aspect->init(m_name);
+                return aspect;
             }
             
             std::string getName()

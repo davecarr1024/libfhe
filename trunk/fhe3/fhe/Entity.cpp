@@ -1,22 +1,65 @@
 #include "Entity.h"
 #include "AspectFactory.h"
+#include <sstream>
 
 namespace fhe
 {
+    
+    std::map<std::string,int> Entity::m_nameCounts;
+    
     FHE_TO_CONVERTER(EntityPtr,boost::python::object(boost::python::ptr(obj.get())));
     FHE_FROM_CONVERTER(EntityPtr,obj == boost::python::object() ? 0 : EntityPtr(boost::python::extract<Entity*>(obj)(),true));
     
     EntityPtr Entity::root( new Entity("root") );
     
     Entity::Entity( const std::string& name ) :
-        m_parent(0),
-        m_name(name)
+        m_parent(0)
     {
-        addFunc("attachToParent",&Entity::attachToParent,this);
+        if ( Entity::m_nameCounts.find(name) == Entity::m_nameCounts.end() )
+        {
+            m_name = name;
+            Entity::m_nameCounts[name] = 1;
+        }
+        else
+        {
+            std::ostringstream outs;
+            outs << name << "_" << ++Entity::m_nameCounts[name];
+            m_name = outs.str();
+        }
+        updatePath();
     }
     
     Entity::~Entity()
     {
+    }
+    
+    std::string Entity::getName()
+    {
+        return m_name;
+    }
+    
+    std::string Entity::getPath()
+    {
+        return m_path;
+    }
+    
+    void Entity::updatePath()
+    {
+        if ( m_parent )
+        {
+            if ( m_parent->m_parent )
+            {
+                m_path = m_parent->m_path + "/" + m_name;
+            }
+            else
+            {
+                m_path = "/" + m_name;
+            }
+        }
+        else
+        {
+            m_path = "/";
+        }
     }
     
     void Entity::attachToParent( EntityPtr parent )
@@ -25,6 +68,7 @@ namespace fhe
         {
             detachFromParent();
             m_parent = parent.get();
+            updatePath();
             if ( m_parent )
             {
                 m_parent->addChild(EntityPtr(this,true));
@@ -38,6 +82,7 @@ namespace fhe
         {
             Entity* parent = m_parent;
             m_parent = 0;
+            updatePath();
             parent->removeChild(EntityPtr(this,true));
         }
     }
@@ -175,25 +220,38 @@ namespace fhe
 
     boost::python::object Entity::getAttr( const std::string& name )
     {
-        if ( hasFuncName( name ) )
+        if ( pyHasVar(name) )
         {
-            return boost::python::object(pyGetFunc(name));
+            return pyGetVar(name);
         }
-        else
+        
+        for ( AspectMap::iterator i = m_aspects.begin(); i != m_aspects.end(); ++i )
         {
-            throw std::runtime_error( "name error: " + name );
+            if ( i->second->hasFuncName(name) )
+            {
+                return boost::python::object(i->second->pyGetFunc(name));
+            }
         }
+        throw std::runtime_error( "name error: " + name );
+    }
+    
+    void Entity::setAttr( const std::string& name, boost::python::object val )
+    {
+        pySetVar(name,val);
     }
     
     boost::python::object Entity::defineClass()
     {
         return boost::python::class_<Entity,boost::noncopyable>("Entity",boost::python::no_init)
             .def("__getattr__",&Entity::getAttr)
+            .def("__setattr__",&Entity::setAttr)
             .def("hasVar",&Entity::pyHasVar)
             .def("getVar",&Entity::pyGetVar)
             .def("getVar",&Entity::pyGetVarDef)
             .def("setVar",&Entity::pySetVar)
             .def("publish",&Entity::pyPublish)
+            .add_property("name",&Entity::getName)
+            .add_property("path",&Entity::getPath)
         ;
     }
     
