@@ -32,7 +32,7 @@ namespace fhe
             
             boost::python::object pyCall( boost::python::object arg )
             {
-                return PyConverter::toPy<TRet>(call(PyConverter::fromPy<TArg>(arg)));
+                return PyConverter::instance().toPy<TRet>(call(PyConverter::instance().fromPy<TArg>(arg)));
             }
     };
     
@@ -44,7 +44,7 @@ namespace fhe
 
             boost::python::object pyCall( boost::python::object arg )
             {
-                return PyConverter::toPy<TRet>(call());
+                return PyConverter::instance().toPy<TRet>(call());
             }
     };
     
@@ -56,7 +56,7 @@ namespace fhe
             
             boost::python::object pyCall( boost::python::object arg )
             {
-                call(PyConverter::fromPy<TArg>(arg));
+                call(PyConverter::instance().fromPy<TArg>(arg));
                 return boost::python::object();
             }
     };
@@ -125,6 +125,50 @@ namespace fhe
     };
     
     template <class TRet, class TArg>
+    class BoostFunc : public IFunc<TRet,TArg>
+    {
+        public:
+            typedef boost::function<TRet(TArg)> Method;
+            
+        private:
+            Method m_method;
+            
+        public:
+            BoostFunc( Method method ) :
+                m_method(method)
+            {
+                assert(m_method);
+            }
+            
+            TRet call( const TArg& arg )
+            {
+                return m_method(arg);
+            }
+    };
+    
+    template <class TRet>
+    class BoostFunc<TRet,void> : public IFunc<TRet,void>
+    {
+        public:
+            typedef boost::function<TRet()> Method;
+            
+        private:
+            Method m_method;
+            
+        public:
+            BoostFunc( Method method ) :
+                m_method(method)
+            {
+                assert(m_method);
+            }
+            
+            TRet call()
+            {
+                return m_method();
+            }
+    };
+    
+    template <class TRet, class TArg>
     class PyFunc : public IFunc<TRet,TArg>
     {
         private:
@@ -140,7 +184,7 @@ namespace fhe
             {
                 try
                 {
-                    return boost::python::extract<TRet>(m_func(boost::python::object(arg)));
+                    return PyConverter::instance().fromPy<TRet>(m_func(PyConverter::instance().toPy<TArg>(arg)));
                 }
                 catch ( boost::python::error_already_set const& )
                 {
@@ -166,7 +210,7 @@ namespace fhe
             {
                 try
                 {
-                    return boost::python::extract<TRet>(m_func());
+                    return PyConverter::instance().fromPy<TRet>(m_func());
                 }
                 catch ( boost::python::error_already_set const& )
                 {
@@ -192,7 +236,7 @@ namespace fhe
             {
                 try
                 {
-                    m_func(boost::python::object(arg));
+                    m_func(PyConverter::instance().toPy<TArg>(arg));
                 }
                 catch ( boost::python::error_already_set const& )
                 {
@@ -227,6 +271,7 @@ namespace fhe
                 }
             }
     };
+
 }
 
 #endif

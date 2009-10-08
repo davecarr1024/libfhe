@@ -1,6 +1,7 @@
 #ifndef VAR_H
 #define VAR_H
 
+#include "PyConverter.h"
 #include <boost/python.hpp>
 #include <typeinfo>
 #include <cassert>
@@ -67,7 +68,10 @@ namespace fhe
                         return new Data<T>(m_val);
                     }
                     
-                    boost::python::object toPy();
+                    boost::python::object toPy()
+                    {
+                        return PyConverter::instance().toPy(m_val);
+                    }
             };
             
             AbstractData* m_data;

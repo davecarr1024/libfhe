@@ -1,4 +1,6 @@
 #include "FuncMap.h"
+#include "Var.h"
+#include "VarMap.h"
 
 #include <cassert>
 #include <stdexcept>
@@ -82,7 +84,8 @@ namespace fhe
         }
         else
         {
-            std::string type = boost::python::extract<std::string>(tret.attr("__name__"));
+            boost::python::extract<std::string> e(tret);
+            std::string type = e.check() ? e() : boost::python::extract<std::string>(tret.attr("__name__"));
             
             if ( type == "bool" )
             {
@@ -100,6 +103,14 @@ namespace fhe
             {
                 pyAddFuncWithRet<std::string>(name,targ,func);
             }
+            else if ( type == "Var" )
+            {
+                pyAddFuncWithRet<Var>(name,targ,func);
+            }
+            else if ( type == "VarMap" )
+            {
+                pyAddFuncWithRet<VarMap>(name,targ,func);
+            }
             else
             {
                 throw std::runtime_error("can't bind unknown ret type " + type + " for func " + name);
@@ -116,7 +127,8 @@ namespace fhe
         }
         else
         {
-            std::string type = boost::python::extract<std::string>(targ.attr("__name__"));
+            boost::python::extract<std::string> e(targ);
+            std::string type = e.check() ? e() : boost::python::extract<std::string>(targ.attr("__name__"));
             
             if ( type == "bool" )
             {
@@ -133,6 +145,14 @@ namespace fhe
             else if ( type == "str" )
             {
                 addFunc(name, new PyFunc<TRet,std::string>(func) );
+            }
+            else if ( type == "Var" )
+            {
+                addFunc(name, new PyFunc<TRet,Var>(func) );
+            }
+            else if ( type == "VarMap" )
+            {
+                addFunc(name, new PyFunc<TRet,VarMap>(func) );
             }
             else
             {
