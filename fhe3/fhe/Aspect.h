@@ -30,7 +30,9 @@ namespace fhe
             Entity* m_entity;
             
         public:
-            Aspect( const std::string& name );
+            Aspect();
+            
+            void init( const std::string& name );
             
             boost::python::object getAttr( const std::string& name );
             
@@ -39,6 +41,8 @@ namespace fhe
             boost::python::object toPy();
             
             std::string getName();
+            
+            std::string getPath();
             
             FuncMap::FuncClosure func( boost::python::object tret, boost::python::object targ );
             

@@ -32,3 +32,15 @@ def msg_msgTest(args):
     
 e.publish('msgTest',dict(msg='test'))
 assert e.getVar("msgTestVal") == "test"
+
+@self.func(int,None)
+def foo():
+    return -1
+    
+assert e.foo() == -1
+
+assert self.getName() == "TestAspect"
+assert self.getPath() == "/:TestAspect"
+
+e.s = "what"
+assert e.s == "what"

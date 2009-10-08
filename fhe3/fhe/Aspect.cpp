@@ -13,17 +13,27 @@ namespace fhe
     boost::python::object Aspect::m_mainModule;
     boost::python::object Aspect::m_mainNamespace;
     
-    Aspect::Aspect( const std::string& name ) :
-        m_name(name),
+    Aspect::Aspect() :
         m_entity(0)
     {
         addFunc("getName",&Aspect::getName,this);
+        addFunc("getPath",&Aspect::getPath,this);
         addFunc("getEntity",&Aspect::getEntity,this);
+    }
+    
+    void Aspect::init( const std::string& name )
+    {
+        m_name = name;
     }
     
     std::string Aspect::getName()
     {
         return m_name;
+    }
+    
+    std::string Aspect::getPath()
+    {
+        return m_entity ? m_entity->getPath() + ":" + m_name : "<None>:" + m_name;
     }
     
     boost::python::object Aspect::getAttr( const std::string& name )

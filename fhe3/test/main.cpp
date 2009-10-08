@@ -5,8 +5,6 @@ using namespace fhe;
 
 class TestAspect : public Aspect
 {
-    public:
-        TestAspect( const std::string& name ) : Aspect(name) {}
 };
 
 FHE_ASPECT(TestAspect);
@@ -19,6 +17,8 @@ int main()
     assert(a);
     
     a->runScript("test/test.py");
+    
+    assert(test.aspectCall<int>("foo") == -1);
     
     return 0;
 }

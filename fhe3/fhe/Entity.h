@@ -3,7 +3,6 @@
 
 #include "Aspect.h"
 #include "VarMap.h"
-#include "FuncMap.h"
 #include "AspectFactory.h"
 #include <Poco/AutoPtr.h>
 #include <Poco/RefCountedObject.h>
@@ -15,7 +14,7 @@ namespace fhe
     typedef Poco::AutoPtr<Entity> EntityPtr;
     typedef std::map<std::string,EntityPtr> EntityMap;
     
-    class Entity : public VarMap, public FuncMap, public Poco::RefCountedObject
+    class Entity : public VarMap, public Poco::RefCountedObject
     {
         private:
             Entity( const Entity& entity ) {}
@@ -28,11 +27,18 @@ namespace fhe
             
             AspectMap m_aspects;
             
+            void updatePath();
+            
+            static std::map<std::string,int> m_nameCounts;
+            
         public:
             static EntityPtr root;
             
             Entity( const std::string& name );
             ~Entity();
+            
+            std::string getName();
+            std::string getPath();
             
             void attachToParent( EntityPtr parent );
             void detachFromParent();
@@ -56,6 +62,8 @@ namespace fhe
             void pyPublish( const std::string& cmd, boost::python::dict args );
             
             boost::python::object getAttr( const std::string& name );
+            
+            void setAttr( const std::string& name, boost::python::object obj );
             
             static boost::python::object defineClass();
             
