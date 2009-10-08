@@ -5,10 +5,11 @@
 #include "math/Vec3.h"
 #include "math/Quat.h"
 
-#include "PyConverter.h"
-
 namespace fhe
 {
+    FHE_TO_CONVERTER(Var,const_cast<Var&>(obj).toPy());
+    FHE_FROM_CONVERTER(Var,Var::fromPy(obj));
+    
     Var::Var() :
         m_data(0)
     {
@@ -124,11 +125,5 @@ namespace fhe
             .def("get",&Var::pyGet)
             .def("set",&Var::pySet)
         ;
-    }
-    
-    template <class T>
-    boost::python::object Var::Data<T>::toPy()
-    {
-        return PyConverter::toPy(m_val);
     }
 }

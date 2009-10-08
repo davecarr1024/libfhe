@@ -1,7 +1,12 @@
 #include "VarMap.h"
 
+#include "PyConverter.h"
+
 namespace fhe
 {
+    FHE_TO_CONVERTER(VarMap,const_cast<VarMap&>(obj).toPy());
+    FHE_FROM_CONVERTER(VarMap,VarMap::fromPy(obj));
+    
     VarMap::VarMap()
     {
     }

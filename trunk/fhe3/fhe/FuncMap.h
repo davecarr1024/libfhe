@@ -80,6 +80,18 @@ namespace fhe
             }
             
             template <class TRet, class TArg>
+            void addFunc( const std::string& name, boost::function<TRet(TArg)> func )
+            {
+                addFunc(name, new BoostFunc<TRet,TArg>(func));
+            }
+            
+            template <class TRet>
+            void addFunc( const std::string& name, boost::function<TRet()> func )
+            {
+                addFunc(name, new BoostFunc<TRet,void>(func));
+            }
+            
+            template <class TRet, class TArg>
             TRet call( const std::string& name, const TArg& arg )
             {
                 bool hasThisFunc = hasFunc<TRet,TArg>(name);

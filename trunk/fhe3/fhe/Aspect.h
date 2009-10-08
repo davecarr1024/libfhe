@@ -13,6 +13,9 @@ namespace fhe
     typedef Poco::AutoPtr<Aspect> AspectPtr;
     typedef std::map<std::string,AspectPtr> AspectMap;
     
+    class Entity;
+    typedef Poco::AutoPtr<Entity> EntityPtr;
+    
     class Aspect : public FuncMap, public Poco::RefCountedObject
     {
         private:
@@ -24,12 +27,12 @@ namespace fhe
             
             static void initializePython();
             
+            Entity* m_entity;
+            
         public:
             Aspect( const std::string& name );
             
             boost::python::object getAttr( const std::string& name );
-            
-            void setAttr( const std::string& name, boost::python::object obj );
             
             void runScript( const std::string& filename );
             
@@ -39,9 +42,12 @@ namespace fhe
             
             FuncMap::FuncClosure func( boost::python::object tret, boost::python::object targ );
             
+            void setEntity(EntityPtr entity);
+            
+            EntityPtr getEntity();
+            
             static boost::python::object defineClass();
     };
-    
 }
 
 #endif
