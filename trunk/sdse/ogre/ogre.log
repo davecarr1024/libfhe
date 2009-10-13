@@ -1,0 +1,30 @@
+07:14:22: Creating resource group General
+07:14:22: Creating resource group Internal
+07:14:22: Creating resource group Autodetect
+07:14:22: SceneManagerFactory for type 'DefaultSceneManager' registered.
+07:14:22: Registering ResourceManager for type Material
+07:14:22: Registering ResourceManager for type Mesh
+07:14:22: Registering ResourceManager for type Skeleton
+07:14:22: MovableObjectFactory for type 'ParticleSystem' registered.
+07:14:22: OverlayElementFactory for type Panel registered.
+07:14:22: OverlayElementFactory for type BorderPanel registered.
+07:14:22: OverlayElementFactory for type TextArea registered.
+07:14:22: Registering ResourceManager for type Font
+07:14:22: ArchiveFactory for archive type FileSystem registered.
+07:14:22: ArchiveFactory for archive type Zip registered.
+07:14:22: FreeImage version: 3.12.0
+07:14:22: This program uses FreeImage, a free, open source image library supporting all common bitmap formats. See http://freeimage.sourceforge.net for details
+07:14:22: Supported formats: bmp,ico,jpg,jif,jpeg,jpe,jng,koa,iff,lbm,mng,pbm,pbm,pcd,pcx,pgm,pgm,png,ppm,ppm,ras,tga,targa,tif,tiff,wap,wbmp,wbm,psd,cut,xbm,xpm,gif,hdr,g3,sgi,exr,j2k,j2c,jp2,pfm
+07:14:22: DDS codec registering
+07:14:22: Registering ResourceManager for type HighLevelGpuProgram
+07:14:22: Registering ResourceManager for type Compositor
+07:14:22: MovableObjectFactory for type 'Entity' registered.
+07:14:22: MovableObjectFactory for type 'Light' registered.
+07:14:22: MovableObjectFactory for type 'BillboardSet' registered.
+07:14:22: MovableObjectFactory for type 'ManualObject' registered.
+07:14:22: MovableObjectFactory for type 'BillboardChain' registered.
+07:14:22: MovableObjectFactory for type 'RibbonTrail' registered.
+07:14:22: Loading library /usr/lib/OGRE/RenderSystem_GL.so
+07:14:22: Installing plugin: GL RenderSystem
+07:14:22: OpenGL Rendering Subsystem created.
+07:14:23: OGRE EXCEPTION(3:RenderingAPIException): No GLX FBConfig support on your display in GLXGLSupport::GLXGLSupport at OgreGLXGLSupport.cpp (line 788)
