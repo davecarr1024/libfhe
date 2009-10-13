@@ -1,0 +1,13 @@
+<entity name="GraphicsNode1">
+    <vars>
+        <var name="position" value="200 200" />
+    </vars>
+    <aspects>
+        <aspect type="sdl/SDLSceneNode" name="sdl/SDLSceneNode" />
+    </aspects>
+</entity>
+<entity name="RootSceneNode">
+    <aspects>
+        <aspect type="sdl/SDLSceneNode" name="RootSceneNode" />
+    </aspects>
+</entity>

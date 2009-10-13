@@ -1,0 +1,63 @@
+<!--<entity name="fileEnt">
+    <vars>
+        <var name="boolVar" value="true"/>
+        <var name="intVar" value="24"/>
+        <var name="floatVar" value="2.14"/>
+        <var name="stringVar" value="hello world"/>
+    </vars>
+    <aspects>
+        <aspect type="test/TestAspect"/>
+    </aspects>
+</entity>
+
+<entity name="scriptEnt">
+    <vars>
+        <var name="pyScript" value="test.py"/>
+        <var name="fileVector2" value="100 200"/>
+        <var name="fileVector3" value="1000 100 10"/>
+        <var name="fileQuaternion" value="135 0 0 1"/>
+    </vars>
+    <aspects>
+        <aspect type="py/PyScript"/>
+        <aspect type="test/TestAspect"/>
+    </aspects>
+    <includes>
+        <include name="test/test.sim"/>
+    </includes>
+</entity>
+
+<entity name="scriptEnt">
+    <vars>
+        <var name="pyScript" value="test/test2.py"/>
+    </vars>
+    <aspects>
+        <aspect type="py/PyScript"/>
+    </aspects>
+</entity>-->
+
+<!--entity name="OgreEnt">
+    <aspects>
+        <aspect type="ogre/OgreSceneNode"/>
+    </aspects>
+</entity-->
+
+<entity name="GraphicsNode1">
+    <vars>
+        <var name="position" value="200 200"/>
+    </vars>
+    <aspects>
+        <aspect type="sdl/SDLSceneNode"/>
+    </aspects>
+</entity>
+
+<!--<entity name="GraphicsNode2">
+    <vars>
+        <var name="parent" value="GraphicsNode1"/>
+        <var name="position" value="100.0 100.0"/>
+        <var name="scale" value="50.0 50.0"/>
+        <var name="color" value="1.0 0.0 0.0"/>
+    </vars>
+    <aspects>
+        <aspect type="sdl/SDLRect"/>
+    </aspects>
+</entity>-->

@@ -1,0 +1,80 @@
+import glob
+import os
+import sys
+
+osName = sys.platform[:3]
+
+def enumerateFiles(path = '.'):
+    rawFiles = glob.glob("%s/*" % path)
+    files = filter(os.path.isfile,rawFiles)
+    for subdir in filter(os.path.isdir,rawFiles):
+        files.extend(enumerateFiles(subdir))
+    return files
+    
+def fileType(filename):
+    if '.' in filename:
+        return filename[filename.rfind('.')+1:]
+    else:
+        return ''
+        
+def filePath(filename):
+    return filename[:filename.rfind('/')]
+    
+allFiles = [filename.lstrip('./') for filename in enumerateFiles()]
+
+libs = []
+includeDirs = ['.']
+libDirs = []
+aspects = []
+
+filesByType = {}
+for filename in allFiles:
+    type = fileType(filename)
+    filesByType.setdefault(type,[]).append(filename)
+
+prefixes = ['///sdse_%s_' % osName, '///sdse_']
+for file in filesByType['h'] + filesByType['cpp']:
+    for line in open(file).readlines():
+        for prefix in prefixes:
+            if line.startswith(prefix):
+                prefixOp, arg = line.split()[:2]
+                op = prefixOp[len(prefix):]
+                
+                if op == 'aspect':
+                    aspects.append((arg,file))
+                    break
+                elif op == 'includeDir':
+                    includeDirs.append(arg)
+                    break
+                elif op == 'libDir':
+                    libDirs.append(arg)
+                    break
+                elif op == 'lib':
+                    libs.append(arg)
+                    break
+                else:
+                    print "ERROR: unknown header arg %s in %s" % (arg,file)
+
+aspectFactory = open('core/AspectFactory.cpp','w')
+aspectFactory.write('#include "Entity.h"\n')
+
+for aspect, file in aspects:
+    aspectFactory.write('#include "%s"\n' % file)
+    
+aspectFactory.write("using namespace sdse;\n")
+aspectFactory.write("Aspect* Entity::aspectFactory(std::string aspectType, std::string aspectName) {\n")
+
+for aspect, file in aspects:
+    path = filePath(file)
+    aspectType = "%s/%s" % (path,aspect)
+    aspectFactory.write('    if (aspectType == "%s") return new %s(aspectType,aspectName);\n' % (aspectType,aspect))
+    
+aspectFactory.write('    return 0;\n}\n')
+aspectFactory.close()
+
+sources = filesByType['cpp']
+if 'core/AspectFactory.cpp' not in sources:
+    sources.append('core/AspectFactory.cpp')
+
+p = Program(target = 'main', source = sources, LIBS = libs, CPPPATH = includeDirs, LIBPATH = libDirs)
+Clean(p,'core/AspectFactory.cpp')
