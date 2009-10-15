@@ -10,21 +10,31 @@ class Box3:
     def __repr__(self):
         return "Box3(%s, %s)" % (self.min, self.max)
         
+    @staticmethod
+    def compose(v):
+        if all([isinstance(i,Box3) for i in v]):
+            box = Box3(v[0].min,v[0].max)
+            map(box.expand,v[1:])
+            return box
+        elif all([isinstance(i,Vec3) for i in v]):
+            box = Box3(v[0],v[0])
+            map(box.expand,v[1:])
+            return box
+        else:
+            raise TypeError
+        
     def corners(self):
-        return Vec3(self.min.x,self.min.y,self.min.z), \
+        return [Vec3(self.min.x,self.min.y,self.min.z), \
                Vec3(self.min.x,self.min.y,self.max.z), \
                Vec3(self.min.x,self.max.y,self.min.z), \
                Vec3(self.min.x,self.max.y,self.max.z), \
                Vec3(self.max.x,self.min.y,self.min.z), \
                Vec3(self.max.x,self.min.y,self.max.z), \
                Vec3(self.max.x,self.max.y,self.min.z), \
-               Vec3(self.max.x,self.max.y,self.max.z)
+               Vec3(self.max.x,self.max.y,self.max.z)]
                                
     def transform(self, mat):
-        corners = map(mat.__mul__, self.corners())
-        box = Box3(corners[0],corners[0])
-        box.expand(corners[1:])
-        return box
+        return Box3.compose(map(mat.__mul__,self.corners()))
 
     def expand(self, v):
         if isinstance(v,Box3):

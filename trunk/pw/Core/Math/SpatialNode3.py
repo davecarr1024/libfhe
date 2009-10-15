@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from Math.Vec3 import Vec3
-from Math.Quat import Quat
+from Vec3 import Vec3
+from Quat import Quat
 from Mat4 import Mat4
 from Box3 import Box3
 from Core.Node import Node
@@ -87,7 +87,7 @@ class SpatialNode3(Node):
         colls = sum([child.collide(x) for child in self.children.itervalues()],[])
         
         if colls:
-            return colls:
+            return colls
         elif isinstance(x,Vec3) and \
              self.getVar("globalBox").containsVec(x) and \
              self.collideVec(self.getVar("globalTransform") * x):
