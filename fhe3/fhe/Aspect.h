@@ -3,8 +3,12 @@
 
 #include "FuncMap.h"
 
+#include "VarMap.h"
+
 #include <Poco/AutoPtr.h>
 #include <Poco/RefCountedObject.h>
+
+#include "tinyxml.h"
 
 namespace fhe
 {
@@ -36,7 +40,17 @@ namespace fhe
             
             boost::python::object getAttr( const std::string& name );
             
+            boost::python::dict defaultNamespace();
+            
+            static boost::python::dict emptyNamespace();
+            
+            void runScript( const std::string& filename, boost::python::dict ns );
+            
             void runScript( const std::string& filename );
+            
+            static boost::python::object tryEvalScript( const std::string& s, boost::python::dict ns );
+            
+            static void execScript( const std::string& s, boost::python::dict ns );
             
             boost::python::object toPy();
             
@@ -50,8 +64,21 @@ namespace fhe
             
             EntityPtr getEntity();
             
+            EntityPtr getParentEntity();
+            
             static boost::python::object defineClass();
+            
+            void load( TiXmlHandle h );
+
+            void log( const char* fmt, ...);
+            
+            void error( const char* fmt, ...);
+            
+            void pyLog( const std::string& s );
     };
 }
+
+#include "AspectFactory.h"
+#include "Entity.h"
 
 #endif

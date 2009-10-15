@@ -11,14 +11,14 @@ FHE_ASPECT(TestAspect);
 
 int main()
 {
-    Entity test("test");
+    EntityPtr test( new Entity("test"));
     
-    AspectPtr a = test.addAspect("TestAspect");
+    AspectPtr a = test->addAspect("TestAspect");
     assert(a);
     
     a->runScript("test/test.py");
     
-    assert(test.aspectCall<int>("foo") == -1);
+    assert(test->call<int>("foo") == -1);
     
     return 0;
 }

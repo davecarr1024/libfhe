@@ -6,6 +6,7 @@
 #include "AspectFactory.h"
 #include <Poco/AutoPtr.h>
 #include <Poco/RefCountedObject.h>
+#include "tinyxml.h"
 
 namespace fhe
 {
@@ -31,6 +32,14 @@ namespace fhe
             
             static std::map<std::string,int> m_nameCounts;
             
+            EntityPtr loadChildData( TiXmlHandle h );
+            void load( TiXmlHandle h );
+            
+            void loadTag( TiXmlHandle h, const std::string& tag );
+            void loadVars( TiXmlHandle h );
+            void loadAspects( TiXmlHandle h );
+            void loadChildren( TiXmlHandle h );
+            
         public:
             static EntityPtr root;
             
@@ -48,6 +57,11 @@ namespace fhe
             bool hasChild( const std::string& name );
             EntityPtr getChild( const std::string& name );
             EntityPtr getParent();
+            EntityPtr getRoot();
+            
+            boost::python::object pyGetChild( const std::string& name );
+            boost::python::object pyGetParent();
+            boost::python::object pyGetRoot();
             
             AspectPtr addAspect( const std::string& name );
             void removeAspect( const std::string& name );
@@ -65,10 +79,24 @@ namespace fhe
             
             void setAttr( const std::string& name, boost::python::object obj );
             
+            EntityPtr loadChild( const std::string& filename );
+            
+            EntityPtr buildChild( const std::string& name );
+            
+            boost::python::object pyLoadChild( const std::string& filename );
+            
+            boost::python::object pyBuildChild( const std::string& name );
+            
+            boost::python::object toPy();
+            
             static boost::python::object defineClass();
             
+            void error( const char* fmt, ...);
+            
+            bool pyHasFunc( const std::string& name );
+
             template <class TRet, class TArg>
-            bool hasAspectFunc( const std::string& name )
+            bool hasFunc( const std::string& name )
             {
                 for ( AspectMap::iterator i = m_aspects.begin(); i != m_aspects.end(); ++i )
                 {
@@ -81,7 +109,7 @@ namespace fhe
             }
             
             template <class TRet, class TArg>
-            TRet aspectCall( const std::string& name, const TArg& arg )
+            TRet call( const std::string& name, const TArg& arg )
             {
                 for ( AspectMap::iterator i = m_aspects.begin(); i != m_aspects.end(); ++i )
                 {
@@ -90,11 +118,23 @@ namespace fhe
                         return i->second->call<TRet,TArg>(name,arg);
                     }
                 }
-                throw std::runtime_error("no aspects have func " + name);
+                error("no aspects have func %s", name.c_str());
             }
-
+            
+            template <class TRet, class TArg>
+            TRet callAll( const std::string& name, const TArg& arg )
+            {
+                for ( AspectMap::iterator i = m_aspects.begin(); i != m_aspects.end(); ++i )
+                {
+                    if ( i->second->hasFunc<TRet,TArg>(name) )
+                    {
+                        i->second->call<TRet,TArg>(name,arg);
+                    }
+                }
+            }
+            
             template <class TRet>
-            TRet aspectCall( const std::string& name )
+            TRet call( const std::string& name )
             {
                 for ( AspectMap::iterator i = m_aspects.begin(); i != m_aspects.end(); ++i )
                 {
@@ -103,7 +143,19 @@ namespace fhe
                         return i->second->call<TRet>(name);
                     }
                 }
-                throw std::runtime_error("no aspects have func " + name);
+                error("no aspects have func %s", name.c_str());
+            }
+
+            template <class TRet>
+            TRet callAll( const std::string& name )
+            {
+                for ( AspectMap::iterator i = m_aspects.begin(); i != m_aspects.end(); ++i )
+                {
+                    if ( i->second->hasFunc<TRet,void>(name) )
+                    {
+                        i->second->call<TRet>(name);
+                    }
+                }
             }
     };
     

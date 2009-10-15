@@ -1,10 +1,20 @@
 #include "Aspect.h"
 #include "Entity.h"
+#include "FileSystem.h"
+
+#include "math/Vec2.h"
+#include "math/Vec3.h"
+#include "math/Rot.h"
+#include "math/Quat.h"
 
 #include <stdexcept>
+#include <cstdarg>
+#include <cstdio>
 
 namespace fhe
 {
+    
+    FHE_ASPECT(Aspect);
     
     FHE_TO_CONVERTER(AspectPtr,boost::python::object(boost::python::ptr(obj.get())));
     FHE_FROM_CONVERTER(AspectPtr,obj == boost::python::object() ? 0 : AspectPtr(boost::python::extract<Aspect*>(obj)(),true));
@@ -33,7 +43,7 @@ namespace fhe
     
     std::string Aspect::getPath()
     {
-        return m_entity ? m_entity->getPath() + ":" + m_name : "<None>:" + m_name;
+        return m_entity ? m_entity->getPath() + "." + m_name : "<None>:" + m_name;
     }
     
     boost::python::object Aspect::getAttr( const std::string& name )
@@ -44,27 +54,74 @@ namespace fhe
         }
         else
         {
-            throw std::runtime_error( "name error: " + name );
+            error("name error: %s", name.c_str());
         }
     }
     
     void Aspect::runScript( const std::string& filename )
     {
+        runScript(filename,defaultNamespace());
+    }
+    
+    void Aspect::runScript( const std::string& filename, boost::python::dict ns )
+    {
         try
         {
             initializePython();
             
-            boost::python::dict ns;
-            ns.update(m_mainNamespace);
-            ns["self"] = toPy();
-            
-            boost::python::exec_file(filename.c_str(),ns,ns);
+            boost::python::exec_file(FileSystem::instance().getFile(filename).c_str(),ns,ns);
         }
         catch ( boost::python::error_already_set const& )
         {
             PyErr_Print();
             throw;
         }
+    }
+    
+    boost::python::object Aspect::tryEvalScript( const std::string& s, boost::python::dict ns )
+    {
+        try 
+        {
+            initializePython();
+            
+            return Var::fromPy(boost::python::eval(s.c_str(),ns,ns)).toPy();
+        }
+        catch ( boost::python::error_already_set const& )
+        {
+            PyErr_Clear();
+            return boost::python::str(s);
+        }
+    }
+    
+    void Aspect::execScript( const std::string& s, boost::python::dict ns )
+    {
+        try
+        {
+            initializePython();
+            
+            boost::python::exec(s.c_str(),ns,ns);
+        }
+        catch ( boost::python::error_already_set const& )
+        {
+            PyErr_Print();
+            throw;
+        }
+    }
+    
+    boost::python::dict Aspect::defaultNamespace() 
+    {
+        boost::python::dict ns = emptyNamespace();
+        ns["self"] = toPy();
+        ns["entity"] = boost::python::object(boost::python::ptr(m_entity));
+        return ns;
+    }
+    
+    boost::python::dict Aspect::emptyNamespace()
+    {
+        initializePython();
+        boost::python::dict ns;
+        ns.update(m_mainNamespace);
+        return ns;
     }
     
     boost::python::object Aspect::toPy()
@@ -87,6 +144,11 @@ namespace fhe
             PyCall::defineClass();
             FuncClosure::defineClass();
             Entity::defineClass();
+            
+            m_mainNamespace["Vec2"] = Vec2::defineClass();
+            m_mainNamespace["Vec3"] = Vec3::defineClass();
+            m_mainNamespace["Rot"] = Rot::defineClass();
+            m_mainNamespace["Quat"] = Quat::defineClass();
         }
     }
     
@@ -95,6 +157,7 @@ namespace fhe
         return boost::python::class_<Aspect, boost::noncopyable>("Aspect",boost::python::no_init)
             .def("__getattr__",&Aspect::getAttr)
             .def("func",&Aspect::func)
+            .def("log",&Aspect::pyLog)
         ;
     }
     
@@ -111,5 +174,53 @@ namespace fhe
     EntityPtr Aspect::getEntity()
     {
         return m_entity ? EntityPtr(m_entity,true) : 0;
+    }
+    
+    EntityPtr Aspect::getParentEntity()
+    {
+        EntityPtr entity(getEntity());
+        return entity ? entity->getParent() : 0;
+    }
+    
+    void Aspect::load( TiXmlHandle h )
+    {
+        for ( TiXmlElement* e = h.FirstChildElement().ToElement(); e; e = e->NextSiblingElement() )
+        {
+            std::string tag(e->Value());
+            
+            if ( tag == "script" )
+            {
+                runScript(e->GetText(),defaultNamespace());
+            }
+            else
+            {
+                throw std::runtime_error("unknown aspect file tag " + tag );
+            }
+        }
+    }
+
+    void Aspect::log( const char* format, ... )
+    {
+        char buffer[1024];
+        va_list ap;
+        va_start(ap,format);
+        vsnprintf( buffer, 1024, format, ap );
+        va_end(ap);
+        printf("%s: %s\n", getPath().c_str(), buffer);
+    }
+
+    void Aspect::error( const char* format, ... )
+    {
+        char buffer[1024];
+        va_list ap;
+        va_start(ap,format);
+        vsnprintf( buffer, 1024, format, ap );
+        va_end(ap);
+        throw std::runtime_error( getPath() + ": ERROR: " + buffer );
+    }
+    
+    void Aspect::pyLog( const std::string& s )
+    {
+        log(s.c_str());
     }
 }

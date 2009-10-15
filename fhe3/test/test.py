@@ -5,42 +5,54 @@ def foo(i):
 
 assert(self.foo(3) == 6)
 
-e = self.getEntity()
-assert e
-
-e.setVar("b",True)
-assert e.getVar("b") == True
+entity.setVar("b",True)
+assert entity.getVar("b") == True
 
 @self.func(None,'Var')
 def set_setTest(val):
     assert isinstance(val,str)
-    e.setVar("setTestVal",val)
+    entity.setVar("setTestVal",val)
     
-e.setVar("setTest","hello")
-assert e.getVar("setTestVal") == "hello"
+entity.setVar("setTest","hello")
+assert entity.getVar("setTestVal") == "hello"
 
 @self.func('Var',None)
 def get_getTest():
     return "got"
     
-assert e.getVar("getTest") == "got"
+assert entity.getVar("getTest") == "got"
 
 @self.func(None,'VarMap')
 def msg_msgTest(args):
     assert isinstance(args,dict)
-    e.setVar("msgTestVal",args['msg'])
+    entity.setVar("msgTestVal",args['msg'])
     
-e.publish('msgTest',dict(msg='test'))
-assert e.getVar("msgTestVal") == "test"
+entity.publish('msgTest',dict(msg='test'))
+assert entity.getVar("msgTestVal") == "test"
 
 @self.func(int,None)
 def foo():
     return -1
     
-assert e.foo() == -1
+assert entity.foo() == -1
+assert self.foo() == -1
 
 assert self.getName() == "TestAspect"
-assert self.getPath() == "/:TestAspect"
+assert self.getPath() == "/.TestAspect"
 
-e.s = "what"
-assert e.s == "what"
+entity.s = "what"
+assert entity.s == "what"
+
+child = entity.loadChild("test.xml")
+assert child
+assert child.name == "fileEnt"
+
+assert child.i == 23
+
+gchild = child.getChild("gchild")
+assert gchild
+assert gchild.s == "hello"
+
+assert gchild.foo() == "bar"
+
+assert Vec3
