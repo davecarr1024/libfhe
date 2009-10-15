@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from Core.Math.SpatialNode3 import SpatialNode3
+from Core.Math.Vec3 import Vec3
+from Core.Math.Quat import Quat
 from Graphics.MaterialManager import materialManager
 from Graphics.Window import Window
 
@@ -15,7 +17,9 @@ class SceneNode(SpatialNode3):
     
     def transform(self):
         glPushMatrix()
-        glMultMatrixf(*self.getVar("globalTransform"))
+        self.getVar("pos",Vec3()).glTranslate()
+        self.getVar("rot",Quat()).glRotate()
+        self.getVar("scale",Vec3(1,1,1)).glScale()
         
     def untransform(self):
         glPopMatrix()
@@ -35,6 +39,7 @@ class SceneNode(SpatialNode3):
                 #self.list = glGenLists(1)
                 #glNewList(self.list,GL_COMPILE_AND_EXECUTE)
                 #self.listNode = self
+                
         self.geom()
             
     def unmsg_render3(self, **args):

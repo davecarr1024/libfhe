@@ -2,6 +2,9 @@
 import Util
 
 from Math.Vec2 import Vec2
+from Math.Vec3 import Vec3
+from Math.Quat import Quat
+import math
 
 class Node:
     nameCounts = {}
@@ -45,7 +48,7 @@ class Node:
     
     @staticmethod
     def load(filename):
-        namespace = dict(Vec2 = Vec2)
+        namespace = dict(Vec2 = Vec2, Vec3 = Vec3, Quat = Quat, math = math)
         return Node.buildNode(**Util.evalLoad(filename,namespace))
     
     def doLoad(self, **data):
@@ -98,7 +101,7 @@ class Node:
         if callable(val):
             return val()
         elif isinstance(val,str) and val and val[0] == "=":
-            return Util.deepEval(val[1:],dict(self = self, Vec2 = Vec2))
+            return Util.deepEval(val[1:],dict(self = self, Vec2 = Vec2, Vec3 = Vec3, Quat = Quat, math = math))
         else:
             return val
         

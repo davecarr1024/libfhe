@@ -19,7 +19,7 @@ def flatten(l):
 def deepEval(d, env = None):
     if isinstance(d,dict):
         return dict([(key,deepEval(val,env)) for key, val in d.iteritems()])
-    elif isinstance(d,list) or isinstance(d,tuple):
+    elif isinstance(d,list):
         return map(deepEval,d)
     elif isinstance(d,str):
         try:
