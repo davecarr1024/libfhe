@@ -1,0 +1,21 @@
+<name>fileEnt</name>
+
+<vars>
+    <var name="i">23</var>
+</vars>
+
+<children>
+    <child>
+        <name>gchild</name>
+        
+        <vars>
+            <var name="s">hello</var>
+        </vars>
+        
+        <aspects>
+            <aspect name="TestAspect">
+                <script>test2.py</script>
+            </aspect>
+        </aspects>
+    </child>
+</children>
