@@ -5,11 +5,6 @@ from Core.Math.Vec2 import Vec2
 import pymunk
 
 class Poly(Body):
-    def onAttach(self):
-        self.center = None
-
-        Body.onAttach(self)
-
     def makeBody(self):
         vertices = self.getVar("vertices",[])
 
@@ -28,5 +23,5 @@ class Poly(Body):
 
     def transform(self):
         Body.transform(self)
-        if self.center:
+        if hasattr(self,"center"):
             (-self.center).translate()
