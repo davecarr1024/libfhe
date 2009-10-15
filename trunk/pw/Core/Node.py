@@ -83,6 +83,9 @@ class Node:
     
     def save_type(self):
         return self.__class__.__module__
+        
+    def save_name(self):
+        return self.name
     
     #vars
     
@@ -94,7 +97,7 @@ class Node:
         val = self.vars.get(name,default)
         if callable(val):
             return val()
-        elif isinstance(val,str) and val[0] == "=":
+        elif isinstance(val,str) and val and val[0] == "=":
             return Util.deepEval(val[1:],dict(self = self, Vec2 = Vec2))
         else:
             return val

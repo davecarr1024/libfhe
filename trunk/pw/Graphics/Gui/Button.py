@@ -14,10 +14,10 @@ class Button(SceneNode):
         self.bg = Rect(parent = self, name = "bg", vars = dict(material = fill))
         Rect(parent = self, name = "edge", vars = dict(material = stroke,
                                                        filled = False))
-        Text(parent = self, name = "text", vars = dict(material = stroke,
-                                                       text = lambda: self.getVar("text")))
+        Text(parent = self.bg, name = "text", vars = dict(material = stroke,
+                                                          text = lambda: self.getVar("text")))
                                                        
     def msg_mouseButtonDown(self, **args):
         if args.get("buttonName") == "left" and self.bg in args.get("hitObjects",[]):
-            self.log("clicked!")
             self.globalPublish("buttonClick",self)
+            self.getRoot().save("dump")

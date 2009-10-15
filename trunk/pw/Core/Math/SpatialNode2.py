@@ -102,19 +102,11 @@ class SpatialNode2(Node):
             sx = self.getVar("inverseGlobalTransform") * x
             if self.getVar("globalBox").containsVec(sx) and self.collideVec(sx):
                 return [self]
-        return []
+            else:
+                return []
+        else:
+            raise TypeError
 
-    def msg_render2(self):
-        from OpenGL.GL import *
-        glPushMatrix()
-        self.getVar("pos",Vec2()).glTranslate()
-        glRotatef(math.degrees(self.getVar("rot",0)),0,0,1)
-        self.getVar("scale",Vec2(1,1)).glScale()
-        
-    def unmsg_render2(self):
-        from OpenGL.GL import *
-        glPopMatrix()
-        
 if __name__ == "__main__":
     import math
     
