@@ -335,7 +335,7 @@ namespace fhe
             assert(name);
             boost::python::dict ns = Aspect::emptyNamespace();
             ns["entity"] = toPy();
-            boost::python::object val = Aspect::tryEvalScript(e->GetText(),ns);
+            boost::python::object val = Var::fromPy(Aspect::tryEvalScript(e->GetText(),ns)).toPy();
             pySetVar(name,val);
         }
     }
