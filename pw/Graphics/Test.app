@@ -14,7 +14,7 @@ children:
     rect:
         type: Graphics.Prims2.Rect
         vars:
-            scale: Vec2(0.5,0.1)
+            scale: Vec2(0.5,1)
             filled: False
             material:
                 color: 0,0,1
@@ -25,7 +25,13 @@ children:
                     text: hey
                     material:
                         color: 0,0,0
-            
+                        
+    textbox:
+        type: Graphics.Gui.TextBox
+        vars:
+            pos: Vec2(0.1,0.7)
+            scale: Vec2(0.5,0.1)
+
     testButton:
         type: Graphics.Gui.Button
         vars:
@@ -34,3 +40,11 @@ children:
             text: button
             fill:
                 texture: raptor.jpg
+                color: 1,1,1,0.1
+                
+    spinner:
+        type: Graphics.Gui.Spinner
+        vars:
+            pos: Vec2(0.1,0.6)
+            scale: Vec2(0.5,0.1)
+            items: range(10)
