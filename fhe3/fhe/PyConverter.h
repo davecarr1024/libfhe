@@ -139,15 +139,19 @@ namespace fhe
     };
 
     #define FHE_FROM_CONVERTER(type,code) \
-        class type##_FromConverter : public IFromConverter<type> { public:\
+        class type##_FromConverter : public IFromConverter<type> { \
+        public:\
             type##_FromConverter( const std::string& name ) : IFromConverter<type>(name) {} \
-            type operator()( boost::python::object obj ) { return code; } }; \
+            type operator()( boost::python::object obj ) { return code; } \
+        }; \
         FromConverterRegisterer type##_fromregisterer( new type##_FromConverter(#type) );
         
     #define FHE_TO_CONVERTER(type,code) \
-        class type##_ToConverter : public IToConverter<type> { public:\
+        class type##_ToConverter : public IToConverter<type> { \
+        public:\
             type##_ToConverter( const std::string& name ) : IToConverter<type>(name) {} \
-            boost::python::object operator()( const type& obj ) { return code; } }; \
+            boost::python::object operator()( const type& obj ) { return code; } \
+        }; \
         ToConverterRegisterer type##_toregisterer( new type##_ToConverter(#type) );
     
 }
