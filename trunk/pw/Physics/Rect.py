@@ -11,7 +11,7 @@ class Rect(Body):
                     pymunk.Vec2d(-x,y),
                     pymunk.Vec2d(x,y),
                     pymunk.Vec2d(x,-y)]
-        if self.staticBody:
+        if self.getVar("staticBody",False):
             mass = pymunk.inf
             inertia = pymunk.inf
         else:

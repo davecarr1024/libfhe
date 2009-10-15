@@ -2,7 +2,7 @@
 from Graphics.Prims3.SceneNode import SceneNode
 from World import World
 from Core.Math.Vec3 import Vec3
-from Core.Math.Vec2 import Vec2d
+from Core.Math.Vec2 import Vec2
 from Core.Math.Quat import Quat
 
 import math
@@ -11,6 +11,11 @@ import pymunk
 from OpenGL.GL import *
 
 class Body(SceneNode):
+    def __init__(self, **data):
+        self.body = self.shape = None
+
+        SceneNode.__init__(self,**data)
+    
     def getWorld(self):
         return self.searchAncestors(lambda obj: isinstance(obj,World))
     
@@ -23,7 +28,8 @@ class Body(SceneNode):
         self.body, self.shape = self.makeBody()
         
         if self.body:
-            self.body.position = pymunk.Vec2d(*self.getVar("pos",Vec2()))
+            pos = self.getVar("pos",Vec2())
+            self.body.position = pymunk.Vec2d(pos.x,pos.y)
             self.body.angle = self.getVar("rot",0)
             
         if self.shape:
@@ -75,7 +81,7 @@ class Body(SceneNode):
 
     def set_pos(self, v):
         if self.body:
-            self.body.position = pymunk.Vec2d(*v)
+            self.body.position = pymunk.Vec2d(v.x,v.y)
 
     def set_vel(self, v):
         if self.body:

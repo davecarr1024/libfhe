@@ -33,43 +33,29 @@ class Node:
         self.funcs = dict([(name,getattr(self,name)) for name in dir(self) if callable(getattr(self,name))])
         self.hasFunc = self.funcs.__contains__
         
+        for name, val in data.pop('vars',{}).iteritems():
+            self.setVar(name,val)
+            
         self.attachToParent(data.pop('parent',None))
         
-        self.doLoad(**data)
+        for name, vals in data.pop('children',{}).iteritems():
+            vals.setdefault('name',name)
+            vals['parent'] = self
+            self.buildChild(**vals)
         
     #loading
+    
+    def loadChild(self, filename):
+        namespace = dict(Vec2 = Vec2, Vec3 = Vec3, Quat = Quat, math = math)
+        return self.buildChild(**Util.evalLoad(filename,namespace))
         
-    @staticmethod
-    def buildNode(**data):
+    def buildChild(self, **data):
         nodeType = data.pop('type','Core.Node')
         nodeClass = Util.dynload(nodeType)
-        assert nodeClass, "Unable to load class for node type %s" % nodeType
+        assert nodeClass
+        data['parent'] = self
         return nodeClass(**data)
-    
-    @staticmethod
-    def load(filename):
-        namespace = dict(Vec2 = Vec2, Vec3 = Vec3, Quat = Quat, math = math)
-        return Node.buildNode(**Util.evalLoad(filename,namespace))
-    
-    def doLoad(self, **data):
-        for key, val in data.iteritems():
-            fname = "load_%s" % key
-            assert self.hasFunc(fname), "Unknown file tag %s" % key
-            self.call(fname,val)
-            
-    def load_vars(self, data):
-        for name, val in data.iteritems():
-            self.setVar(name,val)
-        
-    def load_include(self, data):
-        for subData in map(Util.evalLoad,Util.flatten(data)):
-            self.doLoad(**subData)
-            
-    def load_children(self, data):
-        for childName, childData in data.iteritems():
-            childData['name'] = childName
-            self.addChild(Node.buildNode(**childData))
-            
+
     #saving
             
     def save(self, filename):
