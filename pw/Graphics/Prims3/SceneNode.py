@@ -30,25 +30,11 @@ class SceneNode(SpatialNode3):
     def msg_render3(self):
         self.transform()
         materialManager.bind(self.getVar("material",{}))
-    
-        #if self.getVar("static",False) and not self.listNode:
-            #if self.list:
-                #glCallList(self.list)
-                #return
-            #else:
-                #self.list = glGenLists(1)
-                #glNewList(self.list,GL_COMPILE_AND_EXECUTE)
-                #self.listNode = self
-                
         self.geom()
             
     def unmsg_render3(self, **args):
         self.untransform()
         materialManager.unbind()
-        
-        #if self.listNode == self:
-            #glEndList()
-            #self.listNode = None
             
     def getWindow(self):
         window = self.searchAncestors(lambda node: isinstance(node,Window))
