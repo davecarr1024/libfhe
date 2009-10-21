@@ -485,8 +485,9 @@ namespace fhe
     {
         NodePtr child = createChild( h );
         assert(child);
+        fillChild(child,h,"vars");
         addChild(child);
-        fillChild(child,h);
+        fillChild(child,h,"");
         return child;
     }
     
@@ -518,18 +519,14 @@ namespace fhe
         return node;
     }
     
-    void Node::fillChild( NodePtr node, TiXmlHandle h )
+    void Node::fillChild( NodePtr node, TiXmlHandle h, const std::string& loadTag )
     {
         for ( TiXmlElement* e = h.FirstChildElement().ToElement(); e; e = e->NextSiblingElement() )
         {
             std::string tag(e->Value()), loadName = "load_" + tag;
-            if ( node->hasFunc<void,TiXmlHandle>(loadName) )
+            if ( (loadTag == "" || tag == loadTag) && node->hasFunc<void,TiXmlHandle>(loadName) )
             {
                 node->call<void,TiXmlHandle>(loadName,TiXmlHandle(e));
-            }
-            else if ( tag != "type" && tag != "name" )
-            {
-                error("unknown file tag %s", tag.c_str());
             }
         }
     }
@@ -549,7 +546,6 @@ namespace fhe
             const char *name = e->Attribute("name");
             assert(name);
             boost::python::object val = tryEvalScript(e->GetText());
-            std::string type = boost::python::extract<std::string>(val.attr("__class__").attr("__name__"));
             pySetVar(name,val);
         }
     }

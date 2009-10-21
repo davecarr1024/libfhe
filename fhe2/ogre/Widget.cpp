@@ -98,10 +98,6 @@ namespace fhe
         {
             m_window->setPosition( CEGUIUtil::Vec2ToCEGUIVec2( val.get<Vec2>() ) );
         }
-        else
-        {
-            log("warning: discarding size");
-        }
     }
     
     Var Widget::get_pos()
@@ -119,10 +115,6 @@ namespace fhe
         if ( m_window && val.is<Vec2>() )
         {
             m_window->setSize( CEGUIUtil::Vec2ToCEGUIVec2( val.get<Vec2>() ) );
-        }
-        else
-        {
-            log("warning: discarding size");
         }
     }
     

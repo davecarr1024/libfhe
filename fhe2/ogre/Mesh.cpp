@@ -18,9 +18,5 @@ namespace fhe
             setContent(0);
             setContent(sceneManager->createEntity(getPath(),val.get<std::string>()));
         }
-        else
-        {
-            log("warning: discarding name");
-        }
     }
 }
