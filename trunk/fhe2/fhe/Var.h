@@ -11,6 +11,9 @@ namespace fhe
     class Var
     {
         private:
+            template <class T>
+            class Data;
+            
             class AbstractData
             {
                 public:
@@ -72,12 +75,6 @@ namespace fhe
             Var( const Var& var);
             
             Var( boost::python::object obj );
-            
-            template <class T> 
-            Var( const T& val ) :
-                m_data( new Data<T>(val) )
-            {
-            }
             
             ~Var();
             

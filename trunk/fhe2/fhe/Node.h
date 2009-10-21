@@ -56,7 +56,7 @@ namespace fhe
             
             NodePtr createChild( TiXmlHandle h );
             
-            void fillChild( NodePtr child, TiXmlHandle h );
+            void fillChild( NodePtr child, TiXmlHandle h, const std::string& loadTag );
             
             #ifdef FHE_THREAD
             class PublishThread : public Poco::Runnable
