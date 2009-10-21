@@ -25,7 +25,6 @@ class Node:
         self.getChild = self.children.get
         
         self.vars = {}
-        #self.setVar = self.vars.__setitem__
         self.hasVar = self.vars.__contains__
         self.removeVar = self.vars.pop
         self.defaultVar = self.vars.setdefault
@@ -42,6 +41,9 @@ class Node:
             vals.setdefault('name',name)
             vals['parent'] = self
             self.buildChild(**vals)
+            
+        for name, vals in data.iteritems():
+            self.call("load_%s" % name, vals)
         
     #loading
     

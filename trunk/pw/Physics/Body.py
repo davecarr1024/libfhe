@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from Graphics.Prims3.SceneNode import SceneNode
 from World import World
+from Core.Node import Node
 from Core.Math.Vec3 import Vec3
 from Core.Math.Vec2 import Vec2
 from Core.Math.Quat import Quat
@@ -10,18 +10,16 @@ import math
 import pymunk
 from OpenGL.GL import *
 
-class Body(SceneNode):
+class Body(Node):
     def __init__(self, **data):
         self.body = self.shape = None
 
-        SceneNode.__init__(self,**data)
+        Node.__init__(self,**data)
     
     def getWorld(self):
         return self.searchAncestors(lambda obj: isinstance(obj,World))
     
     def onAttach(self):
-        SceneNode.onAttach(self)
-        
         self.world = self.getWorld()
         assert self.world, "add a world above bodies"
         
@@ -57,11 +55,15 @@ class Body(SceneNode):
         self.body = None
         self.shape = None
         
-    def transform(self):
+    def msg_render3(self):
         if self.body:
-            self.setVar("pos",Vec3(self.body.position.x,self.body.position.y,0))
-            self.setVar("rot",Quat.fromAxisAngle(Vec3.UNIT_Z,self.body.angle))
-        SceneNode.transform(self)
+            glPushMatrix()
+            Vec3(self.body.position.x,self.body.position.y,0).glTranslate()
+            Quat.fromAxisAngle(Vec3.UNIT_Z,self.body.angle).glRotate()
+            
+    def unmsg_render3(self):
+        if self.body:
+            glPopMatrix()
 
     def applyForce(self, f, r = None):
         if self.body:
