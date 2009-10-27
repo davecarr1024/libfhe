@@ -9,6 +9,6 @@ int main( int argc, char** argv )
     {
         app->getEntity()->loadChild( argv[i] );
     }
-    app->run();
+    app->run(5);
     return 0;
 }

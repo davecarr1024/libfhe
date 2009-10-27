@@ -55,4 +55,8 @@ assert gchild.s == "hello"
 
 assert gchild.foo() == "bar"
 
+gchild.getRoot().setVar("getRootTest",True)
+assert entity.getVar("getRootTest",False) == True
+assert gchild.getRoot().getVar("getRootTest",False) == True
+
 assert Vec3

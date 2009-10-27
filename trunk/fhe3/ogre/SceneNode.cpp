@@ -120,10 +120,6 @@ namespace fhe
         {
             m_sceneNode->setPosition( OgreUtil::VecToOgreVec( val.get<Vec3>() ) );
         }
-        else
-        {
-            log("warning: discarding pos");
-        }
     }
     
     Var SceneNode::get_pos()
@@ -142,10 +138,6 @@ namespace fhe
         {
             m_sceneNode->setOrientation( OgreUtil::QuatToOgreQuat( val.get<Quat>() ) );
         }
-        else
-        {
-            log("warning: discarding rot");
-        }
     }
     
     Var SceneNode::get_rot()
@@ -160,14 +152,9 @@ namespace fhe
     
     void SceneNode::set_scale( Var val )
     {
-        log("set_scale %p %d", m_sceneNode, val.is<Vec3>());
         if ( m_sceneNode && val.is<Vec3>() )
         {
             m_sceneNode->setScale( OgreUtil::VecToOgreVec( val.get<Vec3>() ) );
-        }
-        else
-        {
-            log("warning: discarding scale");
         }
     }
     

@@ -16,7 +16,6 @@ namespace fhe
         if ( val.is<std::string>() && sceneManager )
         {
             log("load model %s",val.get<std::string>().c_str());
-            setContent(0);
             setContent(sceneManager->createEntity(getPath(),val.get<std::string>()));
         }
         else

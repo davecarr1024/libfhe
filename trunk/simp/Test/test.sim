@@ -1,0 +1,7 @@
+entities:
+    testEnt:
+        vars:
+            i: 23
+            
+        aspects:
+            TestAspect: {}

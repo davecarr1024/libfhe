@@ -20,25 +20,25 @@ class Entity:
             return "%s_%d" % (name,Entity.nameCounts[name])
     
     def __init__(self, **args):
-        self.name = Entity.makeName(args.get('name','Ent'))
+        self.name = Entity.makeName(args.pop('name','Ent'))
         self.path = "/"
         self.parent = None
         self.children = {}
         self.vars = {}
         self.aspects = {}
         
-        for name, val in args.get('vars',{}).iteritems():
+        for name, val in args.pop('vars',{}).iteritems():
             self.setVar(name,val)
             
-        for name in Util.flatten(args.get('aspects',[])):
+        for name in Util.flatten(args.pop('aspects',[])):
             self.buildAspect(name)
             
-        self.attachToParent(args.get('parent',None))
+        self.attachToParent(args.pop('parent',None))
             
-        for name, val in args.get('children',{}).iteritems():
+        for name, val in args.pop('children',{}).iteritems():
             val.setdefault('name',name)
             val['parent'] = self
-            self.addChild(Entity(**val))
+            Entity(**val)
         
     def __repr__(self):
         return "<Entity %s>" % self.name
@@ -53,9 +53,11 @@ class Entity:
             self.path = "/"
             
     def loadChild(self, filename):
-        data = Util.deepLoad(filename,Vec2,Rot2,Mat3,Box2)
+        return self.buildChild(**Util.deepLoad(filename,Vec2,Rot2,Mat3,Box2))
+        
+    def buildChild(self, **data):
         data['parent'] = self
-        self.addChild(Entity(**data))
+        return Entity(**data)
             
     def hasFunc(self, cmd):
         return any([aspect.hasFunc(cmd) for aspect in self.aspects.itervalues()])
@@ -76,7 +78,8 @@ class Entity:
         return [aspect.tryCall(cmd,None,*args,**kwargs) for aspect in self.aspects.itervalues()]
         
     def publish(self, cmd, *args, **kwargs):
-        self.callAll('msg_%s' % cmd,*args,**kwargs)
+        if any([i == False for i in self.callAll('msg_%s' % cmd,*args,**kwargs)]):
+            return
         
         for child in self.children.itervalues():
             child.publish(cmd,*args,**kwargs)
@@ -207,7 +210,7 @@ class Entity:
             return val
         
     def hasVar(self, name):
-        return name in self.vars
+        return name in self.vars or self.hasFunc("get_%s" % name)
         
     def addAspect(self, aspect):
         if not self.hasAspect(aspect.name):
@@ -229,7 +232,7 @@ class Entity:
         return name in self.aspects
         
     def getAspect(self, name):
-        pos = name.find(':')
+        pos = name.find('-')
         if pos == -1:
             return self.aspects.get(name)
         else:

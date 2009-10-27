@@ -16,6 +16,9 @@ class Vec2:
     def fromRot2(r, l = 1):
         return Vec2(l * math.cos(r.angle), l * math.sin(r.angle))
         
+    def __repr__(self):
+        return "Vec2(%.2f,%.2f)" % (self.x,self.y)
+        
     def __getitem__(self, i):
         if i == 0:
             return self.x

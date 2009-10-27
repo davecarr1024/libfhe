@@ -18,7 +18,7 @@ class App(Aspect):
                 dtime = currentTime - lastTime
                 lastTime = currentTime
                 
-                self.setVar("time",currentTime - startTime)
+                self.entity.setVar("time",currentTime - startTime)
                 self.entity.publish("update",currentTime - startTime, dtime)
         finally:
             self.log("fps", float(numFrames) / (currentTime - startTime))
