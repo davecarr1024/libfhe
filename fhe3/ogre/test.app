@@ -3,7 +3,7 @@
     <aspect name="Window"/>
 </aspects>
 <children>
-    <child>
+    <!--child>
         <name>robot</name>
         <aspects>
             <aspect name="Mesh"/>
@@ -12,7 +12,7 @@
             <var name="name">robot.mesh</var>
             <var name="scale">Vec3(1,2,1)</var>
         </vars>
-    </child>
+    </child-->
     <child>
         <name>quitButton</name>
         <aspects>
@@ -26,7 +26,7 @@
             <var name="text">quit</var>
         </vars>
     </child>
-    <child>
+    <!--child>
         <name>cube</name>
         <aspects>
             <aspect name="CubeMesh"/>
@@ -45,5 +45,5 @@
             <var name="pos">Vec2(0,0)</var>
             <var name="size">Vec2(0.4,0.4)</var>
         </vars>
-    </child>
+    </child-->
 </children>

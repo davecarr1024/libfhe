@@ -72,7 +72,7 @@ from vec3 import Vec3
 if __name__ == "__main__":
     x = Vec3(1,0,0)
     v = Vec3(0,10,5)
-    q = x.rotationTo(v)
+    q = x.getRotationTo(v)
     r = q * x
     vn = v.norm()
     assert abs(r.x - vn.x) < 0.1 and abs(r.y - vn.y) < 0.1 and abs(r.z - vn.z) < 0.1

@@ -15,6 +15,9 @@ class Rot2:
     def fromVec2(v):
         return Rot2(math.atan2(v.y,v.x))
         
+    def __repr__(self):
+        return "Rot2(%.2f)" % self.angle
+        
     def __mul__(self, v):
         if isinstance(v,Vec2):
             return (self + Rot2.fromVec2(v)).toVec2(v.length())

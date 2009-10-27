@@ -306,7 +306,6 @@ namespace fhe
     
     void Entity::loadTag( TiXmlHandle h, const std::string& tag )
     {
-        printf("%s load %s\n",getPath().c_str(),tag.c_str());
         for ( TiXmlElement* e = h.FirstChildElement().ToElement(); e; e = e->NextSiblingElement() )
         {
             if ( e->Value() == tag )
@@ -335,8 +334,9 @@ namespace fhe
             assert(name);
             boost::python::dict ns = Aspect::emptyNamespace();
             ns["entity"] = toPy();
-            boost::python::object val = Var::fromPy(Aspect::tryEvalScript(e->GetText(),ns)).toPy();
-            pySetVar(name,val);
+            Var val = Var::fromPy(Aspect::tryEvalScript(e->GetText(),ns));
+            boost::python::object pyVal = val.empty() ? boost::python::str(e->GetText()) : val.toPy();
+            pySetVar(name,pyVal);
         }
     }
     

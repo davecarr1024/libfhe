@@ -56,46 +56,46 @@ namespace fhe
         Var var;
         
         std::string type = boost::python::extract<std::string>(obj.attr("__class__").attr("__name__"));
-
+        
         if ( type == "bool" )
         {
-            var.set(boost::python::extract<bool>(obj)());
+            var.set<bool>(boost::python::extract<bool>(obj)());
         }
         else if ( type == "int" )
         {
-            var.set(boost::python::extract<int>(obj)());
+            var.set<int>(boost::python::extract<int>(obj)());
         }
         else if ( type == "float" )
         {
-            var.set(boost::python::extract<float>(obj)());
+            var.set<float>(boost::python::extract<float>(obj)());
         }
         else if ( type == "str" )
         {
-            var.set(boost::python::extract<std::string>(obj)());
+            var.set<std::string>(boost::python::extract<std::string>(obj)());
         }
         else if ( type == "VarMap" )
         {
-            var.set(boost::python::extract<VarMap>(obj)());
+            var.set<VarMap>(boost::python::extract<VarMap>(obj)());
         }
         else if ( type == "Var" )
         {
-            var.set(boost::python::extract<Var>(obj)());
+            var.set<Var>(boost::python::extract<Var>(obj)());
         }
         else if ( type == "Vec2" )
         {
-            var.set(boost::python::extract<Vec2>(obj)());
+            var.set<Vec2>(boost::python::extract<Vec2>(obj)());
         }
         else if ( type == "Rot" )
         {
-            var.set(boost::python::extract<Rot>(obj)());
+            var.set<Rot>(boost::python::extract<Rot>(obj)());
         }
         else if ( type == "Vec3" )
         {
-            var.set(boost::python::extract<Vec3>(obj)());
+            var.set<Vec3>(boost::python::extract<Vec3>(obj)());
         }
         else if ( type == "Quat" )
         {
-            var.set(boost::python::extract<Quat>(obj)());
+            var.set<Quat>(boost::python::extract<Quat>(obj)());
         }
         
         return var;

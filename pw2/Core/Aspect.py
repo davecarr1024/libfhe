@@ -4,8 +4,8 @@ class Aspect:
     def init(self, name, entity):
         self.name = name
         self.entity = entity
-        self.updatePath()
         self.funcs = dict([(name,getattr(self,name)) for name in dir(self) if callable(getattr(self,name))])
+        self.updatePath()
         
     def hasFunc(self, cmd):
         return cmd in self.funcs
@@ -20,15 +20,6 @@ class Aspect:
         else:
             return default
             
-    def getVar(self, name, default = None):
-        return self.entity.getVar(name,default)
-        
-    def setVar(self, name, val):
-        self.entity.setVar(name,val)
-        
-    def hasVar(self, name):
-        return self.entity.hasVar(name)
-        
     def attachToEntity(self, entity):
         if entity != self.entity:
             self.detachFromEntity()
@@ -45,7 +36,7 @@ class Aspect:
             self.updatePath()
             
     def updatePath(self):
-        self.path = "%s:%s." % (self.entity.path,self.name)
+        self.path = "%s.%s" % (self.entity.path,self.name)
             
     def log(self, *v):
         print "%s: %s" % (self.path,' '.join(map(str,v)))

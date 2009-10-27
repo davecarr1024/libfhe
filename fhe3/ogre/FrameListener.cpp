@@ -84,6 +84,9 @@ namespace fhe
         if (evt.key == OIS::KC_ESCAPE) {
             m_window->log("escape");
             m_window->getEntity()->getRoot()->setVar<bool>("shutdown",true);
+            m_window->log("shutdown %s %d", 
+                m_window->getEntity()->getRoot()->getPath().c_str(),
+                m_window->getEntity()->getRoot()->getVar<bool>("shutdown",false));
         }
         
         if (m_guiSystem) {

@@ -23,8 +23,6 @@ namespace fhe
     {
         on_detach();
         
-        log("on_attach %p",m_window);
-        
         CEGUI::Window* parentWindow = getParentWindow();
         if ( !parentWindow )
         {
@@ -38,13 +36,11 @@ namespace fhe
             {
                 error("couldn't get windowManager");
             }
-            log("create");
             m_window = create(windowManager);
         }
         
         if ( m_window )
         {
-            log("add");
             parentWindow->addChildWindow( m_window );
         }
         
