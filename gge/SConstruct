@@ -1,0 +1,21 @@
+from glob import glob
+import os.path
+
+env = Environment()
+
+env.Append(CPPPATH = "#")
+
+def enumerateFiles(path = "."):
+    files = glob("%s/*" % path)
+    return sum(map(enumerateFiles,filter(os.path.isdir,files)),filter(os.path.isfile,files))
+
+files = enumerateFiles()
+
+src = filter(lambda file: file.endswith(".cpp"),files)
+
+mainSrc = filter(lambda file: 'main' in file.lower(), src)
+libSrc = filter(lambda file: file not in mainSrc, src)
+
+lib = env.SharedLibrary('gge',libSrc)
+
+apps = map(lambda file: env.Program(file[:file.rfind('.')].lstrip('./').replace('/','.'), [file,lib]), mainSrc)
