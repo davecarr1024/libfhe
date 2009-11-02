@@ -12,15 +12,17 @@ namespace gge
         m_mouse(0),
         m_joystick(0)
     {
-        m_guiSystem = m_window->getGuiSystem();
+        m_guiSystem = m_window->getEntity()->getVar<CEGUI::System*>("guiSystem");
         
-        Ogre::WindowEventUtilities::addWindowEventListener(m_window->getRenderWindow(),this);
+        Ogre::RenderWindow* rw = m_window->getEntity()->getVar<Ogre::RenderWindow*>("renderWindow");
+        
+        Ogre::WindowEventUtilities::addWindowEventListener(rw,this);
         
         size_t windowHnd = 0;
         std::ostringstream windowHndStr;
         OIS::ParamList pl;
         
-        m_window->getRenderWindow()->getCustomAttribute("WINDOW", &windowHnd);
+        rw->getCustomAttribute("WINDOW", &windowHnd);
         windowHndStr << windowHnd;
         pl.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
         

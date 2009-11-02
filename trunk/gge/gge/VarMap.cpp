@@ -17,21 +17,27 @@ namespace gge
     
     Var VarMap::getRawVar( const std::string& name ) const
     {
+        if ( name == "scale" ) printf("get scale\n");
         Var val = onGetVar(name);
         if ( !val.empty() )
         {
+            if ( name == "scale" ) printf("return onGetVar val %s\n",val.toString().c_str());
             return val;
         }
         else
         {
             std::map<std::string,Var>::const_iterator i = m_vars.find(name);
-            assert(i != m_vars.end());
-            return i->second;
+            if ( name == "scale" ) printf("return m_vars val %s\n",(i != m_vars.end() ? i->second : Var()).toString().c_str());
+            return i != m_vars.end() ? i->second : Var();
         }
     }
     
     void VarMap::setRawVar( const std::string& name, Var val )
     {
+        if ( name == "scale" )
+        {
+            printf("scale = %s\n",val.toString().c_str());
+        }
         m_vars[name] = val;
         onSetVar(name,val);
     }

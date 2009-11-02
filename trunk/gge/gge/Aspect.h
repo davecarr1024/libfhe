@@ -27,7 +27,7 @@ namespace gge
             Entity* m_entity;
             
             static bool m_pythonInitialized;
-            static boost::python::object m_mainModule, m_mainNamespace;
+            static boost::python::object m_mainModule, m_mainNamespace, m_vec3, m_quat;
             
             static void initializePython();
             
@@ -61,9 +61,9 @@ namespace gge
             
             void runScript( const std::string& name );
             
-            void execScript( const std::string& s, boost::python::dict ns );
+            static void execScript( const std::string& s, boost::python::dict ns );
             
-            boost::python::object evalScript( const std::string& s, boost::python::dict ns );
+            static boost::python::object evalScript( const std::string& s, boost::python::dict ns );
     };
     
 }
