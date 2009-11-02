@@ -7,12 +7,12 @@ class TestAspect : public Aspect
         TestAspect() :
             on_detach_called(false)
         {
-            addFunc("on_attach",this,&TestAspect::on_attach);
-            addFunc("on_detach",this,&TestAspect::on_detach);
-            addFunc("set_setTest",this,&TestAspect::set_setTest);
-            addFunc("get_getTest",this,&TestAspect::get_getTest);
-            addFunc("msg_msgTest",this,&TestAspect::msg_msgTest);
-            addFunc("load_loadTest",this,&TestAspect::load_loadTest);
+            addFunc("on_attach",&TestAspect::on_attach,this);
+            addFunc("on_detach",&TestAspect::on_detach,this);
+            addFunc("set_setTest",&TestAspect::set_setTest,this);
+            addFunc("get_getTest",&TestAspect::get_getTest,this);
+            addFunc("msg_msgTest",&TestAspect::msg_msgTest,this);
+            addFunc("load_loadTest",&TestAspect::load_loadTest,this);
         }
         
         void on_attach()
@@ -99,7 +99,7 @@ int main()
     
     assert(fileEntity->getVar<bool>("loadTest_called",false) == true);
     
-    app.buildEntity("scriptEnt")->buildAspect("Aspect")->runScript("test/test.py");
+    app.buildEntity("scriptEnt")->buildAspect("Aspect")->runScript("test.py");
     
     return 0;
 }

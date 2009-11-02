@@ -1,6 +1,7 @@
 #include "Aspect.h"
 #include "Entity.h"
 #include "App.h"
+#include "FileSystem.h"
 
 #include <cstdarg>
 
@@ -185,7 +186,7 @@ namespace gge
         boost::python::dict ns = selfNamespace();
         try
         {
-            boost::python::exec_file(filename.c_str(),ns,ns);
+            boost::python::exec_file(FileSystem::instance().getFile(filename).c_str(),ns,ns);
         }
         catch ( boost::python::error_already_set )
         {

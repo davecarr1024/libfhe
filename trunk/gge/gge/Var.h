@@ -80,6 +80,14 @@ namespace gge
             Var( const Var& var );
             Var& operator=( const Var& var );
             ~Var();
+            
+            template <class T>
+            static Var build( const T& val )
+            {
+                Var var;
+                var.set<T>(val);
+                return var;
+            }
                         
             bool empty();
             void clear();

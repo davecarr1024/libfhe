@@ -11,6 +11,7 @@ namespace gge
     {
         private:
             EntityMap m_entities;
+            bool m_shutdown;
             
         public:
             App();
@@ -34,6 +35,10 @@ namespace gge
             boost::python::object toPy();
             
             static boost::python::object defineClass();
+            
+            float getTime();
+            void shutdown();
+            void run( float maxTime = -1 );
     };
     
 }

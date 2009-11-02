@@ -1,4 +1,5 @@
 #include "App.h"
+#include <boost/date_time/posix_time/posix_time_types.hpp>
 
 namespace gge
 {
@@ -103,6 +104,39 @@ namespace gge
     boost::python::object App::toPy()
     {
         return boost::python::object(boost::python::ptr(this));
+    }
+    
+    float App::getTime()
+    {                   
+        return float(boost::posix_time::microsec_clock::universal_time()
+            .time_of_day().total_nanoseconds()) / 1000000000.0;
+    }
+    
+    void App::shutdown()
+    {
+        m_shutdown = true;
+    }
+    
+    void App::run( float maxTime )
+    {
+        m_shutdown = false;
+        float time = getTime(), lastTime = time, startTime = time, dtime;
+        int numFrames = 0;
+        
+        while ( (maxTime < 0 || time - startTime < maxTime) && !m_shutdown )
+        {
+            numFrames++;
+            time = getTime();
+            dtime = lastTime - time;
+            lastTime = time;
+            
+            VarMap args;
+            args.setVar<float>("time",time);
+            args.setVar<float>("dtime",dtime);
+            publish("update",args);
+        }
+        
+        printf("fps %f\n",float(numFrames)/(getTime()-startTime));
     }
     
 }

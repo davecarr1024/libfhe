@@ -70,6 +70,13 @@ namespace gge
                 onSetVar( name, m_vars[name] );
             }
             
+            template <class T>
+            T defaultVar( const std::string& name, const T& val )
+            {
+                setVar<T>(name,getVar<T>(name,val));
+                return getVar<T>(name,val);
+            }
+            
             virtual bool onHasVar( const std::string& name ) const;
             virtual Var onGetVar( const std::string& name ) const;
             virtual void onSetVar( const std::string& name, const Var& val );
