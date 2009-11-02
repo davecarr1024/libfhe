@@ -69,5 +69,6 @@ namespace gge
 }
 
 #include "AspectFactory.h"
+#include "Entity.h"
 
 #endif

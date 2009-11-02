@@ -135,4 +135,6 @@ namespace gge
     
 }
 
+#include "App.h"
+
 #endif

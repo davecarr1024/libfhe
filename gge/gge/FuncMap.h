@@ -77,13 +77,13 @@ namespace gge
             }
             
             template <class TObj, class TRet, class TArg>
-            void addFunc( const std::string& name, TObj* obj, TRet (TObj::*method)(TArg) )
+            void addFunc( const std::string& name, TRet (TObj::*method)(TArg), TObj* obj )
             {
                 addFunc( name, new Func<TObj,TRet,TArg>(obj,method) );
             }
             
             template <class TObj, class TRet>
-            void addFunc( const std::string& name, TObj* obj, TRet (TObj::*method)() )
+            void addFunc( const std::string& name, TRet (TObj::*method)(), TObj* obj )
             {
                 addFunc( name, new Func<TObj,TRet,void>(obj,method) );
             }
