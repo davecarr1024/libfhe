@@ -2,6 +2,8 @@
 #include "Entity.h"
 #include "App.h"
 #include "FileSystem.h"
+#include "math/Vec3.h"
+#include "math/Quat.h"
 
 #include <cstdarg>
 
@@ -16,6 +18,8 @@ namespace gge
     bool Aspect::m_pythonInitialized = false;
     boost::python::object Aspect::m_mainModule;
     boost::python::object Aspect::m_mainNamespace;
+    boost::python::object Aspect::m_vec3;
+    boost::python::object Aspect::m_quat;
 
     Aspect::Aspect() :
         m_entity(0)
@@ -162,6 +166,8 @@ namespace gge
             defineClass();
             Entity::defineClass();
             App::defineClass();
+            m_vec3 = Vec3::defineClass();
+            m_quat = Quat::defineClass();
         }
     }
     
@@ -170,6 +176,8 @@ namespace gge
         initializePython();
         boost::python::dict ns;
         ns.update(m_mainNamespace);
+        ns["Vec3"] = m_vec3;
+        ns["Quat"] = m_quat;
         return ns;
     }
     
@@ -204,7 +212,6 @@ namespace gge
         }
         catch ( boost::python::error_already_set )
         {
-            log("error executing script %s",s.c_str());
             PyErr_Print();
             PyErr_Clear();
         }
@@ -219,7 +226,6 @@ namespace gge
         }
         catch ( boost::python::error_already_set )
         {
-            log("error evaling script %s",s.c_str());
             PyErr_Print();
             PyErr_Clear();
             return boost::python::object();

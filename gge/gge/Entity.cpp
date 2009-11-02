@@ -131,40 +131,23 @@ namespace gge
     
     void Entity::loadVars( TiXmlHandle h )
     {
+        boost::python::dict ns = Aspect::defaultNamespace();
         for ( TiXmlElement* e = h.FirstChildElement("var").ToElement(); e; e = e->NextSiblingElement("var") )
         {
             const char* cname = e->Attribute("name");
             assert(cname);
-            const char* ctype = e->Attribute("type");
-            assert(ctype);
-            std::string name(cname), type(ctype), value( e->GetText() );
-            std::istringstream ins(value);
-            if ( type == "bool" )
+            std::string name(cname), value( e->GetText() );
+            Var val = Var::fromPy(Aspect::evalScript(value,ns));
+            printf("ent %s: load var %s = %s => %s\n",getName().c_str(),name.c_str(),value.c_str(),val.toString().c_str());
+            if ( !val.empty() )
             {
-                bool b;
-                ins >> b;
-                setVar<bool>(name,b);
-            }
-            else if ( type == "int" )
-            {
-                int i;
-                ins >> i;
-                setVar<int>(name,i);
-            }
-            else if ( type == "float" )
-            {
-                float f;
-                ins >> f;
-                setVar<float>(name,f);
-            }
-            else if ( type == "string" )
-            {
-                setVar<std::string>(name,value);
+                setRawVar(name,val);
             }
             else
             {
-                throw std::runtime_error("unknown var type " + type);
+                setVar<std::string>(name,value);
             }
+            printf("var %s is now %s\n",name.c_str(),getRawVar(name).toString().c_str());
         }
     }
     

@@ -10,9 +10,6 @@ namespace gge
     
     class SceneNode : public Aspect
     {
-        private:
-            Ogre::SceneNode* m_sceneNode;
-            
         public:
             SceneNode();
             ~SceneNode();
@@ -20,9 +17,16 @@ namespace gge
             void on_attach();
             void on_detach();
             
-            Var get_sceneNode();
-            
             void set_parent( Var val );
+            
+            void set_pos( Var val );
+            Var get_pos();
+            
+            void set_rot( Var val );
+            Var get_rot();
+            
+            void set_scale( Var val );
+            Var get_scale();
     };
     
 }

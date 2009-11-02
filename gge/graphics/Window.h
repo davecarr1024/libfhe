@@ -46,15 +46,15 @@ namespace gge
             
             void msg_update(VarMap args);
             
-            Ogre::Root* getOgreRoot();
-            Ogre::Camera* getCamera();
-            Ogre::SceneManager* getSceneManager();
-            Ogre::RenderWindow* getRenderWindow();
-            Ogre::SceneNode* getSceneNode();
+            Var get_root();
+            Var get_camera();
+            Var get_sceneManager();
+            Var get_renderWindow();
+            Var get_sceneNode();
             
-            CEGUI::System* getGuiSystem();
-            CEGUI::WindowManager* getWindowManager();
-            CEGUI::Window* getWindow();
+            Var get_guiSystem();
+            Var get_windowManager();
+            Var get_window();
     };
     
 }

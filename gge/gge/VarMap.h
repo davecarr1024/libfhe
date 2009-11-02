@@ -31,43 +31,22 @@ namespace gge
             template <class T>
             T getVar( const std::string& name ) const
             {
-                Var val = onGetVar( name );
-                if ( val.is<T>() )
-                {
-                    return val.get<T>();
-                }
-                else 
-                {
-                    std::map<std::string,Var>::const_iterator i = m_vars.find(name);
-                    assert(i != m_vars.end());
-                    return i->second.get<T>();
-                }
+                Var val = getRawVar(name);
+                assert(val.is<T>());
+                return val.get<T>();
             }
             
             template <class T>
             T getVar( const std::string& name, const T& def ) const
             {
-                Var val = onGetVar( name );
-                if ( val.is<T>() )
-                {
-                    return val.get<T>();
-                }
-                else
-                {
-                    std::map<std::string,Var>::const_iterator i = m_vars.find(name);
-                    return i != m_vars.end() ? i->second.get<T>() : def;
-                }
+                Var val = getRawVar(name);
+                return val.is<T>() ? val.get<T>() : def;
             }
             
             template <class T>
             void setVar( const std::string& name, const T& val )
             {
-                if ( !hasVarName(name) )
-                {
-                    m_vars[name] = Var();
-                }
-                m_vars[name].set<T>(val);
-                onSetVar( name, m_vars[name] );
+                setRawVar(name,Var::build<T>(val));
             }
             
             template <class T>

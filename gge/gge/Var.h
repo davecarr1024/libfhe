@@ -21,6 +21,7 @@ namespace gge
                     virtual const std::type_info& getType()=0;
                     virtual AbstractData* clone()=0;
                     virtual boost::python::object toPy() const =0;
+                    virtual std::string toString() const =0;
                     
                     template <class T>
                     bool is()
@@ -70,6 +71,11 @@ namespace gge
                     boost::python::object toPy() const
                     {
                         return PyConverter::instance().toPy<T>(m_data);
+                    }
+                    
+                    std::string toString() const
+                    {
+                        return boost::python::extract<std::string>(toPy().attr("__repr__")())();
                     }
             };
             
@@ -126,6 +132,8 @@ namespace gge
             }
             
             boost::python::object toPy() const;
+            
+            std::string toString() const;
             
             static Var fromPy( boost::python::object obj );
     };

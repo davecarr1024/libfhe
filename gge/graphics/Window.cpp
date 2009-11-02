@@ -17,14 +17,14 @@ namespace gge
         addFunc("on_detach",&Window::on_detach,this);
         addFunc("on_attach",&Window::on_attach,this);
         addFunc("msg_update",&Window::msg_update,this);
-        addFunc("getOgreRoot",&Window::getOgreRoot,this);
-        addFunc("getCamera",&Window::getCamera,this);
-        addFunc("getSceneManager",&Window::getSceneManager,this);
-        addFunc("getRenderWindow",&Window::getRenderWindow,this);
-        addFunc("getSceneNode",&Window::getSceneNode,this);
-        addFunc("getGuiSystem",&Window::getGuiSystem,this);
-        addFunc("getWindow",&Window::getWindow,this);
-        addFunc("getWindowManager",&Window::getWindowManager,this);
+        addFunc("get_root",&Window::get_root,this);
+        addFunc("get_camera",&Window::get_camera,this);
+        addFunc("get_sceneManager",&Window::get_sceneManager,this);
+        addFunc("get_renderWindow",&Window::get_renderWindow,this);
+        addFunc("get_sceneNode",&Window::get_sceneNode,this);
+        addFunc("get_guiSystem",&Window::get_guiSystem,this);
+        addFunc("get_window",&Window::get_window,this);
+        addFunc("get_windowManager",&Window::get_windowManager,this);
     }
     
     Window::~Window()
@@ -154,43 +154,43 @@ namespace gge
         CEGUI::MouseCursor::getSingleton().setImage(CEGUI::System::getSingleton().getDefaultMouseCursor());
     }
     
-    Ogre::Root* Window::getOgreRoot()
+    Var Window::get_root()
     {
-        return m_root;
+        return Var::build<Ogre::Root*>(m_root);
     }
     
-    Ogre::Camera* Window::getCamera()
+    Var Window::get_camera()
     {
-        return m_camera;
+        return Var::build<Ogre::Camera*>(m_camera);
     }
     
-    Ogre::SceneManager* Window::getSceneManager()
+    Var Window::get_sceneManager()
     {
-        return m_sceneManager;
+        return Var::build<Ogre::SceneManager*>(m_sceneManager);
     }
     
-    Ogre::RenderWindow* Window::getRenderWindow()
+    Var Window::get_renderWindow()
     {
-        return m_renderWindow;
+        return Var::build<Ogre::RenderWindow*>(m_renderWindow);
     }
     
-    Ogre::SceneNode* Window::getSceneNode()
+    Var Window::get_sceneNode()
     {
-        return m_sceneManager ? m_sceneManager->getRootSceneNode() : 0;
+        return m_sceneManager ? Var::build<Ogre::SceneNode*>(m_sceneManager->getRootSceneNode()) : Var();
     }
     
-    CEGUI::System* Window::getGuiSystem()
+    Var Window::get_guiSystem()
     {
-        return m_guiSystem;
+        return Var::build<CEGUI::System*>(m_guiSystem);
     }
     
-    CEGUI::WindowManager* Window::getWindowManager()
+    Var Window::get_windowManager()
     {
-        return m_guiWindowManager;
+        return Var::build<CEGUI::WindowManager*>(m_guiWindowManager);
     }
     
-    CEGUI::Window* Window::getWindow()
+    Var Window::get_window()
     {
-        return m_guiSheet;
+        return Var::build<CEGUI::Window*>(m_guiSheet);
     }
 }

@@ -1,4 +1,6 @@
 #include "Var.h"
+#include "math/Vec3.h"
+#include "math/Quat.h"
 
 namespace gge
 {
@@ -68,7 +70,24 @@ namespace gge
             {
                 var.set<std::string>(boost::python::extract<std::string>(obj)());
             }
+            else if ( type == "Vec3" )
+            {
+                var.set<Vec3>(boost::python::extract<Vec3>(obj)());
+            }
+            else if ( type == "Quat" )
+            {
+                var.set<Quat>(boost::python::extract<Quat>(obj)());
+            }
+            else
+            {
+                printf("warning: cannot convert unknown python type %s to var\n",type.c_str());
+            }
         }
         return var;
+    }
+    
+    std::string Var::toString() const
+    {
+        return m_data ? m_data->toString() : "None";
     }
 }
