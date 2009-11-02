@@ -3,6 +3,7 @@
 
 #include <typeinfo>
 #include <cassert>
+#include "PyConverter.h"
 
 namespace gge
 {
@@ -19,6 +20,7 @@ namespace gge
                 public:
                     virtual const std::type_info& getType()=0;
                     virtual AbstractData* clone()=0;
+                    virtual boost::python::object toPy() const =0;
                     
                     template <class T>
                     bool is()
@@ -63,6 +65,11 @@ namespace gge
                     T get()
                     {
                         return m_data;
+                    }
+                    
+                    boost::python::object toPy() const
+                    {
+                        return PyConverter::instance().toPy<T>(m_data);
                     }
             };
             
@@ -109,6 +116,10 @@ namespace gge
                     m_data = new Data<T>(val);
                 }
             }
+            
+            boost::python::object toPy() const;
+            
+            static Var fromPy( boost::python::object obj );
     };
     
 }

@@ -3,7 +3,20 @@ import os.path
 
 env = Environment()
 
-env.Append(CPPPATH = "#")
+env.Append(CPPPATH = env.Split('''
+    #
+    ext/tinyxml
+    /usr/include/python2.6 
+    '''))
+    
+env.Append(LIBS = env.Split('''
+    python2.6
+    boost_python-mt-py26
+    '''))
+    
+env.Append(LIBPATH = env.Split('''
+    /usr/local/lib
+    '''))
 
 def enumerateFiles(path = "."):
     files = glob("%s/*" % path)

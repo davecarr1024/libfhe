@@ -15,6 +15,34 @@ namespace gge
         private:
             std::map<std::string,AbstractFunc*> m_funcs;
             
+            class PyAddFunc
+            {
+                private:
+                    FuncMap* m_funcMap;
+                    boost::python::object m_tret, m_targ;
+                    
+                    template <class TRet>
+                    void bind( boost::python::object func );
+                    
+                public:
+                    PyAddFunc( FuncMap* funcMap, boost::python::object tret, boost::python::object targ );
+                    
+                    void call( boost::python::object func );
+            };
+            
+            class PyCall
+            {
+                private:
+                    AbstractFunc* m_func;
+                    
+                public:
+                    PyCall( AbstractFunc* func );
+                    
+                    boost::python::object call( boost::python::object arg );
+                    
+                    boost::python::object callNoArg();
+            };
+            
         public:
             FuncMap();
             virtual ~FuncMap();
@@ -26,9 +54,10 @@ namespace gge
             void addFunc( const std::string& name, AbstractFunc* func );
             
             template <class TRet, class TArg>
-            bool hasFunc( const std::string& name )
+            bool hasFunc( const std::string& name ) const
             {
-                return hasFuncName(name) && m_funcs[name]->is<TRet,TArg>();
+                std::map<std::string,AbstractFunc*>::const_iterator i = m_funcs.find(name);
+                return i != m_funcs.end() && i->second->is<TRet,TArg>();
             }
             
             template <class TRet, class TArg>
@@ -58,6 +87,12 @@ namespace gge
             {
                 addFunc( name, new Func<TObj,TRet,void>(obj,method) );
             }
+            
+            boost::python::object pyAddFunc( boost::python::object tret, boost::python::object targ );
+            
+            boost::python::object pyGetFunc( const std::string& name );
+            
+            static boost::python::object defineClass();
     };
     
 }

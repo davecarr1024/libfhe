@@ -4,6 +4,8 @@
 #include "FuncMap.h"
 #include "AutoPtr.h"
 
+#include "tinyxml.h"
+
 #include <map>
 #include <string>
 #include <vector>
@@ -24,17 +26,44 @@ namespace gge
             
             Entity* m_entity;
             
+            static bool m_pythonInitialized;
+            static boost::python::object m_mainModule, m_mainNamespace;
+            
+            static void initializePython();
+            
         public:
             Aspect();
             ~Aspect();
             
             void init( const std::string& name );
             std::string getName();
+            std::string getPath();
+            
+            void log( const char* format, ... );
+            void error( const char* format, ... );
             
             Entity* getEntity();
             
             void attachToEntity( Entity* entity );
             void detachFromEntity();
+            
+            void loadData( TiXmlHandle h );
+            
+            boost::python::object getAttr( const std::string& name );
+            void setAttr( const std::string& name, boost::python::object val );
+            
+            static boost::python::object defineClass();
+            
+            boost::python::object toPy();
+            
+            static boost::python::dict defaultNamespace();
+            boost::python::dict selfNamespace();
+            
+            void runScript( const std::string& name );
+            
+            void execScript( const std::string& s, boost::python::dict ns );
+            
+            boost::python::object evalScript( const std::string& s, boost::python::dict ns );
     };
     
 }

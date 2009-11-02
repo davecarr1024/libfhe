@@ -75,7 +75,7 @@ namespace gge
                 return dynamic_cast<U*>(m_obj);
             }
             
-            operator T*()
+            operator T*() const
             {
                 return m_obj;
             }
@@ -90,12 +90,12 @@ namespace gge
                 return !valid();
             }
             
-            T& operator*()
+            T& operator*() const
             {
                 return m_obj;
             }
             
-            T* operator->()
+            T* operator->() const
             {
                 return m_obj;
             }
