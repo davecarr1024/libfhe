@@ -12,6 +12,7 @@ class TestAspect : public Aspect
             addFunc("set_setTest",this,&TestAspect::set_setTest);
             addFunc("get_getTest",this,&TestAspect::get_getTest);
             addFunc("msg_msgTest",this,&TestAspect::msg_msgTest);
+            addFunc("load_loadTest",this,&TestAspect::load_loadTest);
         }
         
         void on_attach()
@@ -26,7 +27,7 @@ class TestAspect : public Aspect
             on_detach_called = true;
         }
         
-        void set_setTest( const Var& val )
+        void set_setTest( Var val )
         {
             getEntity()->setVar<int>("setTestVal",val.get<int>());
         }
@@ -38,9 +39,14 @@ class TestAspect : public Aspect
             return val;
         }
         
-        void msg_msgTest( const VarMap& args )
+        void msg_msgTest( VarMap args )
         {
             getEntity()->setVar("msgTest",args.getVar<int>("val"));
+        }
+        
+        void load_loadTest( TiXmlHandle h )
+        {
+            getEntity()->setVar<bool>("loadTest_called",true);
         }
 };
 
@@ -48,6 +54,9 @@ GGE_ASPECT(TestAspect);
 
 int main()
 {
+    Var var;
+    assert(var.empty());
+    
     App app;
     
     EntityPtr entity = app.buildEntity("ent");
@@ -77,6 +86,20 @@ int main()
     msgTestArgs.setVar("val",45);
     app.publish("msgTest",msgTestArgs);
     assert(entity->getVar<int>("msgTest") == 45);
+    
+    app.load("test/test.app");
+    
+    EntityPtr fileEntity = app.getEntity("fileEntity");
+    assert(fileEntity);
+
+    assert(fileEntity->getVar<int>("i") == 11);
+    
+    AutoPtr<TestAspect> fileTest = fileEntity->getAspect("TestAspect").cast<TestAspect>();
+    assert(fileTest);
+    
+    assert(fileEntity->getVar<bool>("loadTest_called",false) == true);
+    
+    app.buildEntity("scriptEnt")->buildAspect("Aspect")->runScript("test/test.py");
     
     return 0;
 }
