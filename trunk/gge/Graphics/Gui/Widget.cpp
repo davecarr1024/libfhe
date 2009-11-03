@@ -1,5 +1,5 @@
 #include "Widget.h"
-#include "CEGUIUtil.h"
+#include "Graphics/CEGUIUtil.h"
 
 namespace gge
 {

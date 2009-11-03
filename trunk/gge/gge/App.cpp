@@ -1,4 +1,5 @@
 #include "App.h"
+#include "FileSystem.h"
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 
 namespace gge
@@ -55,7 +56,7 @@ namespace gge
     void App::load( const std::string& filename )
     {
         TiXmlDocument doc;
-        if ( doc.LoadFile( filename.c_str() ) )
+        if ( doc.LoadFile( FileSystem::instance().getFile(filename).c_str() ) )
         {
             loadData( &doc );
         }

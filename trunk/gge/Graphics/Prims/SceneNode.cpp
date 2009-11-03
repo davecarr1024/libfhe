@@ -1,5 +1,5 @@
 #include "SceneNode.h"
-#include "OgreUtil.h"
+#include "Graphics/OgreUtil.h"
 
 namespace gge
 {
