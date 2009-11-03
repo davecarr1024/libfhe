@@ -7,30 +7,33 @@
 
 namespace gge
 {
-    
-    class Widget : public Aspect
+    namespace Graphics
     {
-        protected:
-            CEGUI::WindowManager* getWindowManager();
         
-        public:
-            Widget();
-            ~Widget();
+        class Widget : public Aspect
+        {
+            protected:
+                CEGUI::WindowManager* getWindowManager();
             
-            void on_attach();
-            void on_detach();
-            
-            void set_widgetParent( Var val );
-            
-            void set_widget( Var val );
-            
-            void set_pos( Var val );
-            Var get_pos();
-            
-            void set_size( Var val );
-            Var get_size();
-    };
-    
+            public:
+                Widget();
+                ~Widget();
+                
+                void on_attach();
+                void on_detach();
+                
+                void set_widgetParent( Var val );
+                
+                void set_widget( Var val );
+                
+                void set_pos( Var val );
+                Var get_pos();
+                
+                void set_size( Var val );
+                Var get_size();
+        };
+
+    }
 }
 
 #endif

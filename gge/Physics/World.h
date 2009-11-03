@@ -7,26 +7,29 @@
 
 namespace gge
 {
-    
-    class World : public Aspect
+    namespace Physics
     {
-        private:
-            btAxisSweep3* m_broadphase;
-            btDefaultCollisionConfiguration* m_collisionConfiguration;
-            btCollisionDispatcher* m_dispatcher;
-            btSequentialImpulseConstraintSolver* m_solver;
-            btDiscreteDynamicsWorld* m_dynamicsWorld;
-            float m_lastTick;
-            
-        public:
-            World();
-            ~World();
-            
-            void msg_update( VarMap args );
-            
-            Var get_dynamicsWorld();
-    };
-    
+        
+        class World : public Aspect
+        {
+            private:
+                btAxisSweep3* m_broadphase;
+                btDefaultCollisionConfiguration* m_collisionConfiguration;
+                btCollisionDispatcher* m_dispatcher;
+                btSequentialImpulseConstraintSolver* m_solver;
+                btDiscreteDynamicsWorld* m_dynamicsWorld;
+                float m_lastTick;
+                
+            public:
+                World();
+                ~World();
+                
+                void msg_update( VarMap args );
+                
+                Var get_dynamicsWorld();
+        };
+        
+    }
 }
 
 #endif

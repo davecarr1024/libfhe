@@ -1,5 +1,5 @@
-from glob import glob
-import os.path
+import glob
+import os
 
 env = Environment()
 
@@ -33,7 +33,7 @@ env.Append(LIBPATH = env.Split('''
     '''))
 
 def enumerateFiles(path = "."):
-    files = glob("%s/*" % path)
+    files = glob.glob("%s/*" % path)
     return sum(map(enumerateFiles,filter(os.path.isdir,files)),filter(os.path.isfile,files))
 
 files = enumerateFiles()

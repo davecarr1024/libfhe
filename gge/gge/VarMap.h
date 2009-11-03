@@ -29,9 +29,9 @@ namespace gge
             }
             
             template <class T>
-            T getVar( const std::string& name, const T& def, bool useOnGet = true ) const
+            T getVar( const std::string& name, const T& def ) const
             {
-                Var val = getRawVar(name,useOnGet);
+                Var val = getRawVar(name);
                 return val.is<T>() ? val.get<T>() : def;
             }
             
@@ -42,10 +42,11 @@ namespace gge
             }
             
             template <class T>
-            T defaultVar( const std::string& name, const T& val, bool useOnGet = false )
+            T defaultVar( const std::string& name, const T& def )
             {
-                setVar<T>(name,getVar<T>(name,val,useOnGet));
-                return getVar<T>(name,val);
+                Var val = getRawVar(name,false);
+                setVar<T>( name, val.is<T>() ? val.get<T>() : def );
+                return getVar<T>(name,def);
             }
             
             virtual bool onHasVar( const std::string& name ) const;

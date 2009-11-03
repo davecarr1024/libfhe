@@ -3,26 +3,29 @@
 
 namespace gge
 {
-    
-    BodyMotionState::BodyMotionState( Entity* entity, btTransform transform ) :
-        btDefaultMotionState(transform),
-        m_entity(entity)
+    namespace Physics
     {
-    }
-    
-    void BodyMotionState::getWorldTransform( btTransform& transform ) const
-    {
-        btDefaultMotionState::getWorldTransform(transform);
-    }
-    
-    void BodyMotionState::setWorldTransform( const btTransform& transform )
-    {
-        btDefaultMotionState::setWorldTransform(transform);
-        if ( m_entity )
+        
+        BodyMotionState::BodyMotionState( Entity* entity, btTransform transform ) :
+            btDefaultMotionState(transform),
+            m_entity(entity)
         {
-            m_entity->setVar<Quat>("rot",BulletUtil::toQuat(m_graphicsWorldTrans.getRotation()));
-            m_entity->setVar<Vec3>("pos",BulletUtil::toVec(m_graphicsWorldTrans.getOrigin()));
         }
+        
+        void BodyMotionState::getWorldTransform( btTransform& transform ) const
+        {
+            btDefaultMotionState::getWorldTransform(transform);
+        }
+        
+        void BodyMotionState::setWorldTransform( const btTransform& transform )
+        {
+            btDefaultMotionState::setWorldTransform(transform);
+            if ( m_entity )
+            {
+                m_entity->setVar<Quat>("rot",BulletUtil::toQuat(m_graphicsWorldTrans.getRotation()));
+                m_entity->setVar<Vec3>("pos",BulletUtil::toVec(m_graphicsWorldTrans.getOrigin()));
+            }
+        }
+
     }
-    
 }

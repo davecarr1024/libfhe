@@ -6,18 +6,21 @@
 
 namespace gge
 {
-    
-    class Body : public Aspect
+    namespace Physics
     {
-        public:
-            Body();
-            
-            void on_attach();
-            void on_detach();
-            
-            virtual btCollisionShape* makeShape();
-    };
     
+        class Body : public Aspect
+        {
+            public:
+                Body();
+                
+                void on_attach();
+                void on_detach();
+                
+                virtual btCollisionShape* makeShape();
+        };
+
+    }
 }
 
 #endif

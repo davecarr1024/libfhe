@@ -7,16 +7,18 @@
 
 namespace gge
 {
-    
-    class OgreUtil
+    namespace Graphics
     {
-        public:
-            static Ogre::Vector3 fromVec( const Vec3& v );
-            static Vec3 toVec( const Ogre::Vector3& v );
-            static Ogre::Quaternion fromQuat( const Quat& q );
-            static Quat toQuat( const Ogre::Quaternion& q );
-    };
-    
+        
+        class OgreUtil
+        {
+            public:
+                static Ogre::Vector3 fromVec( const Vec3& v );
+                static Vec3 toVec( const Ogre::Vector3& v );
+                static Ogre::Quaternion fromQuat( const Quat& q );
+                static Quat toQuat( const Ogre::Quaternion& q );
+        };
+    }
 }
 
 #endif
