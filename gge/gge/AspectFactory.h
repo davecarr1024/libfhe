@@ -32,7 +32,6 @@ namespace gge
             AspectBuilder( const std::string& name, const std::string& file )
             {
                 m_name = file.substr(0,file.rfind('/')+1) + name;
-                printf("%s\n",m_name.c_str());
             }
             
             AspectPtr build()

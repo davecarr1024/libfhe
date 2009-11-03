@@ -62,10 +62,7 @@ int main()
     EntityPtr entity = app.buildEntity("ent");
     assert(entity);
     
-    AspectPtr aspect = entity->buildAspect("Aspect");
-    assert(aspect);
-    
-    AspectPtr testAspect = entity->buildAspect("TestAspect");
+    AspectPtr testAspect = entity->buildAspect("Test/TestAspect");
     assert(testAspect);
     AutoPtr<TestAspect> test = testAspect.cast<TestAspect>();
     assert(test);
@@ -87,19 +84,19 @@ int main()
     app.publish("msgTest",msgTestArgs);
     assert(entity->getVar<int>("msgTest",0) == 45);
     
-    app.load("test/test.app");
+    app.load("Test/test.app");
     
     EntityPtr fileEntity = app.getEntity("fileEntity");
     assert(fileEntity);
 
     assert(fileEntity->getVar<int>("i",0) == 11);
     
-    AutoPtr<TestAspect> fileTest = fileEntity->getAspect("TestAspect").cast<TestAspect>();
+    AutoPtr<TestAspect> fileTest = fileEntity->getAspect("Test/TestAspect").cast<TestAspect>();
     assert(fileTest);
     
     assert(fileEntity->getVar<bool>("loadTest_called",false) == true);
     
-    app.buildEntity("scriptEnt")->buildAspect("Aspect")->runScript("test.py");
+    app.buildEntity("scriptEnt")->buildAspect("Test/TestAspect")->runScript("test.py");
     
     return 0;
 }

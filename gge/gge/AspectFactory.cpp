@@ -29,7 +29,10 @@ namespace gge
     
     AspectPtr AspectFactory::build( const std::string& name )
     {
-        assert(hasBuilder(name));
+        if ( !hasBuilder(name) )
+        {
+            throw std::runtime_error("unable to build unknown aspect type " + name );
+        }
         return m_builders[name]->build();
     }
     

@@ -4,7 +4,7 @@
     </vars>
     
     <aspects>
-        <aspect name="TestAspect">
+        <aspect name="Test/TestAspect">
             <loadTest/>
         </aspect>
     </aspects>
