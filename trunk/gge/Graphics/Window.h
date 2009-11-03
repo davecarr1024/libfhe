@@ -54,7 +54,7 @@ namespace gge
             
             Var get_guiSystem();
             Var get_windowManager();
-            Var get_window();
+            Var get_widget();
     };
     
 }

@@ -29,9 +29,10 @@ namespace gge
             std::string m_name;
             
         public:
-            AspectBuilder( const std::string& name ) :
-                m_name(name)
+            AspectBuilder( const std::string& name, const std::string& file )
             {
+                m_name = file.substr(0,file.rfind('/')+1) + name;
+                printf("%s\n",m_name.c_str());
             }
             
             AspectPtr build()
@@ -80,7 +81,7 @@ namespace gge
             }
     };
     
-    #define GGE_ASPECT( name ) AspectBuilderReg g_##name##_builder( new AspectBuilder<name>(#name) );
+    #define GGE_ASPECT( name ) AspectBuilderReg g_##name##_builder( new AspectBuilder<name>(#name,__FILE__) );
     
 }
 

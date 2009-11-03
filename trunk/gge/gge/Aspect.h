@@ -27,7 +27,7 @@ namespace gge
             Entity* m_entity;
             
             static bool m_pythonInitialized;
-            static boost::python::object m_mainModule, m_mainNamespace, m_vec3, m_quat;
+            static boost::python::object m_mainModule, m_mainNamespace, m_vec3, m_quat, m_vec2, m_rot;
             
             static void initializePython();
             

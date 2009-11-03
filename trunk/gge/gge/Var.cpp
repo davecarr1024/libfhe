@@ -1,6 +1,8 @@
 #include "Var.h"
 #include "math/Vec3.h"
 #include "math/Quat.h"
+#include "math/Vec2.h"
+#include "math/Rot.h"
 
 namespace gge
 {
@@ -77,6 +79,14 @@ namespace gge
             else if ( type == "Quat" )
             {
                 var.set<Quat>(boost::python::extract<Quat>(obj)());
+            }
+            else if ( type == "Vec2" )
+            {
+                var.set<Vec2>(boost::python::extract<Vec2>(obj)());
+            }
+            else if ( type == "Rot" )
+            {
+                var.set<Rot>(boost::python::extract<Rot>(obj)());
             }
             else
             {

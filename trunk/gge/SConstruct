@@ -12,6 +12,7 @@ env.Append(CPPPATH = env.Split('''
     /usr/local/include/OGRE
     /usr/local/include/OIS
     /usr/local/include/CEGUI
+    /usr/local/include/bullet
     '''))
     
 env.Append(LIBS = env.Split('''
@@ -22,6 +23,9 @@ env.Append(LIBS = env.Split('''
     CEGUIOgreRenderer
     OgreMain
     OIS
+    bulletdynamics
+    bulletcollision
+    bulletmath
     '''))
     
 env.Append(LIBPATH = env.Split('''
