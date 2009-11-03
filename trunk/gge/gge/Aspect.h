@@ -26,11 +26,6 @@ namespace gge
             
             Entity* m_entity;
             
-            static bool m_pythonInitialized;
-            static boost::python::object m_mainModule, m_mainNamespace, m_vec3, m_quat, m_vec2, m_rot;
-            
-            static void initializePython();
-            
         public:
             Aspect();
             ~Aspect();
@@ -55,15 +50,6 @@ namespace gge
             static boost::python::object defineClass();
             
             boost::python::object toPy();
-            
-            static boost::python::dict defaultNamespace();
-            boost::python::dict selfNamespace();
-            
-            void runScript( const std::string& name );
-            
-            static void execScript( const std::string& s, boost::python::dict ns );
-            
-            static boost::python::object evalScript( const std::string& s, boost::python::dict ns );
     };
     
 }

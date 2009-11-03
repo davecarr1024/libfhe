@@ -1,4 +1,5 @@
 #include <gge/App.h>
+#include <gge/PyAspect.h>
 using namespace gge;
 
 class TestAspect : public Aspect
@@ -96,7 +97,9 @@ int main()
     
     assert(fileEntity->getVar<bool>("loadTest_called",false) == true);
     
-    app.buildEntity("scriptEnt")->buildAspect("Test/TestAspect")->runScript("test.py");
+    EntityPtr scriptEnt = app.buildEntity("scriptEnt");
+    scriptEnt->buildAspect("gge/PyAspect").cast<PyAspect>()->run("test.py");
+    assert(scriptEnt->call<int>("crossTest") == -1);
     
     return 0;
 }
