@@ -71,7 +71,7 @@ namespace gge
     
     bool Window::setup()
     {
-        m_root = new Ogre::Root("graphics/plugins.cfg","graphics/ogre.cfg","graphics/ogre.log");
+        m_root = new Ogre::Root("Graphics/plugins.cfg","Graphics/ogre.cfg","Graphics/ogre.log");
         
         setupResources();
         

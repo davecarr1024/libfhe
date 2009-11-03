@@ -1,20 +1,20 @@
 <entity name="Window">
     <aspects>
-        <aspect name="Window"/>
+        <aspect name="Graphics/Window"/>
     </aspects>
 </entity>
 
 <entity name="World">
     <aspects>
-        <aspect name="World"/>
+        <aspect name="Physics/World"/>
     </aspects>
 </entity>
 
 <entity name="Cube">
     <aspects>
-        <aspect name="SceneNode"/>
-        <aspect name="CubeBody"/>
-        <aspect name="Mesh"/>
+        <aspect name="Graphics/Prims/SceneNode"/>
+        <aspect name="Physics/Cube"/>
+        <aspect name="Graphics/Prims/Mesh"/>
     </aspects>
     <vars>
         <var name="meshName">robot.mesh</var>
@@ -24,7 +24,7 @@
 
 <entity name="Floor">
     <aspects>
-        <aspect name="PlaneBody"/>
+        <aspect name="Physics/Plane"/>
     </aspects>
     <vars>
         <var name="mass">0.0</var>

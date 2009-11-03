@@ -1,13 +1,13 @@
 <entity name="Window">
     <aspects>
-        <aspect name="Window"/>
+        <aspect name="Graphics/Window"/>
     </aspects>
 </entity>
 
 <entity name="Robot">
     <aspects>
-        <aspect name="SceneNode"/>
-        <aspect name="Mesh"/>
+        <aspect name="Graphics/Prims/SceneNode"/>
+        <aspect name="Graphics/Prims/Mesh"/>
     </aspects>
     <vars>
         <var name="meshName">robot.mesh</var>
@@ -18,7 +18,7 @@
 
 <entity name="Button">
     <aspects>
-        <aspect name="Button"/>
+        <aspect name="Graphics/Gui/Button"/>
     </aspects>
     <vars>
         <var name="pos">Vec2(0.8,0.8)</var>
