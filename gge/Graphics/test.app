@@ -11,7 +11,18 @@
     </aspects>
     <vars>
         <var name="meshName">robot.mesh</var>
-        <var name="scale">Vec3(0.5,0.5,0.5)</var>
+        <var name="scale">Vec3(0.5,1,0.5)</var>
         <var name="pos">Vec3(50,50,50)</var>
+    </vars>
+</entity>
+
+<entity name="Button">
+    <aspects>
+        <aspect name="Button"/>
+    </aspects>
+    <vars>
+        <var name="pos">Vec2(0.8,0.8)</var>
+        <var name="size">Vec2(0.2,0.2)</var>
+        <var name="text">hello</var>
     </vars>
 </entity>

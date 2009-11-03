@@ -131,7 +131,7 @@ namespace gge
             lastTime = time;
             
             VarMap args;
-            args.setVar<float>("time",time);
+            args.setVar<float>("time",time - startTime);
             args.setVar<float>("dtime",dtime);
             publish("update",args);
         }

@@ -23,7 +23,7 @@ namespace gge
         addFunc("get_renderWindow",&Window::get_renderWindow,this);
         addFunc("get_sceneNode",&Window::get_sceneNode,this);
         addFunc("get_guiSystem",&Window::get_guiSystem,this);
-        addFunc("get_window",&Window::get_window,this);
+        addFunc("get_widget",&Window::get_widget,this);
         addFunc("get_windowManager",&Window::get_windowManager,this);
     }
     
@@ -189,7 +189,7 @@ namespace gge
         return Var::build<CEGUI::WindowManager*>(m_guiWindowManager);
     }
     
-    Var Window::get_window()
+    Var Window::get_widget()
     {
         return Var::build<CEGUI::Window*>(m_guiSheet);
     }

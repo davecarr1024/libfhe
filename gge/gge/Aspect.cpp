@@ -4,6 +4,8 @@
 #include "FileSystem.h"
 #include "math/Vec3.h"
 #include "math/Quat.h"
+#include "math/Vec2.h"
+#include "math/Rot.h"
 
 #include <cstdarg>
 
@@ -13,13 +15,13 @@ namespace gge
     GGE_TO_PYTHON_CONVERTER( AspectPtr, obj ? obj->toPy() : boost::python::object() );
     GGE_FROM_PYTHON_CONVERTER( AspectPtr, AspectPtr(boost::python::extract<Aspect*>(obj)) );
 
-    GGE_ASPECT(Aspect);
-    
     bool Aspect::m_pythonInitialized = false;
     boost::python::object Aspect::m_mainModule;
     boost::python::object Aspect::m_mainNamespace;
     boost::python::object Aspect::m_vec3;
     boost::python::object Aspect::m_quat;
+    boost::python::object Aspect::m_vec2;
+    boost::python::object Aspect::m_rot;
 
     Aspect::Aspect() :
         m_entity(0)
@@ -168,6 +170,8 @@ namespace gge
             App::defineClass();
             m_vec3 = Vec3::defineClass();
             m_quat = Quat::defineClass();
+            m_vec2 = Vec2::defineClass();
+            m_rot = Rot::defineClass();
         }
     }
     
@@ -178,6 +182,8 @@ namespace gge
         ns.update(m_mainNamespace);
         ns["Vec3"] = m_vec3;
         ns["Quat"] = m_quat;
+        ns["Vec2"] = m_vec2;
+        ns["Rot"] = m_rot;
         return ns;
     }
     
