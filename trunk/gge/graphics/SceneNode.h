@@ -17,7 +17,7 @@ namespace gge
             void on_attach();
             void on_detach();
             
-            void set_parent( Var val );
+            void set_sceneNodeParent( Var val );
             
             void set_pos( Var val );
             Var get_pos();

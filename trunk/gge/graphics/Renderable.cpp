@@ -8,7 +8,7 @@ namespace gge
     {
         addFunc("on_attach",&Renderable::on_attach,this);
         addFunc("on_detach",&Renderable::on_detach,this);
-        addFunc("set_parent",&Renderable::set_parent,this);
+        addFunc("set_renderableParent",&Renderable::set_renderableParent,this);
         addFunc("set_renderable",&Renderable::set_renderable,this);
     }
     
@@ -25,7 +25,7 @@ namespace gge
     
     void Renderable::on_attach()
     {
-        getEntity()->defaultVar<std::string>("parent",getEntity()->getName());
+        getEntity()->defaultVar<std::string>("renderableParent",getEntity()->getName());
     }
     
     void Renderable::on_detach()
@@ -41,7 +41,7 @@ namespace gge
         }
     }
     
-    void Renderable::set_parent( Var val )
+    void Renderable::set_renderableParent( Var val )
     {
         on_detach();
         
@@ -67,7 +67,7 @@ namespace gge
     {
         EntityPtr window = getEntity()->getApp()->getEntity("Window");
         assert(window);
-        Ogre::SceneManager* sceneManager = window->getVar<Ogre::SceneManager*>("sceneManager");
+        Ogre::SceneManager* sceneManager = window->getVar<Ogre::SceneManager*>("sceneManager",0);
         assert(sceneManager);
         return sceneManager;
     }

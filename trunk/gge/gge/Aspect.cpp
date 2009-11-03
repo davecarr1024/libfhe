@@ -226,7 +226,7 @@ namespace gge
         }
         catch ( boost::python::error_already_set )
         {
-            PyErr_Print();
+//             PyErr_Print();
             PyErr_Clear();
             return boost::python::object();
         }

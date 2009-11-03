@@ -21,7 +21,7 @@ namespace gge
             
             void set_renderable( Var val );
             
-            void set_parent( Var val );
+            void set_renderableParent( Var val );
     };
     
 }

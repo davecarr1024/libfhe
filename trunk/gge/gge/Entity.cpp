@@ -138,7 +138,6 @@ namespace gge
             assert(cname);
             std::string name(cname), value( e->GetText() );
             Var val = Var::fromPy(Aspect::evalScript(value,ns));
-            printf("ent %s: load var %s = %s => %s\n",getName().c_str(),name.c_str(),value.c_str(),val.toString().c_str());
             if ( !val.empty() )
             {
                 setRawVar(name,val);
@@ -147,7 +146,6 @@ namespace gge
             {
                 setVar<std::string>(name,value);
             }
-            printf("var %s is now %s\n",name.c_str(),getRawVar(name).toString().c_str());
         }
     }
     

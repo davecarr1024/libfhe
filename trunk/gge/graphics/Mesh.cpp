@@ -8,19 +8,28 @@ namespace gge
         Renderable()
     {
         addFunc("on_attach",&Mesh::on_attach,this);
-        addFunc("set_name",&Mesh::set_name,this);
+        addFunc("set_meshName",&Mesh::set_meshName,this);
     }
     
     void Mesh::on_attach()
     {
-        getEntity()->defaultVar<std::string>("name","robot.mesh");
+        getEntity()->defaultVar<std::string>("meshName","");
     }
     
-    void Mesh::set_name( Var val )
+    void Mesh::set_meshName( Var val )
     {
-        std::string name = val.get<std::string>("robot.mesh");
-        log("load %s",name.c_str());
-        getEntity()->setVar<Ogre::MovableObject*>("renderable",getSceneManager()->createEntity(getPath(),name));
+        std::string name = val.get<std::string>("");
+        if ( !name.empty() )
+        {
+            try
+            {
+                getEntity()->setVar<Ogre::MovableObject*>("renderable",getSceneManager()->createEntity(getPath(),name));
+            }
+            catch ( const Ogre::Exception& e )
+            {
+                error("couldn't load mesh file %s: %s",name.c_str(),e.getDescription().c_str());
+            }
+        }
     }
     
 }

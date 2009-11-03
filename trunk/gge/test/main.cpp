@@ -41,7 +41,7 @@ class TestAspect : public Aspect
         
         void msg_msgTest( VarMap args )
         {
-            getEntity()->setVar("msgTest",args.getVar<int>("val"));
+            getEntity()->setVar("msgTest",args.getVar<int>("val",0));
         }
         
         void load_loadTest( TiXmlHandle h )
@@ -78,21 +78,21 @@ int main()
     test->attachToEntity(entity);
     
     entity->setVar<int>("setTest",23);
-    assert(entity->getVar<int>("setTestVal") == 23);
+    assert(entity->getVar<int>("setTestVal",0) == 23);
     
-    assert(entity->getVar<int>("getTest") == 35);
+    assert(entity->getVar<int>("getTest",0) == 35);
     
     VarMap msgTestArgs;
     msgTestArgs.setVar("val",45);
     app.publish("msgTest",msgTestArgs);
-    assert(entity->getVar<int>("msgTest") == 45);
+    assert(entity->getVar<int>("msgTest",0) == 45);
     
     app.load("test/test.app");
     
     EntityPtr fileEntity = app.getEntity("fileEntity");
     assert(fileEntity);
 
-    assert(fileEntity->getVar<int>("i") == 11);
+    assert(fileEntity->getVar<int>("i",0) == 11);
     
     AutoPtr<TestAspect> fileTest = fileEntity->getAspect("TestAspect").cast<TestAspect>();
     assert(fileTest);
