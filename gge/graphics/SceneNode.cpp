@@ -9,7 +9,7 @@ namespace gge
     {
         addFunc("on_attach",&SceneNode::on_attach,this);
         addFunc("on_detach",&SceneNode::on_detach,this);
-        addFunc("set_parent",&SceneNode::set_parent,this);
+        addFunc("set_sceneNodeParent",&SceneNode::set_sceneNodeParent,this);
         addFunc("set_pos",&SceneNode::set_pos,this);
         addFunc("get_pos",&SceneNode::get_pos,this);
         addFunc("set_rot",&SceneNode::set_rot,this);
@@ -31,12 +31,10 @@ namespace gge
     
     void SceneNode::on_attach()
     {
-        getEntity()->defaultVar<std::string>("parent","Window");
+        getEntity()->defaultVar<std::string>("sceneNodeParent","Window");
         getEntity()->defaultVar<Vec3>("pos",Vec3(0,0,0));
         getEntity()->defaultVar<Quat>("rot",Quat());
-        log("default scale %s",getEntity()->getRawVar("scale").toString().c_str());
         getEntity()->defaultVar<Vec3>("scale",Vec3(1,1,1));
-        log("/default scale %s",getEntity()->getRawVar("scale").toString().c_str());
     }
     
     void SceneNode::on_detach()
@@ -52,7 +50,7 @@ namespace gge
         }
     }
     
-    void SceneNode::set_parent( Var val )
+    void SceneNode::set_sceneNodeParent( Var val )
     {
         on_detach();
         
@@ -64,7 +62,7 @@ namespace gge
         Ogre::SceneNode* sceneNode = getEntity()->getVar<Ogre::SceneNode*>("sceneNode",0);
         if ( !sceneNode )
         {
-            getEntity()->setVar<Ogre::SceneNode*>("sceneNode",parentSceneNode->createChildSceneNode());
+            getEntity()->setVar<Ogre::SceneNode*>("sceneNode",parentSceneNode->createChildSceneNode(getPath()));
         }
         else
         {
@@ -104,7 +102,6 @@ namespace gge
     
     void SceneNode::set_scale( Var val )
     {
-        log("set_scale %s",val.toString().c_str());
         Ogre::SceneNode* sceneNode = getEntity()->getVar<Ogre::SceneNode*>("sceneNode",0);
         if ( sceneNode && val.is<Vec3>() )
         {

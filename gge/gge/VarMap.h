@@ -18,7 +18,7 @@ namespace gge
             VarMap();
             
             bool hasVarName( const std::string& name ) const;
-            Var getRawVar( const std::string& name ) const;
+            Var getRawVar( const std::string& name, bool useOnGet = true ) const;
             void setRawVar( const std::string& name, Var val );
             
             template <class T>
@@ -29,17 +29,9 @@ namespace gge
             }
             
             template <class T>
-            T getVar( const std::string& name ) const
+            T getVar( const std::string& name, const T& def, bool useOnGet = true ) const
             {
-                Var val = getRawVar(name);
-                assert(val.is<T>());
-                return val.get<T>();
-            }
-            
-            template <class T>
-            T getVar( const std::string& name, const T& def ) const
-            {
-                Var val = getRawVar(name);
+                Var val = getRawVar(name,useOnGet);
                 return val.is<T>() ? val.get<T>() : def;
             }
             
@@ -50,9 +42,9 @@ namespace gge
             }
             
             template <class T>
-            T defaultVar( const std::string& name, const T& val )
+            T defaultVar( const std::string& name, const T& val, bool useOnGet = false )
             {
-                setVar<T>(name,getVar<T>(name,val));
+                setVar<T>(name,getVar<T>(name,val,useOnGet));
                 return getVar<T>(name,val);
             }
             

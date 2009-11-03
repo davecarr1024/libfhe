@@ -12,9 +12,9 @@ namespace gge
         m_mouse(0),
         m_joystick(0)
     {
-        m_guiSystem = m_window->getEntity()->getVar<CEGUI::System*>("guiSystem");
+        m_guiSystem = m_window->getEntity()->getVar<CEGUI::System*>("guiSystem",0);
         
-        Ogre::RenderWindow* rw = m_window->getEntity()->getVar<Ogre::RenderWindow*>("renderWindow");
+        Ogre::RenderWindow* rw = m_window->getEntity()->getVar<Ogre::RenderWindow*>("renderWindow",0);
         
         Ogre::WindowEventUtilities::addWindowEventListener(rw,this);
         

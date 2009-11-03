@@ -13,7 +13,7 @@ namespace gge
             
             void on_attach();
             
-            void set_name( Var val );
+            void set_meshName( Var val );
     };
     
 }
