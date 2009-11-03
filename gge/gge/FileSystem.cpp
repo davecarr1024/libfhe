@@ -57,7 +57,10 @@ namespace gge
     std::string FileSystem::getFile( const std::string& filename )
     {
         if ( boost::filesystem::exists( filename ) ) return filename;
-        assert( m_filesByName.find( filename ) != m_filesByName.end() );
+        if ( m_filesByName.find( filename ) == m_filesByName.end() )
+        {
+            throw std::runtime_error("couldn't find file " + filename );
+        }
         return m_filesByName[filename];
     }
     

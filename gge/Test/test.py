@@ -53,3 +53,7 @@ def msg_pyMsgTest(args):
 
 self.entity.app.publish('pyMsgTest',dict(val = 'msg'))
 assert self.entity.pyMsgTestVal == 'msg'
+
+@self.func(int,None)
+def crossTest():
+    return -1

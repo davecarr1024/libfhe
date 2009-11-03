@@ -1,11 +1,5 @@
 #include "Aspect.h"
-#include "Entity.h"
-#include "App.h"
-#include "FileSystem.h"
-#include "math/Vec3.h"
-#include "math/Quat.h"
-#include "math/Vec2.h"
-#include "math/Rot.h"
+#include "PyEnv.h"
 
 #include <cstdarg>
 
@@ -14,14 +8,6 @@ namespace gge
     
     GGE_TO_PYTHON_CONVERTER( AspectPtr, obj ? obj->toPy() : boost::python::object() );
     GGE_FROM_PYTHON_CONVERTER( AspectPtr, AspectPtr(boost::python::extract<Aspect*>(obj)) );
-
-    bool Aspect::m_pythonInitialized = false;
-    boost::python::object Aspect::m_mainModule;
-    boost::python::object Aspect::m_mainNamespace;
-    boost::python::object Aspect::m_vec3;
-    boost::python::object Aspect::m_quat;
-    boost::python::object Aspect::m_vec2;
-    boost::python::object Aspect::m_rot;
 
     Aspect::Aspect() :
         m_entity(0)
@@ -150,91 +136,6 @@ namespace gge
     
     boost::python::object Aspect::toPy()
     {
-        initializePython();
         return boost::python::object(boost::python::ptr(this));
-    }
-    
-    void Aspect::initializePython()
-    {
-        if ( !m_pythonInitialized )
-        {
-            m_pythonInitialized = true;
-            
-            Py_Initialize();
-            
-            m_mainModule = boost::python::import("__main__");
-            m_mainNamespace = boost::python::dict(m_mainModule.attr("__dict__"));
-            
-            defineClass();
-            Entity::defineClass();
-            App::defineClass();
-            m_vec3 = Vec3::defineClass();
-            m_quat = Quat::defineClass();
-            m_vec2 = Vec2::defineClass();
-            m_rot = Rot::defineClass();
-        }
-    }
-    
-    boost::python::dict Aspect::defaultNamespace()
-    {
-        initializePython();
-        boost::python::dict ns;
-        ns.update(m_mainNamespace);
-        ns["Vec3"] = m_vec3;
-        ns["Quat"] = m_quat;
-        ns["Vec2"] = m_vec2;
-        ns["Rot"] = m_rot;
-        return ns;
-    }
-    
-    boost::python::dict Aspect::selfNamespace()
-    {
-        boost::python::dict ns = defaultNamespace();
-        ns["self"] = toPy();
-        return ns;
-    }
-    
-    void Aspect::runScript( const std::string& filename )
-    {
-        initializePython();
-        boost::python::dict ns = selfNamespace();
-        try
-        {
-            boost::python::exec_file(FileSystem::instance().getFile(filename).c_str(),ns,ns);
-        }
-        catch ( boost::python::error_already_set )
-        {
-            PyErr_Print();
-            error("running script %s",filename.c_str());
-        }
-    }
-    
-    void Aspect::execScript( const std::string& s, boost::python::dict ns )
-    {
-        initializePython();
-        try
-        {
-            boost::python::exec(s.c_str(),ns,ns);
-        }
-        catch ( boost::python::error_already_set )
-        {
-            PyErr_Print();
-            PyErr_Clear();
-        }
-    }
-    
-    boost::python::object Aspect::evalScript( const std::string& s, boost::python::dict ns )
-    {
-        initializePython();
-        try
-        {
-            return boost::python::eval(s.c_str(),ns,ns);
-        }
-        catch ( boost::python::error_already_set )
-        {
-//             PyErr_Print();
-            PyErr_Clear();
-            return boost::python::object();
-        }
     }
 }

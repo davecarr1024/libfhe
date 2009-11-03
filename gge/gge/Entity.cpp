@@ -1,5 +1,6 @@
 #include "Entity.h"
 #include "App.h"
+#include "PyEnv.h"
 
 #include <sstream>
 
@@ -131,21 +132,13 @@ namespace gge
     
     void Entity::loadVars( TiXmlHandle h )
     {
-        boost::python::dict ns = Aspect::defaultNamespace();
+        boost::python::dict ns = PyEnv::defaultNamespace();
         for ( TiXmlElement* e = h.FirstChildElement("var").ToElement(); e; e = e->NextSiblingElement("var") )
         {
             const char* cname = e->Attribute("name");
             assert(cname);
             std::string name(cname), value( e->GetText() );
-            Var val = Var::fromPy(Aspect::evalScript(value,ns));
-            if ( !val.empty() )
-            {
-                setRawVar(name,val);
-            }
-            else
-            {
-                setVar<std::string>(name,value);
-            }
+            setRawVar(name,Var::fromPy(PyEnv::tryEval(value,ns)));
         }
     }
     
