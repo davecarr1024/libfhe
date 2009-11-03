@@ -5,17 +5,20 @@
 
 namespace gge
 {
-    
-    class Mesh : public Renderable
+    namespace Graphics
     {
-        public:
-            Mesh();
-            
-            void on_attach();
-            
-            void set_meshName( Var val );
-    };
     
+        class Mesh : public Renderable
+        {
+            public:
+                Mesh();
+                
+                void on_attach();
+                
+                void set_meshName( Var val );
+        };
+
+    }
 }
 
 #endif

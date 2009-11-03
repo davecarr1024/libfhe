@@ -5,19 +5,22 @@
 
 namespace gge
 {
-    
-    class Button : public Widget
+    namespace Graphics
     {
-        public:
-            Button();
-            
-            void on_attach();
-            
-            void set_text( Var val );
-            
-            bool onClick( const CEGUI::EventArgs& evt );
-    };
-    
+        
+        class Button : public Widget
+        {
+            public:
+                Button();
+                
+                void on_attach();
+                
+                void set_text( Var val );
+                
+                bool onClick( const CEGUI::EventArgs& evt );
+        };
+
+    }
 }
 
 #endif

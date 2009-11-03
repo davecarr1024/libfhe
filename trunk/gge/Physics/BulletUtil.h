@@ -8,17 +8,20 @@
 
 namespace gge
 {
-    
-    class BulletUtil
+    namespace Physics
     {
-        public:
-            static btVector3 fromVec( const Vec3& v );
-            static Vec3 toVec( const btVector3& v );
-            
-            static btQuaternion fromQuat( const Quat& q );
-            static Quat toQuat( const btQuaternion& q );
-    };
-    
+        
+        class BulletUtil
+        {
+            public:
+                static btVector3 fromVec( const Vec3& v );
+                static Vec3 toVec( const btVector3& v );
+                
+                static btQuaternion fromQuat( const Quat& q );
+                static Quat toQuat( const btQuaternion& q );
+        };
+        
+    }
 }
 
 #endif

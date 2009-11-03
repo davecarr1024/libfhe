@@ -6,14 +6,17 @@
 
 namespace gge
 {
-    
-    class CEGUIUtil
+    namespace Graphics
     {
-        public:
-            static CEGUI::UVector2 fromVec2( const Vec2& v );
-            static Vec2 toVec2( const CEGUI::UVector2& v );
-    };
     
+        class CEGUIUtil
+        {
+            public:
+                static CEGUI::UVector2 fromVec2( const Vec2& v );
+                static Vec2 toVec2( const CEGUI::UVector2& v );
+        };
+
+    }
 }
 
 #endif
