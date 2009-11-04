@@ -219,10 +219,4 @@ namespace gge
     {
         return (max + min) / 2.0;
     }
-    
-    std::ostream& operator<<(std::ostream& os, const AlignedBox& ab)
-    {
-        os << "<AlignedBox " << ab.min << " " << ab.max << ">";
-        return os;
-    }
 }

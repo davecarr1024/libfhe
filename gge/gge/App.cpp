@@ -44,12 +44,12 @@ namespace gge
         return entity;
     }
     
-    void App::publish( const std::string& cmd, const VarMap& args )
+    void App::publish( const std::string& cmd, const Var& arg )
     {
         std::string msg = "msg_" + cmd;
         for ( EntityMap::iterator i = m_entities.begin(); i != m_entities.end(); ++i )
         {
-            i->second->callAll<void,VarMap>(msg,args);
+            i->second->callAll(msg,arg);
         }
     }
     
@@ -74,37 +74,6 @@ namespace gge
             assert(name);
             buildEntity(name)->loadData(e);
         }
-    }
-    
-    boost::python::object App::pyGetEntity( const std::string& name )
-    {
-        EntityPtr entity = getEntity(name);
-        return entity ? entity->toPy() : boost::python::object();
-    }
-    
-    boost::python::object App::pyBuildEntity( const std::string& name )
-    {
-        return buildEntity(name)->toPy();
-    }
-    
-    void App::pyPublish( const std::string& cmd, boost::python::dict args )
-    {
-        publish(cmd,VarMap::fromPy(args));
-    }
-    
-    boost::python::object App::defineClass()
-    {
-        return boost::python::class_<App,boost::noncopyable>("App",boost::python::no_init)
-            .def("hasEntity",&App::hasEntity)
-            .def("getEntity",&App::pyGetEntity)
-            .def("buildEntity",&App::pyBuildEntity)
-            .def("publish",&App::pyPublish)
-        ;
-    }
-    
-    boost::python::object App::toPy()
-    {
-        return boost::python::object(boost::python::ptr(this));
     }
     
     float App::getTime()
@@ -134,7 +103,7 @@ namespace gge
             VarMap args;
             args.setVar<float>("time",time - startTime);
             args.setVar<float>("dtime",dtime);
-            publish("update",args);
+            publish("update",Var::build<VarMap>(args));
         }
         
         printf("fps %f\n",float(numFrames)/(getTime()-startTime));

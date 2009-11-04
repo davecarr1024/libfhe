@@ -23,18 +23,10 @@ namespace gge
             
             EntityPtr buildEntity( const std::string& name );
             
-            void publish( const std::string& cmd, const VarMap& args );
+            void publish( const std::string& cmd, const Var& arg );
             
             void load( const std::string& filename );
             void loadData( TiXmlHandle h );
-            
-            boost::python::object pyGetEntity( const std::string& name );
-            boost::python::object pyBuildEntity( const std::string& name );
-            void pyPublish( const std::string& cmd, boost::python::dict args );
-            
-            boost::python::object toPy();
-            
-            static boost::python::object defineClass();
             
             float getTime();
             void shutdown();

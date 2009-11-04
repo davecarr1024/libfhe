@@ -5,7 +5,7 @@
 
 #include <vector>
 #include <iostream>
-#include <boost/python.hpp>
+// #include <boost/python.hpp>
 
 namespace gge
 {
@@ -52,8 +52,6 @@ namespace gge
             
             bool equals(const Vec3& v, float eps = Math::EPSILON) const;
             
-            friend std::ostream& operator<<(std::ostream& os, const Vec3& v);
-            
             const static Vec3 UNIT_X;
             const static Vec3 UNIT_Y;
             const static Vec3 UNIT_Z;
@@ -61,9 +59,9 @@ namespace gge
             
             std::string toString();
             
-            bool pyEquals( const Vec3& v );
+/*            bool pyEquals( const Vec3& v );
             
-            static boost::python::object defineClass();
+            static boost::python::object defineClass();*/
     };
     
 }

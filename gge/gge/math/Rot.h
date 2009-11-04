@@ -3,7 +3,7 @@
 
 #include "ggeMath.h"
 
-#include <boost/python.hpp>
+// #include <boost/python.hpp>
 
 namespace gge
 {
@@ -37,9 +37,9 @@ namespace gge
             
             std::string toString();
             
-            bool pyEquals( const Rot& r );
+/*            bool pyEquals( const Rot& r );
             
-            static boost::python::object defineClass();
+            static boost::python::object defineClass();*/
     };
     
 }

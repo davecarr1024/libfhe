@@ -1,6 +1,8 @@
 #ifndef GGE_MATH_H
 #define GGE_MATH_H
 
+#include <string>
+
 namespace gge
 {
     

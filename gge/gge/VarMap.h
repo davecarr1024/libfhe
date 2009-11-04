@@ -52,9 +52,6 @@ namespace gge
             virtual bool onHasVar( const std::string& name ) const;
             virtual Var onGetVar( const std::string& name ) const;
             virtual void onSetVar( const std::string& name, const Var& val );
-            
-            boost::python::object toPy() const;
-            static VarMap fromPy( boost::python::object obj );
     };
     
 }

@@ -182,12 +182,6 @@ namespace gge
         return Math::equal(x,v.x,eps) && Math::equal(y,v.y,eps) && Math::equal(z,v.z,eps);
     }
     
-    std::ostream& operator<<(std::ostream& os, const Vec3& v)
-    {
-        os << "<Vec3 " << v.x << " " << v.y << " " << v.z << ">";
-        return os;
-    }
-    
     std::string Vec3::toString()
     {
         std::ostringstream outs;
@@ -195,7 +189,7 @@ namespace gge
         return outs.str();
     }
     
-    bool Vec3::pyEquals( const Vec3& v )
+/*    bool Vec3::pyEquals( const Vec3& v )
     {
         return equals(v);
     }
@@ -222,5 +216,5 @@ namespace gge
             .def("lerp",&Vec3::lerp)
             .def("getRotTo",&Vec3::getRotTo)
         ;
-    }
+    }*/
 }

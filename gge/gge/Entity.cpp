@@ -1,6 +1,10 @@
 #include "Entity.h"
 #include "App.h"
-#include "PyEnv.h"
+
+#include "math/Vec2.h"
+#include "math/Vec3.h"
+#include "math/Rot.h"
+#include "math/Quat.h"
 
 #include <sstream>
 
@@ -86,24 +90,17 @@ namespace gge
     Var Entity::onGetVar( const std::string& name ) const
     {
         std::string get = "get_" + name;
-        if ( hasFunc<Var,void>(get) )
-        {
-            return const_cast<Entity*>(this)->call<Var>(get);
-        }
-        else
-        {
-            return Var();
-        }
+        return hasFunc(get) ? const_cast<Entity*>(this)->call(get) : Var();
     }
     
     void Entity::onSetVar( const std::string& name, const Var& val )
     {
-        callAll<void,Var>("set_" + name,val);
+        callAll("set_" + name,val);
     }
     
     bool Entity::onHasVar( const std::string& name ) const
     {
-        return hasFunc<Var,void>("get_" + name);
+        return hasFunc("get_" + name);
     }
     
     void Entity::loadData( TiXmlHandle h )
@@ -132,13 +129,63 @@ namespace gge
     
     void Entity::loadVars( TiXmlHandle h )
     {
-        boost::python::dict ns = PyEnv::defaultNamespace();
         for ( TiXmlElement* e = h.FirstChildElement("var").ToElement(); e; e = e->NextSiblingElement("var") )
         {
-            const char* cname = e->Attribute("name");
+            const char* cname = e->Attribute("name"), *ctype = e->Attribute("type");
             assert(cname);
-            std::string name(cname), value( e->GetText() );
-            setRawVar(name,Var::fromPy(PyEnv::tryEval(value,ns)));
+            assert(ctype);
+            std::string name(cname), type(ctype), value( e->GetText() );
+            std::istringstream ins(value);
+            if ( type == "bool" )
+            {
+                bool b;
+                ins >> b;
+                setVar<bool>(name,b);
+            }
+            else if ( type == "int" )
+            {
+                int i;
+                ins >> i;
+                setVar<int>(name,i);
+            }
+            else if ( type == "float" )
+            {
+                float f;
+                ins >> f;
+                setVar<float>(name,f);
+            }
+            else if ( type == "string" )
+            {
+                setVar<std::string>(name,value);
+            }
+            else if ( type == "Vec2" )
+            {
+                float x, y;
+                ins >> x >> y;
+                setVar<Vec2>(name,Vec2(x,y));
+            }
+            else if ( type == "Vec3" )
+            {
+                float x, y, z;
+                ins >> x >> y >> z;
+                setVar<Vec3>(name,Vec3(x,y,z));
+            }
+            else if ( type == "Rot" )
+            {
+                float a;
+                ins >> a;
+                setVar<Rot>(name,Rot(a));
+            }
+            else if ( type == "Quat" )
+            {
+                float x, y, z, a;
+                ins >> x >> y >> z >> a;
+                setVar<Quat>(name,Quat(Vec3(x,y,z),a));
+            }
+            else
+            {
+                throw std::runtime_error( "unable to set var " + name + " to unknown type " + type );
+            }
         }
     }
     
@@ -152,73 +199,38 @@ namespace gge
         }
     }
     
-    boost::python::object Entity::toPy()
+    bool Entity::hasFunc( const std::string& name ) const
     {
-        return boost::python::object(boost::python::ptr(this));
-    }
-    
-    boost::python::object Entity::defineClass()
-    {
-        return boost::python::class_<Entity,boost::noncopyable>("Entity",boost::python::no_init)
-            .add_property("name",&Entity::getName)
-            .def("hasVar",&Entity::hasVarName)
-            .def("hasFunc",&Entity::hasFuncName)
-            .def("hasAspect",&Entity::hasAspect)
-            .def("getAspect",&Entity::getAspect)
-            .def("buildAspect",&Entity::buildAspect)
-            .def("__getattr__",&Entity::getAttr)
-            .def("__setattr__",&Entity::setAttr)
-        ;
-    }
-    
-    boost::python::object Entity::getAttr( const std::string& name )
-    {
-        if ( name == "app" )
+        for ( AspectMap::const_iterator i = m_aspects.begin(); i != m_aspects.end(); ++i )
         {
-            return m_app ? m_app->toPy() : boost::python::object();
-        }
-        else if ( hasVarName( name ) )
-        {
-            return getRawVar(name).toPy();
-        }
-        else
-        {
-            for ( AspectMap::iterator i = m_aspects.begin(); i != m_aspects.end(); ++i )
-            {
-                if ( i->second->hasFuncName(name) )
-                {
-                    return i->second->pyGetFunc(name);
-                }
-            }
-        }
-        return boost::python::object();
-    }
-    
-    void Entity::setAttr( const std::string& name, boost::python::object val )
-    {
-        setRawVar(name,Var::fromPy(val));
-    }
-    
-    bool Entity::hasFuncName( const std::string& name )
-    {
-        for ( AspectMap::iterator i = m_aspects.begin(); i != m_aspects.end(); ++i )
-        {
-            if ( i->second->hasFuncName(name) )
+            if ( i->second->hasFunc(name) )
             {
                 return true;
             }
         }
         return false;
     }
-    
-    boost::python::object Entity::pyGetAspect( const std::string& name )
+
+    Var Entity::call( const std::string& name, const Var& arg )
     {
-        AspectPtr aspect = getAspect(name);
-        return aspect ? aspect->toPy() : boost::python::object();
+        for ( AspectMap::iterator i = m_aspects.begin(); i != m_aspects.end(); ++i )
+        {
+            if ( i->second->hasFunc(name) )
+            {
+                return i->second->call(name,arg);
+            }
+        }
+        throw std::runtime_error("entity " + getName() + " has no func " + name );
     }
     
-    boost::python::object Entity::pyBuildAspect( const std::string& name )
+    void Entity::callAll( const std::string& name, const Var& arg )
     {
-        return buildAspect(name)->toPy();
+        for ( AspectMap::iterator i = m_aspects.begin(); i != m_aspects.end(); ++i )
+        {
+            if ( i->second->hasFunc(name) )
+            {
+                i->second->call(name,arg);
+            }
+        }
     }
 }

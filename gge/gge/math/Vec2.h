@@ -1,7 +1,7 @@
 #ifndef VEC2_H
 #define VEC2_H
 
-#include <boost/python.hpp>
+// #include <boost/python.hpp>
 #include <vector>
 #include "ggeMath.h"
 
@@ -51,9 +51,9 @@ namespace gge
             const static Vec2 ZERO;
             
             std::string toString();
-            bool pyEquals( const Vec2& v );
+/*            bool pyEquals( const Vec2& v );
             
-            static boost::python::object defineClass();
+            static boost::python::object defineClass();*/
     };
     
 }

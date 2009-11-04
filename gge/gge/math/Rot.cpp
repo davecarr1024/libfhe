@@ -77,7 +77,7 @@ namespace gge
         return sout.str();
     }
     
-    bool Rot::pyEquals( const Rot& r )
+/*    bool Rot::pyEquals( const Rot& r )
     {
         return equals(r);
     }
@@ -95,5 +95,5 @@ namespace gge
             .def( boost::python::self * boost::python::other<Vec2>() )
             .def("norm",&Rot::norm)
         ;
-    }
+    }*/
 }
