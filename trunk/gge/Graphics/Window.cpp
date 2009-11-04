@@ -32,10 +32,10 @@ namespace gge
         
         Window::~Window()
         {
-            on_detach();
+            on_detach(Var());
         }
         
-        void Window::on_detach()
+        Var Window::on_detach( const Var& arg )
         {
             if ( m_frameListener )
             {
@@ -45,20 +45,22 @@ namespace gge
             {
                 delete m_root;
             }
+            return Var();
         }
         
-        void Window::on_attach()
+        Var Window::on_attach( const Var& arg )
         {
-            on_detach();
+            on_detach(Var());
             if (!setup())
             {
                 error("Failed to initialize ogre");
             }
+            return Var();
         }
         
-        void Window::msg_update( VarMap args )
+        Var Window::msg_update( const Var& arg )
         {
-            float time = args.getVar<float>("time",0);
+            float time = arg.get<VarMap>().getVar<float>("time");
             static float lastTime = time;
             if ( time - lastTime > 1.0 / getEntity()->getVar<float>("fps",60) )
             {
@@ -70,6 +72,7 @@ namespace gge
             {
                 m_frameListener->update();
             }
+            return Var();
         }
         
         bool Window::setup()
@@ -157,42 +160,42 @@ namespace gge
             CEGUI::MouseCursor::getSingleton().setImage(CEGUI::System::getSingleton().getDefaultMouseCursor());
         }
         
-        Var Window::get_root()
+        Var Window::get_root( const Var& arg )
         {
             return Var::build<Ogre::Root*>(m_root);
         }
         
-        Var Window::get_camera()
+        Var Window::get_camera( const Var& arg )
         {
             return Var::build<Ogre::Camera*>(m_camera);
         }
         
-        Var Window::get_sceneManager()
+        Var Window::get_sceneManager( const Var& arg )
         {
             return Var::build<Ogre::SceneManager*>(m_sceneManager);
         }
         
-        Var Window::get_renderWindow()
+        Var Window::get_renderWindow( const Var& arg )
         {
             return Var::build<Ogre::RenderWindow*>(m_renderWindow);
         }
         
-        Var Window::get_sceneNode()
+        Var Window::get_sceneNode( const Var& arg )
         {
             return m_sceneManager ? Var::build<Ogre::SceneNode*>(m_sceneManager->getRootSceneNode()) : Var();
         }
         
-        Var Window::get_guiSystem()
+        Var Window::get_guiSystem( const Var& arg )
         {
             return Var::build<CEGUI::System*>(m_guiSystem);
         }
         
-        Var Window::get_windowManager()
+        Var Window::get_windowManager( const Var& arg )
         {
             return Var::build<CEGUI::WindowManager*>(m_guiWindowManager);
         }
         
-        Var Window::get_widget()
+        Var Window::get_widget( const Var& arg )
         {
             return Var::build<CEGUI::Window*>(m_guiSheet);
         }

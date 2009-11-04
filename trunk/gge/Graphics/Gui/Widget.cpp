@@ -31,14 +31,15 @@ namespace gge
             }*/
         }
         
-        void Widget::on_attach()
+        Var Widget::on_attach( const Var& arg )
         {
             getEntity()->defaultVar<std::string>("widgetParent","Window");
             getEntity()->defaultVar<Vec2>("pos",Vec2(0,0));
             getEntity()->defaultVar<Vec2>("size",Vec2(1,1));
+            return Var();
         }
         
-        void Widget::on_detach()
+        Var Widget::on_detach( const Var& arg )
         {
             CEGUI::Window* widget = getEntity()->getVar<CEGUI::Window*>("widget",0);
             if ( widget )
@@ -49,9 +50,10 @@ namespace gge
                     parentWidget->removeChildWindow(widget);
                 }
             }
+            return Var();
         }
         
-        void Widget::set_widgetParent( Var val )
+        Var Widget::set_widgetParent( const Var& val )
         {
             EntityPtr parentEntity = getEntity()->getApp()->getEntity(val.get<std::string>("Window"));
             assert(parentEntity);
@@ -63,38 +65,42 @@ namespace gge
             {
                 parentWidget->addChildWindow(widget);
             }
+            return Var();
         }
         
-        void Widget::set_widget( Var val )
+        Var Widget::set_widget( const Var& val )
         {
-            on_attach();
+            on_attach(Var());
+            return Var();
         }
         
-        void Widget::set_pos( Var val )
+        Var Widget::set_pos( const Var& val )
         {
             CEGUI::Window* widget = getEntity()->getVar<CEGUI::Window*>("widget",0);
             if ( widget && val.is<Vec2>() )
             {
                 widget->setPosition(CEGUIUtil::fromVec2(val.get<Vec2>()));
             }
+            return Var();
         }
         
-        Var Widget::get_pos()
+        Var Widget::get_pos( const Var& arg )
         {
             CEGUI::Window* widget = getEntity()->getVar<CEGUI::Window*>("widget",0);
             return widget ? Var::build<Vec2>(CEGUIUtil::toVec2(widget->getPosition())) : Var();
         }
         
-        void Widget::set_size( Var val )
+        Var Widget::set_size( const Var& val )
         {
             CEGUI::Window* widget = getEntity()->getVar<CEGUI::Window*>("widget",0);
             if ( widget && val.is<Vec2>() )
             {
                 widget->setSize(CEGUIUtil::fromVec2(val.get<Vec2>()));
             }
+            return Var();
         }
         
-        Var Widget::get_size()
+        Var Widget::get_size( const Var& arg )
         {
             CEGUI::Window* widget = getEntity()->getVar<CEGUI::Window*>("widget",0);
             return widget ? Var::build<Vec2>(CEGUIUtil::toVec2(widget->getSize())) : Var();

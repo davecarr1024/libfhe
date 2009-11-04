@@ -18,12 +18,12 @@ namespace gge
                 Renderable();
                 ~Renderable();
                 
-                void on_attach();
-                void on_detach();
+                Var on_attach( const Var& arg );
+                Var on_detach( const Var& arg );
                 
-                void set_renderable( Var val );
+                Var set_renderable(  const Var& arg );
                 
-                void set_renderableParent( Var val );
+                Var set_renderableParent(  const Var& arg );
         };
 
     }

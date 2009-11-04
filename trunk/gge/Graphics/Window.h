@@ -44,20 +44,20 @@ namespace gge
                 Window();
                 ~Window();
                 
-                void on_attach();
-                void on_detach();
+                Var on_attach( const Var& arg );
+                Var on_detach( const Var& arg );
                 
-                void msg_update(VarMap args);
+                Var msg_update( const Var& arg );
                 
-                Var get_root();
-                Var get_camera();
-                Var get_sceneManager();
-                Var get_renderWindow();
-                Var get_sceneNode();
+                Var get_root( const Var& arg );
+                Var get_camera( const Var& arg );
+                Var get_sceneManager( const Var& arg );
+                Var get_renderWindow( const Var& arg );
+                Var get_sceneNode( const Var& arg );
                 
-                Var get_guiSystem();
-                Var get_windowManager();
-                Var get_widget();
+                Var get_guiSystem( const Var& arg );
+                Var get_windowManager( const Var& arg );
+                Var get_widget( const Var& arg );
         };
 
     }

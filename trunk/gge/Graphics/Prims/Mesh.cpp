@@ -13,12 +13,13 @@ namespace gge
             addFunc("set_meshName",&Mesh::set_meshName,this);
         }
         
-        void Mesh::on_attach()
+        Var Mesh::on_attach( const Var& arg )
         {
             getEntity()->defaultVar<std::string>("meshName","");
+            return Var();
         }
         
-        void Mesh::set_meshName( Var val )
+        Var Mesh::set_meshName( const Var& val )
         {
             std::string name = val.get<std::string>("");
             if ( !name.empty() )
@@ -32,6 +33,7 @@ namespace gge
                     error("couldn't load mesh file %s: %s",name.c_str(),e.getDescription().c_str());
                 }
             }
+            return Var();
         }
 
     }

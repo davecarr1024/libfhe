@@ -16,19 +16,19 @@ namespace gge
                 SceneNode();
                 ~SceneNode();
                 
-                void on_attach();
-                void on_detach();
+                Var on_attach( const Var& arg );
+                Var on_detach( const Var& arg );
                 
-                void set_sceneNodeParent( Var val );
+                Var set_sceneNodeParent(  const Var& arg  );
                 
-                void set_pos( Var val );
-                Var get_pos();
+                Var set_pos(  const Var& arg  );
+                Var get_pos( const Var& arg );
                 
-                void set_rot( Var val );
-                Var get_rot();
+                Var set_rot( const Var& arg  );
+                Var get_rot( const Var& arg );
                 
-                void set_scale( Var val );
-                Var get_scale();
+                Var set_scale( const Var& arg  );
+                Var get_scale( const Var& arg );
         };
 
     }

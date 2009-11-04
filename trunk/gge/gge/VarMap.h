@@ -29,6 +29,14 @@ namespace gge
             }
             
             template <class T>
+            T getVar( const std::string& name) const
+            {
+                Var val = getRawVar(name);
+                assert(val.is<T>());
+                return val.get<T>();
+            }
+            
+            template <class T>
             T getVar( const std::string& name, const T& def ) const
             {
                 Var val = getRawVar(name);

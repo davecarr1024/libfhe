@@ -31,15 +31,16 @@ namespace gge
             }*/
         }
         
-        void SceneNode::on_attach()
+        Var SceneNode::on_attach( const Var& arg )
         {
             getEntity()->defaultVar<std::string>("sceneNodeParent","Window");
             getEntity()->defaultVar<Vec3>("pos",Vec3(0,0,0));
             getEntity()->defaultVar<Quat>("rot",Quat());
             getEntity()->defaultVar<Vec3>("scale",Vec3(1,1,1));
+            return Var();
         }
         
-        void SceneNode::on_detach()
+        Var SceneNode::on_detach( const Var& arg )
         {
             Ogre::SceneNode* sceneNode = getEntity()->getVar<Ogre::SceneNode*>("sceneNode",0);
             if ( sceneNode )
@@ -50,11 +51,12 @@ namespace gge
                     parent->removeChild(sceneNode);
                 }
             }
+            return Var();
         }
         
-        void SceneNode::set_sceneNodeParent( Var val )
+        Var SceneNode::set_sceneNodeParent( const Var& val  )
         {
-            on_detach();
+            on_detach(Var());
             
             EntityPtr parentEntity = getEntity()->getApp()->getEntity( val.get<std::string>("Window") );
             assert(parentEntity);
@@ -70,48 +72,52 @@ namespace gge
             {
                 parentSceneNode->addChild(sceneNode);
             }
+            return Var();
         }
         
-        void SceneNode::set_pos( Var val )
+        Var SceneNode::set_pos(  const Var& val  )
         {
             Ogre::SceneNode* sceneNode = getEntity()->getVar<Ogre::SceneNode*>("sceneNode",0);
             if ( sceneNode && val.is<Vec3>() )
             {
                 sceneNode->setPosition(OgreUtil::fromVec(val.get<Vec3>()));
             }
+            return Var();
         }
         
-        Var SceneNode::get_pos()
+        Var SceneNode::get_pos( const Var& arg )
         {
             Ogre::SceneNode* sceneNode = getEntity()->getVar<Ogre::SceneNode*>("sceneNode",0);
             return sceneNode ? Var::build<Vec3>(OgreUtil::toVec(sceneNode->getPosition())) : Var();
         }
         
-        void SceneNode::set_rot( Var val )
+        Var SceneNode::set_rot(  const Var& val  )
         {
             Ogre::SceneNode* sceneNode = getEntity()->getVar<Ogre::SceneNode*>("sceneNode",0);
             if ( sceneNode && val.is<Quat>() )
             {
                 sceneNode->setOrientation(OgreUtil::fromQuat(val.get<Quat>()));
             }
+            return Var();
         }
         
-        Var SceneNode::get_rot()
+        Var SceneNode::get_rot( const Var& arg )
         {
             Ogre::SceneNode* sceneNode = getEntity()->getVar<Ogre::SceneNode*>("sceneNode",0);
             return sceneNode ? Var::build<Quat>(OgreUtil::toQuat(sceneNode->getOrientation())) : Var();
         }
         
-        void SceneNode::set_scale( Var val )
+        Var SceneNode::set_scale(  const Var& val  )
         {
             Ogre::SceneNode* sceneNode = getEntity()->getVar<Ogre::SceneNode*>("sceneNode",0);
             if ( sceneNode && val.is<Vec3>() )
             {
                 sceneNode->setScale(OgreUtil::fromVec(val.get<Vec3>()));
             }
+            return Var();
         }
         
-        Var SceneNode::get_scale()
+        Var SceneNode::get_scale( const Var& arg )
         {
             Ogre::SceneNode* sceneNode = getEntity()->getVar<Ogre::SceneNode*>("sceneNode",0);
             return sceneNode ? Var::build<Vec3>(OgreUtil::toVec(sceneNode->getScale())) : Var();

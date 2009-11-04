@@ -19,18 +19,18 @@ namespace gge
                 Widget();
                 ~Widget();
                 
-                void on_attach();
-                void on_detach();
+                Var on_attach( const Var& arg );
+                Var on_detach( const Var& arg );
                 
-                void set_widgetParent( Var val );
+                Var set_widgetParent( const Var& val );
                 
-                void set_widget( Var val );
+                Var set_widget( const Var& val );
                 
-                void set_pos( Var val );
-                Var get_pos();
+                Var set_pos( const Var& val );
+                Var get_pos( const Var& arg );
                 
-                void set_size( Var val );
-                Var get_size();
+                Var set_size( const Var& val );
+                Var get_size( const Var& arg );
         };
 
     }
