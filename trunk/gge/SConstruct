@@ -14,11 +14,10 @@ env.Append(CPPPATH = env.Split('''
     /usr/local/include/OIS
     /usr/local/include/CEGUI
     /usr/local/include/bullet
+    /usr/include/python2.6 
     '''))
-#    /usr/include/python2.6 
     
 env.Append(LIBS = env.Split('''
-    python2.6
     boost_filesystem-mt
     CEGUIBase
     CEGUIOgreRenderer
@@ -27,8 +26,9 @@ env.Append(LIBS = env.Split('''
     bulletdynamics
     bulletcollision
     bulletmath
+    python2.6
+    boost_python-mt-py26
     '''))
-#    boost_python-mt-py26
     
 env.Append(LIBPATH = env.Split('''
     /usr/local/lib

@@ -34,6 +34,8 @@ namespace gge
             {
                 addFunc( name, new Func<TObj>(obj,method) );
             }
+            
+            AbstractFunc* getFunc( const std::string& name ) const;
     };
     
 }

@@ -211,6 +211,18 @@ namespace gge
         return false;
     }
 
+    AbstractFunc* Entity::getFunc( const std::string& name ) const
+    {
+        for ( AspectMap::const_iterator i = m_aspects.begin(); i != m_aspects.end(); ++i )
+        {
+            if ( i->second->hasFunc(name) )
+            {
+                return i->second->getFunc(name);
+            }
+        }
+        return 0;
+    }
+
     Var Entity::call( const std::string& name, const Var& arg )
     {
         for ( AspectMap::iterator i = m_aspects.begin(); i != m_aspects.end(); ++i )
