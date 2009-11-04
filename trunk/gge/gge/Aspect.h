@@ -43,13 +43,6 @@ namespace gge
             void detachFromEntity();
             
             void loadData( TiXmlHandle h );
-            
-            boost::python::object getAttr( const std::string& name );
-            void setAttr( const std::string& name, boost::python::object val );
-            
-            static boost::python::object defineClass();
-            
-            boost::python::object toPy();
     };
     
 }

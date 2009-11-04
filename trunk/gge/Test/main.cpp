@@ -1,5 +1,4 @@
 #include <gge/App.h>
-#include <gge/PyAspect.h>
 using namespace gge;
 
 class TestAspect : public Aspect
@@ -16,38 +15,43 @@ class TestAspect : public Aspect
             addFunc("load_loadTest",&TestAspect::load_loadTest,this);
         }
         
-        void on_attach()
+        Var on_attach( const Var& arg )
         {
             getEntity()->setVar<bool>("on_attach_called",true);
+            return Var();
         }
         
         bool on_detach_called;
         
-        void on_detach()
+        Var on_detach( const Var& arg )
         {
             on_detach_called = true;
+            return Var();
         }
         
-        void set_setTest( Var val )
+        Var set_setTest( const Var& arg )
         {
-            getEntity()->setVar<int>("setTestVal",val.get<int>());
+            getEntity()->setVar<int>("setTestVal",arg.get<int>(0));
+            return Var();
         }
         
-        Var get_getTest()
+        Var get_getTest( const Var& arg )
         {
             Var val;
             val.set<int>(35);
             return val;
         }
         
-        void msg_msgTest( VarMap args )
+        Var msg_msgTest( const Var& arg )
         {
-            getEntity()->setVar("msgTest",args.getVar<int>("val",0));
+            getEntity()->setVar("msgTest",arg.get<int>(0));
+            return Var();
         }
         
-        void load_loadTest( TiXmlHandle h )
+        Var load_loadTest( const Var& arg )
         {
             getEntity()->setVar<bool>("loadTest_called",true);
+            return Var();
         }
 };
 
@@ -55,9 +59,6 @@ GGE_ASPECT(TestAspect);
 
 int main()
 {
-    Var var;
-    assert(var.empty());
-    
     App app;
     
     EntityPtr entity = app.buildEntity("ent");
@@ -65,6 +66,7 @@ int main()
     
     AspectPtr testAspect = entity->buildAspect("Test/TestAspect");
     assert(testAspect);
+    
     AutoPtr<TestAspect> test = testAspect.cast<TestAspect>();
     assert(test);
     
@@ -80,9 +82,7 @@ int main()
     
     assert(entity->getVar<int>("getTest",0) == 35);
     
-    VarMap msgTestArgs;
-    msgTestArgs.setVar("val",45);
-    app.publish("msgTest",msgTestArgs);
+    app.publish("msgTest",Var::build<int>(45));
     assert(entity->getVar<int>("msgTest",0) == 45);
     
     app.load("Test/test.app");
@@ -96,10 +96,6 @@ int main()
     assert(fileTest);
     
     assert(fileEntity->getVar<bool>("loadTest_called",false) == true);
-    
-    EntityPtr scriptEnt = app.buildEntity("scriptEnt");
-    scriptEnt->buildAspect("gge/PyAspect").cast<PyAspect>()->run("test.py");
-    assert(scriptEnt->call<int>("crossTest") == -1);
     
     return 0;
 }

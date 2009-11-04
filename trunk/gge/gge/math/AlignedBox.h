@@ -40,8 +40,6 @@ namespace gge
             void getCorners(Vec3List& vl) const;
             Vec3 getSize() const;
             Vec3 getCenter() const;
-            
-            friend std::ostream& operator<<(std::ostream& os, const AlignedBox& ab);
     };
     
 }

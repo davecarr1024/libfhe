@@ -5,19 +5,20 @@ env = Environment()
 
 env['SHOBJSUFFIX'] = '.oss'
 
+env.Append(CPPFLAGS = "-g")
+
 env.Append(CPPPATH = env.Split('''
     #
     ext/tinyxml
-    /usr/include/python2.6 
     /usr/local/include/OGRE
     /usr/local/include/OIS
     /usr/local/include/CEGUI
     /usr/local/include/bullet
     '''))
+#    /usr/include/python2.6 
     
 env.Append(LIBS = env.Split('''
     python2.6
-    boost_python-mt-py26
     boost_filesystem-mt
     CEGUIBase
     CEGUIOgreRenderer
@@ -27,12 +28,15 @@ env.Append(LIBS = env.Split('''
     bulletcollision
     bulletmath
     '''))
+#    boost_python-mt-py26
     
 env.Append(LIBPATH = env.Split('''
     /usr/local/lib
     '''))
 
 def enumerateFiles(path = "."):
+    if 'Physics' in path or 'Graphics' in path:
+        return []
     files = glob.glob("%s/*" % path)
     return sum(map(enumerateFiles,filter(os.path.isdir,files)),filter(os.path.isfile,files))
 
