@@ -14,8 +14,8 @@ namespace gge
             public:
                 Body();
                 
-                void on_attach();
-                void on_detach();
+                Var on_attach( const Var& arg );
+                Var on_detach( const Var& arg );
                 
                 virtual btCollisionShape* makeShape();
         };

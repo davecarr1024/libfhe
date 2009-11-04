@@ -42,11 +42,11 @@ namespace gge
             }
         }
         
-        void World::msg_update( VarMap args )
+        Var World::msg_update( const Var& arg )
         {
             if ( m_dynamicsWorld )
             {
-                float time = args.getVar<float>("time",0),
+                float time = arg.get<VarMap>().getVar<float>("time"),
                     dtime = 1.0 / getEntity()->getVar("fps",100);
                 if ( time - m_lastTick > dtime )
                 {
@@ -54,9 +54,10 @@ namespace gge
                     m_dynamicsWorld->stepSimulation(dtime);
                 }
             }
+            return Var();
         }
         
-        Var World::get_dynamicsWorld()
+        Var World::get_dynamicsWorld( const Var& arg )
         {
             return Var::build<btDiscreteDynamicsWorld*>(m_dynamicsWorld);
         }

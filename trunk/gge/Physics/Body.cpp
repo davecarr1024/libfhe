@@ -15,7 +15,7 @@ namespace gge
             addFunc("on_detach",&Body::on_detach,this);
         }
         
-        void Body::on_attach()
+        Var Body::on_attach( const Var& arg )
         {
             EntityPtr worldEnt = getEntity()->getApp()->getEntity("World");
             assert(worldEnt);
@@ -37,9 +37,11 @@ namespace gge
             btRigidBody* rigidBody = new btRigidBody(rbci);
             dynamicsWorld->addRigidBody(rigidBody);
             getEntity()->setVar<btRigidBody*>("rigidBody",rigidBody);
+            
+            return Var();
         }
         
-        void Body::on_detach()
+        Var Body::on_detach( const Var& arg )
         {
             btRigidBody* rigidBody = getEntity()->getVar<btRigidBody*>("rigidBody",0);
             if ( rigidBody )
@@ -52,6 +54,8 @@ namespace gge
                 dynamicsWorld->removeRigidBody(rigidBody);
                 getEntity()->setVar<btRigidBody*>("rigidBody",0);
             }
+            
+            return Var();
         }
         
         btCollisionShape* Body::makeShape()
