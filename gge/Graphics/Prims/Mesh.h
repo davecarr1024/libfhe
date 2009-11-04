@@ -13,9 +13,9 @@ namespace gge
             public:
                 Mesh();
                 
-                void on_attach();
+                Var on_attach( const Var& arg );
                 
-                void set_meshName( Var val );
+                Var set_meshName( const Var& val );
         };
 
     }

@@ -13,7 +13,7 @@ namespace gge
             addFunc("set_text",&Button::set_text,this);
         }
         
-        void Button::on_attach()
+        Var Button::on_attach( const Var& arg )
         {
             CEGUI::PushButton* button = static_cast<CEGUI::PushButton*>(
                 getWindowManager()->createWindow("TaharezLook/Button",getPath()));
@@ -23,23 +23,23 @@ namespace gge
             
             getEntity()->defaultVar<std::string>("text","");
             
-            Widget::on_attach();
+            Widget::on_attach(Var());
+            return Var();
         }
         
-        void Button::set_text( Var val )
+        Var Button::set_text( const Var& val )
         {
             CEGUI::PushButton* button = static_cast<CEGUI::PushButton*>(getEntity()->getVar<CEGUI::Window*>("widget",0));
             if ( button && val.is<std::string>() )
             {
                 button->setText(val.get<std::string>());
             }
+            return Var();
         }
         
         bool Button::onClick( const CEGUI::EventArgs& evt )
         {
-            VarMap args;
-            args.setVar<std::string>("button",getEntity()->getName());
-            getEntity()->getApp()->publish("buttonClicked",args);
+            getEntity()->getApp()->publish("buttonClicked",Var::build<std::string>(getEntity()->getName()));
             
             return true;
         }

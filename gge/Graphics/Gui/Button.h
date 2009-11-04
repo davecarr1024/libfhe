@@ -13,9 +13,9 @@ namespace gge
             public:
                 Button();
                 
-                void on_attach();
+                Var on_attach( const Var& val );
                 
-                void set_text( Var val );
+                Var set_text( const Var& val );
                 
                 bool onClick( const CEGUI::EventArgs& evt );
         };
