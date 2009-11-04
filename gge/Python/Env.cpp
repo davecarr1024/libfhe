@@ -3,6 +3,10 @@
 #include "PyApp.h"
 
 #include <gge/FileSystem.h>
+#include <gge/math/Vec2.h>
+#include <gge/math/Vec3.h>
+#include <gge/math/Rot.h>
+#include <gge/math/Quat.h>
 
 namespace gge
 {
@@ -15,6 +19,11 @@ namespace gge
             m_mainModule = boost::python::import("__main__");
             m_mainNamespace = boost::python::dict(m_mainModule.attr("__dict__"));
             m_builtins = m_mainNamespace["__builtins__"].attr("__dict__");
+            
+            m_mainNamespace["Vec2"] = Vec2::defineClass();
+            m_mainNamespace["Vec3"] = Vec3::defineClass();
+            m_mainNamespace["Rot"] = Rot::defineClass();
+            m_mainNamespace["Quat"] = Quat::defineClass();
             
             PyEntity::defineClass();
             PyApp::defineClass();
@@ -106,6 +115,32 @@ namespace gge
                 {
                     return Var::build<std::string>(boost::python::extract<std::string>(obj)());
                 }
+                else if ( type == "Vec2" )
+                {
+                    return Var::build<Vec2>(boost::python::extract<Vec2>(obj)());
+                }
+                else if ( type == "Vec3" )
+                {
+                    return Var::build<Vec3>(boost::python::extract<Vec3>(obj)());
+                }
+                else if ( type == "Rot" )
+                {
+                    return Var::build<Rot>(boost::python::extract<Rot>(obj)());
+                }
+                else if ( type == "Quat" )
+                {
+                    return Var::build<Quat>(boost::python::extract<Quat>(obj)());
+                }
+                else if ( type == "dict" )
+                {
+                    VarMap vm;
+                    boost::python::object items = obj.attr("items")();
+                    for ( int i = 0; i < boost::python::len(items); ++i )
+                    {
+                        vm.setRawVar(boost::python::extract<std::string>(items[i][0]),convertToVar(items[i][1]));
+                    }
+                    return Var::build<VarMap>(vm);
+                }
                 else
                 {
                     throw std::runtime_error("unable to convert unknown python type " + type + " to var");
@@ -136,6 +171,33 @@ namespace gge
                 else if ( val.is<std::string>() )
                 {
                     return boost::python::object(val.get<std::string>());
+                }
+                else if ( val.is<Vec2>() )
+                {
+                    return boost::python::object(val.get<Vec2>());
+                }
+                else if ( val.is<Vec3>() )
+                {
+                    return boost::python::object(val.get<Vec3>());
+                }
+                else if ( val.is<Rot>() )
+                {
+                    return boost::python::object(val.get<Rot>());
+                }
+                else if ( val.is<Quat>() )
+                {
+                    return boost::python::object(val.get<Quat>());
+                }
+                else if ( val.is<VarMap>() )
+                {
+                    boost::python::dict d;
+                    VarMap vm = val.get<VarMap>();
+                    std::vector<std::string> names = vm.getVarNames();
+                    for ( std::vector<std::string>::iterator i = names.begin(); i != names.end(); ++i )
+                    {
+                        d[*i] = convertFromVar(vm.getRawVar(*i));
+                    }
+                    return d;
                 }
                 else
                 {

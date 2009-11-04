@@ -45,4 +45,14 @@ namespace gge
     {
         return false;
     }
+    
+    std::vector<std::string> VarMap::getVarNames()
+    {
+        std::vector<std::string> names;
+        for ( std::map<std::string,Var>::const_iterator i = m_vars.begin(); i != m_vars.end(); ++i )
+        {
+            names.push_back(i->first);
+        }
+        return names;
+    }
 }
