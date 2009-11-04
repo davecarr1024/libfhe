@@ -57,6 +57,8 @@ namespace gge
             
             bool hasFunc( const std::string& name ) const;
             
+            AbstractFunc* getFunc( const std::string& name ) const;
+            
             Var call( const std::string& name, const Var& arg = Var() );
             
             void callAll( const std::string& name, const Var& arg = Var() );

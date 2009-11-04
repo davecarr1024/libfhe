@@ -42,4 +42,10 @@ namespace gge
         assert(hasFunc(name));
         return m_funcs[name]->call(arg);
     }
+    
+    AbstractFunc* FuncMap::getFunc( const std::string& name ) const
+    {
+        std::map<std::string,AbstractFunc*>::const_iterator i = m_funcs.find(name);
+        return i != m_funcs.end() ? i->second : 0;
+    }
 }

@@ -8,6 +8,6 @@ int main( int argc, char** argv )
     {
         app.load(argv[i]);
     }
-    app.run();
+//     app.run();
     return 0;
 }
