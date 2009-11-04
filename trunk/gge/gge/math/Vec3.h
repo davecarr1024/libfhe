@@ -5,7 +5,7 @@
 
 #include <vector>
 #include <iostream>
-// #include <boost/python.hpp>
+#include <boost/python.hpp>
 
 namespace gge
 {
@@ -59,9 +59,9 @@ namespace gge
             
             std::string toString();
             
-/*            bool pyEquals( const Vec3& v );
+            bool pyEquals( const Vec3& v );
             
-            static boost::python::object defineClass();*/
+            static boost::python::object defineClass();
     };
     
 }

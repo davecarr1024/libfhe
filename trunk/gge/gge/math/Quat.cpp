@@ -133,7 +133,7 @@ namespace gge
         return outs.str();
     }
     
-/*    bool Quat::pyEquals( const Quat& q )
+    bool Quat::pyEquals( const Quat& q )
     {
         return equals(q);
     }
@@ -166,5 +166,5 @@ namespace gge
             .def("inverse",&Quat::inverse)
             .def("toAxisAngle",&Quat::pyToAxisAngle)
         ;
-    }*/
+    }
 }

@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include "ggeMath.h"
-// #include <boost/python.hpp>
+#include <boost/python.hpp>
 
 namespace gge
 {
@@ -41,11 +41,11 @@ namespace gge
             
             std::string toString();
             
-/*            bool pyEquals( const Quat& q );
+            bool pyEquals( const Quat& q );
             
             boost::python::object pyToAxisAngle();
             
-            static boost::python::object defineClass();*/
+            static boost::python::object defineClass();
     };
     
 }

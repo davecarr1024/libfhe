@@ -189,7 +189,7 @@ namespace gge
         return outs.str();
     }
     
-/*    bool Vec3::pyEquals( const Vec3& v )
+    bool Vec3::pyEquals( const Vec3& v )
     {
         return equals(v);
     }
@@ -216,5 +216,5 @@ namespace gge
             .def("lerp",&Vec3::lerp)
             .def("getRotTo",&Vec3::getRotTo)
         ;
-    }*/
+    }
 }

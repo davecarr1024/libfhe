@@ -4,6 +4,7 @@
 #include "Var.h"
 
 #include <map>
+#include <vector>
 #include <string>
 
 namespace gge
@@ -56,6 +57,8 @@ namespace gge
                 setVar<T>( name, val.is<T>() ? val.get<T>() : def );
                 return getVar<T>(name,def);
             }
+            
+            std::vector<std::string> getVarNames();
             
             virtual bool onHasVar( const std::string& name ) const;
             virtual Var onGetVar( const std::string& name ) const;
