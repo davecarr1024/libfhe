@@ -24,9 +24,9 @@ namespace gge
                 World();
                 ~World();
                 
-                void msg_update( VarMap args );
+                Var msg_update( const Var& arg );
                 
-                Var get_dynamicsWorld();
+                Var get_dynamicsWorld( const Var& arg );
         };
         
     }
