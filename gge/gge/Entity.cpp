@@ -1,5 +1,6 @@
 #include "Entity.h"
-#include "App.h"
+
+#include "FileSystem.h"
 
 #include "math/Vec2.h"
 #include "math/Vec3.h"
@@ -13,18 +14,91 @@ namespace gge
     
     Entity::Entity( const std::string& name ) :
         m_name(name),
-        m_app(0)
+        m_parent(0)
     {
+    }
+    
+    void Entity::attachToParent( EntityPtr parent )
+    {
+        if ( parent.get() != m_parent )
+        {
+            detachFromParent();
+            m_parent = parent.get();
+            if ( m_parent )
+            {
+                m_parent->addChild(this);
+                callAll("on_attach");
+            }
+        }
+    }
+    
+    void Entity::detachFromParent()
+    {
+        if ( m_parent )
+        {
+            EntityPtr parent = m_parent;
+            m_parent = 0;
+            parent->removeChild(this);
+            callAll("on_detach");
+        }
+    }
+    
+    void Entity::addChild( EntityPtr child )
+    {
+        if ( child && !hasChild(child->getName()) )
+        {
+            m_children[child->getName()] = child;
+            child->attachToParent(this);
+        }
+    }
+    
+    void Entity::removeChild( EntityPtr child )
+    {
+        if ( child && hasChild(child->getName()) )
+        {
+            m_children[child->getName()] = child;
+            child->attachToParent(this);
+        }
+    }
+    
+    bool Entity::hasChild( const std::string& name )
+    {
+        return m_children.find(name) != m_children.end();
+    }
+    
+    EntityPtr Entity::getChild( const std::string& name )
+    {
+        return hasChild(name) ? m_children[name] : 0;
+    }
+    
+    EntityPtr Entity::buildChild( const std::string& name )
+    {
+        EntityPtr child( new Entity(name) );
+        addChild(child);
+        return child;
+    }
+    
+    EntityPtr Entity::loadChild( const std::string& filename, const std::string& name )
+    {
+        EntityPtr child = buildChild(name);
+        
+        TiXmlDocument doc;
+        
+        if ( doc.LoadFile(FileSystem::instance().getFile(filename).c_str()) )
+        {
+            child->loadData(&doc);
+        }
+        else
+        {
+            throw std::runtime_error("unable to load entity file " + filename);
+        }
+        
+        return child;
     }
     
     std::string Entity::getName()
     {
         return m_name;
-    }
-    
-    App* Entity::getApp()
-    {
-        return m_app;
     }
     
     void Entity::addAspect( AspectPtr aspect )
@@ -64,29 +138,6 @@ namespace gge
         return getAspect(name);
     }
     
-    void Entity::attachToApp( App* app )
-    {
-        if ( m_app != app )
-        {
-            detachFromApp();
-            m_app = app;
-            if ( m_app )
-            {
-                m_app->addEntity(this);
-            }
-        }
-    }
-    
-    void Entity::detachFromApp()
-    {
-        if ( m_app )
-        {
-            App* app = m_app;
-            m_app = 0;
-            app->removeEntity(this);
-        }
-    }
-    
     Var Entity::onGetVar( const std::string& name ) const
     {
         std::string get = "get_" + name;
@@ -107,6 +158,7 @@ namespace gge
     {
         loadTag(h,"vars");
         loadTag(h,"aspects");
+        loadTag(h,"children");
     }
     
     void Entity::loadTag( TiXmlHandle h, const std::string& tag )
@@ -123,7 +175,21 @@ namespace gge
                 {
                     loadAspects(e);
                 }
+                else if ( tag == "children" )
+                {
+                    loadChildren(e);
+                }
             }
+        }
+    }
+    
+    void Entity::loadChildren( TiXmlHandle h )
+    {
+        for ( TiXmlElement* e = h.FirstChildElement("child").ToElement(); e; e = e->NextSiblingElement("child") )
+        {
+            const char* name = e->Attribute("name");
+            assert(name);
+            buildChild(name)->loadData(e);
         }
     }
     
@@ -244,5 +310,15 @@ namespace gge
                 i->second->call(name,arg);
             }
         }
+    }
+    
+    void Entity::publish( const std::string& name, const Var& arg )
+    {
+        callAll("msg_" + name,arg);
+        for ( EntityMap::iterator i = m_children.begin(); i != m_children.end(); ++i )
+        {
+            i->second->publish(name,arg);
+        }
+        callAll("unmsg_" + name,arg);
     }
 }

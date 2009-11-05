@@ -36,6 +36,8 @@ env.Append(LIBPATH = env.Split('''
     '''))
 
 def enumerateFiles(path = "."):
+    if 'Physics' in path or 'Graphics' in path:
+        return []
     files = glob.glob("%s/*" % path)
     return sum(map(enumerateFiles,filter(os.path.isdir,files)),filter(os.path.isfile,files))
 
