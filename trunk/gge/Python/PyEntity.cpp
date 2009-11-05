@@ -14,7 +14,6 @@ namespace gge
         {
             boost::python::class_<PyEntity>("PyEntity",boost::python::no_init)
                 .add_property("name",&PyEntity::getName)
-                .add_property("app",&PyEntity::getApp)
                 .def("__getattr__",&PyEntity::getAttr)
                 .def("__setattr__",&PyEntity::setAttr)
                 .def("hasAspect",&PyEntity::hasAspect)
@@ -82,11 +81,5 @@ namespace gge
         {
             m_entity->removeAspect(m_entity->getAspect(name));
         }
-        
-        PyApp PyEntity::getApp()
-        {
-            return PyApp(m_entity->getApp());
-        }
-        
     }
 }

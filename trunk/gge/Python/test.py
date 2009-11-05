@@ -11,10 +11,6 @@ assert self.hasAspect("Test/TestAspect")
 self.removeAspect("Test/TestAspect")
 assert not self.hasAspect("Test/TestAspect")
 
-e = self.app.getEntity(self.name)
-e.sameCheck = True
-assert self.sameCheck
-
 self.runScript("Python/testFuncs.py")
 
 self.classFunc("class")

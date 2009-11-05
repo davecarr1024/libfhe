@@ -16,8 +16,6 @@ namespace gge
     typedef std::map<std::string,EntityPtr> EntityMap;
     typedef std::vector<EntityPtr> EntityList;
     
-    class App;
-    
     class Entity : public VarMap, public RefCounted
     {
         private:
@@ -25,19 +23,31 @@ namespace gge
             
             std::string m_name;
             
-            App* m_app;
-            
             void loadVars( TiXmlHandle h );
             void loadAspects( TiXmlHandle h );
+            void loadChildren( TiXmlHandle h );
             
             void loadTag( TiXmlHandle h, const std::string& tag );
+            
+            Entity* m_parent;
+            EntityMap m_children;
             
         public:
             Entity( const std::string& name );
             
-            std::string getName();
+            void attachToParent( EntityPtr parent );
+            void detachFromParent();
+            void addChild( EntityPtr child );
+            void removeChild( EntityPtr child );
             
-            App* getApp();
+            bool hasChild( const std::string& name );
+            EntityPtr getChild( const std::string& name );
+            EntityPtr buildChild( const std::string& name );
+            EntityPtr loadChild( const std::string& filename, const std::string& name = "Ent" );
+            EntityPtr getParent();
+            EntityPtr getRoot();
+            
+            std::string getName();
             
             void addAspect( AspectPtr aspect );
             void removeAspect( AspectPtr aspect );
@@ -45,9 +55,6 @@ namespace gge
             AspectPtr getAspect( const std::string& name );
             
             AspectPtr buildAspect( const std::string& name );
-            
-            void attachToApp( App* app );
-            void detachFromApp();
             
             Var onGetVar( const std::string& name ) const;
             void onSetVar( const std::string& name, const Var& val );
@@ -62,10 +69,10 @@ namespace gge
             Var call( const std::string& name, const Var& arg = Var() );
             
             void callAll( const std::string& name, const Var& arg = Var() );
+            
+            void publish( const std::string& name, const Var& arg = Var() );
     };
     
 }
-
-#include "App.h"
 
 #endif

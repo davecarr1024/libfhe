@@ -4,8 +4,6 @@
 #include <gge/Entity.h>
 #include <boost/python.hpp>
 
-#include "PyApp.h"
-
 namespace gge
 {
     namespace Python
@@ -43,8 +41,6 @@ namespace gge
                 void addAspect( const std::string& name );
                 
                 void removeAspect( const std::string& name );
-                
-                PyApp getApp();
                 
                 static void defineClass();
         };

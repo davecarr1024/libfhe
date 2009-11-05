@@ -1,6 +1,5 @@
 #include "Env.h"
 #include "PyEntity.h"
-#include "PyApp.h"
 
 #include <gge/FileSystem.h>
 #include <gge/math/Vec2.h>
@@ -26,7 +25,6 @@ namespace gge
             m_mainNamespace["Quat"] = Quat::defineClass();
             
             PyEntity::defineClass();
-            PyApp::defineClass();
         }
         
         Env& Env::instance()

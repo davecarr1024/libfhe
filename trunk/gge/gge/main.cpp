@@ -1,13 +1,13 @@
-#include "App.h"
+#include "Entity.h"
 using namespace gge;
 
 int main( int argc, char** argv )
 {
-    App app;
+    EntityPtr app(new Entity("app") );
     for ( int i = 1; i < argc; ++i )
     {
-        app.load(argv[i]);
+        app->loadChild(argv[i]);
     }
-    app.run();
+//     app.run();
     return 0;
 }

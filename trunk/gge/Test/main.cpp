@@ -4,9 +4,9 @@ using namespace gge::Test;
 
 int main()
 {
-    App app;
+    EntityPtr app(new Entity("App"));
     
-    EntityPtr entity = app.buildEntity("ent");
+    EntityPtr entity = app->buildChild("ent");
     assert(entity);
     
     AspectPtr testAspect = entity->buildAspect("Test/TestAspect");
@@ -27,12 +27,10 @@ int main()
     
     assert(entity->getVar<int>("getTest",0) == 35);
     
-    app.publish("msgTest",Var::build<int>(45));
+    app->publish("msgTest",Var::build<int>(45));
     assert(entity->getVar<int>("msgTest",0) == 45);
     
-    app.load("Test/test.app");
-    
-    EntityPtr fileEntity = app.getEntity("fileEntity");
+    EntityPtr fileEntity = app->loadChild("Test/test.app");
     assert(fileEntity);
 
     assert(fileEntity->getVar<int>("i",0) == 11);
