@@ -1,0 +1,53 @@
+import glob
+import os
+import subprocess
+
+env = Environment()
+
+env['SHOBJSUFFIX'] = '.oss'
+
+env.Append(CPPFLAGS = "-g")
+
+env.Append(CPPPATH = env.Split('''
+    #
+    ext/tinyxml
+    /usr/local/include/OGRE
+    /usr/local/include/OIS
+    /usr/local/include/CEGUI
+    /usr/local/include/bullet
+    /usr/include/python2.6 
+    '''))
+    
+env.Append(LIBS = env.Split('''
+    boost_filesystem-mt
+    CEGUIBase
+    CEGUIOgreRenderer
+    OgreMain
+    OIS
+    bulletdynamics
+    bulletcollision
+    bulletmath
+    python2.6
+    boost_python-mt-py26
+    '''))
+    
+env.Append(LIBPATH = env.Split('''
+    /usr/local/lib
+    '''))
+
+def enumerateFiles(path = "."):
+    if 'Physics' in path:
+        return []
+    files = glob.glob("%s/*" % path)
+    return sum(map(enumerateFiles,filter(os.path.isdir,files)),filter(os.path.isfile,files))
+
+files = enumerateFiles()
+
+src = filter(lambda file: file.endswith(".cpp"),files)
+
+mainSrc = filter(lambda file: 'main' in file.lower(), src)
+libSrc = filter(lambda file: file not in mainSrc, src)
+
+lib = env.SharedLibrary('gge',libSrc)
+
+apps = map(lambda file: env.Program(file[:file.rfind('.')].lstrip('./').replace('/','.'), [file,lib]), mainSrc)
