@@ -4,6 +4,7 @@
 #include "Func.h"
 #include "AutoPtr.h"
 
+#include <tinyxml.h>
 #include <string>
 #include <vector>
 #include <map>
@@ -52,6 +53,8 @@ namespace fhe
             void attachToEntity( EntityPtr entity );
             void detachFromEntity();
             EntityPtr getEntity();
+            
+            void load( TiXmlHandle h );
     };
     
 }

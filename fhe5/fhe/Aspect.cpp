@@ -3,7 +3,7 @@
 
 namespace fhe
 {
-    AspectDescRegisterer<Aspect> Aspect_registerer("Aspect","");
+    FHE_ASPECT(Aspect,Aspect)
     
     Aspect::Aspect() :
         m_refCount(0),
@@ -95,6 +95,14 @@ namespace fhe
     EntityPtr Aspect::getEntity()
     {
         return m_entity;
+    }
+    
+    void Aspect::load( TiXmlHandle h )
+    {
+        for ( TiXmlElement* e = h.FirstChildElement().ToElement(); e; e = e->NextSiblingElement() )
+        {
+            call(std::string("load_") + e->Value(),Var::build<TiXmlHandle>(e));
+        }
     }
     
 }

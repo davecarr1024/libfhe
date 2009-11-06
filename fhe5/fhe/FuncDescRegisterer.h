@@ -13,10 +13,14 @@ namespace fhe
         public:
             typedef Var (T::*Method)( const Var&);
             
-            FuncDescRegisterer( const std::string& className, const std::string& funcName, Method method )
+            FuncDescRegisterer( const std::string& className, const std::string& funcName, Method method, const std::string& filename )
             {
-                AbstractAspectDesc* abstractAspectDesc = AspectFactory::instance().getDesc(className);
-                assert(abstractAspectDesc);
+                std::string fullClassName = filename.substr(0,filename.rfind("/")+1) + className;
+                AbstractAspectDesc* abstractAspectDesc = AspectFactory::instance().getDesc(fullClassName);
+                if ( !abstractAspectDesc )
+                {
+                    throw std::runtime_error("can't register func " + funcName + " to unknown class " + className );
+                }
                 AspectDesc<T>* aspectDesc = abstractAspectDesc->cast<T>();
                 assert(aspectDesc);
                 aspectDesc->addFunc( new FuncDesc<T>(funcName,method) );
@@ -30,7 +34,7 @@ namespace fhe
                 static bool first = true; \
                 if ( first ) { \
                     first = false; \
-                    FuncDescRegisterer<className>(#className,#funcName,&className::funcName); \
+                    FuncDescRegisterer<className>(#className,#funcName,&className::funcName,__FILE__); \
                 } \
             } \
         }; \

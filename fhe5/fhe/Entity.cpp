@@ -1,6 +1,8 @@
 #include "Entity.h"
 #include "AspectFactory.h"
+#include "FileSystem.h"
 #include <sstream>
+#include <stdexcept>
 
 namespace fhe
 {
@@ -203,11 +205,112 @@ namespace fhe
     
     void Entity::publish( const std::string& name, const Var& arg )
     {
-//         callAll("msg_" + name,arg);
+        callAll("msg_" + name,arg);
         for ( EntityMap::iterator i = m_children.begin(); i != m_children.end(); ++i )
         {
             i->second->publish(name,arg);
         }
-//         callAll("unmsg_" + name,arg);
+        callAll("unmsg_" + name,arg);
+    }
+    
+    EntityPtr Entity::loadChild( const std::string& filename )
+    {
+        TiXmlDocument doc;
+        if ( doc.LoadFile(FileSystem::instance().getFile(filename).c_str()) )
+        {
+            EntityPtr child = buildChild(filename.substr(0,filename.find(".")));
+            child->loadData(&doc);
+            return child;
+        }
+        else
+        {
+            throw std::runtime_error("unable to load entity file " + filename);
+        }
+    }
+    
+    void Entity::loadData( TiXmlHandle h )
+    {
+        loadTag(h,"vars");
+        loadTag(h,"aspects");
+        loadTag(h,"vars");
+        loadTag(h,"children");
+    }
+    
+    void Entity::loadTag( TiXmlHandle h, const std::string& tag )
+    {
+        for ( TiXmlElement* e = h.FirstChildElement(tag.c_str()).ToElement(); e; e = e->NextSiblingElement(tag.c_str()) )
+        {
+            if ( tag == "vars" )
+            {
+                loadVars(e);
+            }
+            else if ( tag == "aspects" )
+            {
+                loadAspects(e);
+            }
+            else if ( tag == "children" )
+            {
+                loadChildren(e);
+            }
+        }
+    }
+    
+    void Entity::loadVars( TiXmlHandle h )
+    {
+        for ( TiXmlElement* e = h.FirstChildElement("var").ToElement(); e; e = e->NextSiblingElement("var") )
+        {
+            const char* cname = e->Attribute("name"), *ctype = e->Attribute("type");
+            assert(cname);
+            assert(ctype);
+            std::string name(cname), type(ctype), value(e->GetText());
+            std::istringstream ins(value);
+            
+            if ( type == "bool" )
+            {
+                bool b;
+                ins >> b;
+                setVar<bool>(name,b);
+            }
+            else if ( type == "int" )
+            {
+                int i;
+                ins >> i;
+                setVar<int>(name,i);
+            }
+            else if ( type == "float" )
+            {
+                float f;
+                ins >> f;
+                setVar<float>(name,f);
+            }
+            else if ( type == "string" )
+            {
+                setVar<std::string>(name,value);
+            }
+            else
+            {
+                throw std::runtime_error("var " + name + " is unknown type " + type );
+            }
+        }
+    }
+    
+    void Entity::loadAspects( TiXmlHandle h )
+    {
+        for ( TiXmlElement* e = h.FirstChildElement("aspect").ToElement(); e; e = e->NextSiblingElement("aspect") )
+        {
+            const char* name = e->Attribute("name");
+            assert(name);
+            buildAspect(name)->load(e);
+        }
+    }
+    
+    void Entity::loadChildren( TiXmlHandle h )
+    {
+        for ( TiXmlElement* e = h.FirstChildElement("child").ToElement(); e; e = e->NextSiblingElement("child") )
+        {
+            const char* name = e->Attribute("name");
+            assert(name);
+            buildChild(name)->loadData(e);
+        }
     }
 }

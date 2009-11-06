@@ -3,6 +3,7 @@
 
 #include <map>
 #include "Aspect.h"
+#include "AbstractAspectDesc.h"
 
 namespace fhe
 {
@@ -31,6 +32,19 @@ namespace fhe
             AbstractAspectDesc* getDesc( const std::string& name );
             
             AspectPtr buildAspect( const std::string& name );
+            
+            template <class T>
+            AbstractAspectDesc* getDesc()
+            {
+                for ( std::map<std::string,AbstractAspectDesc*>::iterator i = m_aspects.begin(); i != m_aspects.end(); ++i )
+                {
+                    if ( i->second->is<T>() )
+                    {
+                        return i->second;
+                    }
+                }
+                return 0;
+            }
     };
     
 }

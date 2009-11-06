@@ -1,51 +1,24 @@
 #ifndef ASPECT_DESC_H
 #define ASPECT_DESC_H
 
-#include "Aspect.h"
-#include "FuncDesc.h"
-#include <map>
+#include "AbstractAspectDesc.h"
 
 namespace fhe
 {
-    
-    template <class T>
-    class AspectDesc;
-    
-    class AbstractAspectDesc
-    {
-        public:
-            virtual const std::type_info& getType()=0;
-            
-            virtual std::string getName()=0;
-            
-            virtual Aspect* build()=0;
-            
-            virtual void init( Aspect* aspect )=0;
-            
-            template <class T>
-            bool is()
-            {
-                return typeid(T) == getType();
-            }
-            
-            template <class T>
-            AspectDesc<T>* cast()
-            {
-                return is<T>() ? static_cast<AspectDesc<T>*>(this) : 0;
-            }
-    };
     
     template <class T>
     class AspectDesc : public AbstractAspectDesc
     {
         private:
             std::map<std::string,AbstractFuncDesc*> m_funcs;
-            std::string m_name, m_parent;
+            std::string m_name;
+            
+            AbstractAspectDesc* m_parent;
             
         public:
-            AspectDesc( const std::string& name, const std::string& parent ) :
+            AspectDesc( const std::string& name ) :
                 m_name(name),
-                m_parent(parent)
+                m_parent(0)
             {
             }
             
@@ -96,12 +69,15 @@ namespace fhe
                     t->addFunc(i->second->cast<T>()->instantiate(t));
                 }
                 
-                if ( !m_parent.empty() )
+                if ( m_parent )
                 {
-                    AbstractAspectDesc* parentDesc = AspectFactory::instance().getDesc(m_parent);
-                    assert(parentDesc);
-                    parentDesc->init(aspect);
+                    m_parent->init(aspect);
                 }
+            }
+            
+            void setParent( AbstractAspectDesc* parent )
+            {
+                m_parent = parent;
             }
     };
     
