@@ -3,6 +3,7 @@
 
 #include "Aspect.h"
 #include "VarMap.h"
+#include <tinyxml.h>
 
 namespace fhe
 {
@@ -26,6 +27,12 @@ namespace fhe
             Entity* m_parent;
             
             AspectMap m_aspects;
+            
+            void loadVars( TiXmlHandle h );
+            void loadAspects( TiXmlHandle h );
+            void loadChildren( TiXmlHandle h );
+            void loadTag( TiXmlHandle h, const std::string& tag );
+            void loadData( TiXmlHandle h );
             
         public:
             EntityMap m_children;
@@ -59,6 +66,8 @@ namespace fhe
             Var call( const std::string& name, const Var& arg = Var() );
             void callAll( const std::string& name, const Var& arg = Var() );
             void publish( const std::string& name, const Var& arg = Var() );
+            
+            EntityPtr loadChild( const std::string& filename );
     };
     
 }

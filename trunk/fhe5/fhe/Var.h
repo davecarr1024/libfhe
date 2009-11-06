@@ -3,6 +3,7 @@
 
 #include <typeinfo>
 #include <cassert>
+#include <stdexcept>
 
 namespace fhe
 {

@@ -1,4 +1,5 @@
 #include "AspectFactory.h"
+#include <stdexcept>
 
 namespace fhe
 {
@@ -47,7 +48,10 @@ namespace fhe
     AspectPtr AspectFactory::buildAspect( const std::string& name )
     {
         AbstractAspectDesc* desc = getDesc(name);
-        assert(desc);
+        if ( !desc )
+        {
+            throw std::runtime_error("can't build unknown aspect type " + name);
+        }
         Aspect* aspect = desc->build();
         assert(aspect);
         aspect->init(name);
