@@ -2,23 +2,22 @@
 #define ASPECT_DESC_H
 
 #include "AbstractAspectDesc.h"
+#include "AspectFactory.h"
+#include "Aspect.h"
 
 namespace fhe
 {
     
-    template <class T>
+    template <class T, class TParent>
     class AspectDesc : public AbstractAspectDesc
     {
         private:
             std::map<std::string,AbstractFuncDesc*> m_funcs;
             std::string m_name;
             
-            AbstractAspectDesc* m_parent;
-            
         public:
             AspectDesc( const std::string& name ) :
-                m_name(name),
-                m_parent(0)
+                m_name(name)
             {
             }
             
@@ -62,9 +61,15 @@ namespace fhe
             
             void init( Aspect* aspect )
             {
-                if ( m_parent )
+                if ( typeid(T) != typeid(TParent) )
                 {
-                    m_parent->init(aspect);
+                    AbstractAspectDesc* parent = AspectFactory::instance().getDesc<TParent>();
+                    assert(parent);
+                    parent->init(aspect);
+                }
+                else
+                {
+                    assert(typeid(T) == typeid(Aspect));
                 }
                 
                 T* t = dynamic_cast<T*>(aspect);
@@ -74,11 +79,6 @@ namespace fhe
                     t->addFunc(i->second->cast<T>()->instantiate(t));
                 }
                 
-            }
-            
-            void setParent( AbstractAspectDesc* parent )
-            {
-                m_parent = parent;
             }
     };
     

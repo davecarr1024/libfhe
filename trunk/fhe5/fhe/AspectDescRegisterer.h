@@ -13,11 +13,7 @@ namespace fhe
             AspectDescRegisterer( const std::string& name, const std::string& filename )
             {
                 std::string fullName = filename.substr(0,filename.rfind("/")+1) + name;
-                AspectDesc<T>* desc = new AspectDesc<T>(fullName);
-                if ( fullName != "fhe/Aspect" )
-                {
-                    desc->setParent(AspectFactory::instance().getDesc<TParent>());
-                }
+                AspectDesc<T,TParent>* desc = new AspectDesc<T,TParent>(fullName);
                 AspectFactory::instance().addDesc(desc);
             }
     };

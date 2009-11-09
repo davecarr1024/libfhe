@@ -5,6 +5,8 @@
 #include <map>
 #include <string>
 
+#include <FTGL/ftgl.h>
+
 #include <fhe/VarMap.h>
 
 namespace fhe
@@ -22,7 +24,11 @@ namespace fhe
                 
                 std::map<std::string,GLuint> m_textures;
                 
+                std::map<std::string,FTFont*> m_fonts;
+                
             public:
+                ~MaterialManager();
+                
                 static MaterialManager& instance();
                 
                 GLuint loadTexture( const std::string& filename );
@@ -36,6 +42,8 @@ namespace fhe
                 void bind( const VarMap& args );
                 
                 void unbind();
+                
+                FTFont* loadFont( const std::string& filename );
         };
         
     }

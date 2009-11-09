@@ -6,6 +6,9 @@
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
+
+#include <FTGL/FTGLTextureFont.h>
+
 #include <stdexcept>
 
 namespace fhe
@@ -15,6 +18,15 @@ namespace fhe
         
         MaterialManager::MaterialManager()
         {
+        }
+        
+        MaterialManager::~MaterialManager()
+        {
+            for ( std::map<std::string,FTFont*>::iterator i = m_fonts.begin(); i != m_fonts.end(); ++i )
+            {
+                delete i->second;
+            }
+            m_fonts.clear();
         }
         
         MaterialManager& MaterialManager::instance()
@@ -86,22 +98,22 @@ namespace fhe
             {
                 bindTexture(args.getVar<std::string>("texture"));
             }
-            else if ( args.hasVar<Color>("color") )
+            if ( args.hasVar<Color>("color") )
             {
                 Color c = args.getVar<Color>("color");
                 glColor4f(c.r,c.g,c.b,c.a);
             }
-            else if ( args.hasVar<Vec2>("pos") )
+            if ( args.hasVar<Vec2>("pos") )
             {
                 Vec2 pos = args.getVar<Vec2>("pos");
                 glTranslatef(pos.x,pos.y,0);
             }
-            else if ( args.hasVar<Rot>("rot") )
+            if ( args.hasVar<Rot>("rot") )
             {
                 Rot rot = args.getVar<Rot>("rot");
                 glRotatef(rot.degrees(),0,0,-1);
             }
-            else if ( args.hasVar<Vec2>("scale") )
+            if ( args.hasVar<Vec2>("scale") )
             {
                 Vec2 scale = args.getVar<Vec2>("scale");
                 glScalef(scale.x,scale.y,1);
@@ -116,6 +128,20 @@ namespace fhe
             glMatrixMode(GL_TEXTURE);
             glPopMatrix();
             glMatrixMode(GL_MODELVIEW);
+        }
+        
+        FTFont* MaterialManager::loadFont( const std::string& filename )
+        {
+            if ( m_fonts.find(filename) == m_fonts.end() )
+            {
+                FTFont* font = new FTBufferFont(FileSystem::instance().getFile(filename).c_str());
+                if ( !font )
+                {
+                    throw std::runtime_error("unable to load font " + filename);
+                }
+                m_fonts[filename] = font;
+            }
+            return m_fonts[filename];
         }
     }
 }
