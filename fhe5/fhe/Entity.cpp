@@ -1,8 +1,8 @@
 #include "Entity.h"
 #include "AspectFactory.h"
 #include "FileSystem.h"
-#include <sstream>
 #include <stdexcept>
+#include <sstream>
 
 namespace fhe
 {
@@ -259,38 +259,9 @@ namespace fhe
     {
         for ( TiXmlElement* e = h.FirstChildElement("var").ToElement(); e; e = e->NextSiblingElement("var") )
         {
-            const char* cname = e->Attribute("name"), *ctype = e->Attribute("type");
-            assert(cname);
-            assert(ctype);
-            std::string name(cname), type(ctype), value(e->GetText());
-            std::istringstream ins(value);
-            
-            if ( type == "bool" )
-            {
-                bool b;
-                ins >> b;
-                setVar<bool>(name,b);
-            }
-            else if ( type == "int" )
-            {
-                int i;
-                ins >> i;
-                setVar<int>(name,i);
-            }
-            else if ( type == "float" )
-            {
-                float f;
-                ins >> f;
-                setVar<float>(name,f);
-            }
-            else if ( type == "string" )
-            {
-                setVar<std::string>(name,value);
-            }
-            else
-            {
-                throw std::runtime_error("var " + name + " is unknown type " + type );
-            }
+            const char* name = e->Attribute("name");
+            assert(name);
+            setRawVar(name,Var::load(e));
         }
     }
     

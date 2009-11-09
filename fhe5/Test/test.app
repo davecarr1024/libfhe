@@ -3,6 +3,10 @@
     <var name="i" type="int">13</var>
     <var name="f" type="float">2</var>
     <var name="s" type="string">hello</var>
+    <var name="d" type="dict">
+        <var name="i" type="int">22</var>
+        <var name="s" type="string">dictstring</var>
+    </var>
 </vars>
 
 <aspects>
