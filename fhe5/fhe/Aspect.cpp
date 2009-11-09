@@ -14,9 +14,12 @@ namespace fhe
     
     Aspect::~Aspect()
     {
-        for ( std::map<std::string,AbstractFunc*>::iterator i = m_funcs.begin(); i != m_funcs.end(); ++i )
+        for ( std::map<std::string,std::vector<AbstractFunc*> >::iterator i = m_funcs.begin(); i != m_funcs.end(); ++i )
         {
-            delete i->second;
+            for ( std::vector<AbstractFunc*>::iterator j = i->second.begin(); j != i->second.end(); ++j )
+            {
+                delete *j;
+            }
         }
         m_funcs.clear();
     }
@@ -53,24 +56,32 @@ namespace fhe
     
     AbstractFunc* Aspect::getFunc( const std::string& name )
     {
-        return hasFunc(name) ? m_funcs[name] : 0;
+        return hasFunc(name) ? m_funcs[name][m_funcs[name].size()-1] : 0;
     }
     
     void Aspect::addFunc( AbstractFunc* func )
     {
         if ( func )
         {
-            if ( hasFunc(func->getName()) )
-            {
-                delete m_funcs[func->getName()];
-            }
-            m_funcs[func->getName()] = func;
+            m_funcs[func->getName()].push_back(func);
         }
     }
     
     Var Aspect::call( const std::string& name, const Var& arg )
     {
-        return hasFunc(name) ? m_funcs[name]->call(arg) : Var();
+        if ( hasFunc(name) )
+        {
+            int n = m_funcs[name].size();
+            for ( int i = 0; i < n-1; ++i )
+            {
+                m_funcs[name][i]->call(arg);
+            }
+            return m_funcs[name][n-1]->call(arg);
+        }
+        else
+        {
+            return Var();
+        }
     }
     
     void Aspect::attachToEntity( EntityPtr entity )

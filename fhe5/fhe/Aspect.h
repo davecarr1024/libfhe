@@ -25,7 +25,7 @@ namespace fhe
         private:
             int m_refCount;
             
-            std::map<std::string,AbstractFunc*> m_funcs;
+            std::map<std::string,std::vector<AbstractFunc*> > m_funcs;
             
             Entity* m_entity;
             
