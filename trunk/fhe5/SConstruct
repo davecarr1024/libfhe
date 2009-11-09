@@ -11,15 +11,27 @@ env.Append(CPPFLAGS = "-g")
 env.Append(CPPPATH = env.Split('''
     #
     ext/tinyxml
+    '''))
+    
+'''
+    /usr/include/python2.6 
     /usr/local/include/OGRE
     /usr/local/include/OIS
     /usr/local/include/CEGUI
     /usr/local/include/bullet
-    /usr/include/python2.6 
-    '''))
+'''
     
 env.Append(LIBS = env.Split('''
     boost_filesystem-mt
+    SDL
+    SDL_image
+    GL
+    GLU
+    '''))
+    
+'''
+    python2.6
+    boost_python-mt-py26
     CEGUIBase
     CEGUIOgreRenderer
     OgreMain
@@ -27,9 +39,7 @@ env.Append(LIBS = env.Split('''
     bulletdynamics
     bulletcollision
     bulletmath
-    python2.6
-    boost_python-mt-py26
-    '''))
+'''
     
 env.Append(LIBPATH = env.Split('''
     /usr/local/lib

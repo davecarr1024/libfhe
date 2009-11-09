@@ -38,6 +38,7 @@ namespace fhe
             void init( const std::string& name );
             
             std::string getName();
+            std::string getPath();
             
             void incRef();
             bool decRef();
@@ -55,6 +56,9 @@ namespace fhe
             EntityPtr getEntity();
             
             void load( TiXmlHandle h );
+            
+            void log( const char* fmt, ... );
+            void error( const char* fmt, ... );
     };
     
 }

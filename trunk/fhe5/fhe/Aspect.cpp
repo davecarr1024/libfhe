@@ -1,5 +1,6 @@
 #include "Aspect.h"
 #include "Entity.h"
+#include <cstdarg>
 
 namespace fhe
 {
@@ -28,6 +29,11 @@ namespace fhe
     std::string Aspect::getName()
     {
         return m_name;
+    }
+    
+    std::string Aspect::getPath()
+    {
+        return std::string( m_entity ? m_entity->getPath() : "<null>" ) + "." + getName();
     }
     
     void Aspect::incRef()
@@ -105,4 +111,23 @@ namespace fhe
         }
     }
     
+    void Aspect::log( const char* format, ... )
+    {
+        char buffer[1024];
+        va_list ap;
+        va_start(ap,format);
+        vsnprintf( buffer, 1024, format, ap );
+        va_end(ap);
+        printf("%s: %s\n", getPath().c_str(), buffer);
+    }
+
+    void Aspect::error( const char* format, ... )
+    {
+        char buffer[1024];
+        va_list ap;
+        va_start(ap,format);
+        vsnprintf( buffer, 1024, format, ap );
+        va_end(ap);
+        throw std::runtime_error( getPath() + ": ERROR: " + buffer );
+    }
 }

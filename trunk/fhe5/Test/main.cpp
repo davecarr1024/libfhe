@@ -4,12 +4,12 @@ using namespace fhe;
 class TestAspect : public Aspect
 {
     public:
-        FHE_FUNC(TestAspect,testFunc);
+        FHE_FUNC_DECL(TestAspect,testFunc);
 };
 
 FHE_ASPECT(TestAspect,Aspect);
 
-Var TestAspect::testFunc( const Var& arg )
+FHE_FUNC_IMPL(TestAspect,testFunc)
 {
     return Var::build<int>(arg.get<int>()*2);
 }
@@ -17,12 +17,12 @@ Var TestAspect::testFunc( const Var& arg )
 class ChildAspect : public TestAspect
 {
     public:
-        FHE_FUNC(ChildAspect,msg_msgTest);
+        FHE_FUNC_DECL(ChildAspect,msg_msgTest);
 };
 
 FHE_ASPECT(ChildAspect,TestAspect);
 
-Var ChildAspect::msg_msgTest( const Var& arg )
+FHE_FUNC_IMPL(ChildAspect,msg_msgTest)
 {
     getEntity()->setRawVar("msgTest",arg);
     return Var();
@@ -47,9 +47,6 @@ int main()
     assert(child->hasFunc("testFunc"));
     assert(child->call("testFunc",Var::build<int>(5)).get<int>() == 10);
 
-    child->m_children.begin();
-    root->m_children.begin();
-    child->getRoot()->m_children.begin();
     child->getRoot()->publish("msgTest");
     
     EntityPtr fileEnt = root->loadChild("Test/test.app");

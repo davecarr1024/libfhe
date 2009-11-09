@@ -28,6 +28,8 @@ namespace fhe
             
             AspectMap m_aspects;
             
+            EntityMap m_children;
+            
             void loadVars( TiXmlHandle h );
             void loadAspects( TiXmlHandle h );
             void loadChildren( TiXmlHandle h );
@@ -35,8 +37,6 @@ namespace fhe
             void loadData( TiXmlHandle h );
             
         public:
-            EntityMap m_children;
-            
             Entity( const std::string& name );
             
             void incRef();
