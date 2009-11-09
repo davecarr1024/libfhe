@@ -4,6 +4,7 @@
 #include <typeinfo>
 #include <cassert>
 #include <stdexcept>
+#include <tinyxml.h>
 
 namespace fhe
 {
@@ -118,6 +119,8 @@ namespace fhe
                     m_data = new Data<T>(val);
                 }
             }
+            
+            static Var load( TiXmlHandle h );
     };
     
 }

@@ -59,6 +59,9 @@ int main()
     assert(fileEnt->getVar<int>("i") == 13);
     assert(fileEnt->getVar<float>("f") == 2);
     assert(fileEnt->getVar<std::string>("s") == "hello");
+    VarMap d = fileEnt->getVar<VarMap>("d");
+    assert(d.getVar<int>("i") == 22);
+    assert(d.getVar<std::string>("s") == "dictstring");
     
     assert(fileEnt->hasAspect("Test/TestAspect"));
     
