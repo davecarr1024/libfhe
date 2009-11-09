@@ -8,6 +8,7 @@
 #include <SDL/SDL_image.h>
 
 #include <FTGL/FTGLTextureFont.h>
+#include <FTGL/FTGLPixmapFont.h>
 
 #include <stdexcept>
 
@@ -134,7 +135,7 @@ namespace fhe
         {
             if ( m_fonts.find(filename) == m_fonts.end() )
             {
-                FTFont* font = new FTBufferFont(FileSystem::instance().getFile(filename).c_str());
+                FTFont* font = new FTPixmapFont(FileSystem::instance().getFile(filename).c_str());
                 if ( !font )
                 {
                     throw std::runtime_error("unable to load font " + filename);

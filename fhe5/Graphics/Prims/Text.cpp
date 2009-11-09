@@ -1,5 +1,6 @@
 #include "Text.h"
 #include <Graphics/MaterialManager.h>
+#include <fhe/math/Vec2.h>
 
 namespace fhe
 {
@@ -10,18 +11,29 @@ namespace fhe
         FHE_FUNC_IMPL(Text,msg_render2)
         {
             FTFont* font = MaterialManager::instance().loadFont(getEntity()->getVar<std::string>("fontName","test.ttf"));
-            int size = getEntity()->getVar<int>("fontSize",100);
+            int size = getEntity()->getVar<int>("fontSize",12);
             font->FaceSize(size);
-            std::string text = getEntity()->getVar<std::string>("text","").c_str();
-            FTBBox bb = font->BBox(text.c_str());
-            float w = bb.Upper().X(), 
-                h = bb.Upper().Y(), 
-                invSize = 1.0 / float(size);
+                
+            float m[16];
+            glGetFloatv(GL_MODELVIEW_MATRIX,m);
             
+            for ( int i = 0; i < 16; ++i )
+            {
+                printf("%.2f ",m[i]);
+            }
+            printf("\n");
+            
+            Vec2 res = getEntity()->getAncestorVar<Vec2>("res",Vec2(800,600));
+            
+            log("res %f %f translate %f %f",res.x,res.y,m[3],m[7]);
+            
+
             glPushMatrix();
-            glScalef(invSize,-invSize,1);
-            glTranslatef(0,-h,0);
-            font->Render(text.c_str());
+            glLoadIdentity();
+            glRasterPos2f(m[3],res.y-m[7]-size);
+            
+            font->Render(getEntity()->getVar<std::string>("text","").c_str());
+            
             glPopMatrix();
             
             return Var();

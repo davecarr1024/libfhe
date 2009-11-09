@@ -3,7 +3,7 @@
 </aspects>
 
 <vars>
-    <var name="res" type="vec2">200 200</var>
+    <var name="res" type="vec2">500 500</var>
     <var name="clearColor" type="color">0 0 0 1</var>
 </vars>
 
@@ -13,8 +13,8 @@
             <aspect name="Graphics/Prims/Rect"/>
         </aspects>
         <vars>
-            <var name="pos" type="vec2">0 0</var>
-            <var name="scale" type="vec2">1 0.5</var>
+            <var name="pos" type="vec2">0.2 0.2</var>
+            <var name="scale" type="vec2">0.5 0.5</var>
             <var name="material" type="dict">
                 <var name="color" type="color">1 0 0 1</var>
                 <var name="texture" type="string">test.jpg</var>
