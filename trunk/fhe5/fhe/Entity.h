@@ -68,6 +68,19 @@ namespace fhe
             void publish( const std::string& name, const Var& arg = Var() );
             
             EntityPtr loadChild( const std::string& filename );
+            
+            template <class T>
+            T getAncestorVar( const std::string& name, const T& def )
+            {
+                for ( EntityPtr ent = getParent(); ent; ent = ent->getParent() )
+                {
+                    if ( ent->hasVar<T>(name) )
+                    {
+                        return ent->getVar<T>(name);
+                    }
+                }
+                return def;
+            }
     };
     
 }
