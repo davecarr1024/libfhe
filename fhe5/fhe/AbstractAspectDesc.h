@@ -8,10 +8,6 @@
 
 namespace fhe
 {
-    
-    template <class T>
-    class AspectDesc;
-    
     class AbstractAspectDesc
     {
         public:
@@ -23,16 +19,12 @@ namespace fhe
             
             virtual void init( Aspect* aspect )=0;
             
+            virtual void addFunc( AbstractFuncDesc* func )=0;
+            
             template <class T>
             bool is()
             {
                 return typeid(T) == getType();
-            }
-            
-            template <class T>
-            AspectDesc<T>* cast()
-            {
-                return is<T>() ? static_cast<AspectDesc<T>*>(this) : 0;
             }
     };
     

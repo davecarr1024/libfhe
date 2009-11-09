@@ -7,6 +7,8 @@ env['SHOBJSUFFIX'] = '.oss'
 
 env.Append(CPPFLAGS = "-g")
 
+env.ParseConfig("pkg-config --cflags --libs ftgl")
+
 env.Append(CPPPATH = env.Split('''
     #
     ext/tinyxml

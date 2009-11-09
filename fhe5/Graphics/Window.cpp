@@ -1,5 +1,6 @@
 #include "Window.h"
 #include <fhe/math/Color.h>
+#include <fhe/math/Vec2.h>
 
 namespace fhe
 {
@@ -23,10 +24,9 @@ namespace fhe
                 flags |= SDL_FULLSCREEN;
             }
             
-            int screenw = getEntity()->getVar<int>("screenw",800),
-                screenh = getEntity()->getVar<int>("screenh",600);
+            Vec2 res = getEntity()->getVar<Vec2>("res",Vec2(800,600));
             
-            m_screen = SDL_SetVideoMode(screenw,screenh,32,flags);
+            m_screen = SDL_SetVideoMode(res.x,res.y,32,flags);
                 
             if ( !m_screen )
             {
@@ -38,27 +38,24 @@ namespace fhe
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
             glLineWidth(getEntity()->getVar<int>("lineWidth",1));
-            Color clearColor = getEntity()->getVar<Color>("clearColor",Color());
+            Color clearColor = getEntity()->getVar<Color>("clearColor",Color(1,1,1,1));
             glClearColor(clearColor.r,clearColor.g,clearColor.b,clearColor.a);
-            
-            glClearColor(1,1,1,1);
             
             return Var();
         }
         
         void Window::set2dProjection()
         {
-            int screenw = getEntity()->getVar<int>("screenw",800),
-                screenh = getEntity()->getVar<int>("screenh",600);
+            Vec2 res = getEntity()->getVar<Vec2>("res",Vec2(800,600));
                 
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
-            gluOrtho2D(0,screenw,0,screenh);
+            gluOrtho2D(0,res.x,0,res.y);
             
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
-            glTranslatef(0,screenh,0);
-            glScalef(screenw,-screenh,1);
+            glTranslatef(0,res.y,0);
+            glScalef(res.x,-res.y,1);
             
             glColor4f(1,1,1,1);
             glBindTexture(GL_TEXTURE_2D,0);
@@ -69,12 +66,11 @@ namespace fhe
         
         void Window::set3dProjection()
         {
-            int screenw = getEntity()->getVar<int>("screenw",800),
-                screenh = getEntity()->getVar<int>("screenh",600);
+            Vec2 res = getEntity()->getVar<Vec2>("res",Vec2(800,600));
                 
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
-            gluPerspective(45,float(screenw)/float(screenh),1,1000);
+            gluPerspective(45,float(res.x)/float(res.y),1,1000);
             
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
