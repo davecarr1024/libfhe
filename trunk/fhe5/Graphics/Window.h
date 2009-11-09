@@ -16,6 +16,9 @@ namespace fhe
             private:
                 SDL_Surface* m_screen;
                 
+                void set2dProjection();
+                void set3dProjection();
+                
             public:
                 FHE_FUNC_DECL(Window,on_attach);
                 FHE_FUNC_DECL(Window,msg_update);

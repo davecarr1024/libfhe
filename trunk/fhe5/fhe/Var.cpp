@@ -1,5 +1,12 @@
 #include "Var.h"
 #include "VarMap.h"
+
+#include "math/Vec2.h"
+#include "math/Vec3.h"
+#include "math/Rot.h"
+#include "math/Quat.h"
+#include "math/Color.h"
+
 #include <sstream>
 
 namespace fhe
@@ -72,6 +79,36 @@ namespace fhe
         else if ( type == "string" )
         {
             return Var::build<std::string>(value);
+        }
+        else if ( type == "vec2" )
+        {
+            float x, y;
+            ins >> x >> y;
+            return Var::build<Vec2>(Vec2(x,y));
+        }
+        else if ( type == "vec3" )
+        {
+            float x, y, z;
+            ins >> x >> y >> z;
+            return Var::build<Vec3>(Vec3(x,y,z));
+        }
+        else if ( type == "rot" )
+        {
+            float a;
+            ins >> a;
+            return Var::build<Rot>(Rot(Math::radians(a)));
+        }
+        else if ( type == "quat" )
+        {
+            float x, y, z, a;
+            ins >> x >> y >> z >> a;
+            return Var::build<Quat>(Quat(Vec3(x,y,z),Math::radians(a)));
+        }
+        else if ( type == "color" )
+        {
+            float r, g, b, a = 1;
+            ins >> r >> g >> b >> a;
+            return Var::build<Color>(Color(r,g,b,a));
         }
         else if ( type == "dict" )
         {

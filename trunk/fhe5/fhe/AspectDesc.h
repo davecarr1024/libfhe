@@ -62,6 +62,11 @@ namespace fhe
             
             void init( Aspect* aspect )
             {
+                if ( m_parent )
+                {
+                    m_parent->init(aspect);
+                }
+                
                 T* t = dynamic_cast<T*>(aspect);
                 assert(t);
                 for ( std::map<std::string,AbstractFuncDesc*>::iterator i = m_funcs.begin(); i != m_funcs.end(); ++i )
@@ -69,10 +74,6 @@ namespace fhe
                     t->addFunc(i->second->cast<T>()->instantiate(t));
                 }
                 
-                if ( m_parent )
-                {
-                    m_parent->init(aspect);
-                }
             }
             
             void setParent( AbstractAspectDesc* parent )

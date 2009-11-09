@@ -5,6 +5,7 @@ class TestAspect : public Aspect
 {
     public:
         FHE_FUNC_DECL(TestAspect,testFunc);
+        FHE_FUNC_DECL(TestAspect,inheritTest);
 };
 
 FHE_ASPECT(TestAspect,Aspect);
@@ -14,10 +15,18 @@ FHE_FUNC_IMPL(TestAspect,testFunc)
     return Var::build<int>(arg.get<int>()*2);
 }
 
+FHE_FUNC_IMPL(TestAspect,inheritTest)
+{
+    getEntity()->setVar<bool>("parent_inheritTest",true);
+    return Var();
+}
+
 class ChildAspect : public TestAspect
 {
     public:
         FHE_FUNC_DECL(ChildAspect,msg_msgTest);
+        
+        FHE_FUNC_DECL(ChildAspect,inheritTest);
 };
 
 FHE_ASPECT(ChildAspect,TestAspect);
@@ -25,6 +34,13 @@ FHE_ASPECT(ChildAspect,TestAspect);
 FHE_FUNC_IMPL(ChildAspect,msg_msgTest)
 {
     getEntity()->setRawVar("msgTest",arg);
+    return Var();
+}
+
+FHE_FUNC_IMPL(ChildAspect,inheritTest)
+{
+    assert(getEntity()->getVar<bool>("parent_inheritTest"));
+    getEntity()->setVar<bool>("child_inheritTest",true);
     return Var();
 }
 
@@ -38,11 +54,18 @@ int main()
     
     assert(root->call("testFunc",Var::build<int>(2)).get<int>() == 4);
     
+    root->call("inheritTest");
+    assert(root->getVar<bool>("parent_inheritTest"));
+    
     EntityPtr child = root->buildChild("child");
     assert(child);
     
     AutoPtr<ChildAspect> childAspect = child->buildAspect("Test/ChildAspect").cast<ChildAspect>();
     assert(childAspect);
+    
+    child->call("inheritTest");
+    assert(child->getVar<bool>("child_inheritTest"));
+    assert(child->getVar<bool>("parent_inheritTest"));
     
     assert(child->hasFunc("testFunc"));
     assert(child->call("testFunc",Var::build<int>(5)).get<int>() == 10);

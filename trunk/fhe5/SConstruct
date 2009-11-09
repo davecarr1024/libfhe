@@ -1,6 +1,5 @@
 import glob
 import os
-import subprocess
 
 env = Environment()
 
@@ -11,10 +10,10 @@ env.Append(CPPFLAGS = "-g")
 env.Append(CPPPATH = env.Split('''
     #
     ext/tinyxml
+    /usr/include/python2.6 
     '''))
     
 '''
-    /usr/include/python2.6 
     /usr/local/include/OGRE
     /usr/local/include/OIS
     /usr/local/include/CEGUI
@@ -27,11 +26,11 @@ env.Append(LIBS = env.Split('''
     SDL_image
     GL
     GLU
+    python2.6
+    boost_python-mt-py26
     '''))
     
 '''
-    python2.6
-    boost_python-mt-py26
     CEGUIBase
     CEGUIOgreRenderer
     OgreMain

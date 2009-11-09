@@ -3,6 +3,7 @@
 
 #include "Var.h"
 
+#include <vector>
 #include <map>
 #include <string>
 
@@ -15,26 +16,26 @@ namespace fhe
             std::map<std::string,Var> m_vars;
             
         public:
-            bool hasVarName( const std::string& name );
+            bool hasVarName( const std::string& name ) const;
             
-            Var getRawVar( const std::string& name );
+            Var getRawVar( const std::string& name ) const;
             
             void setRawVar( const std::string& name, const Var& val );
             
             template <class T>
-            bool hasVar( const std::string& name )
+            bool hasVar( const std::string& name ) const
             {
                 return getRawVar(name).is<T>();
             }
             
             template <class T>
-            T getVar( const std::string& name )
+            T getVar( const std::string& name ) const
             {
                 return getRawVar(name).get<T>();
             }
             
             template <class T>
-            T getVar( const std::string& name, const T& def )
+            T getVar( const std::string& name, const T& def ) const
             {
                 return getRawVar(name).get<T>(def);
             }
@@ -51,6 +52,8 @@ namespace fhe
                 setVar<T>(name,getVar<T>(name,def));
                 return getVar<T>(name);
             }
+            
+            std::vector<std::string> getVarNames() const;
     };
     
 }
