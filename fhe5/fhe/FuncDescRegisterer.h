@@ -19,7 +19,7 @@ namespace fhe
                 AbstractAspectDesc* abstractAspectDesc = AspectFactory::instance().getDesc(fullClassName);
                 if ( !abstractAspectDesc )
                 {
-                    throw std::runtime_error("can't register func " + funcName + " to unknown class " + className );
+                    throw std::runtime_error("can't register func " + funcName + " to unknown class " + fullClassName );
                 }
                 AspectDesc<T>* aspectDesc = abstractAspectDesc->cast<T>();
                 assert(aspectDesc);
@@ -27,18 +27,12 @@ namespace fhe
             }
     };
     
-    #define FHE_FUNC(className,funcName) \
-        Var funcName( const Var& arg ); \
-        class funcName##_registerer { public: \
-            funcName##_registerer() { \
-                static bool first = true; \
-                if ( first ) { \
-                    first = false; \
-                    FuncDescRegisterer<className>(#className,#funcName,&className::funcName,__FILE__); \
-                } \
-            } \
-        }; \
-        funcName##_registerer m_funcName##_registerer_inst;
+    #define FHE_FUNC_DECL(className,funcName) \
+        Var funcName( const Var& arg );
+        
+    #define FHE_FUNC_IMPL(className,funcName) \
+        FuncDescRegisterer<className> g_##className##_##funcName##_registerer(#className,#funcName,&className::funcName,__FILE__); \
+        Var className::funcName( const Var& arg )
 }
 
 #endif

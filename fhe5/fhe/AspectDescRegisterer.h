@@ -23,7 +23,7 @@ namespace fhe
     };
     
     #define FHE_ASPECT(className,parentName) \
-        AspectDescRegisterer<className,parentName> className##_registerer(#className,__FILE__);
+        AspectDescRegisterer<className,parentName> g_##className##_registerer(#className,__FILE__);
     
 }
 
