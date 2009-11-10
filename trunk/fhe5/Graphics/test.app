@@ -62,6 +62,19 @@
                 </vars>
             </child>
             
+            <child name="testTextBox">
+                <aspects>
+                    <aspect name="Graphics/Gui/TextBox"/>
+                </aspects>
+                <vars>
+                    <var name="pos" type="vec2">0.1 0.75</var>
+                    <var name="scale" type="vec2">0.4 0.2</var>
+                    <var name="material" type="dict">
+                        <var name="texture" type="string"/>
+                    </var>
+                </vars>
+            </child>
+            
         </children>
     </child>
 </children>

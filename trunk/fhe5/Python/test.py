@@ -36,3 +36,14 @@ assert self.l[2] == "what"
 self.d = dict(a = 2)
 assert self.d["a"] == 2
 
+self.v2 = Vec2(4,5)
+assert self.v2 == Vec2(4,5)
+
+self.r = Rot(5)
+assert self.r == Rot(5)
+
+self.v3 = Vec3(5,6,7)
+assert self.v3 == Vec3(5,6,7)
+
+self.q = Quat(Vec3(0,1,0),1)
+assert self.q == Quat(Vec3(0,1,0),1)
