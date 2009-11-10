@@ -14,23 +14,9 @@ namespace fhe
     class AbstractFunc
     {
         public:
-            virtual const std::type_info& getType()=0;
-            
             virtual std::string getName()=0;
             
             virtual Var call( const Var& arg )=0;
-            
-            template <class T>
-            bool is()
-            {
-                return typeid(T) == getType();
-            }
-            
-            template <class T>
-            Func<T>* cast()
-            {
-                return is<T>() ? static_cast<Func<T>*>(this) : 0;
-            }
     };
     
     template <class T>

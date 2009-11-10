@@ -73,22 +73,23 @@ void mathTest()
     assert((v * s).equals(Vec2(10,40)));
     
     Mat3 mt = Mat3::translation(t);
-    assert((v + t).equals(mt * v));
-    
     Mat3 mr = Mat3::rotation(r);
-    assert((r * v).equals(mr * v));
-    
     Mat3 ms = Mat3::scale(s);
+
+    assert((v + t).equals(mt * v));
+    assert((r * v).equals(mr * v));
     assert((v * s).equals(ms * v));
     
     Vec2 direct = s * ( r * ( t + v ) );
     Vec2 simple = ms * ( mr * ( mt * v ) );
-    assert(direct.equals(simple));
-    
     Vec2 complex = ( ms * mr * mt ) * v;
-    assert(direct.equals(complex));
+
+    assert(direct.equals(simple));
+    assert(simple.equals(complex));
     
-    Mat3 mti = mt.inverse(), mri = mr.inverse(), msi = ms.inverse();
+    Mat3 mti = mt.inverse();
+    Mat3 mri = mr.inverse();
+    Mat3 msi = ms.inverse();
     
     assert((v - t).equals(mti * v));
     assert((-r * v).equals(mri * v));
@@ -96,10 +97,10 @@ void mathTest()
     
     Vec2 idirect = ( -r * ( v - t ) ) / s;
     Vec2 isimple = msi * ( mri * ( mti * v ) );
-    assert(idirect.equals(isimple));
-    
     Vec2 icomplex = (msi * mri * mti ) * v;
-    assert(idirect.equals(icomplex));
+
+    assert(idirect.equals(isimple));
+    assert(isimple.equals(icomplex));
 }    
 
 int main()
