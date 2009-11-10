@@ -28,6 +28,8 @@ namespace fhe
             
             Vec2 operator+(const Vec2& v) const;
             Vec2 operator-(const Vec2& v) const;
+            Vec2 operator*(const Vec2& v) const;
+            Vec2 operator/(const Vec2& v) const;
             Vec2 operator*(float f) const;
             Vec2 operator/(float f) const;
             

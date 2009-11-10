@@ -54,6 +54,12 @@ namespace fhe
             }
             
             std::vector<std::string> getVarNames() const;
+            
+            virtual Var onGetVar( const std::string& name ) const;
+            
+            virtual void onSetVar( const std::string& name, const Var& val );
+            
+            virtual bool onHasVar( const std::string& name ) const;
     };
     
 }

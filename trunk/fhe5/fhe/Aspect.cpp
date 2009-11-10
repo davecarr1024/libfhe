@@ -49,7 +49,7 @@ namespace fhe
         return --m_refCount;
     }
     
-    bool Aspect::hasFunc( const std::string& name )
+    bool Aspect::hasFunc( const std::string& name ) const
     {
         return m_funcs.find(name) != m_funcs.end();
     }

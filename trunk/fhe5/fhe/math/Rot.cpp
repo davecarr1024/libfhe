@@ -34,6 +34,11 @@ namespace fhe
         return *this;
     }
     
+    Rot Rot::operator-() const
+    {
+        return Rot(-angle);
+    }
+    
     Rot Rot::operator+(const Rot& r) const
     {
         return Rot(angle + r.angle);//.norm();
@@ -106,4 +111,5 @@ namespace fhe
     {
         return angle;
     }
+    
 }

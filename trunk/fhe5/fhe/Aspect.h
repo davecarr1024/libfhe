@@ -43,7 +43,7 @@ namespace fhe
             void incRef();
             bool decRef();
             
-            bool hasFunc( const std::string& name );
+            bool hasFunc( const std::string& name ) const;
             
             AbstractFunc* getFunc( const std::string& name );
             

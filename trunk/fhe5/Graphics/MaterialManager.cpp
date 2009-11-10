@@ -7,7 +7,6 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 
-#include <FTGL/FTGLTextureFont.h>
 #include <FTGL/FTGLPixmapFont.h>
 
 #include <stdexcept>
@@ -81,7 +80,14 @@ namespace fhe
         
         void MaterialManager::bindTexture( const std::string& filename )
         {
-            bindTexture(loadTexture(filename));
+            if ( filename.empty() )
+            {
+                unbindTexture();
+            }
+            else
+            {
+                bindTexture(loadTexture(filename));
+            }
         }
         
         void MaterialManager::unbindTexture()

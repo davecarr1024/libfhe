@@ -3,10 +3,11 @@
 #include "Vec3.h"
 #include "Rot.h"
 #include <cassert>
+#include <sstream>
 
 namespace fhe
 {
-    const Mat3 Mat3::ZERO;
+    const Mat3 Mat3::ZERO(0,0,0,0,0,0,0,0,0);
     const Mat3 Mat3::IDENTITY(1,0,0,0,1,0,0,0,1);
     
     Mat3::Mat3()
@@ -69,7 +70,7 @@ namespace fhe
     
     Mat3 Mat3::operator*(const Mat3& m) const
     {
-        Mat3 result;
+        Mat3 result = Mat3::ZERO;
         int i, j, k;
         for (i = 0; i < 3; ++i)
             for (j = 0; j < 3; ++j)
@@ -114,8 +115,8 @@ namespace fhe
     
     Mat3 Mat3::rotation(const Rot& r)
     {
-        float sa = Math::sin(r.angle);
-        float ca = Math::cos(r.angle);
+        float sa = Math::sin(-r.angle);
+        float ca = Math::cos(-r.angle);
         return Mat3(ca,sa,0,
                     -sa,ca,0,
                     0,0,1);
@@ -157,5 +158,21 @@ namespace fhe
             if (!Math::equal(f[0],m.f[0],eps))
                 equal = false;
         return equal;
+    }
+    
+    std::string Mat3::toString()
+    {
+        std::ostringstream outs;
+        outs << "Mat3(";
+        for ( int i = 0; i < 9; ++i )
+        {
+            outs << f[i];
+            if ( i < 8 )
+            {
+                outs << ", ";
+            }
+        }
+        outs << ")";
+        return outs.str();
     }
 }

@@ -13,14 +13,15 @@
             <aspect name="Graphics/Prims/Rect"/>
         </aspects>
         <vars>
-            <var name="pos" type="vec2">0.2 0.2</var>
+            <var name="pos" type="vec2">0.1 0.1</var>
             <var name="scale" type="vec2">0.5 0.5</var>
             <var name="material" type="dict">
                 <var name="color" type="color">1 0 0 1</var>
                 <var name="texture" type="string">test.jpg</var>
             </var>
         </vars>
-        <children>
+        <!--children>
+        
             <child name="box">
                 <aspects>
                     <aspect name="Graphics/Prims/Rect"/>
@@ -30,9 +31,11 @@
                     <var name="filled" type="bool">0</var>
                     <var name="material" type="dict">
                         <var name="color" type="color">1 1 1 1</var>
+                        <var name="texture" type="string"/>
                     </var>
                 </vars>
                 <children>
+                
                     <child name="text">
                         <aspects>
                             <aspect name="Graphics/Prims/Text"/>
@@ -44,8 +47,21 @@
                             </var>
                         </vars>
                     </child>
+                    
                 </children>
             </child>
-        </children>
+            
+            <child name="testButton">
+                <aspects>
+                    <aspect name="Graphics/Gui/Button"/>
+                </aspects>
+                <vars>
+                    <var name="pos" type="vec2">0.1 0.5</var>
+                    <var name="scale" type="vec2">0.4 0.2</var>
+                    <var name="text" type="string">button!</var>
+                </vars>
+            </child>
+            
+        </children-->
     </child>
 </children>
