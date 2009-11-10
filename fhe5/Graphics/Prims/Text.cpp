@@ -11,30 +11,15 @@ namespace fhe
         FHE_FUNC_IMPL(Text,msg_render2)
         {
             FTFont* font = MaterialManager::instance().loadFont(getEntity()->getVar<std::string>("fontName","test.ttf"));
-            int size = getEntity()->getVar<int>("fontSize",12);
+            int size = getEntity()->getVar<int>("fontSize",14);
             font->FaceSize(size);
-                
-            float m[16];
+            
+            GLfloat m[16];
             glGetFloatv(GL_MODELVIEW_MATRIX,m);
-            
-            for ( int i = 0; i < 16; ++i )
-            {
-                printf("%.2f ",m[i]);
-            }
-            printf("\n");
-            
-            Vec2 res = getEntity()->getAncestorVar<Vec2>("res",Vec2(800,600));
-            
-            log("res %f %f translate %f %f",res.x,res.y,m[3],m[7]);
-            
-
-            glPushMatrix();
-            glLoadIdentity();
-            glRasterPos2f(m[3],res.y-m[7]-size);
+                
+            glRasterPos2f(0,-float(size)/m[5]);
             
             font->Render(getEntity()->getVar<std::string>("text","").c_str());
-            
-            glPopMatrix();
             
             return Var();
         }
