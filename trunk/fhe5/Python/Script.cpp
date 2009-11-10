@@ -18,8 +18,7 @@ namespace fhe
         FHE_FUNC_IMPL(Script,runScript)
         {
             boost::python::dict ns = PyEnv::instance().defaultNamespace();
-            boost::python::object self = boost::python::object(PyEntity(getEntity().get()));
-            ns["self"] = self;
+            ns["self"] = PyEntity(getEntity().get());
             PyEnv::instance().runFile(arg.get<std::string>(),ns);
             
             boost::python::object items = ns.attr("items")();
@@ -29,7 +28,7 @@ namespace fhe
                     type = PyEnv::instance().getType(items[i][1]);
                 if ( type == "function" )
                 {
-                    addFunc(new PyFunc(name,self,items[i][1]));
+                    addFunc(new PyFunc(name,items[i][1]));
                 }
             }
             

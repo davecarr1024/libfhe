@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
 
-def foo(self,arg):
+def foo(arg):
     return "bar"
