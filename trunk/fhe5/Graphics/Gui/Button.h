@@ -10,8 +10,12 @@ namespace fhe
         
         class Button : public SceneNode2
         {
+            private:
+                EntityPtr m_bg;
+                
             public:
                 FHE_FUNC_DECL(on_attach);
+                FHE_FUNC_DECL(msg_clickUp);
         };
         
     }

@@ -22,22 +22,32 @@ namespace fhe
             VarMap fill = getEntity()->getVar<VarMap>("fill",defFill),
                 stroke = getEntity()->getVar<VarMap>("stroke",defStroke);
             
-            EntityPtr bg = getEntity()->buildChild("bg");
-            bg->setVar<VarMap>("material",fill);
-            bg->buildAspect("Graphics/Prims/Rect");
+            m_bg = getEntity()->buildChild("bg");
+            m_bg->setVar<VarMap>("material",fill);
+            m_bg->buildAspect("Graphics/Prims/Rect");
             
-            EntityPtr border = bg->buildChild("border");
+            EntityPtr border = m_bg->buildChild("border");
             border->setVar<VarMap>("material",stroke);
             border->setVar<bool>("filled",false);
             border->buildAspect("Graphics/Prims/Rect");
             
-            EntityPtr text = bg->buildChild("text");
+            EntityPtr text = m_bg->buildChild("text");
             text->setVar<VarMap>("material",stroke);
             text->setVar<std::string>("text",getEntity()->getVar<std::string>("text",""));
             text->setVar<Vec2>("pos",Vec2(0.5,0.5));
             text->setVar<std::string>("align","center");
             text->buildAspect("Graphics/Prims/Text");
             
+            return Var();
+        }
+        
+        FHE_FUNC_IMPL(Button,msg_clickUp)
+        {
+            if ( m_bg && m_bg->getPath() == arg.get<std::string>("") )
+            {
+                log("clicked");
+                getEntity()->getRoot()->publish("buttonClicked",Var::build<std::string>(getEntity()->getPath()));
+            }
             return Var();
         }
         

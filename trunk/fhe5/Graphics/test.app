@@ -14,13 +14,13 @@
         </aspects>
         <vars>
             <var name="pos" type="vec2">0.1 0.1</var>
-            <var name="scale" type="vec2">0.5 0.5</var>
+            <var name="scale" type="vec2">0.8 0.8</var>
             <var name="material" type="dict">
                 <var name="color" type="color">1 0 0 1</var>
                 <var name="texture" type="string">test.jpg</var>
             </var>
         </vars>
-        <!--children>
+        <children>
         
             <child name="box">
                 <aspects>
@@ -62,6 +62,6 @@
                 </vars>
             </child>
             
-        </children-->
+        </children>
     </child>
 </children>
