@@ -1,7 +1,6 @@
 #include "Script.h"
 #include "PyEnv.h"
 #include "PyEntity.h"
-#include "PyFunc.h"
 
 namespace fhe
 {
@@ -18,20 +17,8 @@ namespace fhe
         FHE_FUNC_IMPL(Script,runScript)
         {
             boost::python::dict ns = PyEnv::instance().defaultNamespace();
-            ns["self"] = PyEntity(getEntity().get());
+            ns["self"] = PyEntity(this,getEntity().get());
             PyEnv::instance().runFile(arg.get<std::string>(),ns);
-            
-            boost::python::object items = ns.attr("items")();
-            for ( int i = 0; i < boost::python::len(items); ++i )
-            {
-                std::string name = boost::python::extract<std::string>(items[i][0]),
-                    type = PyEnv::instance().getType(items[i][1]);
-                if ( type == "function" )
-                {
-                    addFunc(new PyFunc(name,items[i][1]));
-                }
-            }
-            
             return Var();
         }
         

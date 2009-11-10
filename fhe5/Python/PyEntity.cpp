@@ -1,14 +1,17 @@
 #include "PyEntity.h"
 #include "PyEnv.h"
+#include "PyFunc.h"
 
 namespace fhe
 {
     namespace Python
     {
         
-        PyEntity::PyEntity( Entity* entity ) :
-            m_entity( entity )
+        PyEntity::PyEntity( Script* script, Entity* entity ) :
+            m_script(script),
+            m_entity(entity)
         {
+            assert(m_script);
             assert(m_entity);
         }
         
@@ -20,6 +23,12 @@ namespace fhe
         std::string PyEntity::getPath()
         {
             return m_entity->getPath();
+        }
+        
+        void PyEntity::func( boost::python::object func )
+        {
+            std::string name = boost::python::extract<std::string>(func.attr("__name__"));
+            m_script->addFunc( new PyFunc(name,func) );
         }
         
         void PyEntity::defineClass()
@@ -34,6 +43,7 @@ namespace fhe
                 .add_property("path",&PyEntity::getPath)
                 .def("hasFunc",&PyEntity::hasFunc)
                 .def("hasVar",&PyEntity::hasVar)
+                .def("func",&PyEntity::func)
                 .def("__getattr__",&PyEntity::getAttr)
                 .def("__setattr__",&PyEntity::setAttr)
             ;

@@ -3,6 +3,7 @@
 
 #include <boost/python.hpp>
 #include <fhe/Entity.h>
+#include "Script.h"
 
 namespace fhe
 {
@@ -12,6 +13,7 @@ namespace fhe
         class PyEntity
         {
             private:
+                Script* m_script;
                 Entity* m_entity;
                 
                 class PyCall
@@ -28,13 +30,15 @@ namespace fhe
                 };
                 
             public:
-                PyEntity( Entity* entity );
+                PyEntity( Script* script, Entity* entity );
                 
                 std::string getName();
                 std::string getPath();
                 
                 bool hasFunc( const std::string& name );
                 bool hasVar( const std::string& name );
+                
+                void func( boost::python::object func );
                 
                 boost::python::object getAttr( const std::string& name );
                 void setAttr( const std::string& name, boost::python::object obj );
