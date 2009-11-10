@@ -49,13 +49,7 @@ namespace fhe
                  ms = Mat3::scale(s),
                  mr = Mat3::rotation(r);
                  
-//             log("t %s %s",t.toString().c_str(),mt.toString().c_str());
-//             log("s %s %s",s.toString().c_str(),ms.toString().c_str());
-//             log("r %s %s",r.toString().c_str(),mr.toString().c_str());
-            
             Mat3 lt = mt * mr * ms;
-            
-//             log("lt %s",lt.toString().c_str());
 
             return Var::build<Mat3>( lt );
         }
@@ -64,14 +58,12 @@ namespace fhe
         {
             Mat3 gt = getEntity()->getVar<Mat3>("localTransform") * 
                 getEntity()->getAncestorVar<Mat3>("globalTransform",Mat3::IDENTITY);
-//             log("gt %s",gt.toString().c_str());
             return Var::build<Mat3>(gt);
         }
         
         FHE_FUNC_IMPL(SceneNode2,get_inverseGlobalTransform)
         {
             Mat3 igt = getEntity()->getVar<Mat3>("globalTransform").inverse();
-//             log("igt %s",igt.toString().c_str());
             return Var::build<Mat3>(igt);
         }
         

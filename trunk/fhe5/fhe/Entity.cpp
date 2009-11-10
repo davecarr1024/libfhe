@@ -180,6 +180,18 @@ namespace fhe
         return false;
     }
     
+    AbstractFunc* Entity::getFunc( const std::string& name ) const
+    {
+        for ( AspectMap::const_iterator i = m_aspects.begin(); i != m_aspects.end(); ++i )
+        {
+            if ( i->second->hasFunc(name) )
+            {
+                return i->second->getFunc(name);
+            }
+        }
+        return 0;
+    }
+    
     Var Entity::call( const std::string& name, const Var& arg )
     {
         for ( AspectMap::iterator i = m_aspects.begin(); i != m_aspects.end(); ++i )
@@ -218,7 +230,7 @@ namespace fhe
         TiXmlDocument doc;
         if ( doc.LoadFile(FileSystem::instance().getFile(filename).c_str()) )
         {
-            EntityPtr child = buildChild(filename.substr(0,filename.find(".")));
+            EntityPtr child = buildChild(filename.substr(0,filename.find(".")).substr(filename.rfind("/")+1));
             child->loadData(&doc);
             return child;
         }
