@@ -74,6 +74,7 @@ namespace fhe
             if ( getEntity()->call("collTest",Var::build<Vec2>(tpos)).get<bool>(false) )
             {
                 getEntity()->getRoot()->publish("clickDown",Var::build<std::string>(getEntity()->getPath()));
+                return Var::build<bool>(true);
             }
             return Var();
         }
@@ -85,6 +86,7 @@ namespace fhe
             if ( getEntity()->call("collTest",Var::build<Vec2>(tpos)).get<bool>(false) )
             {
                 getEntity()->getRoot()->publish("clickUp",Var::build<std::string>(getEntity()->getPath()));
+                return Var::build<bool>(true);
             }
             return Var();
         }

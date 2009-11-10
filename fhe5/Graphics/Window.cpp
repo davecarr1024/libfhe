@@ -99,6 +99,10 @@ namespace fhe
                         {
                             getEntity()->getRoot()->call("shutdown");
                         }
+                        getEntity()->publish("keyDown",Var::build<int>(event.key.keysym.sym));
+                        break;
+                    case SDL_KEYUP:
+                        getEntity()->publish("keyUp",Var::build<int>(event.key.keysym.sym));
                         break;
                     case SDL_MOUSEBUTTONDOWN:
                         mouseButton(event.button.button,event.button.x,event.button.y,"Down");
@@ -133,7 +137,7 @@ namespace fhe
             VarMap args;
             args.setVar<int>("button",button);
             args.setVar<Vec2>("pos",Vec2(x/res.x,y/res.y));
-            getEntity()->getRoot()->publish("mouseButton" + dir,Var::build<VarMap>(args));
+            getEntity()->publish("mouseButton" + dir,Var::build<VarMap>(args));
         }
     }
 }
