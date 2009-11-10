@@ -2,6 +2,7 @@
 #include <fhe/math/Mat3.h>
 #include <fhe/math/Vec2.h>
 #include <fhe/math/Rot.h>
+#include <fhe/VarList.h>
 using namespace fhe;
 
 class TestAspect : public Aspect
@@ -145,6 +146,10 @@ int main()
     VarMap d = fileEnt->getVar<VarMap>("d");
     assert(d.getVar<int>("i") == 22);
     assert(d.getVar<std::string>("s") == "dictstring");
+    VarList l = fileEnt->getVar<VarList>("l");
+    assert(l.length() == 2);
+    assert(l.getVar<int>(0) == 12);
+    assert(l.getVar<std::string>(1) == "hi");
     
     assert(fileEnt->hasAspect("Test/TestAspect"));
     

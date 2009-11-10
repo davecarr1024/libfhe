@@ -7,6 +7,10 @@
         <var name="i" type="int">22</var>
         <var name="s" type="string">dictstring</var>
     </var>
+    <var name="l" type="list">
+        <var type="int">12</var>
+        <var type="string">hi</var>
+    </var>
 </vars>
 
 <aspects>
