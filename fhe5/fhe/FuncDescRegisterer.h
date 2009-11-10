@@ -24,7 +24,7 @@ namespace fhe
             }
     };
     
-    #define FHE_FUNC_DECL(className,funcName) \
+    #define FHE_FUNC_DECL(funcName) \
         Var funcName( const Var& arg );
         
     #define FHE_FUNC_IMPL(className,funcName) \
