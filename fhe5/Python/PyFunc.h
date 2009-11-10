@@ -13,10 +13,10 @@ namespace fhe
             private:
                 std::string m_name;
                 
-                boost::python::object m_self, m_func;
+                boost::python::object m_func;
             
             public:
-                PyFunc( const std::string& name, boost::python::object self, boost::python::object func );
+                PyFunc( const std::string& name, boost::python::object func );
                 
                 std::string getName();
                 
