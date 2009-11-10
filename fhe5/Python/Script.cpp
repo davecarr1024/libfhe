@@ -17,7 +17,7 @@ namespace fhe
         FHE_FUNC_IMPL(Script,runScript)
         {
             boost::python::dict ns = PyEnv::instance().defaultNamespace();
-            ns["self"] = PyEntity(this,getEntity().get());
+            ns["self"] = PyEntity(getEntity().get(),this);
             PyEnv::instance().runFile(arg.get<std::string>(),ns);
             return Var();
         }
