@@ -3,7 +3,7 @@ import os
 
 env = Environment()
 
-env['SHOBJSUFFIX'] = '.oss'
+#env['SHOBJSUFFIX'] = '.oss'
 
 env.Append(CPPFLAGS = "-g")
 
