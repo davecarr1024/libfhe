@@ -11,8 +11,8 @@ namespace fhe
         class SceneNode2 : public Aspect
         {
             public:
-                FHE_FUNC_DECL(SceneNode2,msg_render2);
-                FHE_FUNC_DECL(SceneNode2,unmsg_render2);
+                FHE_FUNC_DECL(msg_render2);
+                FHE_FUNC_DECL(unmsg_render2);
         };
         
     }

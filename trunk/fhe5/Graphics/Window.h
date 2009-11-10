@@ -20,8 +20,8 @@ namespace fhe
                 void set3dProjection();
                 
             public:
-                FHE_FUNC_DECL(Window,on_attach);
-                FHE_FUNC_DECL(Window,msg_update);
+                FHE_FUNC_DECL(on_attach);
+                FHE_FUNC_DECL(msg_update);
         };
         
     }

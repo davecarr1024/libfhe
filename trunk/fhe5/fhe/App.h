@@ -8,9 +8,9 @@ namespace fhe
     class App : public Aspect
     {
         public:
-            FHE_FUNC_DECL(App,run);
-            FHE_FUNC_DECL(App,shutdown);
-            FHE_FUNC_DECL(App,get_time);
+            FHE_FUNC_DECL(run);
+            FHE_FUNC_DECL(shutdown);
+            FHE_FUNC_DECL(get_time);
     };
 }
 

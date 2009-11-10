@@ -4,8 +4,8 @@ using namespace fhe;
 class TestAspect : public Aspect
 {
     public:
-        FHE_FUNC_DECL(TestAspect,testFunc);
-        FHE_FUNC_DECL(TestAspect,inheritTest);
+        FHE_FUNC_DECL(testFunc);
+        FHE_FUNC_DECL(inheritTest);
 };
 
 FHE_ASPECT(TestAspect,Aspect);
@@ -24,9 +24,8 @@ FHE_FUNC_IMPL(TestAspect,inheritTest)
 class ChildAspect : public TestAspect
 {
     public:
-        FHE_FUNC_DECL(ChildAspect,msg_msgTest);
-        
-        FHE_FUNC_DECL(ChildAspect,inheritTest);
+        FHE_FUNC_DECL(msg_msgTest);
+        FHE_FUNC_DECL(inheritTest);
 };
 
 FHE_ASPECT(ChildAspect,TestAspect);
