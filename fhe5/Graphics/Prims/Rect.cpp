@@ -1,5 +1,6 @@
 #include "Rect.h"
 #include <SDL/SDL_opengl.h>
+#include <fhe/math/Vec2.h>
 
 namespace fhe
 {
@@ -30,5 +31,12 @@ namespace fhe
             
             return Var();
         }
+        
+        FHE_FUNC_IMPL(Rect,collTest)
+        {
+            Vec2 v = arg.get<Vec2>();
+            return Var::build<bool>(v.x > 0 && v.x < 1 && v.y > 0 && v.y < 1);
+        }
+        
     }
 }

@@ -103,6 +103,9 @@ namespace fhe
                     case SDL_MOUSEBUTTONDOWN:
                         mouseButton(event.button.button,event.button.x,event.button.y,"Down");
                         break;
+                    case SDL_MOUSEBUTTONUP:
+                        mouseButton(event.button.button,event.button.x,event.button.y,"Up");
+                        break;
                 }
             }
                 
