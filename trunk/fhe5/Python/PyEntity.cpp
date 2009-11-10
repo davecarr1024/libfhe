@@ -7,11 +7,10 @@ namespace fhe
     namespace Python
     {
         
-        PyEntity::PyEntity( Script* script, Entity* entity ) :
+        PyEntity::PyEntity( Entity* entity, Script* script ) :
             m_script(script),
             m_entity(entity)
         {
-            assert(m_script);
             assert(m_entity);
         }
         
@@ -28,6 +27,10 @@ namespace fhe
         void PyEntity::func( boost::python::object func )
         {
             std::string name = boost::python::extract<std::string>(func.attr("__name__"));
+            if ( !m_script )
+            {
+                throw std::runtime_error("can only add funcs to calling entity");
+            }
             m_script->addFunc( new PyFunc(name,func) );
         }
         
@@ -44,9 +47,60 @@ namespace fhe
                 .def("hasFunc",&PyEntity::hasFunc)
                 .def("hasVar",&PyEntity::hasVar)
                 .def("func",&PyEntity::func)
+                .def("hasAspect",&PyEntity::hasAspect)
+                .def("addAspect",&PyEntity::addAspect)
+                .def("removeAspect",&PyEntity::removeAspect)
+                .def("getRoot",&PyEntity::getRoot)
+                .def("getParent",&PyEntity::getParent)
+                .def("hasChild",&PyEntity::hasChild)
+                .def("getChild",&PyEntity::getChild)
+                .def("buildChild",&PyEntity::buildChild)
+                .def("loadChild",&PyEntity::loadChild)
+                .def("removeChild",&PyEntity::removeChild)
+                .def("publish",&PyEntity::publish)
                 .def("__getattr__",&PyEntity::getAttr)
                 .def("__setattr__",&PyEntity::setAttr)
             ;
+        }
+        
+        bool PyEntity::hasAspect( const std::string& name )
+        {
+            return m_entity->hasAspect(name);
+        }
+        
+        void PyEntity::addAspect( const std::string& name )
+        {
+            m_entity->buildAspect(name);
+        }
+        
+        PyEntity PyEntity::getRoot()
+        {
+            return PyEntity(m_entity->getRoot().get());
+        }
+        
+        PyEntity PyEntity::getParent()
+        {
+            return PyEntity(m_entity->getParent().get());
+        }
+        
+        bool PyEntity::hasChild( const std::string& name )
+        {
+            return m_entity->hasChild(name);
+        }
+        
+        PyEntity PyEntity::getChild( const std::string& name )
+        {
+            return PyEntity(m_entity->getChild(name).get());
+        }
+        
+        PyEntity PyEntity::buildChild( const std::string& name )
+        {
+            return PyEntity(m_entity->buildChild(name).get());
+        }
+        
+        PyEntity PyEntity::loadChild( const std::string& filename )
+        {
+            return PyEntity(m_entity->loadChild(filename).get());
         }
         
         bool PyEntity::hasFunc( const std::string& name )
@@ -94,6 +148,21 @@ namespace fhe
         boost::python::object PyEntity::PyCall::callNoArg()
         {
             return call(boost::python::object());
+        }
+        
+        void PyEntity::removeChild( const std::string& name )
+        {
+            m_entity->removeChild(m_entity->getChild(name));
+        }
+        
+        void PyEntity::removeAspect( const std::string& name )
+        {
+            m_entity->removeAspect(m_entity->getAspect(name));
+        }
+        
+        void PyEntity::publish( const std::string& name, boost::python::object obj )
+        {
+            m_entity->publish(name,PyEnv::instance().convertToVar(obj));
         }
     }
 }
