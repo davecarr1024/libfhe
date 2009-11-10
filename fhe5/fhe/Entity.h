@@ -62,10 +62,14 @@ namespace fhe
             AspectPtr getAspect( const std::string& name );
             AspectPtr buildAspect( const std::string& name );
             
-            bool hasFunc( const std::string& name );
+            bool hasFunc( const std::string& name ) const;
             Var call( const std::string& name, const Var& arg = Var() );
             void callAll( const std::string& name, const Var& arg = Var() );
             void publish( const std::string& name, const Var& arg = Var() );
+            
+            Var onGetVar( const std::string& name ) const;
+            void onSetVar( const std::string& name, const Var& val );
+            bool onHasVar( const std::string& name ) const;
             
             EntityPtr loadChild( const std::string& filename );
             

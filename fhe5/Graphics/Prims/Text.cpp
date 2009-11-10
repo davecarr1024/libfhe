@@ -16,10 +16,39 @@ namespace fhe
             
             GLfloat m[16];
             glGetFloatv(GL_MODELVIEW_MATRIX,m);
-                
-            glRasterPos2f(0,-float(size)/m[5]);
             
-            font->Render(getEntity()->getVar<std::string>("text","").c_str());
+            glPushMatrix();
+            
+            glScalef(1.0/m[0],1.0/m[5],1);
+            
+            std::string text = getEntity()->getVar<std::string>("text","");
+            
+            FTBBox bb = font->BBox(text.c_str());
+            float w = bb.Upper().X(), h = bb.Upper().Y();
+            
+            std::string align = getEntity()->getVar<std::string>("align","left");
+            float x, y;
+            if ( align == "left" )
+            {
+                x = 0;
+                y = -h;
+            }
+            else if ( align == "center" )
+            {
+                x = -w/2;
+                y = -h/2;
+            }
+            else 
+            {
+                x = -w;
+                y = -h;
+            }
+                
+            glRasterPos2f(x,y);
+            
+            font->Render(text.c_str());
+            
+            glPopMatrix();
             
             return Var();
         }

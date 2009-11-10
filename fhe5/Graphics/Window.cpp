@@ -100,6 +100,9 @@ namespace fhe
                             getEntity()->getRoot()->call("shutdown");
                         }
                         break;
+                    case SDL_MOUSEBUTTONDOWN:
+                        mouseButton(event.button.button,event.button.x,event.button.y,"Down");
+                        break;
                 }
             }
                 
@@ -119,6 +122,15 @@ namespace fhe
                 SDL_GL_SwapBuffers();
             }
             return Var();
+        }
+        
+        void Window::mouseButton( int button, int x, int y, const std::string& dir )
+        {
+            Vec2 res = getEntity()->getVar<Vec2>("res",Vec2(800,600));
+            VarMap args;
+            args.setVar<int>("button",button);
+            args.setVar<Vec2>("pos",Vec2(x/res.x,y/res.y));
+            getEntity()->getRoot()->publish("mouseButton" + dir,Var::build<VarMap>(args));
         }
     }
 }

@@ -13,6 +13,10 @@ namespace fhe
             public:
                 FHE_FUNC_DECL(msg_render2);
                 FHE_FUNC_DECL(unmsg_render2);
+                FHE_FUNC_DECL(get_localTransform);
+                FHE_FUNC_DECL(get_globalTransform);
+                FHE_FUNC_DECL(get_inverseGlobalTransform);
+                FHE_FUNC_DECL(msg_mouseButtonDown);
         };
         
     }

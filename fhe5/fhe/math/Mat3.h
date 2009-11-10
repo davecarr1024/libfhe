@@ -1,8 +1,9 @@
 #ifndef MAT3_H
 #define MAT3_H
 
-#include <vector>
 #include "fheMath.h"
+#include <vector>
+#include <string>
 
 namespace fhe
 {
@@ -43,6 +44,8 @@ namespace fhe
             Mat3 inverse() const;
             
             bool equals(const Mat3& m, float eps = Math::EPSILON) const;
+            
+            std::string toString();
     
             static Mat3 translation(const Vec2& v);
             static Mat3 scale(const Vec2& v);

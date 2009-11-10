@@ -89,7 +89,7 @@ namespace fhe
                 return m_obj;
             }
             
-            T* operator->()
+            T* operator->() const
             {
                 return m_obj;
             }

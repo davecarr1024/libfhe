@@ -168,9 +168,9 @@ namespace fhe
         return getAspect(name);
     }
     
-    bool Entity::hasFunc( const std::string& name )
+    bool Entity::hasFunc( const std::string& name ) const
     {
-        for ( AspectMap::iterator i = m_aspects.begin(); i != m_aspects.end(); ++i )
+        for ( AspectMap::const_iterator i = m_aspects.begin(); i != m_aspects.end(); ++i )
         {
             if ( i->second->hasFunc(name) )
             {
@@ -283,5 +283,20 @@ namespace fhe
             assert(name);
             buildChild(name)->loadData(e);
         }
+    }
+    
+    Var Entity::onGetVar( const std::string& name ) const
+    {
+        return const_cast<Entity*>(this)->call("get_" + name);
+    }
+    
+    void Entity::onSetVar( const std::string& name, const Var& val )
+    {
+        const_cast<Entity*>(this)->call("set_" + name,val);
+    }
+    
+    bool Entity::onHasVar( const std::string& name ) const
+    {
+        return hasFunc("get_" + name);
     }
 }

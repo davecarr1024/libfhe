@@ -13,7 +13,7 @@ namespace fhe
         public:
             typedef Var (T::*Method)( const Var&);
             
-            FuncDescRegisterer( const std::string& funcName, Method method, const std::string& filename )
+            FuncDescRegisterer( const std::string& funcName, Method method )
             {
                 AbstractAspectDesc* aspectDesc = AspectFactory::instance().getDesc<T>();
                 if ( !aspectDesc )
@@ -28,7 +28,7 @@ namespace fhe
         Var funcName( const Var& arg );
         
     #define FHE_FUNC_IMPL(className,funcName) \
-        FuncDescRegisterer<className> g_##className##_##funcName##_registerer(#funcName,&className::funcName,__FILE__); \
+        FuncDescRegisterer<className> g_##className##_##funcName##_registerer(#funcName,&className::funcName); \
         Var className::funcName( const Var& arg )
 }
 
