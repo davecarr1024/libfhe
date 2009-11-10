@@ -1,5 +1,6 @@
 #include "Var.h"
 #include "VarMap.h"
+#include "VarList.h"
 
 #include "math/Vec2.h"
 #include "math/Vec3.h"
@@ -120,6 +121,15 @@ namespace fhe
                 vm.setRawVar(name,Var::load(i));
             }
             return Var::build<VarMap>(vm);
+        }
+        else if ( type == "list" )
+        {
+            VarList list;
+            for ( TiXmlElement* i = e->FirstChildElement("var"); i; i = i->NextSiblingElement("var") )
+            {
+                list.appendRaw(Var::load(i));
+            }
+            return Var::build<VarList>(list);
         }
         else
         {
