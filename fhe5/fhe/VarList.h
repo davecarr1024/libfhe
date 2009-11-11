@@ -38,6 +38,8 @@ namespace fhe
             }
             
             void remove( int i );
+            
+            bool empty() const;
     };
     
 }

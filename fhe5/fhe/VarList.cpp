@@ -28,4 +28,9 @@ namespace fhe
         m_vars.erase(iter);
     }
     
+    bool VarList::empty() const
+    {
+        return m_vars.empty();
+    }
+    
 }

@@ -13,10 +13,10 @@ namespace fhe
         {
             VarMap defFocusStroke, defUnfocusStroke, defFocusFill, defUnfocusFill;
 
-            defFocusStroke.setVar<Color>("color",Color(1,1,1,1));
-            defUnfocusStroke.setVar<Color>("color",Color(0.5,0.5,0.5,1));
-            defFocusFill.setVar<Color>("color",Color(0.5,0.5,0.5,1));
-            defUnfocusFill.setVar<Color>("color",Color(0.25,0.25,0.25,1));
+            defUnfocusStroke.setVar<Color>("color",Color(1,1,1,1));
+            defFocusStroke.setVar<Color>("color",Color(0.5,0.5,0.5,1));
+            defUnfocusFill.setVar<Color>("color",Color(0.5,0.5,0.5,1));
+            defFocusFill.setVar<Color>("color",Color(0.25,0.25,0.25,1));
 
             getEntity()->defaultVar<VarMap>("focusFill",defFocusFill);
             getEntity()->defaultVar<VarMap>("unfocusFill",defUnfocusFill);

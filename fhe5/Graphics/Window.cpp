@@ -85,6 +85,7 @@ namespace fhe
             float time = arg.get<float>(0);
             static float lastTime = time;
             float dtime = 1.0 / float(getEntity()->getVar<int>("fps",60));
+            Vec2 res = getEntity()->getVar<Vec2>("res",Vec2(800,600));
             
             SDL_Event event;
             while ( SDL_PollEvent(&event) )
@@ -103,6 +104,9 @@ namespace fhe
                         break;
                     case SDL_KEYUP:
                         getEntity()->publish("keyUp",Var::build<int>(event.key.keysym.sym));
+                        break;
+                    case SDL_MOUSEMOTION:
+                        getEntity()->publish("mouseMotion",Var::build<Vec2>(Vec2(event.motion.x/res.x,event.motion.y/res.y)));
                         break;
                     case SDL_MOUSEBUTTONDOWN:
                         mouseButton(event.button.button,event.button.x,event.button.y,"Down");
@@ -136,7 +140,7 @@ namespace fhe
             Vec2 res = getEntity()->getVar<Vec2>("res",Vec2(800,600));
             VarMap args;
             args.setVar<int>("button",button);
-            args.setVar<Vec2>("pos",Vec2(x/res.x,y/res.y));
+            args.setVar<Vec2>("pos",Vec2(float(x)/res.x,float(y)/res.y));
             getEntity()->publish("mouseButton" + dir,Var::build<VarMap>(args));
         }
     }

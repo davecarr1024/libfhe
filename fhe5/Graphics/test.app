@@ -8,47 +8,29 @@
 </vars>
 
 <children>
-    <child name="rect">
+    <child name="testFrame">
         <aspects>
-            <aspect name="Graphics/Prims/Rect"/>
+            <aspect name="Graphics/Gui/Frame"/>
         </aspects>
         <vars>
             <var name="pos" type="vec2">0.1 0.1</var>
             <var name="scale" type="vec2">0.8 0.8</var>
-            <var name="material" type="dict">
-                <var name="color" type="color">1 0 0 1</var>
-                <var name="texture" type="string">test.jpg</var>
-            </var>
+            <var name="title" type="string">test window</var>
         </vars>
         <children>
         
-            <child name="box">
+            <child name="testSpinner">
                 <aspects>
-                    <aspect name="Graphics/Prims/Rect"/>
+                    <aspect name="Graphics/Gui/Spinner"/>
                 </aspects>
                 <vars>
-                    <var name="scale" type="vec2">1 0.1</var>
-                    <var name="filled" type="bool">0</var>
-                    <var name="material" type="dict">
-                        <var name="color" type="color">1 1 1 1</var>
-                        <var name="texture" type="string"/>
+                    <var name="pos" type="vec2">0.1 0.25</var>
+                    <var name="scale" type="vec2">0.4 0.2</var>
+                    <var name="values" type="list">
+                        <var type="string">option1</var>
+                        <var type="string">option2</var>
                     </var>
                 </vars>
-                <children>
-                
-                    <child name="text">
-                        <aspects>
-                            <aspect name="Graphics/Prims/Text"/>
-                        </aspects>
-                        <vars>
-                            <var name="text" type="string">hello</var>
-                            <var name="material" type="dict">
-                                <var name="color" type="color">1 1 1 1</var>
-                            </var>
-                        </vars>
-                    </child>
-                    
-                </children>
             </child>
             
             <child name="testButton">
@@ -69,9 +51,6 @@
                 <vars>
                     <var name="pos" type="vec2">0.1 0.75</var>
                     <var name="scale" type="vec2">0.4 0.2</var>
-                    <var name="material" type="dict">
-                        <var name="texture" type="string"/>
-                    </var>
                 </vars>
             </child>
             
