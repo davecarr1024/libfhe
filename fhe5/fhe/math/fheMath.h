@@ -24,6 +24,7 @@ namespace fhe
             static float fmod( float x, float y );
             static float degrees( float radians );
             static float radians( float degrees );
+            static float clamp( float x, float min, float max );
     };
     
 }

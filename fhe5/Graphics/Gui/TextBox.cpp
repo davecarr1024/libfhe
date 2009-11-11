@@ -35,6 +35,8 @@ namespace fhe
             m_text->setVar<Vec2>("pos",Vec2(0.5,0.5));
             m_text->buildAspect("Graphics/Prims/Text");
             
+            getEntity()->defaultVar<std::string>("text","");
+            
             updateFocus();
                 
             return Var();
@@ -75,22 +77,28 @@ namespace fhe
                 
                 if ( key == 8 )
                 {
-                    std::string text = m_text->getVar<std::string>("text","");
-                    m_text->setVar<std::string>("text",text.substr(0,text.size()-1));
+                    std::string text = getEntity()->getVar<std::string>("text","");
+                    getEntity()->setVar<std::string>("text",text.substr(0,text.size()-1));
                 }
                 else if ( key == 13 )
                 {
                     VarMap args;
                     args.setVar<std::string>("path",getEntity()->getPath());
-                    args.setVar<std::string>("text",m_text->getVar<std::string>("text",""));
+                    args.setVar<std::string>("text",getEntity()->getVar<std::string>("text",""));
                     getEntity()->getRoot()->publish("textBoxAccepted",Var::build<VarMap>(args));
                 }
                 else if ( isprint(key) )
                 {
-                    m_text->setVar<std::string>("text",m_text->getVar<std::string>("text","") + key);
+                    getEntity()->setVar<std::string>("text",getEntity()->getVar<std::string>("text","") + key);
                 }
             }
                 
+            return Var();
+        }
+        
+        FHE_FUNC_IMPL(TextBox,set_text)
+        {
+            m_text->setVar<std::string>("text",getEntity()->getVar<std::string>("prompt","") + " " + arg.get<std::string>());
             return Var();
         }
         

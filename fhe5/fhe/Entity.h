@@ -55,6 +55,7 @@ namespace fhe
             bool hasChild( const std::string& name );
             EntityPtr getChild( const std::string& name );
             EntityPtr buildChild( const std::string& name );
+            std::vector<std::string> getChildNames();
             
             void addAspect( AspectPtr aspect );
             void removeAspect( AspectPtr aspect );
