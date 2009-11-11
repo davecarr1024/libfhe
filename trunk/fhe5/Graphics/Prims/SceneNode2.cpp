@@ -56,8 +56,8 @@ namespace fhe
         
         FHE_FUNC_IMPL(SceneNode2,get_globalTransform)
         {
-            Mat3 gt = getEntity()->getVar<Mat3>("localTransform") * 
-                getEntity()->getAncestorVar<Mat3>("globalTransform",Mat3::IDENTITY);
+            Mat3 gt = getEntity()->getAncestorVar<Mat3>("globalTransform",Mat3::IDENTITY) *
+                getEntity()->getVar<Mat3>("localTransform");
             return Var::build<Mat3>(gt);
         }
         
@@ -67,11 +67,25 @@ namespace fhe
             return Var::build<Mat3>(igt);
         }
         
+        FHE_FUNC_IMPL(SceneNode2,collides)
+        {
+            Vec2 pos = getEntity()->call("globalToLocal",arg).get<Vec2>();
+            return Var::build<bool>(getEntity()->call("collTest",Var::build<Vec2>(pos)).get<bool>(false));
+        }
+        
+        FHE_FUNC_IMPL(SceneNode2,globalToLocal)
+        {
+            return Var::build<Vec2>(getEntity()->getVar<Mat3>("inverseGlobalTransform") * arg.get<Vec2>(Vec2()));
+        }
+        
+        FHE_FUNC_IMPL(SceneNode2,localToGlobal)
+        {
+            return Var::build<Vec2>(getEntity()->getVar<Mat3>("globalTransform") * arg.get<Vec2>(Vec2()));
+        }
+        
         FHE_FUNC_IMPL(SceneNode2,msg_mouseButtonDown)
         {
-            Mat3 igt = getEntity()->getVar<Mat3>("inverseGlobalTransform");
-            Vec2 pos = arg.get<VarMap>().getVar<Vec2>("pos"), tpos = igt * pos;
-            if ( getEntity()->call("collTest",Var::build<Vec2>(tpos)).get<bool>(false) )
+            if ( getEntity()->call("collides",arg.get<VarMap>().getRawVar("pos")).get<bool>(false) )
             {
                 getEntity()->getRoot()->publish("clickDown",Var::build<std::string>(getEntity()->getPath()));
                 return Var::build<bool>(true);
@@ -83,7 +97,7 @@ namespace fhe
         {
             Mat3 igt = getEntity()->getVar<Mat3>("inverseGlobalTransform");
             Vec2 pos = arg.get<VarMap>().getVar<Vec2>("pos"), tpos = igt * pos;
-            if ( getEntity()->call("collTest",Var::build<Vec2>(tpos)).get<bool>(false) )
+            if ( getEntity()->call("collides",arg.get<VarMap>().getRawVar("pos")).get<bool>(false) )
             {
                 getEntity()->getRoot()->publish("clickUp",Var::build<std::string>(getEntity()->getPath()));
                 return Var::build<bool>(true);

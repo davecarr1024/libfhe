@@ -18,6 +18,9 @@ namespace fhe
                 FHE_FUNC_DECL(get_inverseGlobalTransform);
                 FHE_FUNC_DECL(msg_mouseButtonDown);
                 FHE_FUNC_DECL(msg_mouseButtonUp);
+                FHE_FUNC_DECL(collides);
+                FHE_FUNC_DECL(globalToLocal);
+                FHE_FUNC_DECL(localToGlobal);
         };
         
     }
