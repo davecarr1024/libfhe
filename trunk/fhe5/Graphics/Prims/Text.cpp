@@ -31,16 +31,27 @@ namespace fhe
             if ( align == "left" )
             {
                 x = 0;
-                y = -h;
             }
             else if ( align == "center" )
             {
                 x = -w/2;
-                y = -h/2;
             }
             else 
             {
                 x = -w;
+            }
+            
+            std::string valign = getEntity()->getVar<std::string>("valign","center");
+            if ( valign == "top" )
+            {
+                y = 0;
+            }
+            else if ( valign == "center" )
+            {
+                y = -h/2;
+            }
+            else
+            {
                 y = -h;
             }
                 

@@ -44,11 +44,8 @@ namespace fhe
             bool decRef();
             
             bool hasFunc( const std::string& name ) const;
-            
             AbstractFunc* getFunc( const std::string& name );
-            
             void addFunc( AbstractFunc* func );
-            
             Var call( const std::string& name, const Var& arg = Var() );
             
             void attachToEntity( EntityPtr entity );

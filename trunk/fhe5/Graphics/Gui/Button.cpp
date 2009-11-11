@@ -60,7 +60,6 @@ namespace fhe
             Var pos = arg.get<VarMap>().getRawVar("pos");
             if ( m_bg && m_bg->call("collides",pos).get<bool>() && getEntity()->getVar<bool>("clicking",false) )
             {
-                log("clicked");
                 getEntity()->getRoot()->publish("buttonClicked",Var::build<std::string>(getEntity()->getPath()));
             }
             

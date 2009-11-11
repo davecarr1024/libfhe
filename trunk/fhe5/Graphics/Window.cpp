@@ -84,7 +84,8 @@ namespace fhe
         {
             float time = arg.get<float>(0);
             static float lastTime = time;
-            float dtime = 1.0 / float(getEntity()->getVar<int>("fps",60));
+            int fps = getEntity()->getVar<int>("fps",60);
+            float dtime = fps > 0 ? 1.0 / float(fps) : 0;
             Vec2 res = getEntity()->getVar<Vec2>("res",Vec2(800,600));
             
             SDL_Event event;

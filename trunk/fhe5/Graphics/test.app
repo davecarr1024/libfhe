@@ -15,7 +15,7 @@
         <vars>
             <var name="pos" type="vec2">0.1 0.1</var>
             <var name="scale" type="vec2">0.8 0.8</var>
-            <var name="title" type="string">test window</var>
+            <var name="title" type="string">a window</var>
         </vars>
         <children>
         
@@ -51,6 +51,40 @@
                 <vars>
                     <var name="pos" type="vec2">0.1 0.75</var>
                     <var name="scale" type="vec2">0.4 0.2</var>
+                    <var name="prompt" type="string">enter text: </var>
+                </vars>
+            </child>
+            
+            <child name="testSlider">
+                <aspects>
+                    <aspect name="Graphics/Gui/Slider"/>
+                </aspects>
+                <vars>
+                    <var name="pos" type="vec2">0.55 0.25</var>
+                    <var name="scale" type="vec2">0.4 0.2</var>
+                    <var name="prompt" type="string">val:</var>
+                </vars>
+            </child>
+            
+            <child name="testRadio">
+                <aspects>
+                    <aspect name="Graphics/Gui/Radio"/>
+                </aspects>
+                <vars>
+                    <var name="pos" type="vec2">0.55 0.5</var>
+                    <var name="scale" type="vec2">0.4 0.1</var>
+                    <var name="text" type="string">option1</var>
+                </vars>
+            </child>
+            
+            <child name="testRadio">
+                <aspects>
+                    <aspect name="Graphics/Gui/Radio"/>
+                </aspects>
+                <vars>
+                    <var name="pos" type="vec2">0.55 0.62</var>
+                    <var name="scale" type="vec2">0.4 0.1</var>
+                    <var name="text" type="string">option2</var>
                 </vars>
             </child>
             

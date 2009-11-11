@@ -19,6 +19,7 @@ namespace fhe
                 FHE_FUNC_DECL(on_attach);
                 FHE_FUNC_DECL(msg_mouseButtonDown);
                 FHE_FUNC_DECL(msg_keyDown);
+                FHE_FUNC_DECL(set_text);
         };
         
     }

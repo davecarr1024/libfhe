@@ -311,4 +311,14 @@ namespace fhe
     {
         return hasFunc("get_" + name);
     }
+    
+    std::vector<std::string> Entity::getChildNames()
+    {
+        std::vector<std::string> names;
+        for ( EntityMap::iterator i = m_children.begin(); i != m_children.end(); ++i )
+        {
+            names.push_back(i->first);
+        }
+        return names;
+    }
 }
