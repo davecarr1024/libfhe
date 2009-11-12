@@ -1,13 +1,13 @@
 #ifndef FHE_GRAPHICS_SLIDER_H
 #define FHE_GRAPHICS_SLIDER_H
 
-#include <Graphics/Prims/SceneNode2.h>
+#include "Widget.h"
 
 namespace fhe
 {
     namespace Graphics
     {
-        class Slider : public SceneNode2
+        class Slider : public Widget
         {
             private:
                 EntityPtr m_slider, m_sliderEdge, m_text, m_bg;

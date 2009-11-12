@@ -5,7 +5,6 @@
 <vars>
     <!--var name="res" type="vec2">1920 1080</var-->
     <!--var name="fullscreen" type="bool">1</var-->
-    <var name="clearColor" type="color">0 0 0 1</var>
 </vars>
 
 <children>
@@ -17,9 +16,6 @@
             <var name="pos" type="vec2">0.5 0.5</var>
             <var name="scale" type="vec2">0.5 0.5</var>
             <var name="title" type="string">a window</var>
-            <var name="fill" type="dict">
-                <var name="color" type="color">0 0 1 0.25</var>
-            </var>
         </vars>
         <children>
         

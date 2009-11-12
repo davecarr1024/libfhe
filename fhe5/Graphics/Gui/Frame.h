@@ -1,7 +1,7 @@
 #ifndef FHE_GRAPHICS_FRAME_H
 #define FHE_GRAPHICS_FRAME_H
 
-#include <Graphics/Prims/SceneNode2.h>
+#include "Widget.h"
 #include <fhe/math/Vec2.h>
 
 namespace fhe
@@ -9,7 +9,7 @@ namespace fhe
     namespace Graphics
     {
         
-        class Frame : public SceneNode2
+        class Frame : public Widget
         {
             private:
                 EntityPtr m_bg, m_titleBar, m_titleText;

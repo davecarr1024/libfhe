@@ -7,22 +7,10 @@ namespace fhe
     namespace Graphics
     {
         
-        FHE_ASPECT(TextBox,SceneNode2);
+        FHE_ASPECT(TextBox,Widget);
         
         FHE_FUNC_IMPL(TextBox,on_attach)
         {
-            VarMap defFocusStroke, defUnfocusStroke, defFocusFill, defUnfocusFill;
-
-            defUnfocusStroke.setVar<Color>("color",Color(1,1,1,1));
-            defFocusStroke.setVar<Color>("color",Color(0.5,0.5,0.5,1));
-            defUnfocusFill.setVar<Color>("color",Color(0.5,0.5,0.5,1));
-            defFocusFill.setVar<Color>("color",Color(0.25,0.25,0.25,1));
-
-            getEntity()->defaultVar<VarMap>("focusFill",defFocusFill);
-            getEntity()->defaultVar<VarMap>("unfocusFill",defUnfocusFill);
-            getEntity()->defaultVar<VarMap>("focusStroke",defFocusStroke);
-            getEntity()->defaultVar<VarMap>("unfocusStroke",defUnfocusStroke);
-
             m_bg = getEntity()->buildChild("bg");
             m_bg->buildAspect("Graphics/Prims/Rect");
             
@@ -48,17 +36,17 @@ namespace fhe
             if ( m_bg )
             {
                 m_bg->setVar<VarMap>("material", focused ?
-                    getEntity()->getVar<VarMap>("focusFill") : getEntity()->getVar<VarMap>("unfocusFill"));
+                    getEntity()->getVar<VarMap>("focusFill") : getEntity()->getVar<VarMap>("fill"));
             }
             if ( m_edge )
             {
                 m_edge->setVar<VarMap>("material", focused ?
-                    getEntity()->getVar<VarMap>("focusStroke") : getEntity()->getVar<VarMap>("unfocusStroke"));
+                    getEntity()->getVar<VarMap>("focusStroke") : getEntity()->getVar<VarMap>("stroke"));
             }
             if ( m_text )
             {
                 m_text->setVar<VarMap>("material", focused ?
-                    getEntity()->getVar<VarMap>("focusStroke") : getEntity()->getVar<VarMap>("unfocusStroke"));
+                    getEntity()->getVar<VarMap>("focusStroke") : getEntity()->getVar<VarMap>("stroke"));
             }
         }
         

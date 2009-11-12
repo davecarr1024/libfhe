@@ -1,13 +1,13 @@
 #ifndef FHE_GRAPHICS_RADIO_H
 #define FHE_GRAPHICS_RADIO_H
 
-#include <Graphics/Prims/SceneNode2.h>
+#include "Widget.h"
 
 namespace fhe
 {
     namespace Graphics
     {
-        class Radio : public SceneNode2
+        class Radio : public Widget
         {
             private:
                 EntityPtr m_circle, m_circleEdge, m_text, m_highlight;

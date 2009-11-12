@@ -13,45 +13,33 @@ namespace fhe
     namespace Graphics
     {
         
-        FHE_ASPECT(Frame,SceneNode2);
+        FHE_ASPECT(Frame,Widget);
         
         FHE_FUNC_IMPL(Frame,on_attach)
         {
-            VarMap defFill, defStroke, defDragFill, defDragStroke;
-            
-            defFill.setVar<Color>("color",Color(0.5,0.5,0.5,1));
-            defDragFill.setVar<Color>("color",Color(0.25,0.25,0.25,1));
-            defStroke.setVar<Color>("color",Color(1,1,1,1));
-            defDragStroke.setVar<Color>("color",Color(0.5,0.5,0.5,1));
-            
-            VarMap fill = getEntity()->defaultVar<VarMap>("fill",defFill),
-                stroke = getEntity()->defaultVar<VarMap>("stroke",defStroke),
-                dragFill = getEntity()->defaultVar<VarMap>("dragFill",defDragFill),
-                dragStroke = getEntity()->defaultVar<VarMap>("dragStroke",defDragStroke);
-            
             m_bg = getEntity()->buildChild("bg");
-            m_bg->setVar<VarMap>("material",fill);
+            m_bg->setVar<VarMap>("material",getEntity()->getVar<VarMap>("fill"));
             m_bg->buildAspect("Graphics/Prims/Rect");
             
             EntityPtr bgEdge = m_bg->buildChild("edge");
-            bgEdge->setVar<VarMap>("material",stroke);
+            bgEdge->setVar<VarMap>("material",getEntity()->getVar<VarMap>("stroke"));
             bgEdge->setVar<bool>("filled",false);
             bgEdge->buildAspect("Graphics/Prims/Rect");
             
             m_titleBar = m_bg->buildChild("titleBar");
             m_titleBar->setVar<Vec2>("scale",Vec2(1,0.1));
-            m_titleBar->setVar<VarMap>("material",fill);
+            m_titleBar->setVar<VarMap>("material",getEntity()->getVar<VarMap>("fill"));
             m_titleBar->buildAspect("Graphics/Prims/Rect");
             
             EntityPtr titleBarEdge = m_titleBar->buildChild("edge");
-            titleBarEdge->setVar<VarMap>("material",stroke);
+            titleBarEdge->setVar<VarMap>("material",getEntity()->getVar<VarMap>("stroke"));
             titleBarEdge->setVar<bool>("filled",false);
             titleBarEdge->buildAspect("Graphics/Prims/Rect");
             
             m_titleText = m_titleBar->buildChild("text");
             m_titleText->setVar<Vec2>("pos",Vec2(0.5,0.5));
             m_titleText->setVar<std::string>("align","center");
-            m_titleText->setVar<VarMap>("material",stroke);
+            m_titleText->setVar<VarMap>("material",getEntity()->getVar<VarMap>("stroke"));
             m_titleText->setVar<std::string>("text",getEntity()->getVar<std::string>("title",""));
             m_titleText->buildAspect("Graphics/Prims/Text");
             
@@ -65,7 +53,7 @@ namespace fhe
             {
                 getEntity()->setVar<bool>("dragging",true);
                 getEntity()->setVar<Vec2>("dragOffset",getEntity()->getVar<Vec2>("pos") - pos);
-                m_titleBar->setVar<VarMap>("material",getEntity()->getVar<VarMap>("dragFill"));
+                m_titleBar->setVar<VarMap>("material",getEntity()->getVar<VarMap>("focusFill"));
             }
             else
             {
@@ -75,7 +63,7 @@ namespace fhe
                     getEntity()->setVar<bool>("resizing",true);
                     getEntity()->setVar<Vec2>("resizeStartPos",pos);
                     getEntity()->setVar<Vec2>("resizeStartScale",getEntity()->getVar<Vec2>("scale"));
-                    m_titleBar->setVar<VarMap>("material",getEntity()->getVar<VarMap>("dragFill"));
+                    m_titleBar->setVar<VarMap>("material",getEntity()->getVar<VarMap>("focusFill"));
                 }
             }
             

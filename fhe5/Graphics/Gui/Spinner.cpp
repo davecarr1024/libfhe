@@ -9,48 +9,40 @@ namespace fhe
     namespace Graphics
     {
         
-        FHE_ASPECT(Spinner,SceneNode2);
+        FHE_ASPECT(Spinner,Widget);
         
         FHE_FUNC_IMPL(Spinner,on_attach)
         {
-            VarMap defFill, defStroke;
-            
-            defFill.setVar<Color>("color",Color(0.5,0.5,0.5,1));
-            defStroke.setVar<Color>("color",Color(1,1,1,1));
-            
-            VarMap fill = getEntity()->getVar<VarMap>("fill",defFill),
-                stroke = getEntity()->getVar<VarMap>("stroke",defStroke);
-            
             m_left = getEntity()->buildChild("left");
             m_left->setVar<Vec2>("pos",Vec2(0,0));
             m_left->setVar<Vec2>("scale",Vec2(0.25,1));
             m_left->setVar<std::string>("text","<");
-            m_left->setVar<VarMap>("fill",fill);
-            m_left->setVar<VarMap>("stroke",stroke);
+            m_left->setVar<VarMap>("fill",getEntity()->getVar<VarMap>("fill"));
+            m_left->setVar<VarMap>("stroke",getEntity()->getVar<VarMap>("stroke"));
             m_left->buildAspect("Graphics/Gui/Button");
             
             m_right = getEntity()->buildChild("right");
             m_right->setVar<Vec2>("pos",Vec2(0.75,0));
             m_right->setVar<Vec2>("scale",Vec2(0.25,1));
             m_right->setVar<std::string>("text",">");
-            m_right->setVar<VarMap>("fill",fill);
-            m_right->setVar<VarMap>("stroke",stroke);
+            m_right->setVar<VarMap>("fill",getEntity()->getVar<VarMap>("fill"));
+            m_right->setVar<VarMap>("stroke",getEntity()->getVar<VarMap>("stroke"));
             m_right->buildAspect("Graphics/Gui/Button");
             
             EntityPtr center = getEntity()->buildChild("center");
             center->setVar<Vec2>("pos",Vec2(0.25,0));
             center->setVar<Vec2>("scale",Vec2(0.5,1));
-            center->setVar<VarMap>("material",fill);
+            center->setVar<VarMap>("material",getEntity()->getVar<VarMap>("fill"));
             center->buildAspect("Graphics/Prims/Rect");
             
             EntityPtr centerEdge = center->buildChild("edge");
-            centerEdge->setVar<VarMap>("material",stroke);
+            centerEdge->setVar<VarMap>("material",getEntity()->getVar<VarMap>("stroke"));
             centerEdge->setVar<bool>("filled",false);
             centerEdge->buildAspect("Graphics/Prims/Rect");
             
             m_text = center->buildChild("text");
             m_text->setVar<Vec2>("pos",Vec2(0.5,0.5));
-            m_text->setVar<VarMap>("material",stroke);
+            m_text->setVar<VarMap>("material",getEntity()->getVar<VarMap>("stroke"));
             m_text->setVar<std::string>("align","center");
             m_text->buildAspect("Graphics/Prims/Text");
             

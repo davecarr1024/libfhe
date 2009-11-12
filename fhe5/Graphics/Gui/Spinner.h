@@ -1,13 +1,13 @@
 #ifndef SPINNER_H
 #define SPINNER_H
 
-#include <Graphics/Prims/SceneNode2.h>
+#include "Widget.h"
 
 namespace fhe
 {
     namespace Graphics
     {
-        class Spinner : public SceneNode2
+        class Spinner : public Widget
         {
             private:
                 EntityPtr m_left, m_text, m_right;
