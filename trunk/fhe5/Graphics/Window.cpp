@@ -94,20 +94,20 @@ namespace fhe
                 switch ( event.type )
                 {
                     case SDL_QUIT:
-                        getEntity()->getRoot()->call("shutdown");
+                        getEntity()->getRoot()->callNoRetNoArg("shutdown");
                         break;
                     case SDL_KEYDOWN:
                         if ( event.key.keysym.sym == SDLK_ESCAPE )
                         {
-                            getEntity()->getRoot()->call("shutdown");
+                            getEntity()->getRoot()->callNoRetNoArg("shutdown");
                         }
-                        getEntity()->publish("keyDown",Var::build<int>(event.key.keysym.sym));
+                        getEntity()->publish<int>("keyDown",event.key.keysym.sym);
                         break;
                     case SDL_KEYUP:
-                        getEntity()->publish("keyUp",Var::build<int>(event.key.keysym.sym));
+                        getEntity()->publish<int>("keyUp",event.key.keysym.sym);
                         break;
                     case SDL_MOUSEMOTION:
-                        getEntity()->publish("mouseMotion",Var::build<Vec2>(Vec2(event.motion.x/res.x,event.motion.y/res.y)));
+                        getEntity()->publish<Vec2>("mouseMotion",Vec2(event.motion.x/res.x,event.motion.y/res.y));
                         break;
                     case SDL_MOUSEBUTTONDOWN:
                         mouseButton(event.button.button,event.button.x,event.button.y,"Down");
@@ -142,7 +142,7 @@ namespace fhe
             VarMap args;
             args.setVar<int>("button",button);
             args.setVar<Vec2>("pos",Vec2(float(x)/res.x,float(y)/res.y));
-            getEntity()->publish("mouseButton" + dir,Var::build<VarMap>(args));
+            getEntity()->publish<VarMap>("mouseButton" + dir,args);
         }
     }
 }

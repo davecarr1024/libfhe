@@ -45,10 +45,10 @@ namespace fhe
         
         FHE_FUNC_IMPL(Button,msg_mouseButtonUp)
         {
-            Var pos = arg.get<VarMap>().getRawVar("pos");
-            if ( m_bg && m_bg->call("collides",pos).get<bool>() && getEntity()->getVar<bool>("clicking",false) )
+            Vec2 pos = arg.get<VarMap>().getVar<Vec2>("pos");
+            if ( m_bg && m_bg->call<bool,Vec2>("collides",pos) && getEntity()->getVar<bool>("clicking",false) )
             {
-                getEntity()->getRoot()->publish("buttonClicked",Var::build<std::string>(getEntity()->getPath()));
+                getEntity()->getRoot()->publish<std::string>("buttonClicked",getEntity()->getPath());
             }
             
             getEntity()->setVar<bool>("clicking",false);

@@ -65,9 +65,20 @@ namespace fhe
             
             bool hasFunc( const std::string& name ) const;
             AbstractFunc* getFunc( const std::string& name ) const;
-            Var call( const std::string& name, const Var& arg = Var() );
-            void callAll( const std::string& name, const Var& arg = Var() );
-            void publish( const std::string& name, const Var& arg = Var() );
+            Var _call( const std::string& name, const Var& arg = Var() );
+            void _publish( const std::string& name, const Var& arg = Var() );
+            
+            template <class TArg>
+            void publish( const std::string& name, const TArg& arg )
+            {
+                Var var = Var::build<TArg>(arg);
+                _publish(name,var);
+            }
+            
+            void publish( const std::string& name )
+            {
+                _publish(name);
+            }
             
             Var onGetVar( const std::string& name ) const;
             void onSetVar( const std::string& name, const Var& val );
@@ -87,6 +98,45 @@ namespace fhe
                 }
                 return def;
             }
+
+            template <class TRet, class TArg>
+            TRet call( const std::string& name, const TArg& arg )
+            {
+                Var var = Var::build<TArg>(arg);
+                return _call(name,var).get<TRet>();
+            }
+            
+            template <class TRet, class TArg>
+            TRet call( const std::string& name, const TArg& arg, const TRet& def )
+            {
+                Var var = Var::build<TArg>(arg);
+                return _call(name,var).get<TRet>(def);
+            }
+            
+            template <class TRet>
+            TRet callNoArg( const std::string& name )
+            {
+                return _call(name).get<TRet>();
+            }
+            
+            template <class TRet>
+            TRet callNoArg( const std::string& name, const TRet& def )
+            {
+                return _call(name).get<TRet>(def);
+            }
+            
+            template <class TArg>
+            void callNoRet( const std::string& name, const TArg& arg )
+            {
+                Var var = Var::build<TArg>(arg);
+                _call(name,var);
+            }
+            
+            void callNoRetNoArg( const std::string& name )
+            {
+                _call(name);
+            }
+            
     };
     
 }

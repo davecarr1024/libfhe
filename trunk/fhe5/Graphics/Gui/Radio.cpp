@@ -32,8 +32,8 @@ namespace fhe
         
         FHE_FUNC_IMPL(Radio,msg_mouseButtonDown)
         {
-            Var pos = arg.get<VarMap>().getRawVar("pos");
-            if ( m_circle->call("collides",pos).get<bool>(false) )
+            Vec2 pos = arg.get<VarMap>().getVar<Vec2>("pos");
+            if ( m_circle->call<bool,Vec2>("collides",pos) )
             {
                 getEntity()->setVar<bool>("clicking",true);
                 m_circle->setVar<VarMap>("material",getEntity()->getVar<VarMap>("focusFill"));
@@ -46,8 +46,8 @@ namespace fhe
         
         FHE_FUNC_IMPL(Radio,msg_mouseButtonUp)
         {
-            Var pos = arg.get<VarMap>().getRawVar("pos");
-            if ( getEntity()->getVar<bool>("clicking",false) && m_circle->call("collides",pos).get<bool>(false) )
+            Vec2 pos = arg.get<VarMap>().getVar<Vec2>("pos");
+            if ( getEntity()->getVar<bool>("clicking",false) && m_circle->call<bool,Vec2>("collides",pos) )
             {
                 getEntity()->setVar<bool>("selected",true);
             }

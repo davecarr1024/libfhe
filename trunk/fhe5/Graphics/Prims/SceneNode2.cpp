@@ -69,8 +69,8 @@ namespace fhe
         
         FHE_FUNC_IMPL(SceneNode2,collides)
         {
-            Vec2 pos = getEntity()->call("globalToLocal",arg).get<Vec2>();
-            return Var::build<bool>(getEntity()->call("collTest",Var::build<Vec2>(pos)).get<bool>(false));
+            Vec2 pos = getEntity()->call<Vec2,Vec2>("globalToLocal",arg.get<Vec2>(Vec2()));
+            return Var::build<bool>(getEntity()->call<bool,Vec2>("collTest",pos,false));
         }
         
         FHE_FUNC_IMPL(SceneNode2,globalToLocal)
@@ -85,9 +85,10 @@ namespace fhe
         
         FHE_FUNC_IMPL(SceneNode2,msg_mouseButtonDown)
         {
-            if ( getEntity()->call("collides",arg.get<VarMap>().getRawVar("pos")).get<bool>(false) )
+            Vec2 pos = arg.get<VarMap>().getVar<Vec2>("pos");
+            if ( getEntity()->call<bool,Vec2>("collides",pos) )
             {
-                getEntity()->getRoot()->publish("clickDown",Var::build<std::string>(getEntity()->getPath()));
+                getEntity()->getRoot()->publish<std::string>("clickDown",getEntity()->getPath());
                 return Var::build<bool>(true);
             }
             return Var();
@@ -95,11 +96,10 @@ namespace fhe
 
         FHE_FUNC_IMPL(SceneNode2,msg_mouseButtonUp)
         {
-            Mat3 igt = getEntity()->getVar<Mat3>("inverseGlobalTransform");
-            Vec2 pos = arg.get<VarMap>().getVar<Vec2>("pos"), tpos = igt * pos;
-            if ( getEntity()->call("collides",arg.get<VarMap>().getRawVar("pos")).get<bool>(false) )
+            Vec2 pos = arg.get<VarMap>().getVar<Vec2>("pos");
+            if ( getEntity()->call<bool,Vec2>("collides",pos) )
             {
-                getEntity()->getRoot()->publish("clickUp",Var::build<std::string>(getEntity()->getPath()));
+                getEntity()->getRoot()->publish<std::string>("clickUp",getEntity()->getPath());
                 return Var::build<bool>(true);
             }
             return Var();

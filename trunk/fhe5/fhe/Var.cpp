@@ -118,7 +118,7 @@ namespace fhe
             {
                 const char* name = i->Attribute("name");
                 assert(name);
-                vm.setRawVar(name,Var::load(i));
+                vm._setVar(name,Var::load(i));
             }
             return Var::build<VarMap>(vm);
         }

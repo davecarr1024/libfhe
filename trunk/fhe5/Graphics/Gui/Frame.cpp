@@ -49,7 +49,7 @@ namespace fhe
         FHE_FUNC_IMPL(Frame,msg_mouseButtonDown)
         {
             Vec2 pos = arg.get<VarMap>().getVar<Vec2>("pos");
-            if ( m_titleBar && m_titleBar->call("collides",Var::build<Vec2>(pos)).get<bool>(false) )
+            if ( m_titleBar && m_titleBar->call<bool,Vec2>("collides",pos) )
             {
                 getEntity()->setVar<bool>("dragging",true);
                 getEntity()->setVar<Vec2>("dragOffset",getEntity()->getVar<Vec2>("pos") - pos);
@@ -57,7 +57,7 @@ namespace fhe
             }
             else
             {
-                Vec2 localPos = getEntity()->call("globalToLocal",Var::build<Vec2>(pos)).get<Vec2>();
+                Vec2 localPos = getEntity()->call<Vec2,Vec2>("globalToLocal",pos);
                 if ( localPos.x > 0.95 && localPos.x < 1.05 && localPos.y > 0.95 && localPos.y < 1.05 )
                 {
                     getEntity()->setVar<bool>("resizing",true);

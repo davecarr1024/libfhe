@@ -138,7 +138,7 @@ namespace fhe
                     boost::python::object items = obj.attr("items")();                           
                     for ( int i = 0; i < boost::python::len(items); ++i )                        
                     {                                                                            
-                        vm.setRawVar(boost::python::extract<std::string>(items[i][0]),convertToVar(items[i][1]));                                                                                           
+                        vm._setVar(boost::python::extract<std::string>(items[i][0]),convertToVar(items[i][1]));                                                                                           
                     }                                                                                 
                     return Var::build<VarMap>(vm);                                                    
                 }
@@ -205,7 +205,7 @@ namespace fhe
                     std::vector<std::string> names = vm.getVarNames();
                     for ( std::vector<std::string>::iterator i = names.begin(); i != names.end(); ++i)
                     {
-                        d[*i] = convertFromVar(vm.getRawVar(*i));
+                        d[*i] = convertFromVar(vm._getVar(*i));
                     }
                     return d;
                 }

@@ -9,6 +9,6 @@ int main( int argc, char **argv )
     {
         root->loadChild(argv[i]);
     }
-    root->call("run");
+    root->callNoRetNoArg("run");
     return 0;
 }

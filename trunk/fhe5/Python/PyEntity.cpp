@@ -110,7 +110,7 @@ namespace fhe
         
         bool PyEntity::hasVar( const std::string& name )
         {
-            return m_entity->hasVarName(name);
+            return m_entity->_hasVar(name);
         }
         
         boost::python::object PyEntity::getAttr( const std::string& name )
@@ -119,9 +119,9 @@ namespace fhe
             {
                 return boost::python::object(PyCall(m_entity->getFunc(name)));
             }
-            else if ( m_entity->hasVarName(name) )
+            else if ( m_entity->_hasVar(name) )
             {
-                return PyEnv::instance().convertFromVar(m_entity->getRawVar(name));
+                return PyEnv::instance().convertFromVar(m_entity->_getVar(name));
             }
             else
             {
@@ -131,7 +131,7 @@ namespace fhe
         
         void PyEntity::setAttr( const std::string& name, boost::python::object obj )
         {
-            m_entity->setRawVar(name,PyEnv::instance().convertToVar(obj));
+            m_entity->_setVar(name,PyEnv::instance().convertToVar(obj));
         }
         
         PyEntity::PyCall::PyCall( AbstractFunc* func ) :
@@ -162,7 +162,7 @@ namespace fhe
         
         void PyEntity::publish( const std::string& name, boost::python::object obj )
         {
-            m_entity->publish(name,PyEnv::instance().convertToVar(obj));
+            m_entity->_publish(name,PyEnv::instance().convertToVar(obj));
         }
     }
 }
