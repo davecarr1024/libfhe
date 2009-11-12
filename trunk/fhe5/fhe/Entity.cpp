@@ -207,10 +207,12 @@ namespace fhe
     
     void Entity::_publish( const std::string& name, const Var& arg )
     {
-        _call("msg_" + name,arg);
-        for ( EntityMap::iterator i = m_children.begin(); i != m_children.end(); ++i )
+        if ( _call("msg_" + name,arg).get<bool>(true) )
         {
-            i->second->_publish(name,arg);
+            for ( EntityMap::iterator i = m_children.begin(); i != m_children.end(); ++i )
+            {
+                i->second->_publish(name,arg);
+            }
         }
         _call("unmsg_" + name,arg);
     }
@@ -310,5 +312,78 @@ namespace fhe
             names.push_back(i->first);
         }
         return names;
+    }
+    
+    void Entity::save( const std::string& filename )
+    {
+        TiXmlDocument doc;
+        
+        TiXmlElement* children = new TiXmlElement("children");
+        for ( EntityMap::iterator i = m_children.begin(); i != m_children.end(); ++i )
+        {
+            children->LinkEndChild(i->second->save());
+        }
+        doc.LinkEndChild(children);
+        
+        TiXmlElement* vars = new TiXmlElement("vars");
+        std::vector<std::string> varNames = getVarNames();
+        for ( std::vector<std::string>::iterator i = varNames.begin(); i != varNames.end(); ++i )
+        {
+            TiXmlElement* var = _getVar(*i).save();
+            if ( var )
+            {
+                var->SetAttribute("name",i->c_str());
+                vars->LinkEndChild(var);
+            }
+        }
+        doc.LinkEndChild(vars);
+        
+        TiXmlElement* aspects = new TiXmlElement("aspects");
+        for ( AspectMap::iterator i = m_aspects.begin(); i != m_aspects.end(); ++i )
+        {
+            TiXmlElement* aspect = new TiXmlElement("aspect");
+            aspect->SetAttribute("name",i->first.c_str());
+            aspects->LinkEndChild(aspect);
+        }
+        doc.LinkEndChild(aspects);
+        
+        doc.SaveFile(filename.c_str());
+    }
+    
+    TiXmlElement* Entity::save()
+    {
+        TiXmlElement* self = new TiXmlElement("child");
+        self->SetAttribute("name",getName().c_str());
+
+        TiXmlElement* children = new TiXmlElement("children");
+        for ( EntityMap::iterator i = m_children.begin(); i != m_children.end(); ++i )
+        {
+            children->LinkEndChild(i->second->save());
+        }
+        self->LinkEndChild(children);
+
+        TiXmlElement* vars = new TiXmlElement("vars");
+        std::vector<std::string> varNames = getVarNames();
+        for ( std::vector<std::string>::iterator i = varNames.begin(); i != varNames.end(); ++i )
+        {
+            TiXmlElement* var = _getVar(*i).save();
+            if ( var )
+            {
+                var->SetAttribute("name",i->c_str());
+                vars->LinkEndChild(var);
+            }
+        }
+        self->LinkEndChild(vars);
+
+        TiXmlElement* aspects = new TiXmlElement("aspects");
+        for ( AspectMap::iterator i = m_aspects.begin(); i != m_aspects.end(); ++i )
+        {
+            TiXmlElement* aspect = new TiXmlElement("aspect");
+            aspect->SetAttribute("name",i->first.c_str());
+            aspects->LinkEndChild(aspect);
+        }
+        self->LinkEndChild(aspects);
+        
+        return self;
     }
 }

@@ -136,4 +136,68 @@ namespace fhe
             throw std::runtime_error( "can't load unknown var type " + type );
         }
     }
+    
+    TiXmlElement* Var::save()
+    {
+        TiXmlElement* e = 0;
+        std::ostringstream outs;
+        if ( is<bool>() )
+        {
+            e = new TiXmlElement("var");
+            e->SetAttribute("type","bool");
+            outs << get<bool>();
+            e->LinkEndChild(new TiXmlText(outs.str().c_str()));
+        }
+        else if ( is<int>() )
+        {
+            e = new TiXmlElement("var");
+            e->SetAttribute("type","int");
+            outs << get<int>();
+            e->LinkEndChild(new TiXmlText(outs.str().c_str()));
+        }
+        else if ( is<float>() )
+        {
+            e = new TiXmlElement("var");
+            e->SetAttribute("type","float");
+            outs << get<float>();
+            e->LinkEndChild(new TiXmlText(outs.str().c_str()));
+        }
+        else if ( is<std::string>() )
+        {
+            e = new TiXmlElement("var");
+            e->SetAttribute("type","string");
+            e->LinkEndChild(new TiXmlText(get<std::string>().c_str()));
+        }
+        else if ( is<VarList>() )
+        {
+            e = new TiXmlElement("var");
+            e->SetAttribute("type","list");
+            VarList vl = get<VarList>();
+            for ( int i = 0; i < vl.length(); ++i )
+            {
+                TiXmlElement* var = vl.getRawVar(i).save();
+                if ( var )
+                {
+                    e->LinkEndChild(var);
+                }
+            }
+        }
+        else if ( is<VarMap>() )
+        {
+            e = new TiXmlElement("var");
+            e->SetAttribute("type","dict");
+            VarMap vm = get<VarMap>();
+            std::vector<std::string> varNames = vm.getVarNames();
+            for ( std::vector<std::string>::iterator i = varNames.begin(); i != varNames.end(); ++i )
+            {
+                TiXmlElement* var = vm._getVar(*i).save();
+                if ( var )
+                {
+                    var->SetAttribute("name",i->c_str());
+                    e->LinkEndChild(var);
+                }
+            }
+        }
+        return e;
+    }
 }

@@ -36,6 +36,8 @@ namespace fhe
             void loadTag( TiXmlHandle h, const std::string& tag );
             void loadData( TiXmlHandle h );
             
+            TiXmlElement* save();
+            
         public:
             Entity( const std::string& name );
             
@@ -136,6 +138,8 @@ namespace fhe
             {
                 _call(name);
             }
+            
+            void save( const std::string& filename );
             
     };
     

@@ -65,6 +65,8 @@ namespace fhe
             virtual void onSetVar( const std::string& name, const Var& val );
             
             virtual bool onHasVar( const std::string& name ) const;
+            
+            TiXmlElement* saveVars();
     };
     
 }

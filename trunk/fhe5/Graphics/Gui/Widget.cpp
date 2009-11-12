@@ -12,7 +12,7 @@ namespace fhe
             VarMap defFill, defStroke, defFocusFill, defFocusStroke;
             
             Color defFillColor = getEntity()->getAncestorVar<Color>("guiFillColor",Color(0,0,1,0.5)), 
-                defStrokeColor = getEntity()->getAncestorVar<Color>("guiStrokeColor",Color(1,1,1,1));
+                defStrokeColor = getEntity()->getAncestorVar<Color>("guiStrokeColor",Color(0.75,0.75,0.75,1));
             
             defFill = getEntity()->getAncestorVar<VarMap>("guiFill",VarMap());
             defFocusFill = defFill;
