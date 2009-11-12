@@ -48,11 +48,11 @@ namespace fhe
         
         FHE_FUNC_IMPL(Slider,msg_mouseButtonDown)
         {
-            Var pos = arg.get<VarMap>().getRawVar("pos");
-            if ( m_slider->call("collides",pos).get<bool>() )
+            Vec2 pos = arg.get<VarMap>().getVar<Vec2>("pos");
+            if ( m_slider->call<bool,Vec2>("collides",pos) )
             {
                 getEntity()->setVar<bool>("dragging",true);
-                getEntity()->setVar<Vec2>("dragOffset",m_bg->call("globalToLocal",pos).get<Vec2>() - m_slider->getVar<Vec2>("pos"));
+                getEntity()->setVar<Vec2>("dragOffset",m_bg->call<Vec2,Vec2>("globalToLocal",pos) - m_slider->getVar<Vec2>("pos"));
                 m_slider->setVar<VarMap>("material",getEntity()->getVar<VarMap>("focusFill"));
                 m_sliderEdge->setVar<VarMap>("material",getEntity()->getVar<VarMap>("focusStroke"));
             }
@@ -73,7 +73,7 @@ namespace fhe
         {
             if ( getEntity()->getVar<bool>("dragging",false) )
             {
-                Vec2 mouse = m_bg->call("globalToLocal",arg).get<Vec2>(),
+                Vec2 mouse = m_bg->call<Vec2,Vec2>("globalToLocal",arg.get<Vec2>()),
                     offset = getEntity()->getVar<Vec2>("dragOffset"),
                     pos = mouse - offset;
                 getEntity()->setVar<float>("value",Math::clamp(pos.x,0,0.9)/0.9);

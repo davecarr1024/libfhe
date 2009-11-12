@@ -17,7 +17,7 @@ namespace fhe
         {
             ++frames;
             time = get_time(Var()).get<float>() - startTime;
-            getEntity()->publish("update",Var::build<float>(time));
+            getEntity()->publish<float>("update",time);
         }
         
         log("fps %f",float(frames)/time);

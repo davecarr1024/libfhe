@@ -67,7 +67,7 @@ namespace fhe
         }
     }
     
-    Var Aspect::call( const std::string& name, const Var& arg )
+    Var Aspect::_call( const std::string& name, const Var& arg )
     {
         if ( hasFunc(name) )
         {
@@ -93,7 +93,7 @@ namespace fhe
             if ( m_entity )
             {
                 m_entity->addAspect(this);
-                call("on_attach");
+                _call("on_attach");
             }
         }
     }
@@ -105,7 +105,7 @@ namespace fhe
             EntityPtr entity = m_entity;
             m_entity = 0;
             entity->removeAspect(this);
-            call("on_detach");
+            _call("on_detach");
         }
     }
     
@@ -118,7 +118,7 @@ namespace fhe
     {
         for ( TiXmlElement* e = h.FirstChildElement().ToElement(); e; e = e->NextSiblingElement() )
         {
-            call(std::string("load_") + e->Value(),Var::build<TiXmlHandle>(e));
+            callNoRet<TiXmlHandle>(std::string("load_") + e->Value(),e);
         }
     }
     

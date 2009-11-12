@@ -10,7 +10,7 @@ namespace fhe
         
         FHE_FUNC_IMPL(Script,load_script)
         {
-            getEntity()->call("runScript",Var::build<std::string>(arg.get<TiXmlHandle>().ToElement()->GetText()));
+            getEntity()->callNoRet<std::string>("runScript",arg.get<TiXmlHandle>().ToElement()->GetText());
             return Var();
         }
         

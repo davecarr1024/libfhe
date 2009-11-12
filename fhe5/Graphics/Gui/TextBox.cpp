@@ -52,7 +52,8 @@ namespace fhe
         
         FHE_FUNC_IMPL(TextBox,msg_mouseButtonDown)
         {
-            getEntity()->setVar<bool>("focused",m_bg->call("msg_mouseButtonDown",arg).get<bool>(false));
+            Vec2 pos = arg.get<VarMap>().getVar<Vec2>("pos");
+            getEntity()->setVar<bool>("focused",m_bg->call<bool,Vec2>("collides",pos));
             updateFocus();
             return Var();
         }
@@ -73,7 +74,7 @@ namespace fhe
                     VarMap args;
                     args.setVar<std::string>("path",getEntity()->getPath());
                     args.setVar<std::string>("text",getEntity()->getVar<std::string>("text",""));
-                    getEntity()->getRoot()->publish("textBoxAccepted",Var::build<VarMap>(args));
+                    getEntity()->getRoot()->publish<VarMap>("textBoxAccepted",args);
                 }
                 else if ( isprint(key) )
                 {

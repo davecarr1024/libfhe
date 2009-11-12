@@ -18,7 +18,7 @@ FHE_ASPECT(TestAspect,Aspect);
 
 FHE_FUNC_IMPL(TestAspect,set_setTest)
 {
-    getEntity()->setRawVar("setTestVal",arg);
+    getEntity()->_setVar("setTestVal",arg);
     return Var();
 }
 
@@ -49,7 +49,7 @@ FHE_ASPECT(ChildAspect,TestAspect);
 
 FHE_FUNC_IMPL(ChildAspect,msg_msgTest)
 {
-    getEntity()->setRawVar("msgTest",arg);
+    getEntity()->_setVar("msgTest",arg);
     return Var();
 }
 
@@ -111,9 +111,10 @@ int main()
     AutoPtr<TestAspect> testAspect = root->buildAspect("Test/TestAspect").cast<TestAspect>();
     assert(testAspect);
     
-    assert(root->call("testFunc",Var::build<int>(2)).get<int>() == 4);
+    int testFuncVal = root->call<int,int>("testFunc",2);
+    assert(testFuncVal == 4);
     
-    root->call("inheritTest");
+    root->callNoRetNoArg("inheritTest");
     assert(root->getVar<bool>("parent_inheritTest"));
     
     assert(root->hasVar<std::string>("getTest"));
@@ -128,12 +129,13 @@ int main()
     AutoPtr<ChildAspect> childAspect = child->buildAspect("Test/ChildAspect").cast<ChildAspect>();
     assert(childAspect);
     
-    child->call("inheritTest");
+    child->callNoRetNoArg("inheritTest");
     assert(child->getVar<bool>("child_inheritTest"));
     assert(child->getVar<bool>("parent_inheritTest"));
     
     assert(child->hasFunc("testFunc"));
-    assert(child->call("testFunc",Var::build<int>(5)).get<int>() == 10);
+    int childTestFuncVal = child->call<int,int>("testFunc",5);
+    assert(childTestFuncVal == 10);
 
     child->getRoot()->publish("msgTest");
     

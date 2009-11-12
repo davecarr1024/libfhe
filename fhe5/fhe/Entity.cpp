@@ -70,7 +70,7 @@ namespace fhe
             if ( m_parent )
             {
                 m_parent->addChild(this);
-                callAll("on_attach");
+                _call("on_attach");
             }
         }
     }
@@ -82,7 +82,7 @@ namespace fhe
             EntityPtr parent = m_parent;
             m_parent = 0;
             parent->removeChild(this);
-            callAll("on_detach");
+            _call("on_detach");
         }
     }
     
@@ -192,37 +192,27 @@ namespace fhe
         return 0;
     }
     
-    Var Entity::call( const std::string& name, const Var& arg )
+    Var Entity::_call( const std::string& name, const Var& arg )
     {
+        Var res;
         for ( AspectMap::iterator i = m_aspects.begin(); i != m_aspects.end(); ++i )
         {
             if ( i->second->hasFunc(name) )
             {
-                return i->second->call(name,arg);
+                res = i->second->_call(name,arg);
             }
         }
-        return Var();
+        return res;
     }
     
-    void Entity::callAll( const std::string& name, const Var& arg )
+    void Entity::_publish( const std::string& name, const Var& arg )
     {
-        for ( AspectMap::iterator i = m_aspects.begin(); i != m_aspects.end(); ++i )
-        {
-            if ( i->second->hasFunc(name) )
-            {
-                i->second->call(name,arg);
-            }
-        }
-    }
-    
-    void Entity::publish( const std::string& name, const Var& arg )
-    {
-        callAll("msg_" + name,arg);
+        _call("msg_" + name,arg);
         for ( EntityMap::iterator i = m_children.begin(); i != m_children.end(); ++i )
         {
-            i->second->publish(name,arg);
+            i->second->_publish(name,arg);
         }
-        callAll("unmsg_" + name,arg);
+        _call("unmsg_" + name,arg);
     }
     
     EntityPtr Entity::loadChild( const std::string& filename )
@@ -273,7 +263,7 @@ namespace fhe
         {
             const char* name = e->Attribute("name");
             assert(name);
-            setRawVar(name,Var::load(e));
+            _setVar(name,Var::load(e));
         }
     }
     
@@ -299,12 +289,12 @@ namespace fhe
     
     Var Entity::onGetVar( const std::string& name ) const
     {
-        return const_cast<Entity*>(this)->call("get_" + name);
+        return const_cast<Entity*>(this)->_call("get_" + name);
     }
     
     void Entity::onSetVar( const std::string& name, const Var& val )
     {
-        const_cast<Entity*>(this)->call("set_" + name,val);
+        const_cast<Entity*>(this)->_call("set_" + name,val);
     }
     
     bool Entity::onHasVar( const std::string& name ) const

@@ -16,34 +16,39 @@ namespace fhe
             std::map<std::string,Var> m_vars;
             
         public:
-            bool hasVarName( const std::string& name ) const;
+            bool _hasVar( const std::string& name ) const;
             
-            Var getRawVar( const std::string& name ) const;
+            Var _getVar( const std::string& name ) const;
             
-            void setRawVar( const std::string& name, const Var& val );
+            void _setVar( const std::string& name, const Var& val );
             
             template <class T>
             bool hasVar( const std::string& name ) const
             {
-                return getRawVar(name).is<T>();
+                return _getVar(name).is<T>();
             }
             
             template <class T>
             T getVar( const std::string& name ) const
             {
-                return getRawVar(name).get<T>();
+                Var val =_getVar(name);
+                if ( !val.is<T>() )
+                {
+                    throw std::runtime_error("unable to get var " + name + ", it is not the right type");
+                }
+                return val.get<T>();
             }
             
             template <class T>
             T getVar( const std::string& name, const T& def ) const
             {
-                return getRawVar(name).get<T>(def);
+                return _getVar(name).get<T>(def);
             }
             
             template <class T>
             void setVar( const std::string& name, const T& val )
             {
-                setRawVar(name,Var::build<T>(val));
+                _setVar(name,Var::build<T>(val));
             }
             
             template <class T>

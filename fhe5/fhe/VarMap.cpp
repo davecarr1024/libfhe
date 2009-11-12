@@ -3,12 +3,12 @@
 namespace fhe
 {
     
-    bool VarMap::hasVarName( const std::string& name ) const
+    bool VarMap::_hasVar( const std::string& name ) const
     {
         return m_vars.find(name) != m_vars.end() || onHasVar(name);
     }
     
-    Var VarMap::getRawVar( const std::string& name ) const
+    Var VarMap::_getVar( const std::string& name ) const
     {
         Var val = onGetVar(name);
         if ( !val.empty() )
@@ -22,7 +22,7 @@ namespace fhe
         }
     }
     
-    void VarMap::setRawVar( const std::string& name, const Var& val )
+    void VarMap::_setVar( const std::string& name, const Var& val )
     {
         m_vars[name] = val;
         onSetVar(name,val);
