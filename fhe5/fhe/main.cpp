@@ -10,5 +10,8 @@ int main( int argc, char **argv )
         root->loadChild(argv[i]);
     }
     root->callNoRetNoArg("run");
+    
+    root->save("dump");
+    
     return 0;
 }

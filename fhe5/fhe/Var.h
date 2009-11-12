@@ -121,6 +121,8 @@ namespace fhe
             }
             
             static Var load( TiXmlHandle h );
+            
+            TiXmlElement* save();
     };
     
 }
