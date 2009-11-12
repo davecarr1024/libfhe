@@ -3,7 +3,8 @@
 </aspects>
 
 <vars>
-    <var name="res" type="vec2">500 500</var>
+    <!--var name="res" type="vec2">1920 1080</var-->
+    <!--var name="fullscreen" type="bool">1</var-->
     <var name="clearColor" type="color">0 0 0 1</var>
 </vars>
 
@@ -13,9 +14,12 @@
             <aspect name="Graphics/Gui/Frame"/>
         </aspects>
         <vars>
-            <var name="pos" type="vec2">0.1 0.1</var>
-            <var name="scale" type="vec2">0.8 0.8</var>
+            <var name="pos" type="vec2">0.5 0.5</var>
+            <var name="scale" type="vec2">0.5 0.5</var>
             <var name="title" type="string">a window</var>
+            <var name="fill" type="dict">
+                <var name="color" type="color">0 0 1 0.25</var>
+            </var>
         </vars>
         <children>
         
@@ -90,4 +94,31 @@
             
         </children>
     </child>
+    
+    <child name="testCamera">
+        <aspects>
+            <aspect name="Graphics/Prims/Camera"/>
+        </aspects>
+        
+        <children>
+        
+            <child name="testCube">
+                <aspects>
+                    <aspect name="Graphics/Prims/Cube"/>
+                </aspects>
+                
+                <vars>
+                    <var name="material" type="dict">
+                        <var name="texture" type="string">test.jpg</var>
+                    </var>
+                    <var name="scale" type="vec3">2 3 4</var>
+                    <var name="rot" type="quat">0 1 0 20</var>
+                </vars>
+                
+            </child>
+        
+        </children>
+        
+    </child>
+    
 </children>
