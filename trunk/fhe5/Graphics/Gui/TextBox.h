@@ -1,14 +1,14 @@
 #ifndef TEXTBOX_H
 #define TEXTBOX_H
 
-#include <Graphics/Prims/SceneNode2.h>
+#include "Widget.h"
 
 namespace fhe
 {
     namespace Graphics
     {
         
-        class TextBox : public SceneNode2
+        class TextBox : public Widget
         {
             private:
                 EntityPtr m_bg, m_edge, m_text;

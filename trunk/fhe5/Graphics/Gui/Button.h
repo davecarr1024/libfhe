@@ -1,14 +1,14 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
-#include <Graphics/Prims/SceneNode2.h>
+#include "Widget.h"
 
 namespace fhe
 {
     namespace Graphics
     {
         
-        class Button : public SceneNode2
+        class Button : public Widget
         {
             private:
                 EntityPtr m_bg, m_border, m_text;

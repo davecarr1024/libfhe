@@ -6,36 +6,24 @@ namespace fhe
 {
     namespace Graphics
     {
-        FHE_ASPECT(Radio,SceneNode2);
+        FHE_ASPECT(Radio,Widget);
         
         FHE_FUNC_IMPL(Radio,on_attach)
         {
-            VarMap defFill, defStroke, defClickFill, defClickStroke;
-            
-            defFill.setVar<Color>("color",Color(0.5,0.5,0.5,1));
-            defStroke.setVar<Color>("color",Color(1,1,1,1));
-            defClickFill.setVar<Color>("color",Color(0.25,0.25,0.25,1));
-            defClickStroke.setVar<Color>("color",Color(0.5,0.5,0.5,1));
-            
-            VarMap fill = getEntity()->defaultVar<VarMap>("fill",defFill),
-                stroke = getEntity()->defaultVar<VarMap>("stroke",defStroke),
-                clickFill = getEntity()->defaultVar<VarMap>("clickFill",defClickFill),
-                clickStroke = getEntity()->defaultVar<VarMap>("clickStroke",defClickStroke);
-            
             m_circle = getEntity()->buildChild("circle");
             m_circle->setVar<Vec2>("pos",Vec2(0.1,0.5));
             m_circle->setVar<Vec2>("scale",Vec2(0.2,1));
-            m_circle->setVar<VarMap>("material",fill);
+            m_circle->setVar<VarMap>("material",getEntity()->getVar<VarMap>("fill"));
             m_circle->buildAspect("Graphics/Prims/Circle");
             
             m_circleEdge = m_circle->buildChild("edge");
-            m_circleEdge->setVar<VarMap>("material",stroke);
+            m_circleEdge->setVar<VarMap>("material",getEntity()->getVar<VarMap>("stroke"));
             m_circleEdge->setVar<bool>("filled",false);
             m_circleEdge->buildAspect("Graphics/Prims/Circle");
             
             m_text = getEntity()->buildChild("text");
             m_text->setVar<Vec2>("pos",Vec2(0.25,0.5));
-            m_text->setVar<VarMap>("material",stroke);
+            m_text->setVar<VarMap>("material",getEntity()->getVar<VarMap>("stroke"));
             m_text->setVar<std::string>("text",getEntity()->getVar<std::string>("text",""));
             m_text->buildAspect("Graphics/Prims/Text");
             
@@ -48,9 +36,9 @@ namespace fhe
             if ( m_circle->call("collides",pos).get<bool>(false) )
             {
                 getEntity()->setVar<bool>("clicking",true);
-                m_circle->setVar<VarMap>("material",getEntity()->getVar<VarMap>("clickFill"));
-                m_circleEdge->setVar<VarMap>("material",getEntity()->getVar<VarMap>("clickStroke"));
-//                 m_text->setVar<VarMap>("material",getEntity()->getVar<VarMap>("clickStroke"));
+                m_circle->setVar<VarMap>("material",getEntity()->getVar<VarMap>("focusFill"));
+                m_circleEdge->setVar<VarMap>("material",getEntity()->getVar<VarMap>("focusStroke"));
+                m_text->setVar<VarMap>("material",getEntity()->getVar<VarMap>("focusStroke"));
             }
             
             return Var();
@@ -67,7 +55,7 @@ namespace fhe
             getEntity()->setVar<bool>("clicking",false);
             m_circle->setVar<VarMap>("material",getEntity()->getVar<VarMap>("fill"));
             m_circleEdge->setVar<VarMap>("material",getEntity()->getVar<VarMap>("stroke"));
-//             m_text->setVar<VarMap>("material",getEntity()->getVar<VarMap>("stroke"));
+            m_text->setVar<VarMap>("material",getEntity()->getVar<VarMap>("stroke"));
 
             return Var();
         }
