@@ -7,20 +7,13 @@ env = Environment()
 
 env.Append(CPPFLAGS = "-g")
 
-env.ParseConfig("pkg-config --cflags --libs ftgl")
+env.ParseConfig("pkg-config --cflags --libs ftgl OIS OGRE")
 
 env.Append(CPPPATH = env.Split('''
     #
     ext/tinyxml
     /usr/include/python2.6 
     '''))
-    
-'''
-    /usr/local/include/OGRE
-    /usr/local/include/OIS
-    /usr/local/include/CEGUI
-    /usr/local/include/bullet
-'''
     
 env.Append(LIBS = env.Split('''
     boost_filesystem-mt
@@ -31,16 +24,6 @@ env.Append(LIBS = env.Split('''
     python2.6
     boost_python-mt-py26
     '''))
-    
-'''
-    CEGUIBase
-    CEGUIOgreRenderer
-    OgreMain
-    OIS
-    bulletdynamics
-    bulletcollision
-    bulletmath
-'''
     
 env.Append(LIBPATH = env.Split('''
     /usr/local/lib
