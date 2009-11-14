@@ -2,11 +2,11 @@ import yaml
 
 def dynload(name):
     try:
-        exec "%s import %s as c" % (name,name.split('.')[-1]) in locals()
+        exec "from %s import %s as c" % (name,name.split('.')[-1]) in locals()
         return c
     except:
         print "unable to dynload", name
-        throw
+        raise
         
 def deepEval(val,**env):
     if isinstance(val,str):

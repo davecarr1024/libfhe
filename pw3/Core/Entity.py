@@ -1,4 +1,5 @@
 import Util
+from FileSystem import fileSystem
 
 class Entity:
     def __init__(self, **args):
@@ -21,10 +22,13 @@ class Entity:
             
         for name, val in args.get('children',{}).iteritems():
             self.buildChild(name,**val)
+
+    def __repr__(self):
+        return "<Entity %s>" % self.getPath()
             
     @staticmethod
     def load(filename):
-        return Entity(**Util.deepLoad(filename))
+        return Entity(**Util.deepLoad(fileSystem.get(filename)))
         
     def doSave(self):
         return dict(vars = dict([(name,self.getVar(name)) for name in self.getVarNames()]),
@@ -43,7 +47,7 @@ class Entity:
                 self.parent.addChild(self)
                 self.call("on_attach")
                 
-    def detachFromParent(self, parent):
+    def detachFromParent(self):
         if self.parent:
             parent = self.parent
             self.parent = None
@@ -65,6 +69,12 @@ class Entity:
         child = Entity(**args)
         self.addChild(child)
         return child
+
+    def loadChild(self, name, filename):
+        child = Entity.load(filename)
+        child.name = name
+        self.addChild(child)
+        return child
         
     def hasChild(self, name):
         return name in self.children
@@ -76,10 +86,7 @@ class Entity:
         return self.parent
         
     def getRoot(self):
-        ent = self.parent
-        while ent:
-            ent = ent.parent
-        return ent
+        return self.parent.getRoot() if self.parent else self
         
     def getEntity(self, path):
         if path == '/':
@@ -174,9 +181,9 @@ class Entity:
         return ret
         
     def publish(self, name, *args, **kwargs):
-        self.call("msg_%s" % name,*ar)
+        self.call("msg_%s" % name,*args,**kwargs)
         
         for child in self.children.itervalues():
-            child.publish(name,arg)
+            child.publish(name,*args,**kwargs)
             
-        self.call("unmsg_%s" % name,arg)
+        self.call("unmsg_%s" % name,*args,**kwargs)
