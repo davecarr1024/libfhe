@@ -1,4 +1,3 @@
-import Aspect
 import Util
 
 class Entity:
