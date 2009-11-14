@@ -1,7 +1,4 @@
-
-from FuncMap import FuncMap
-
-class Aspect(FuncMap):
+class Aspect:
     def __init__(self, **args):
         FuncMap.__init__(self)
         
