@@ -1,7 +1,5 @@
 class Aspect:
     def __init__(self, **args):
-        FuncMap.__init__(self)
-        
         self.funcs = dict([(name,getattr(self,name)) for name in dir(self) if callable(getattr(self,name))])
         
         self.entity = None
