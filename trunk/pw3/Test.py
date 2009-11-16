@@ -50,3 +50,6 @@ Quat.test()
 
 from Core.Math.Mat4 import Mat4
 Mat4.test()
+
+from Core.Math.Plane import Plane
+Plane.test()

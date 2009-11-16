@@ -79,28 +79,29 @@ class Mat3:
                      (self[3] * self[7] - self[6] * self[4]) / det,
                     -(self[0] * self[7] - self[6] * self[1]) / det,
                      (self[0] * self[4] - self[1] * self[3]) / det )
-            
-if __name__ == "__main__":
-    def equal(v1, v2):
-        return abs(v2.x - v1.x) < 0.1 and abs(v2.y - v1.y) < 0.1
-    v = Vec2(1,2)
+                     
+    @staticmethod
+    def test():
+        def equal(v1, v2):
+            return abs(v2.x - v1.x) < 0.1 and abs(v2.y - v1.y) < 0.1
+        v = Vec2(1,2)
 
-    assert equal(v,Mat3.identity() * v)
+        assert equal(v,Mat3.identity() * v)
 
-    t = Vec2(50,-10)
-    assert equal(v + t, Mat3.translation(t) * v)
+        t = Vec2(50,-10)
+        assert equal(v + t, Mat3.translation(t) * v)
 
-    s = Vec2(-7,3)
-    assert equal(v * s, Mat3.scale(s) * v)
+        s = Vec2(-7,3)
+        assert equal(v * s, Mat3.scale(s) * v)
 
-    r = Rot.fromDegrees(90)
-    assert equal(r * v,Mat3.rotation(r) * v)
-    
-    simple = Mat3.scale(s) * (Mat3.translation(t) * (Mat3.rotation(r) * v))
-    compound = (Mat3.scale(s) * Mat3.translation(t) * Mat3.rotation(r)) * v
-    assert equal(simple,compound)
+        r = Rot.fromDegrees(90)
+        assert equal(r * v,Mat3.rotation(r) * v)
+        
+        simple = Mat3.scale(s) * (Mat3.translation(t) * (Mat3.rotation(r) * v))
+        compound = (Mat3.scale(s) * Mat3.translation(t) * Mat3.rotation(r)) * v
+        assert equal(simple,compound)
 
-    assert equal(v,Mat3.identity().inverse() * v)
-    assert equal(v - t, Mat3.translation(t).inverse() * v)
-    assert equal(v / s, Mat3.scale(s).inverse() * v)
-    assert equal(-r * v,Mat3.rotation(r).inverse() * v)
+        assert equal(v,Mat3.identity().inverse() * v)
+        assert equal(v - t, Mat3.translation(t).inverse() * v)
+        assert equal(v / s, Mat3.scale(s).inverse() * v)
+        assert equal(-r * v,Mat3.rotation(r).inverse() * v)
