@@ -116,30 +116,35 @@ class Mat4:
                 m[i + j*4] = (subm.det() * sign) / det
         return m
 
-if __name__ == "__main__":
-    def equal(v1, v2):
-        return abs(v1.x - v2.x) < 0.1 and abs(v1.y - v2.y) < 0.1 and abs(v1.z - v2.z) < 0.1
-    
-    v = Vec3(10,11,12)
-    t = Vec3(5,6,7)
-    s = Vec3(4,-2,5)
-    r = Quat.fromAxisAngle(Vec3.UNIT_X,1.2)
+    @staticmethod
+    def test():
+        v = Vec3(10,11,12)
+        t = Vec3(5,6,7)
+        r = Quat.fromAxisAngle(Vec3.UNIT_X,math.pi/2.0)
+        s = Vec3(4,-2,5)
 
-    assert equal(v,Mat4.identity() * v)
-    assert equal(v + t, Mat4.translation(t) * v)
-    assert equal(v * s, Mat4.scale(s) * v)
-    assert equal(r * v, Mat4.rotation(r) * v)
-
-    simple = Mat4.translation(t) * (Mat4.scale(s) * (Mat4.rotation(r) * v))
-    compound = (Mat4.translation(t) * Mat4.scale(s) * Mat4.rotation(r)) * v
-    assert equal(simple,compound)
-
-    assert equal(v,Mat4().identity().inverse() * v)
-    assert equal(v - t, Mat4.translation(t).inverse() * v)
-    assert equal(v / s, Mat4.scale(s).inverse() * v)
-    assert equal(r.inverse() * v, Mat4.rotation(r).inverse() * v)
-    
-    ms = Mat4.scale(s)
-    assert s * v == ms * v
-    msi = ms.inverse()
-    assert v / s == msi * v
+        assert t + v == Vec3(15,17,19)
+        assert r * v == Vec3(10,-12,11)
+        assert s * v == Vec3(40,-22,60)
+        
+        mt = Mat4.translation(t)
+        mr = Mat4.rotation(r)
+        ms = Mat4.scale(s)
+        
+        assert t + v == mt * v
+        assert r * v == mr * v
+        assert s * v == ms * v
+        
+        assert s * ( r * ( t + v ) ) == ms * ( mr * ( mt * v ) )
+        assert s * ( r * ( t + v ) ) == ( ms * mr * mt ) * v
+        
+        mti = mt.inverse()
+        mri = mr.inverse()
+        msi = ms.inverse()
+        
+        assert v - t == mti * v
+        assert r.inverse() * v == mri * v
+        assert v / s == msi * v
+        
+        assert ( r.inverse() * ( v - t ) ) / s == msi * ( mri * ( mti * v ) )
+        assert ( r.inverse() * ( v - t ) ) / s == ( msi * mri * mti ) * v
