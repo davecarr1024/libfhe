@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from Core.Entity import Entity
 
 root = Entity()
@@ -39,3 +41,12 @@ assert fileEnt.hasChild("fileChild")
 fileChild = fileEnt.getChild("fileChild")
 assert fileChild
 assert fileChild.call("foo") == "bar"
+
+from Core.Math.Mat3 import Mat3
+Mat3.test()
+
+from Core.Math.Quat import Quat
+Quat.test()
+
+from Core.Math.Mat4 import Mat4
+Mat4.test()
