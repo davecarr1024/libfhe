@@ -115,14 +115,6 @@ namespace fhe
         return Math::equal(w,q.w,eps) && Math::equal(x,q.x,eps) && Math::equal(y,q.y,eps) && Math::equal(z,q.z,eps);
     }
     
-    std::ostream& operator<<(std::ostream& os, const Quat& q)
-    {
-        Vec3 axis;
-        float angle;
-        q.toAxisAngle(axis,angle);
-        os << "<Quat " << axis << " " << angle << ">";
-    }
-    
     std::string Quat::toString()
     {
         Vec3 axis;
