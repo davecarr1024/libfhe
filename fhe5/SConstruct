@@ -58,7 +58,7 @@ elif platform == 'win':
         "c:/python25/libs"
         ])
 
-    env.Install("#",[
+    env.Install("#", [
         env.Glob("ext/win/lib/*.dll"),
         "c:/boost/lib/boost_python-vc80-mt-gd-1_41.dll"
         ])
@@ -83,13 +83,14 @@ else:
     projects = []
     for file in mainSrc:
         name = file[:file.rfind('.')].lstrip('.\\').replace('\\','_')
-        program = env.Program("%s" % name,[file,libSrc])
+        program = env.Program(name,[file,libSrc])
         projects.append(env.MSVSProject(target = name + env['MSVSPROJECTSUFFIX'],
                                         srcs = [file] + libSrc,
                                         incs = inc,
                                         buildtarget = program,
                                         variant = 'Debug',
-                                        auto_build_solution=0))
-    env.MSVSSolution(target = 'fhe' + env['MSVSSOLUTIONSUFFIX'],
+                                        auto_build_solution = 0))
+    sln = env.MSVSSolution(target = 'fhe' + env['MSVSSOLUTIONSUFFIX'],
                       projects = projects,
                       variant = 'Debug')
+    env.Default([sln,projects])
