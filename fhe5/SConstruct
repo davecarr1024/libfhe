@@ -70,6 +70,7 @@ def enumerateFiles(path = "."):
 files = enumerateFiles()
 
 src = filter(lambda file: file.endswith(".cpp"),files)
+inc = filter(lambda file: file.endswith(".h"),files)
 
 mainSrc = filter(lambda file: 'main' in file.lower(), src)
 libSrc = filter(lambda file: file not in mainSrc, src)
@@ -79,6 +80,16 @@ if platform == "lin":
     lib = env.SharedLibrary('fhe',libSrc)
     apps = map(lambda file: env.Program(file[:file.rfind('.')].lstrip('./').replace('/','.'), [file,lib]), mainSrc)
 else:
+    projects = []
     for file in mainSrc:
         name = file[:file.rfind('.')].lstrip('.\\').replace('\\','_')
-        env.Program("%s" % name,[file,libSrc])
+        program = env.Program("%s" % name,[file,libSrc])
+        projects.append(env.MSVSProject(target = name + env['MSVSPROJECTSUFFIX'],
+                                        srcs = [file] + libSrc,
+                                        incs = inc,
+                                        buildtarget = program,
+                                        variant = 'Debug',
+                                        auto_build_solution=0))
+    env.MSVSSolution(target = 'fhe' + env['MSVSSOLUTIONSUFFIX'],
+                      projects = projects,
+                      variant = 'Debug')
