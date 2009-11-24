@@ -1,33 +1,67 @@
 import glob
 import os
+import sys
+platform = sys.platform[:3]
 
 env = Environment()
 
-#env['SHOBJSUFFIX'] = '.oss'
+if platform == 'lin':
+    env.Append(CPPFLAGS = "-g")
 
-env.Append(CPPFLAGS = "-g")
+    env.ParseConfig("pkg-config --cflags --libs ftgl OIS OGRE")
 
-env.ParseConfig("pkg-config --cflags --libs ftgl OIS OGRE")
+    env.Append(CPPPATH = env.Split('''
+        #
+        ext/tinyxml
+        /usr/include/python2.6 
+        '''))
+        
+    env.Append(LIBS = env.Split('''
+        boost_filesystem-mt
+        SDL
+        SDL_image
+        GL
+        GLU
+        python2.6
+        boost_python-mt-py26
+        '''))
+        
+    env.Append(LIBPATH = env.Split('''
+        /usr/local/lib
+        '''))
 
-env.Append(CPPPATH = env.Split('''
-    #
-    ext/tinyxml
-    /usr/include/python2.6 
-    '''))
+elif platform == 'win':
+    env.Append(CPPFLAGS = "/EHsc /MDd")
     
-env.Append(LIBS = env.Split('''
-    boost_filesystem-mt
-    SDL
-    SDL_image
-    GL
-    GLU
-    python2.6
-    boost_python-mt-py26
-    '''))
-    
-env.Append(LIBPATH = env.Split('''
-    /usr/local/lib
-    '''))
+    env.Append(CPPPATH = [
+        "#",
+        "ext/tinyxml",
+        "ext/win/include",
+        "c:/boost/include/boost-1_41",
+        "c:/python25/include",
+        ])
+
+    env.Append(LIBS = env.Split('''
+        SDL
+        SDL_image
+        python25
+        ftgl
+        freetype2311
+        opengl
+        glu
+        glut32
+        '''))
+        
+    env.Append(LIBPATH = [
+        "ext/win/lib",
+        "c:/boost/lib",
+        "c:/python25/libs"
+        ])
+
+    env.Install("#",[
+        env.Glob("ext/win/lib/*.dll"),
+        "c:/boost/lib/boost_python-vc80-mt-gd-1_41.dll"
+        ])
 
 def enumerateFiles(path = "."):
     files = glob.glob("%s/*" % path)
@@ -40,6 +74,11 @@ src = filter(lambda file: file.endswith(".cpp"),files)
 mainSrc = filter(lambda file: 'main' in file.lower(), src)
 libSrc = filter(lambda file: file not in mainSrc, src)
 
-lib = env.SharedLibrary('gge',libSrc)
 
-apps = map(lambda file: env.Program(file[:file.rfind('.')].lstrip('./').replace('/','.'), [file,lib]), mainSrc)
+if platform == "lin":
+    lib = env.SharedLibrary('fhe',libSrc)
+    apps = map(lambda file: env.Program(file[:file.rfind('.')].lstrip('./').replace('/','.'), [file,lib]), mainSrc)
+else:
+    for file in mainSrc:
+        name = file[:file.rfind('.')].lstrip('.\\').replace('\\','_')
+        env.Program("%s" % name,[file,libSrc])

@@ -37,8 +37,6 @@ namespace fhe
             
             bool equals(const Quat& q, float eps = Math::EPSILON) const;
             
-            friend std::ostream& operator<<(std::ostream& os, const Quat& q);
-            
             const static Quat IDENTITY;
             
             std::string toString();

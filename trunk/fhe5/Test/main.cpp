@@ -105,6 +105,8 @@ void mathTest()
 
 int main()
 {
+    printf("running\n");
+    
     EntityPtr root = new Entity("root");
     assert(root);
 

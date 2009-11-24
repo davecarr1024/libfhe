@@ -21,6 +21,7 @@ namespace fhe
     PlaneBoundedVolume& PlaneBoundedVolume::operator=(const PlaneBoundedVolume& pbv)
     {
         planes = pbv.planes;
+        return *this;
     }
     
     bool PlaneBoundedVolume::contains(const Vec3& v) const
