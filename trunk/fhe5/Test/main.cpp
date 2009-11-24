@@ -106,6 +106,8 @@ void mathTest()
 int main()
 {
     printf("running\n");
+
+    throw std::runtime_error("foo");
     
     EntityPtr root = new Entity("root");
     assert(root);
@@ -159,6 +161,8 @@ int main()
     assert(fileEnt->hasAspect("Test/TestAspect"));
     
     mathTest();
+
+    printf("passed\n");
     
     return 0;
 }
