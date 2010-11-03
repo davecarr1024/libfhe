@@ -1,0 +1,5 @@
+env = Environment()
+
+env.Append( CPPPATH = ['#'] )
+
+fhe = env.SharedLibrary( 'fhe', env.Glob( 'fhe/*.cpp' ) )
