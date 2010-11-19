@@ -1,0 +1,17 @@
+env = Environment()
+
+env.ParseConfig( 'pkg-config --cflags --libs glib-2.0 gmodule-2.0' )
+env.Append( CPPPATH = [ '#' ] )
+env.Append( RPATH = [ env.Dir( '#' ).abspath ] )
+env.Append( CPPFLAGS = [ '-g' ] )
+
+lib_fhe = env.SharedLibrary( 'fhe', env.Glob( 'fhe/*.c' ) )
+
+env = env.Clone()
+env.Append( LIBS = [ lib_fhe, 'gtest' ] )
+
+test_srcs = env.Glob( 'test/*.cpp' )
+for test_src in test_srcs:
+    test_exe = env.Program( test_src )
+    test_name = str( test_exe[0] )
+    env.Command( test_name + '.out', test_exe, test_name )
