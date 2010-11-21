@@ -1,9 +1,7 @@
 #include <fhe/node.h>
 #include <fhe/util.h>
-#include <gmodule.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
 fhe_node_t* fhe_node_init( fhe_node_t* parent, const fhe_node_type_t* type, const char* name )
 {
@@ -54,6 +52,7 @@ void fhe_node_add_child( fhe_node_t* node, fhe_node_t* child )
     node->n_children++;
     node->children = (fhe_node_t**)realloc( node->children, sizeof( fhe_node_t* ) * node->n_children );
     node->children[node->n_children-1] = child;
+    child->parent = node;
     fhe_node_ref( child );
     fhe_node_call( child, FHE_NODE_FUNC_ID_ON_ATTACH, node );
 }
@@ -66,8 +65,10 @@ int fhe_node_remove_child( fhe_node_t* node, fhe_node_t* child )
     for ( i = 0; i < node->n_children && node->children[i] != child; ++i );
     if ( i < node->n_children )
     {
-        fhe_node_call( node->children[i], FHE_NODE_FUNC_ID_ON_DETACH, node );
-        fhe_node_unref( node->children[i] );
+        fhe_node_t* child = node->children[i];
+        fhe_node_call( child, FHE_NODE_FUNC_ID_ON_DETACH, node );
+        child->parent = 0;
+        fhe_node_unref( child );
         for ( ; i < node->n_children - 1; ++i )
         {
             node->children[i] = node->children[i+1];
@@ -132,88 +133,99 @@ void fhe_node_publish( fhe_node_t* node, fhe_node_func_id_t id, void* data )
     }
 }
 
-typedef struct
+void fhe_node_start_element( GMarkupParseContext* context,
+                             const gchar* element_name,
+                             const gchar** attribute_names,
+                             const gchar** attribute_values,
+                             gpointer user_data,
+                             GError **error )
 {
-    char* name;
-    GModule* mod;
-} fhe_node_type_mod_entry_t;
-
-static fhe_node_type_mod_entry_t* fhe_node_type_mods = 0;
-static int fhe_node_type_n_mods = 0;
-
-GModule* fhe_node_type_getMod( char* name )
-{
-    FHE_ASSERT_MSG( g_module_supported(), "gmodule not supported" );
+    fhe_node_t** parent = (fhe_node_t**)user_data;
     
-    unsigned int i;
-    for ( i = 0; i < fhe_node_type_n_mods; ++i )
+    FHE_ASSERT( parent );
+
+    //don't load two roots
+    FHE_ASSERT( !*parent || (*parent)->parent );
+    
+    if ( !strcmp( element_name, "node" ) )
     {
-        if ( !strcmp( fhe_node_type_mods[i].name, name ) )
+        const gchar* name = 0;
+        const gchar* type = 0;
+        
+        const gchar **iname, **ival;
+        for ( iname = attribute_names, ival = attribute_values; *iname && *ival; ++iname, ++ival )
         {
-            return fhe_node_type_mods[i].mod;
+            if ( !strcmp( *iname, "name" ) )
+            {
+                name = *ival;
+            }
+            if ( !strcmp( *iname, "type" ) )
+            {
+                type = *ival;
+            }
         }
+        
+        FHE_ASSERT_MSG( name, "attr name required in node tag" );
+        FHE_ASSERT_MSG( type, "attr type required in node tag" );
+                        
+        const fhe_node_type_t* node_type = fhe_node_type_get( type );
+        FHE_ASSERT_MSG( node_type, "unable to load node_type %s", type );
+                        
+        fhe_node_t* node = fhe_node_init( *parent, node_type, name );
+        FHE_ASSERT_MSG( node, "unable to create node: type %s name %s", type, name );
+        
+        *parent = node;
     }
-    fhe_node_type_n_mods++;
-    fhe_node_type_mods = realloc( fhe_node_type_mods, sizeof( fhe_node_type_mod_entry_t ) * fhe_node_type_n_mods );
-    GModule* mod = g_module_open( g_module_build_path( ".", (const gchar*)name ), G_MODULE_BIND_LAZY );
-    FHE_ASSERT_MSG( mod, "unable to load mod %s", name );
-    g_module_make_resident( mod );
-    fhe_node_type_mods[fhe_node_type_n_mods].name = malloc( sizeof(char) * strlen( name ) );
-    strcpy( fhe_node_type_mods[fhe_node_type_n_mods-1].name, name );
-    fhe_node_type_mods[fhe_node_type_n_mods-1].mod = mod;
-    return mod;
+    else
+    {
+        FHE_ASSERT_MSG( 0, "invalid element_name %s", element_name );
+    }
+                                                 
 }
 
-void fhe_node_type_add_file( const char* file )
+void fhe_node_end_element( GMarkupParseContext* context,
+                           const gchar* element_name,
+                           gpointer user_data,
+                           GError **error )
 {
-    const char* basename = strrchr( file, '/' );
-    if ( NULL == basename )
+    fhe_node_t** node = (fhe_node_t**)user_data;
+    
+    if ( !strcmp( element_name, "node" ) )
     {
-        basename = file;
-    }
-    int len = strcspn( basename, G_DIR_SEPARATOR_S );
-    char name[len];
-    strncpy( name, basename, len );
-}
-
-void fhe_node_type_add_path( const char* path )
-{
-    GDir* dir = g_dir_open( path, 0, NULL );
-    FHE_ASSERT_MSG( dir, "unable to open path %s", path );
-    const char* file;
-    for ( file = g_dir_read_name( dir ); file; file = g_dir_read_name( dir ) )
-    {
-        const char* ext = strrchr( file, '.' );
-        if ( ext && !strcmp( ext + 1, G_MODULE_SUFFIX ) )
+        FHE_ASSERT( *node );
+        if ( (*node)->parent )
         {
-            printf( "load %s\n", file );
-            fhe_node_type_add_file( file );
-        }
-        else if ( g_file_test( file, G_FILE_TEST_IS_DIR ) )
-        {
-            fhe_node_type_add_path( file );
+            fhe_node_unref( *node );
+            *node = (*node)->parent;
         }
     }
 }
 
-const fhe_node_type_t* fhe_node_type_get( const char* _typename )
+static const GMarkupParser fhe_node_markup_parser =
 {
-    char typename[1024], modname[1024], name[1024];
-    strncpy( typename, _typename, 1024 );
+    fhe_node_start_element,
+    fhe_node_end_element,
+    NULL,
+    NULL,
+    NULL
+};
+
+fhe_node_t* fhe_node_load( const char* filename )
+{
+    fhe_node_t* node = 0;
+    GMarkupParseContext* context = g_markup_parse_context_new( &fhe_node_markup_parser, 0, &node, NULL );
+    FHE_ASSERT( context );
     
-    char* tok = strtok( (char*)typename, "." );
-    FHE_ASSERT_MSG( tok, "unable to tok modname out of %s", typename );
-    strncpy( modname, tok, 1024 );
+    gchar* text;
+    gsize text_len;
     
-    tok = strtok( NULL, "." );
-    FHE_ASSERT_MSG( tok, "unable to tok typename out of %s", typename );
-    strncpy( name, tok, 1024 );
+    FHE_ASSERT_MSG( g_file_get_contents( filename, &text, &text_len, NULL ), "unable to read file %s", filename );
     
-    GModule* mod = fhe_node_type_getMod( modname );
-    FHE_ASSERT_MSG( mod, "unable to load mod %s", modname );
+    FHE_ASSERT_MSG( g_markup_parse_context_parse( context, (const gchar*)text, text_len, NULL ), "unable to parse file %s", filename );
     
-    gpointer type = 0;
-    g_module_symbol( mod, (const gchar*)name, &type );
-    FHE_ASSERT_MSG( type, "error loading symbol %s from mod %s: %s\n", name, modname, g_module_error() );
-    return (const fhe_node_type_t*)(type);
+    g_free( text );
+    
+//     g_markup_parser_context_free( context );
+
+    return node;
 }
