@@ -8,7 +8,12 @@ env.Append( CPPFLAGS = [ '-g' ] )
 lib_fhe = env.SharedLibrary( 'fhe', env.Glob( 'fhe/*.c' ) )
 
 env = env.Clone()
-env.Append( LIBS = [ lib_fhe, 'gtest' ] )
+env.Append( LIBS = [ lib_fhe ] )
+
+test_common = env.SharedLibrary( 'test_common', env.Glob( 'test/common/*.c' ) )
+
+env = env.Clone()
+env.Append( LIBS = [ test_common, 'gtest' ] )
 
 test_srcs = env.Glob( 'test/*.cpp' )
 for test_src in test_srcs:

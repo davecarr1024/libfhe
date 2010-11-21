@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 extern "C" 
 {
-    #include <fhe/node.h>
+    #include <test/common/test_node.h>
 }
 
 TEST( node_test, tree )
@@ -26,25 +26,6 @@ TEST( node_test, tree )
     fhe_node_unref( root );
 }
 
-typedef struct
-{
-    int i, j;
-} TestData;
-
-void fhe_test_node_test( fhe_node_t* node, TestData* data )
-{
-    data->i = 3;
-}
-
-const fhe_node_type_t FHE_TEST_NODE =
-{
-    &FHE_NODE,
-    {
-        { FHE_NODE_FUNC_ID_TEST, (fhe_node_func_t)&fhe_test_node_test },
-        { FHE_NODE_FUNC_ID_INVALID, 0 }
-    }
-};
-
 TEST( node_test, call )
 {
     fhe_node_t* node = fhe_node_init( 0, &FHE_TEST_NODE, "node" );
@@ -55,20 +36,6 @@ TEST( node_test, call )
     
     fhe_node_unref( node );
 }
-
-void fhe_test_child_node_test( fhe_node_t* node, TestData* data )
-{
-    data->j = 4;
-}
-
-const fhe_node_type_t FHE_TEST_CHILD_NODE =
-{
-    &FHE_TEST_NODE,
-    {
-        { FHE_NODE_FUNC_ID_TEST, (fhe_node_func_t)&fhe_test_child_node_test },
-        { FHE_NODE_FUNC_ID_INVALID, 0 }
-    }
-};
 
 TEST( node_test, child_call )
 {
@@ -98,11 +65,26 @@ TEST( node_test, publish )
 
 TEST( node_test, get_type )
 {
-    const fhe_node_type_t* type = fhe_node_type_get( "fhe.FHE_NODE" );
+    const fhe_node_type_t* type = fhe_node_type_get( "FHE_NODE" );
     ASSERT_TRUE( type );
     ASSERT_FALSE( type->parent );
     ASSERT_EQ( FHE_NODE_FUNC_ID_INVALID, type->funcs[0].id );
     ASSERT_FALSE( type->funcs[0].func );
+}
+
+TEST( node_test, file )
+{
+    fhe_node_t* node = fhe_node_load( "./test/node_test.xml" );
+    ASSERT_TRUE( node );
+    
+    ASSERT_STREQ( "file_node", node->name );
+
+    TestData data = {0,0};
+    fhe_node_publish( node, FHE_NODE_FUNC_ID_TEST, &data );
+    ASSERT_EQ( 3, data.i );
+    ASSERT_EQ( 4, data.j );
+    
+    fhe_node_unref( node );
 }
 
 int main( int argc, char** argv )
