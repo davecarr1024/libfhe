@@ -1,4 +1,4 @@
 <node name="file_node" type="FHE_TEST_CHILD_NODE">
-    <node name="file_child" type="FHE_TEST_CHILD_NODE">
-    </node>
+    <node name="file_child" type="FHE_TEST_CHILD_NODE"/>
+    <include file="./test/include_test.xml"/>
 </node>

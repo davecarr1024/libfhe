@@ -96,6 +96,11 @@ TEST( node_test, file )
     ASSERT_TRUE( child );
     fhe_node_ref( child );
     
+    fhe_node_t* include_node = fhe_node_get_child( node, "include_node" );
+    ASSERT_TRUE( include_node );
+    fhe_node_ref( include_node );
+    
+    fhe_node_unref( include_node );
     fhe_node_unref( child );
     fhe_node_unref( node );
 }

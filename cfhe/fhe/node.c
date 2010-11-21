@@ -173,6 +173,28 @@ void fhe_node_start_element( GMarkupParseContext* context,
         
         *parent = node;
     }
+    else if ( !strcmp( element_name, "include" ) )
+    {
+        const gchar* file = 0;
+        
+        const gchar **iname, **ival;
+        for ( iname = attribute_names, ival = attribute_values; *iname && *ival; ++iname, ++ival )
+        {
+            if ( !strcmp( *iname, "file" ) )
+            {
+                file = *ival;
+            }
+        }
+        
+        FHE_ASSERT_MSG( file, "attr file required in include tag" );
+        
+        fhe_node_t* node = fhe_node_load( file );
+        FHE_ASSERT_MSG( node, "unable to load node from file %s", file );
+        
+        fhe_node_add_child( *parent, node );
+        
+        *parent = node;
+    }
     else
     {
         FHE_ASSERT_MSG( 0, "invalid element_name %s", element_name );
@@ -187,7 +209,7 @@ void fhe_node_end_element( GMarkupParseContext* context,
 {
     fhe_node_t** node = (fhe_node_t**)user_data;
     
-    if ( !strcmp( element_name, "node" ) )
+    if ( !strcmp( element_name, "node" ) || !strcmp( element_name, "include" ) )
     {
         FHE_ASSERT( *node );
         if ( (*node)->parent )
