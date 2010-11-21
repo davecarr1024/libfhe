@@ -2,6 +2,7 @@
 #include <fhe/util.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 fhe_node_t* fhe_node_init( fhe_node_t* parent, const fhe_node_type_t* type, const char* name )
 {
@@ -9,15 +10,14 @@ fhe_node_t* fhe_node_init( fhe_node_t* parent, const fhe_node_type_t* type, cons
     fhe_node_t* node = (fhe_node_t*)malloc( sizeof( fhe_node_t ) );
     node->refs = 1;
     node->type = type;
-    node->name = (char*)malloc( sizeof(char) * ( strlen( name ) + 1 ) );
-    strcpy( node->name, name );
-    node->parent = parent;
+    node->name = strdup( name );
+    node->parent = 0;
     node->children = 0;
     node->n_children = 0;
     fhe_node_call( node, FHE_NODE_FUNC_ID_INIT, NULL );
-    if ( node->parent )
+    if ( parent )
     {
-        fhe_node_add_child( node->parent, node );
+        fhe_node_add_child( parent, node );
     }
     return node;
 }
@@ -31,7 +31,7 @@ void fhe_node_ref( fhe_node_t* node )
 void fhe_node_unref( fhe_node_t* node )
 {
     FHE_ASSERT( node );
-    if ( TRUE != g_atomic_int_dec_and_test( &node->refs ) )
+    if ( g_atomic_int_dec_and_test( &node->refs ) )
     {
         fhe_node_call( node, FHE_NODE_FUNC_ID_DESTROY, NULL );
         unsigned int i;
@@ -144,9 +144,6 @@ void fhe_node_start_element( GMarkupParseContext* context,
     
     FHE_ASSERT( parent );
 
-    //don't load two roots
-    FHE_ASSERT( !*parent || (*parent)->parent );
-    
     if ( !strcmp( element_name, "node" ) )
     {
         const gchar* name = 0;
@@ -167,7 +164,7 @@ void fhe_node_start_element( GMarkupParseContext* context,
         
         FHE_ASSERT_MSG( name, "attr name required in node tag" );
         FHE_ASSERT_MSG( type, "attr type required in node tag" );
-                        
+        
         const fhe_node_type_t* node_type = fhe_node_type_get( type );
         FHE_ASSERT_MSG( node_type, "unable to load node_type %s", type );
                         

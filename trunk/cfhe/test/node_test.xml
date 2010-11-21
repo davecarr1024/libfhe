@@ -1,2 +1,4 @@
 <node name="file_node" type="FHE_TEST_CHILD_NODE">
+    <node name="file_child" type="FHE_TEST_CHILD_NODE">
+    </node>
 </node>
