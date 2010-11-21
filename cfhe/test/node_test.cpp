@@ -22,6 +22,14 @@ TEST( node_test, tree )
     ASSERT_EQ( child, fhe_node_get_child( root, "child" ) );
     ASSERT_EQ( root, fhe_node_get_root( child ) );
     
+    ASSERT_TRUE( fhe_node_remove_child( root, child ) );
+    
+    ASSERT_FALSE( fhe_node_get_child( root, "child" ) );
+    
+    fhe_node_add_child( root, child );
+    
+    ASSERT_TRUE( fhe_node_get_child( root, "child" ) );
+    
     fhe_node_unref( child );
     fhe_node_unref( root );
 }
@@ -84,6 +92,11 @@ TEST( node_test, file )
     ASSERT_EQ( 3, data.i );
     ASSERT_EQ( 4, data.j );
     
+    fhe_node_t* child = fhe_node_get_child( node, "file_child" );
+    ASSERT_TRUE( child );
+    fhe_node_ref( child );
+    
+    fhe_node_unref( child );
     fhe_node_unref( node );
 }
 
