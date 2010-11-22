@@ -3,7 +3,7 @@ env = Environment()
 env.ParseConfig( 'pkg-config --cflags --libs glib-2.0 gmodule-2.0' )
 env.Append( CPPPATH = [ '#' ] )
 env.Append( RPATH = [ env.Dir( '#' ).abspath ] )
-env.Append( CPPFLAGS = [ '-g' ] )
+env.Append( CPPFLAGS = [ '-g', '-Wall', '-Werror' ] )
 
 lib_fhe = env.SharedLibrary( 'fhe', env.Glob( 'fhe/*.c' ) )
 

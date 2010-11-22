@@ -14,7 +14,22 @@ fhe_node_t* fhe_node_init( fhe_node_t* parent, const fhe_node_type_t* type, cons
     node->parent = 0;
     node->children = 0;
     node->n_children = 0;
-    fhe_node_call( node, FHE_NODE_FUNC_ID_INIT, NULL );
+    
+    node->funcs = g_hash_table_new( g_str_hash, g_str_equal );
+    
+    const fhe_node_type_t* itype;
+    const fhe_node_type_entry_t* entry;
+    for ( itype = node->type; itype; itype = itype->parent )
+    {
+        for ( entry = itype->funcs; entry->name && entry->func; entry++ )
+        {
+            GSList* list = g_hash_table_lookup( node->funcs, entry->name );
+            list = g_slist_append( list, entry->func );
+            g_hash_table_replace( node->funcs, (gpointer)entry->name, list );
+        }
+    }
+    
+    fhe_node_call( node, "init", NULL );
     if ( parent )
     {
         fhe_node_add_child( parent, node );
@@ -28,17 +43,24 @@ void fhe_node_ref( fhe_node_t* node )
     g_atomic_int_inc( &node->refs );
 }
 
+void fhe_node_func_free( const char* name, GSList* list, gpointer data )
+{
+    g_slist_free( list );
+}
+
 void fhe_node_unref( fhe_node_t* node )
 {
     FHE_ASSERT( node );
     if ( g_atomic_int_dec_and_test( &node->refs ) )
     {
-        fhe_node_call( node, FHE_NODE_FUNC_ID_DESTROY, NULL );
+        fhe_node_call( node, "destroy", NULL );
         unsigned int i;
         for ( i = 0; i < node->n_children; ++i )
         {
             fhe_node_unref( node->children[i] );
         }
+        g_hash_table_foreach( node->funcs, (GHFunc)fhe_node_func_free, NULL );
+        g_hash_table_unref( node->funcs );
         free( node->children );
         free( node->name );
         free( node );
@@ -54,7 +76,7 @@ void fhe_node_add_child( fhe_node_t* node, fhe_node_t* child )
     node->children[node->n_children-1] = child;
     child->parent = node;
     fhe_node_ref( child );
-    fhe_node_call( child, FHE_NODE_FUNC_ID_ON_ATTACH, node );
+    fhe_node_call( child, "attach", node );
 }
 
 int fhe_node_remove_child( fhe_node_t* node, fhe_node_t* child )
@@ -66,7 +88,7 @@ int fhe_node_remove_child( fhe_node_t* node, fhe_node_t* child )
     if ( i < node->n_children )
     {
         fhe_node_t* child = node->children[i];
-        fhe_node_call( child, FHE_NODE_FUNC_ID_ON_DETACH, node );
+        fhe_node_call( child, "detach", node );
         child->parent = 0;
         fhe_node_unref( child );
         for ( ; i < node->n_children - 1; ++i )
@@ -105,31 +127,24 @@ fhe_node_t* fhe_node_get_root( fhe_node_t* node )
     return root;
 }
 
-void fhe_node_call( fhe_node_t* node, fhe_node_func_id_t id, void* data )
+void fhe_node_call( fhe_node_t* node, const char* func_name, void* data )
 {
     FHE_ASSERT( node );
-    const fhe_node_type_t* type;
-    const fhe_node_type_entry_t* entry;
-    for ( type = node->type; type; type = type->parent )
+    GSList* list;
+    for ( list = (GSList*)g_hash_table_lookup( node->funcs, func_name ); list; list = g_slist_next( list ) )
     {
-        for ( entry = type->funcs; entry->id != FHE_NODE_FUNC_ID_INVALID; entry++ )
-        {
-            if ( entry->id == id )
-            {
-                entry->func( node, data );
-            }
-        }
+        ((fhe_node_func_t)list->data)( node, data );
     }
 }
 
-void fhe_node_publish( fhe_node_t* node, fhe_node_func_id_t id, void* data )
+void fhe_node_publish( fhe_node_t* node, const char* func, void* data )
 {
     FHE_ASSERT( node );
-    fhe_node_call( node, id, data );
+    fhe_node_call( node, func, data );
     unsigned int i;
     for ( i = 0; i < node->n_children; ++i )
     {
-        fhe_node_publish( node->children[i], id, data );
+        fhe_node_publish( node->children[i], func, data );
     }
 }
 
@@ -238,13 +253,15 @@ fhe_node_t* fhe_node_load( const char* filename )
     gchar* text;
     gsize text_len;
     
-    FHE_ASSERT_MSG( g_file_get_contents( filename, &text, &text_len, NULL ), "unable to read file %s", filename );
+    FHE_ASSERT_MSG( g_file_get_contents( filename, &text, &text_len, NULL ) && text, 
+                    "unable to read file %s", filename );
     
-    FHE_ASSERT_MSG( g_markup_parse_context_parse( context, (const gchar*)text, text_len, NULL ), "unable to parse file %s", filename );
+    FHE_ASSERT_MSG( g_markup_parse_context_parse( context, (const gchar*)text, text_len, NULL ), 
+                    "unable to parse file %s", filename );
     
     g_free( text );
     
-//     g_markup_parser_context_free( context );
+    g_markup_parse_context_free( context );
 
     return node;
 }

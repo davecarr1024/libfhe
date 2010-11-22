@@ -39,7 +39,7 @@ TEST( node_test, call )
     fhe_node_t* node = fhe_node_init( 0, &FHE_TEST_NODE, "node" );
     
     TestData data = {0,0};
-    fhe_node_call( node, FHE_NODE_FUNC_ID_TEST, &data );
+    fhe_node_call( node, "test", &data );
     ASSERT_EQ( 3, data.i );
     
     fhe_node_unref( node );
@@ -50,7 +50,7 @@ TEST( node_test, child_call )
     fhe_node_t* node = fhe_node_init( 0, &FHE_TEST_CHILD_NODE, "node" );
     
     TestData data = {0,0};
-    fhe_node_call( node, FHE_NODE_FUNC_ID_TEST, &data );
+    fhe_node_call( node, "test", &data );
     ASSERT_EQ( 3, data.i );
     ASSERT_EQ( 4, data.j );
     
@@ -63,7 +63,7 @@ TEST( node_test, publish )
     fhe_node_t* node = fhe_node_init( root, &FHE_TEST_CHILD_NODE, "node" );
     
     TestData data = {0,0};
-    fhe_node_publish( root, FHE_NODE_FUNC_ID_TEST, &data );
+    fhe_node_publish( root, "test", &data );
     ASSERT_EQ( 3, data.i );
     ASSERT_EQ( 4, data.j );
     
@@ -76,7 +76,7 @@ TEST( node_test, get_type )
     const fhe_node_type_t* type = fhe_node_type_get( "FHE_NODE" );
     ASSERT_TRUE( type );
     ASSERT_FALSE( type->parent );
-    ASSERT_EQ( FHE_NODE_FUNC_ID_INVALID, type->funcs[0].id );
+    ASSERT_FALSE( type->funcs[0].name );
     ASSERT_FALSE( type->funcs[0].func );
 }
 
@@ -88,7 +88,7 @@ TEST( node_test, file )
     ASSERT_STREQ( "file_node", node->name );
 
     TestData data = {0,0};
-    fhe_node_publish( node, FHE_NODE_FUNC_ID_TEST, &data );
+    fhe_node_publish( node, "test", &data );
     ASSERT_EQ( 3, data.i );
     ASSERT_EQ( 4, data.j );
     

@@ -17,8 +17,8 @@ const fhe_node_type_t FHE_TEST_NODE =
 {
     &FHE_NODE,
     {
-        { FHE_NODE_FUNC_ID_TEST, (fhe_node_func_t)&fhe_test_node_test },
-        { FHE_NODE_FUNC_ID_INVALID, 0 }
+        { "test", (fhe_node_func_t)&fhe_test_node_test },
+        { NULL, NULL }
     }
 };
 
@@ -31,8 +31,8 @@ const fhe_node_type_t FHE_TEST_CHILD_NODE =
 {
     &FHE_TEST_NODE,
     {
-        { FHE_NODE_FUNC_ID_TEST, (fhe_node_func_t)&fhe_test_child_node_test },
-        { FHE_NODE_FUNC_ID_INVALID, 0 }
+        { "test", (fhe_node_func_t)&fhe_test_child_node_test },
+        { NULL, NULL }
     }
 };
 
