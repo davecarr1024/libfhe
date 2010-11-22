@@ -15,7 +15,6 @@ void fhe_node_type_add_file( const char* file )
     fhe_node_type_mods = (GModule**)realloc( (void*)fhe_node_type_mods, sizeof( GModule* ) * fhe_node_type_n_mods );
     GModule* mod = g_module_open( file, G_MODULE_BIND_LAZY );
     FHE_ASSERT_MSG( mod, "unable to load mod %s", file );
-    g_module_make_resident( mod );
     fhe_node_type_mods[fhe_node_type_n_mods-1] = mod;
 }
 
@@ -38,6 +37,21 @@ void fhe_node_type_add_path( const char* path )
     }
 }
 
+void fhe_node_type_finalize()
+{
+    if ( fhe_node_type_initialized )
+    {
+        int i;
+        for ( i = 0; i < fhe_node_type_n_mods; ++i )
+        {
+            g_module_close( fhe_node_type_mods[i] );
+        }
+        free( fhe_node_type_mods );
+        fhe_node_type_n_mods = 0;
+        fhe_node_type_initialized = 0;
+    }
+}
+
 void fhe_node_type_init()
 {
     if ( !fhe_node_type_initialized )
@@ -46,6 +60,8 @@ void fhe_node_type_init()
         
         fhe_node_type_add_file( NULL );
         fhe_node_type_add_path( "." );
+        
+        atexit( fhe_node_type_finalize );
         
         fhe_node_type_initialized = 1;
     }

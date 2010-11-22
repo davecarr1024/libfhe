@@ -14,6 +14,7 @@ typedef struct fhe_node_t
     struct fhe_node_t* parent;
     struct fhe_node_t** children;
     unsigned int n_children;
+    GHashTable* funcs;
     void* data;
 } fhe_node_t;
 
@@ -65,7 +66,7 @@ fhe_node_t* fhe_node_get_root( fhe_node_t* node );
 * @param id the id of the event
 * @param data the argument to the event
 */
-void fhe_node_call( fhe_node_t* node, fhe_node_func_id_t id, void* data );
+void fhe_node_call( fhe_node_t* node, const char* func, void* data );
 
 /**
 * Publish an event to this subtree
@@ -73,7 +74,7 @@ void fhe_node_call( fhe_node_t* node, fhe_node_func_id_t id, void* data );
 * @param id the id of the event
 * @param data the argument to the event
 */
-void fhe_node_publish( fhe_node_t* node, fhe_node_func_id_t id, void* data );
+void fhe_node_publish( fhe_node_t* node, const char* func, void* data );
 
 /**
 * The basic node type. No parent type and no event callbacks.
@@ -82,7 +83,7 @@ const fhe_node_type_t FHE_NODE =
 {
     0,
     {
-        { FHE_NODE_FUNC_ID_INVALID, 0 }
+        { NULL, NULL }
     }
 };
 
