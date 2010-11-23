@@ -3,6 +3,10 @@
 
 #include <glib.h>
 
+#if GLIB_MAJOR_VERSION < 2 || GLIB_MINOR_VERSION < 26
+#error require glib >= 2.26
+#endif
+
 typedef void(*fhe_node_func_t)( void* node, void* data );
 
 typedef struct 

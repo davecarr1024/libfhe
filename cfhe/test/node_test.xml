@@ -1,4 +1,8 @@
 <node name="file_node" type="FHE_TEST_CHILD_NODE">
     <node name="file_child" type="FHE_TEST_CHILD_NODE"/>
     <include file="./test/include_test.xml"/>
+    <var name="b" value="true"/>
+    <var name="i" value="12"/>
+    <var name="f" value="3.14"/>
+    <var name="s" value="'what'"/>
 </node>

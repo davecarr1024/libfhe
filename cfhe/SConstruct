@@ -1,9 +1,12 @@
 env = Environment()
 
-env.ParseConfig( 'pkg-config --cflags --libs glib-2.0 gmodule-2.0' )
-env.Append( CPPPATH = [ '#' ] )
-env.Append( RPATH = [ env.Dir( '#' ).abspath ] )
-env.Append( CPPFLAGS = [ '-g', '-Wall', '-Werror' ] )
+assert not env.Execute( './glib.sh' )
+
+env.Append( CPPPATH = [ '#', '.glib/include/glib-2.0', '.glib/lib/glib-2.0/include' ] )
+env.Append( CPPFLAGS = [ '-g', '-Wall', '-Werror', '-Wl,--export-dynamic' ] )
+env.Append( LIBPATH = [ '.glib/lib' ] )
+env.Append( LIBS = [ 'glib-2.0', 'gmodule-2.0' ] )
+env.Append( RPATH = [ env.Dir( '#' ).abspath, env.Dir( '.glib/lib' ).abspath ] )
 
 lib_fhe = env.SharedLibrary( 'fhe', env.Glob( 'fhe/*.c' ) )
 

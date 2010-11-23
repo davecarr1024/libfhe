@@ -15,6 +15,7 @@ typedef struct fhe_node_t
     struct fhe_node_t** children;
     unsigned int n_children;
     GHashTable* funcs;
+    GHashTable* vars;
     void* data;
 } fhe_node_t;
 
@@ -27,6 +28,9 @@ typedef struct fhe_node_t
 */
 fhe_node_t* fhe_node_init( fhe_node_t* parent, const fhe_node_type_t* type, const char* name );
 
+/**
+* Loads a node from a xml file
+*/
 fhe_node_t* fhe_node_load( const char* filename );
 
 /**
@@ -75,6 +79,18 @@ void fhe_node_call( fhe_node_t* node, const char* func, void* data );
 * @param data the argument to the event
 */
 void fhe_node_publish( fhe_node_t* node, const char* func, void* data );
+
+void fhe_node_var_set( fhe_node_t* node, const char* name, GVariant* val );
+void fhe_node_var_set_boolean( fhe_node_t* node, const char* name, gboolean val );
+void fhe_node_var_set_int( fhe_node_t* node, const char* name, int val );
+void fhe_node_var_set_double( fhe_node_t* node, const char* name, double val );
+void fhe_node_var_set_string( fhe_node_t* node, const char* name, const char* val );
+
+GVariant* fhe_node_var_get( fhe_node_t* node, const char* name );
+gboolean fhe_node_var_get_boolean( fhe_node_t* node, const char* name, gboolean def );
+int fhe_node_var_get_int( fhe_node_t* node, const char* name, int def );
+double fhe_node_var_get_double( fhe_node_t* node, const char* name, double def );
+const char* fhe_node_var_get_string( fhe_node_t* node, const char* name, const char* def );
 
 /**
 * The basic node type. No parent type and no event callbacks.

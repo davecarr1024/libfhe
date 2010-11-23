@@ -14,7 +14,7 @@ void fhe_node_type_add_file( const char* file )
     fhe_node_type_n_mods++;
     fhe_node_type_mods = (GModule**)realloc( (void*)fhe_node_type_mods, sizeof( GModule* ) * fhe_node_type_n_mods );
     GModule* mod = g_module_open( file, G_MODULE_BIND_LAZY );
-    FHE_ASSERT_MSG( mod, "unable to load mod %s", file );
+    FHE_ASSERT_MSG( mod, "unable to load mod %s: %s", file, g_module_error() );
     fhe_node_type_mods[fhe_node_type_n_mods-1] = mod;
 }
 
@@ -25,14 +25,19 @@ void fhe_node_type_add_path( const char* path )
     const char* file;
     for ( file = g_dir_read_name( dir ); file; file = g_dir_read_name( dir ) )
     {
-        const char* ext = strrchr( file, '.' );
-        if ( ext && !strcmp( ext + 1, G_MODULE_SUFFIX ) )
+        if ( file[0] != '.' )
         {
-            fhe_node_type_add_file( file );
-        }
-        else if ( g_file_test( file, G_FILE_TEST_IS_DIR ) )
-        {
-            fhe_node_type_add_path( file );
+            char full_file[1024];
+            snprintf( full_file, 1024, "%s/%s", path, file );
+            const char* ext = strrchr( full_file, '.' );
+            if ( ext && !strcmp( ext + 1, G_MODULE_SUFFIX ) )
+            {
+                fhe_node_type_add_file( full_file );
+            }
+            else if ( g_file_test( full_file, G_FILE_TEST_IS_DIR ) )
+            {
+                fhe_node_type_add_path( full_file );
+            }
         }
     }
 }
