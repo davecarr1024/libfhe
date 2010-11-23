@@ -86,6 +86,13 @@ TEST( node_test, file )
     ASSERT_TRUE( node );
     
     ASSERT_STREQ( "file_node", node->name );
+    
+    ASSERT_TRUE( fhe_node_var_get_boolean( node, "b", FALSE ) );
+    ASSERT_EQ( 12, fhe_node_var_get_int( node, "i", 0 ) );
+    ASSERT_DOUBLE_EQ( 3.14, fhe_node_var_get_double( node, "d", 3.14 ) );
+    const char* s = fhe_node_var_get_string( node, "s", NULL );
+    ASSERT_TRUE( s );
+    ASSERT_STREQ( "what", s );
 
     TestData data = {0,0};
     fhe_node_publish( node, "test", &data );

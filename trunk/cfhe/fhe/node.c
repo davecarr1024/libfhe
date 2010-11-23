@@ -4,6 +4,16 @@
 #include <string.h>
 #include <stdio.h>
 
+void fhe_node_vars_key_free( char* key )
+{
+    free( key );
+}
+
+void fhe_node_vars_value_free( GVariant* value )
+{
+    g_variant_unref( value );
+}
+
 fhe_node_t* fhe_node_init( fhe_node_t* parent, const fhe_node_type_t* type, const char* name )
 {
     FHE_ASSERT( type );
@@ -16,7 +26,6 @@ fhe_node_t* fhe_node_init( fhe_node_t* parent, const fhe_node_type_t* type, cons
     node->n_children = 0;
     
     node->funcs = g_hash_table_new( g_str_hash, g_str_equal );
-    
     const fhe_node_type_t* itype;
     const fhe_node_type_entry_t* entry;
     for ( itype = node->type; itype; itype = itype->parent )
@@ -28,6 +37,11 @@ fhe_node_t* fhe_node_init( fhe_node_t* parent, const fhe_node_type_t* type, cons
             g_hash_table_replace( node->funcs, (gpointer)entry->name, list );
         }
     }
+    
+    node->vars = g_hash_table_new_full( g_str_hash, 
+                                        g_str_equal, 
+                                        (GDestroyNotify)fhe_node_vars_key_free, 
+                                        (GDestroyNotify)fhe_node_vars_value_free );
     
     fhe_node_call( node, "init", NULL );
     if ( parent )
@@ -59,6 +73,7 @@ void fhe_node_unref( fhe_node_t* node )
         {
             fhe_node_unref( node->children[i] );
         }
+        g_hash_table_unref( node->vars );
         g_hash_table_foreach( node->funcs, (GHFunc)fhe_node_func_free, NULL );
         g_hash_table_unref( node->funcs );
         free( node->children );
@@ -210,9 +225,37 @@ void fhe_node_start_element( GMarkupParseContext* context,
         
         *parent = node;
     }
+    else if ( !strcmp( element_name, "var" ) )
+    {
+        FHE_ASSERT_MSG( *parent, "var must be under a node tag" );
+        
+        const gchar* name = 0;
+        const gchar* value = 0;
+        
+        const gchar **iname, **ival;
+        for ( iname = attribute_names, ival = attribute_values; *iname && *ival; ++iname, ++ival )
+        {
+            if ( !strcmp( *iname, "name" ) )
+            {
+                name = *ival;
+            }
+            if ( !strcmp( *iname, "value" ) )
+            {
+                value = *ival;
+            }
+        }
+        
+        FHE_ASSERT_MSG( name, "attr name required in node tag" );
+        FHE_ASSERT_MSG( value, "attr value required in node tag" );
+        
+        GVariant* val = g_variant_parse( NULL, value, NULL, NULL, NULL );
+        FHE_ASSERT_MSG( val, "unable to parse value from %s", value );
+        
+        fhe_node_var_set( *parent, name, val );
+    }
     else
     {
-        FHE_ASSERT_MSG( 0, "invalid element_name %s", element_name );
+        FHE_ERROR( "invalid element_name %s", element_name );
     }
                                                  
 }
@@ -264,4 +307,84 @@ fhe_node_t* fhe_node_load( const char* filename )
     g_markup_parse_context_free( context );
 
     return node;
+}
+
+void fhe_node_var_set( fhe_node_t* node, const char* name, GVariant* val )
+{
+    FHE_ASSERT( node );
+    g_variant_ref( val );
+    g_hash_table_replace( node->vars, strdup( name ), val );
+}
+
+GVariant* fhe_node_var_get( fhe_node_t* node, const char* name )
+{
+    FHE_ASSERT( node );
+    GVariant* val = g_hash_table_lookup( node->vars, name );
+    return val;
+}
+
+void fhe_node_var_set_boolean( fhe_node_t* node, const char* name, gboolean val )
+{
+    fhe_node_var_set( node, name, g_variant_new_boolean( val ) );
+}
+
+gboolean fhe_node_var_get_boolean( fhe_node_t* node, const char* name, gboolean def )
+{
+    GVariant* val = fhe_node_var_get( node, name );
+    return val && g_variant_is_of_type( val, G_VARIANT_TYPE_BOOLEAN ) ? g_variant_get_boolean( val ) : def;
+}
+
+void fhe_node_var_set_int( fhe_node_t* node, const char* name, int val )
+{
+    fhe_node_var_set( node, name, g_variant_new_int32( val ) );
+}
+
+int fhe_node_var_get_int( fhe_node_t* node, const char* name, int def )
+{
+    GVariant* val = fhe_node_var_get( node, name );
+    return val && g_variant_is_of_type( val, G_VARIANT_TYPE_INT32 ) ? g_variant_get_int32( val ) : def;
+}
+
+void fhe_node_var_set_double( fhe_node_t* node, const char* name, double val )
+{
+    fhe_node_var_set( node, name, g_variant_new_double( val ) );
+}
+
+double fhe_node_var_get_double( fhe_node_t* node, const char* name, double def )
+{
+    GVariant* val = fhe_node_var_get( node, name );
+    if ( val )
+    {
+        if ( g_variant_is_of_type( val, G_VARIANT_TYPE_DOUBLE ) )
+        {
+            return g_variant_get_double( val );
+        }
+        else if ( g_variant_is_of_type( val, G_VARIANT_TYPE_INT32 ) )
+        {
+            return g_variant_get_int32( val );
+        }
+    }
+    return def;
+}
+
+void fhe_node_var_set_string( fhe_node_t* node, const char* name, const char* val )
+{
+    fhe_node_var_set( node, name, g_variant_new_string( val ) );
+}
+
+const char* fhe_node_var_get_string( fhe_node_t* node, const char* name, const char* def )
+{
+    GVariant* val = fhe_node_var_get( node, name );
+    if ( val && g_variant_is_of_type( val, G_VARIANT_TYPE_STRING ) )
+    {
+        return g_variant_dup_string( val, NULL );
+    }
+    else if ( def )
+    {
+        return strdup( def );
+    }
+    else
+    {
+        return def;
+    }
 }
