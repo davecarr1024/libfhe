@@ -17,6 +17,8 @@ double fhe_mat3_get( fhe_mat3_t m, int i, int j );
 void fhe_mat3_set( fhe_mat3_t m, int i, int j, double d );
 void fhe_mat3_mul_mat3( fhe_mat3_t r, fhe_mat3_t m1, fhe_mat3_t m2 );
 void fhe_mat3_mul_vec2( fhe_vec2_t* r, fhe_mat3_t m, fhe_vec2_t* v );
+void fhe_mat3_imul_mat3( fhe_mat3_t m, fhe_mat3_t n );
+void fhe_mat3_imul_vec2( fhe_vec2_t* v, fhe_mat3_t m );
 double fhe_mat3_det( fhe_mat3_t m );
 void fhe_mat3_inverse( fhe_mat3_t i, fhe_mat3_t m );
 
