@@ -113,3 +113,17 @@ void fhe_mat3_inverse( fhe_mat3_t i, fhe_mat3_t m )
                    -(m[0] * m[7] - m[6] * m[1]) / d,
                     (m[0] * m[4] - m[1] * m[3]) / d);
 }
+
+void fhe_mat3_imul_vec2( fhe_vec2_t* v, fhe_mat3_t m )
+{
+    fhe_vec2_t r;
+    fhe_mat3_mul_vec2( &r, m, v );
+    fhe_vec2_copy( v, &r );
+}
+
+void fhe_mat3_imul_mat3( fhe_mat3_t m, fhe_mat3_t n )
+{
+    fhe_mat3_t r;
+    fhe_mat3_mul_mat3( r, m, n );
+    fhe_mat3_copy( m, r );
+}
