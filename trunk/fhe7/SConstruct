@@ -1,0 +1,21 @@
+env = Environment()
+
+#import sys
+#py_ver = sys.version[:3]
+#env.Append( CPPPATH = [ '/usr/include/python%s' % py_ver ] )
+#env.Append( LIBS = [ 'python%s' % py_ver ] )
+
+env.Append( CPPPATH = [ '#' ] )
+env.Append( RPATH = [ env.Dir( '#' ).abspath ] )
+env.Append( CPPFLAGS = [ '-g' ] )
+
+lib_fhe = env.SharedLibrary( 'fhe', env.Glob( 'fhe/*.cpp' ) )
+
+env = env.Clone()
+env.Append( LIBS = [ lib_fhe, 'gtest' ] )
+
+test_srcs = env.Glob( 'test/*.cpp' )
+for test_src in test_srcs:
+    test_exe = env.Program( test_src )
+    test_name = str( test_exe[0] )
+    env.Command( test_name + '.out', test_exe, test_name )
