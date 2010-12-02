@@ -30,32 +30,26 @@ namespace fhe
         public:
             virtual ~Node();
             
-            Val get( const std::string& name, const Val& def = Val() ) const;
+            Val get( const std::string& name ) const;
             void set( const std::string& name, const Val& v );
             
             template <class TObj, class TVar>
-            TVar get( TVar (TObj::*ptr), TVar def = TVar() )
+            TVar get( TVar (TObj::*ptr) )
             {
-                if ( TObj* t = dynamic_cast<TObj*>( this ) )
-                {
-                    return t->*ptr;
-                }
-                else
-                {
-                    return def;
-                }
+                TObj* t = dynamic_cast<TObj*>( this );
+                FHE_ASSERT_MSG( t, "unable to cast node to type %s", typeid(TObj).name() );
+                return t->*ptr;
             }
             
             template <class TObj, class TVar>
             void set( TVar (TObj::*ptr), TVar val )
             {
-                if ( TObj* t = dynamic_cast<TObj*>( this ) )
-                {
-                    t->*ptr = val;
-                }
+                TObj* t = dynamic_cast<TObj*>( this );
+                FHE_ASSERT_MSG( t, "unable to cast node to type %s", typeid(TObj).name() );
+                t->*ptr = val;
             }
             
-            Val call( const std::string& name, const std::vector< Val >& args, const Val& def = Val() );
+            Val call( const std::string& name, const std::vector< Val >& args );
             
             #define CALL_arg( z, n, unused ) BOOST_PP_CAT( TArg, n ) BOOST_PP_CAT( arg, n )
             
@@ -78,12 +72,10 @@ namespace fhe
             #define RETCALL_iter( z, n, unused ) \
                 template <class TObj, class TRet BOOST_PP_COMMA_IF( n ) BOOST_PP_ENUM_PARAMS( n, class TArg )> \
                 TRet call( TRet (TObj::*func)( BOOST_PP_ENUM_PARAMS( n, TArg ) ) BOOST_PP_COMMA_IF(n)\
-                    BOOST_PP_ENUM( n, RETCALL_arg, ~ ), TRet def = TRet() ) { \
-                    if ( TObj* t = dynamic_cast<TObj*>( this ) ) { \
-                        return (t->*func)( BOOST_PP_ENUM_PARAMS( n, arg ) ); \
-                    } else { \
-                        return def; \
-                    } \
+                    BOOST_PP_ENUM( n, RETCALL_arg, ~ ) ) { \
+                    TObj* t = dynamic_cast<TObj*>( this ); \
+                    FHE_ASSERT_MSG( t, "unable to cast node to type %s", typeid(TObj).name() ); \
+                    return (t->*func)( BOOST_PP_ENUM_PARAMS( n, arg ) ); \
                 }
                 
             BOOST_PP_REPEAT( FHE_ARGS, RETCALL_iter, ~ )

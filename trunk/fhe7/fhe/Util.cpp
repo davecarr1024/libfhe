@@ -1,14 +1,15 @@
 #include <fhe/Util.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
+#include <cstdio>
+#include <cstdarg>
+#include <stdexcept>
 
 void fhe_assert( bool cond, const char* scond, const char* file, int line )
 {
     if ( !cond )
     {
-        fprintf( stderr, "FHE_ASSERT FAILED\ncond: %s\nfile: %s\nline: %d\n", scond, file, line );
-        abort();
+        char err[1024];
+        snprintf( err, 1024, "FHE_ASSERT FAILED\ncond: %s\nfile: %s\nline: %d\n", scond, file, line );
+        throw std::runtime_error( err );
     }
 }
 
@@ -21,8 +22,9 @@ void fhe_assert_msg( bool cond, const char* scond, const char* file, int line, c
         char buf[1024];
         vsnprintf( buf, 1024, fmt, args );
         va_end( args );
-        fprintf( stderr, "FHE_ASSERT FAILED\ncond: %s\nfile: %s\nline: %d\nmsg: %s\n", scond, file, line, buf );
-        abort();
+        char err[1024];
+        snprintf( err, 1024, "FHE_ASSERT FAILED\ncond: %s\nfile: %s\nline: %d\nmsg: %s\n", scond, file, line, buf );
+        throw std::runtime_error( err );
     }
 }
 
@@ -33,6 +35,7 @@ void fhe_error( const char* file, int line, const char* fmt, ... )
     char buf[1024];
     vsnprintf( buf, 1024, fmt, args );
     va_end( args );
-    fprintf( stderr, "FHE_ERROR\nfile: %s\nline: %d\nmsg: %s\n", file, line, buf );
-    abort();
+    char err[1024];
+    snprintf( err, 1024, "FHE_ERROR\nfile: %s\nline: %d\nmsg: %s\n", file, line, buf );
+    throw std::runtime_error( err );
 }

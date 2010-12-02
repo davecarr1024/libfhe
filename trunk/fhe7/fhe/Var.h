@@ -4,7 +4,6 @@
 #include <fhe/Val.h>
 #include <fhe/Util.h>
 #include <boost/shared_ptr.hpp>
-#include <string>
 
 namespace fhe
 {

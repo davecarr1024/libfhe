@@ -10,7 +10,6 @@
 #include <boost/preprocessor/punctuation/comma_if.hpp>
 
 #include <vector>
-#include <string>
 
 #ifndef FHE_ARGS
 #define FHE_ARGS 3
@@ -22,7 +21,7 @@ namespace fhe
     class IFunc
     {
         public:
-            virtual Val call( const std::vector< Val >& args, const Val& def ) = 0;
+            virtual Val call( const std::vector< Val >& args ) = 0;
             virtual std::string name() const = 0;
     };
     
@@ -33,7 +32,9 @@ namespace fhe
     
     #define FUNC_id( z, n, data ) data
     
-    #define FUNC_typecheck( z, n, unused ) if ( args[n].is< BOOST_PP_CAT( TArg, n ) >() )
+    #define FUNC_typecheck( z, n, unused ) FHE_ASSERT_MSG( args[n].is<BOOST_PP_CAT( TArg, n )>(), \
+        "arg %d to %s::%s type mismatch: expected %s got %s", \
+        n, m_nodeType.c_str(), m_name.c_str(), typeid( BOOST_PP_CAT( TArg, n ) ).name(), args[n].type().c_str() );
     
     #define FUNC_arg( z, n, unused ) args[n].get< BOOST_PP_CAT( TArg, n ) >()
     
@@ -44,15 +45,19 @@ namespace fhe
             : public IFunc { \
             public: \
                 typedef void (TObj::*Ptr)( BOOST_PP_ENUM_PARAMS( n, TArg ) ); \
-                Func( const std::string& name, TObj* obj, Ptr ptr ) : m_name( name ), m_obj( obj ), m_ptr( ptr ) {} \
-                Val call( const std::vector< Val >& args, const Val& def ) { \
-                    if ( args.size() == n ) \
-                        BOOST_PP_REPEAT( n, FUNC_typecheck, ~ ) \
-                            (m_obj->*m_ptr)( BOOST_PP_ENUM( n, FUNC_arg, ~ ) ); \
-                    return def; \
+                Func( const std::string& nodeType, const std::string& name, TObj* obj, Ptr ptr ) \
+                    : m_nodeType( nodeType ), m_name( name ), m_obj( obj ), m_ptr( ptr ) {} \
+                Val call( const std::vector< Val >& args ) { \
+                    FHE_ASSERT_MSG( args.size() == n, \
+                        "wrong number of arguments to %s::%s: got %d expected %d", \
+                        m_nodeType.c_str(), m_name.c_str(), args.size(), n ); \
+                    BOOST_PP_REPEAT( n, FUNC_typecheck, ~ ) \
+                    (m_obj->*m_ptr)( BOOST_PP_ENUM( n, FUNC_arg, ~ ) ); \
+                    return Val(); \
                 } \
                 std::string name() const { return m_name; } \
             private: \
+                std::string m_nodeType; \
                 std::string m_name; \
                 TObj* m_obj; \
                 Ptr m_ptr; \
@@ -66,7 +71,9 @@ namespace fhe
     
     #define RETFUNC_id( z, n, data ) data
     
-    #define RETFUNC_typecheck( z, n, unused ) if ( args[n].is< BOOST_PP_CAT( TArg, n ) >() )
+    #define RETFUNC_typecheck( z, n, unused ) FHE_ASSERT_MSG( args[n].is<BOOST_PP_CAT( TArg, n )>(), \
+        "arg %d to %s::%s type mismatch: expected %s got %s", \
+        n, m_nodeType.c_str(), m_name.c_str(), typeid( BOOST_PP_CAT( TArg, n ) ).name(), args[n].type().c_str() );
     
     #define RETFUNC_arg( z, n, unused ) args[n].get< BOOST_PP_CAT( TArg, n ) >()
     
@@ -77,15 +84,18 @@ namespace fhe
             : public IFunc { \
             public: \
                 typedef TRet (TObj::*Ptr)( BOOST_PP_ENUM_PARAMS( n, TArg ) ); \
-                Func( const std::string& name, TObj* obj, Ptr ptr ) : m_name( name ), m_obj( obj ), m_ptr( ptr ) {} \
-                Val call( const std::vector< Val >& args, const Val& def ) { \
-                    if ( args.size() == n ) \
-                        BOOST_PP_REPEAT( n, RETFUNC_typecheck, ~ ) \
-                            return Val::build<TRet>( (m_obj->*m_ptr)( BOOST_PP_ENUM( n, RETFUNC_arg, ~ ) ) ); \
-                    return def; \
+                Func( const std::string& nodeType, const std::string& name, TObj* obj, Ptr ptr ) \
+                    : m_nodeType( nodeType ), m_name( name ), m_obj( obj ), m_ptr( ptr ) {} \
+                Val call( const std::vector< Val >& args ) { \
+                    FHE_ASSERT_MSG( args.size() == n, \
+                        "wrong number of arguments to %s::%s: got %d expected %d", \
+                        m_nodeType.c_str(), m_name.c_str(), args.size(), n ); \
+                    BOOST_PP_REPEAT( n, RETFUNC_typecheck, ~ ) \
+                    return (m_obj->*m_ptr)( BOOST_PP_ENUM( n, RETFUNC_arg, ~ ) ); \
                 } \
                 std::string name() const { return m_name; } \
             private: \
+                std::string m_nodeType; \
                 std::string m_name; \
                 TObj* m_obj; \
                 Ptr m_ptr; \
@@ -102,7 +112,7 @@ namespace fhe
     class IFuncDesc
     {
         public:
-            virtual IFuncPtr build( Node* node ) const = 0;
+            virtual IFuncPtr build( const std::string& nodeType, Node* node ) const = 0;
     };
     
     typedef boost::shared_ptr< IFuncDesc > IFuncDescPtr;
@@ -119,11 +129,11 @@ namespace fhe
             public: \
                 typedef TRet (TObj::*Ptr)( BOOST_PP_ENUM_PARAMS( n, TArg ) ); \
                 FuncDesc( const std::string& name, Ptr ptr ) : m_name( name ), m_ptr( ptr ) {} \
-                IFuncPtr build( Node* node ) const { \
+                IFuncPtr build( const std::string& nodeType, Node* node ) const { \
                     TObj* t = dynamic_cast<TObj*>( node ); \
                     FHE_ASSERT( t ); \
                     return IFuncPtr( new Func<TObj,TRet,BOOST_PP_ENUM_PARAMS( n, TArg ) BOOST_PP_COMMA_IF( n ) \
-                        BOOST_PP_ENUM( BOOST_PP_SUB( FHE_ARGS, n ), FUNCDESC_id, void )> ( m_name, t, m_ptr ) ); \
+                        BOOST_PP_ENUM( BOOST_PP_SUB( FHE_ARGS, n ), FUNCDESC_id, void )> ( nodeType, m_name, t, m_ptr ) ); \
                 } \
             private: \
                 std::string m_name; \
