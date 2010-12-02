@@ -29,10 +29,10 @@ TEST( node_test, name_funcs )
     ASSERT_TRUE( node );
     
     std::vector< Val > args;
-    args.push_back( Val::build<int>( 1 ) );
+    args.push_back( 1 );
     node->call( "set", args );
-    
-    ASSERT_EQ( 1, node->call( "get", std::vector< Val >() ).get<int>( 0 ) );
+
+    ASSERT_EQ( 1, (int)node->call( "get", std::vector< Val >() ) );
 }
 
 TEST( node_test, direct_funcs )
@@ -50,7 +50,7 @@ TEST( node_test, name_vars )
     ASSERT_TRUE( node );
     
     node->set( "m_i", 3 );
-    ASSERT_EQ( 3, (int)node->get( "m_i", 0 ) );
+    ASSERT_EQ( 3, (int)node->get( "m_i" ) );
 }
 
 TEST( node_test, direct_vars )

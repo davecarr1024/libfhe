@@ -39,4 +39,9 @@ namespace fhe
         }
     }
     
+    std::string Val::type() const
+    {
+        return m_data ? m_data->type() : "null";
+    }
+    
 }

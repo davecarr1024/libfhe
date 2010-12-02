@@ -1,6 +1,9 @@
 #ifndef FHE_VAL_H
 #define FHE_VAL_H
 
+#include <string>
+#include <typeinfo>
+
 namespace fhe
 {
     
@@ -20,6 +23,8 @@ namespace fhe
                     }
                     
                     virtual IData* clone() const = 0;
+                    
+                    virtual std::string type() const = 0;
             };
             
             template <class T>
@@ -48,6 +53,11 @@ namespace fhe
                     {
                         return new Data<T>( m_t );
                     }
+                    
+                    std::string type() const
+                    {
+                        return typeid(T).name();
+                    }
             };
             
             IData* m_data;
@@ -70,16 +80,9 @@ namespace fhe
                 return get<T>();
             }
             
-            template <class T>
-            static Val build( T t )
-            {
-                Val var;
-                var.set<T>( t );
-                return var;
-            }
-            
             bool empty() const;
             void clear();
+            std::string type() const;
             
             template <class T>
             bool is() const
