@@ -14,7 +14,7 @@ lib_fhe = env.SharedLibrary( 'fhe', env.Glob( 'fhe/*.cpp' ) )
 env = env.Clone()
 env.Append( LIBS = [ lib_fhe, 'gtest' ] )
 
-test_srcs = env.Glob( 'test/*.cpp' )
+test_srcs = []#env.Glob( 'test/*.cpp' )
 for test_src in test_srcs:
     test_exe = env.Program( test_src )
     test_name = str( test_exe[0] )
