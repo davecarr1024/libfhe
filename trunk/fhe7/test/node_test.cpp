@@ -2,31 +2,11 @@
 #include <gtest/gtest.h>
 using namespace fhe;
 
-TEST( node_test, tree )
-{
-    NodePtr root( new Node ), child( new Node );
-    root->attachChild( child );
-    ASSERT_TRUE( root->hasChild( child ) );
-    ASSERT_EQ( child, *root->childrenBegin() );
-    ASSERT_EQ( root, child->parent() );
-    ASSERT_EQ( root, child->root() );
-    child->detachFromParent();
-    ASSERT_FALSE( child->parent() );
-    ASSERT_FALSE( root->hasChild( child ) );
-}
-
-class IVar
+class TestNode : public Node
 {
     public:
-        int var;
-};
-
-class IFuncs
-{
-    private:
         int m_i;
         
-    public:
         void set( int i )
         {
             m_i = i;
@@ -38,50 +18,48 @@ class IFuncs
         }
 };
 
-class TestNode : public Node, public IVar, public IFuncs
-{
-};
+FHE_NODE( TestNode )
+FHE_FUNC( TestNode, set )
+FHE_FUNC( TestNode, get )
+FHE_VAR( TestNode, m_i )
 
-FHE_NODE( TestNode );
-FHE_FUNC( TestNode, set );
-FHE_FUNC( TestNode, get );
-
-TEST( node_test, vars )
+TEST( node_test, name_funcs )
 {
-    NodePtr test( new TestNode );
-    test->setVar( &IVar::var, 1 );
-    ASSERT_EQ( 1, test->getVar( &IVar::var ) );
+    NodePtr node( NodeFactory::instance().build( "TestNode" ) );
+    ASSERT_TRUE( node );
+    
+    std::vector< Val > args;
+    args.push_back( Val::build<int>( 1 ) );
+    node->call( "set", args );
+    
+    ASSERT_EQ( 1, node->call( "get", std::vector< Val >() ).get<int>( 0 ) );
 }
 
-TEST( node_test, funcs )
+TEST( node_test, direct_funcs )
 {
-    NodePtr test( new TestNode );
-    test->call( &IFuncs::set, 2 );
-    ASSERT_EQ( 2, test->call( &IFuncs::get ) );
+    NodePtr node( NodeFactory::instance().build( "TestNode" ) );
+    ASSERT_TRUE( node );
+    
+    node->call( &TestNode::set, 2 );
+    ASSERT_EQ( 2, node->call( &TestNode::get ) );
 }
 
-TEST( node_test, publish )
+TEST( node_test, name_vars )
 {
-    NodePtr root( new Node ), child( new TestNode );
-    child->attachToParent( root );
-    root->publish( &IFuncs::set, 3 );
-    ASSERT_EQ( 3, child->call( &IFuncs::get ) );
+    NodePtr node( NodeFactory::instance().build( "TestNode" ) );
+    ASSERT_TRUE( node );
+    
+    node->set( "m_i", 3 );
+    ASSERT_EQ( 3, (int)node->get( "m_i", 0 ) );
 }
 
-TEST( node_test, name_funcs_fac )
+TEST( node_test, direct_vars )
 {
-    NodePtr test = NodeFactory::instance().build( "TestNode" );
-    ASSERT_TRUE( test );
-    test->call( "set", 4 );
-    ASSERT_EQ( 4, test->retCall<int>( "get" ) );
-}
-
-TEST( node_test, name_funcs_ctor )
-{
-    NodePtr test( new TestNode );
-    ASSERT_TRUE( test );
-    test->call( "set", 5 );
-    ASSERT_EQ( 5, test->retCall<int>( "get" ) );
+    NodePtr node( NodeFactory::instance().build( "TestNode" ) );
+    ASSERT_TRUE( node );
+    
+    node->set( &TestNode::m_i, 4 );
+    ASSERT_EQ( 4, node->get( &TestNode::m_i ) );
 }
 
 int main( int argc, char** argv )

@@ -58,16 +58,28 @@ namespace fhe
             Val& operator=( const Val& v );
             ~Val();
             
-            bool empty() const;
-            void clear();
+            template <class T>
+            Val( T t ) :
+                m_data( new Data<T>( t ) )
+            {
+            }
+            
+            template <class T>
+            operator T()
+            {
+                return get<T>();
+            }
             
             template <class T>
             static Val build( T t )
             {
-                Val val;
-                val.set( t );
-                return val;
+                Val var;
+                var.set<T>( t );
+                return var;
             }
+            
+            bool empty() const;
+            void clear();
             
             template <class T>
             bool is() const
