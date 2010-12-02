@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-void fhe_assert( int cond, const char* scond, const char* file, int line )
+void fhe_assert( bool cond, const char* scond, const char* file, int line )
 {
     if ( !cond )
     {
@@ -12,7 +12,7 @@ void fhe_assert( int cond, const char* scond, const char* file, int line )
     }
 }
 
-void fhe_assert_msg( int cond, const char* scond, const char* file, int line, const char* fmt, ... )
+void fhe_assert_msg( bool cond, const char* scond, const char* file, int line, const char* fmt, ... )
 {
     if ( !cond )
     {

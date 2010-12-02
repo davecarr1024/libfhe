@@ -14,6 +14,7 @@ namespace fhe
         private:
             friend class INodeRegisterer;
             friend class FuncRegisterer;
+            friend class VarRegisterer;
             
             std::map< std::string, INodeDescPtr > m_nodes;
             
@@ -48,11 +49,11 @@ namespace fhe
         public:
             NodeRegisterer( const std::string& name )
             {
-                addNode( new NodeDesc<T>( name ) );
+                addNode( INodeDescPtr( new NodeDesc<T>( name ) ) );
             }
     };
     
-    #define FHE_NODE( name ) NodeRegisterer<name> g_##name##_reg( #name );
+    #define FHE_NODE( name ) NodeRegisterer<name> g_##name##_node_reg( #name );
     
     class FuncRegisterer
     {
@@ -78,7 +79,21 @@ namespace fhe
             #undef FUNCREG_iter
     };
     
-    #define FHE_FUNC( node, func ) FuncRegisterer g_##node##_##func##_reg( #node, #func, &node::func );
+    #define FHE_FUNC( node, func ) FuncRegisterer g_##node##_##func##_func_reg( #node, #func, &node::func );
+    
+    class VarRegisterer
+    {
+        public:
+            template <class TObj, class TVar>
+            VarRegisterer( const std::string& nodeName, const std::string& varName, TVar (TObj::*ptr ) )
+            {
+                INodeDescPtr node = NodeFactory::instance().getNode( nodeName );
+                FHE_ASSERT_MSG( node, "unable to add var %s to unknown node %s", varName.c_str(), nodeName.c_str() );
+                node->addVar( IVarDescPtr( new VarDesc<TObj,TVar>( varName, ptr ) ) );
+            }
+    };
+    
+    #define FHE_VAR( node, var ) VarRegisterer g_##node##_##var##_var_reg( #node, #var, &node::var );
     
 }
 

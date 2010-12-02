@@ -23,6 +23,7 @@ namespace fhe
     {
         public:
             virtual Val call( const std::vector< Val >& args, const Val& def ) = 0;
+            virtual std::string name() const = 0;
     };
     
     typedef boost::shared_ptr< IFunc > IFuncPtr;
@@ -50,6 +51,7 @@ namespace fhe
                             (m_obj->*m_ptr)( BOOST_PP_ENUM( n, FUNC_arg, ~ ) ); \
                     return def; \
                 } \
+                std::string name() const { return m_name; } \
             private: \
                 std::string m_name; \
                 TObj* m_obj; \
@@ -82,6 +84,7 @@ namespace fhe
                             return Val::build<TRet>( (m_obj->*m_ptr)( BOOST_PP_ENUM( n, RETFUNC_arg, ~ ) ) ); \
                     return def; \
                 } \
+                std::string name() const { return m_name; } \
             private: \
                 std::string m_name; \
                 TObj* m_obj; \
@@ -120,7 +123,7 @@ namespace fhe
                     TObj* t = dynamic_cast<TObj*>( node ); \
                     FHE_ASSERT( t ); \
                     return IFuncPtr( new Func<TObj,TRet,BOOST_PP_ENUM_PARAMS( n, TArg ) BOOST_PP_COMMA_IF( n ) \
-            BOOST_PP_ENUM( BOOST_PP_SUB( FHE_ARGS, n ), FUNCDESC_id, void )> ( m_name, t, m_ptr ) ); \
+                        BOOST_PP_ENUM( BOOST_PP_SUB( FHE_ARGS, n ), FUNCDESC_id, void )> ( m_name, t, m_ptr ) ); \
                 } \
             private: \
                 std::string m_name; \
