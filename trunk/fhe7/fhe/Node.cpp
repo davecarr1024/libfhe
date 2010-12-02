@@ -1,9 +1,33 @@
 #include <fhe/Node.h>
+#include <fhe/NodeFactory.h>
+
+namespace boost
+{
+    
+    void intrusive_ptr_add_ref( fhe::Node* node )
+    {
+        if ( !node->m_refs )
+        {
+            fhe::NodeFactory::instance().init( node );
+        }
+        node->m_refs++;
+    }
+    
+    void intrusive_ptr_release( fhe::Node* node )
+    {
+        if ( !--node->m_refs )
+        {
+            delete node;
+        }
+    }
+    
+}
 
 namespace fhe
 {
     
-    Node::Node()
+    Node::Node() :
+        m_refs( 0 )
     {
     }
     
@@ -43,15 +67,16 @@ namespace fhe
         m_vars.push_back( var );
     }
     
-    void INodeDesc::init( NodePtr& node )
+    void INodeDesc::init( Node* node ) const
     {
+        FHE_ASSERT( canInit( node ) );
         for ( std::vector< IFuncDescPtr >::const_iterator i = m_funcs.begin(); i != m_funcs.end(); ++i )
         {
-            node->addFunc( (*i)->build( m_name, node.get() ) );
+            node->addFunc( (*i)->build( m_name, node ) );
         }
         for ( std::vector< IVarDescPtr >::const_iterator i = m_vars.begin(); i != m_vars.end(); ++i )
         {
-            node->addVar( (*i)->build( node.get() ) );
+            node->addVar( (*i)->build( node ) );
         }
     }
     

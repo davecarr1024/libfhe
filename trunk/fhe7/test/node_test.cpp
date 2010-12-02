@@ -46,8 +46,7 @@ TEST( node_test, direct_funcs )
 
 TEST( node_test, name_vars )
 {
-    NodePtr node( NodeFactory::instance().build( "TestNode" ) );
-    ASSERT_TRUE( node );
+    NodePtr node( new TestNode );
     
     node->set( "m_i", 3 );
     ASSERT_EQ( 3, (int)node->get( "m_i" ) );
@@ -55,8 +54,7 @@ TEST( node_test, name_vars )
 
 TEST( node_test, direct_vars )
 {
-    NodePtr node( NodeFactory::instance().build( "TestNode" ) );
-    ASSERT_TRUE( node );
+    NodePtr node( new TestNode );
     
     node->set( &TestNode::m_i, 4 );
     ASSERT_EQ( 4, node->get( &TestNode::m_i ) );

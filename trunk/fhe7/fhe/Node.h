@@ -3,7 +3,20 @@
 
 #include <fhe/Var.h>
 #include <fhe/Func.h>
+#include <boost/intrusive_ptr.hpp>
 #include <map>
+
+namespace fhe
+{
+    class Node;
+    typedef boost::intrusive_ptr< Node > NodePtr;
+}
+
+namespace boost
+{
+    void intrusive_ptr_add_ref( fhe::Node* node );
+    void intrusive_ptr_release( fhe::Node* node );
+}
 
 namespace fhe
 {
@@ -12,8 +25,14 @@ namespace fhe
     
     class Node
     {
+        public:
+            friend void boost::intrusive_ptr_add_ref( Node* node );
+            friend void boost::intrusive_ptr_release( Node* node );
+            
         private:
             friend class INodeDesc;
+            
+            size_t m_refs;
             
             std::map< std::string, IFuncPtr > m_funcs;
             std::map< std::string, IVarPtr > m_vars;
@@ -24,10 +43,8 @@ namespace fhe
             void addFunc( const IFuncPtr& func );
             void addVar( const IVarPtr& var );
             
-        protected:
-            Node();
-            
         public:
+            Node();
             virtual ~Node();
             
             Val get( const std::string& name ) const;
@@ -84,8 +101,6 @@ namespace fhe
             #undef RETCALL_arg
     };
     
-    typedef boost::shared_ptr< Node > NodePtr;
-    
     class FuncRegisterer;
     class VarRegisterer;
     
@@ -106,11 +121,13 @@ namespace fhe
             INodeDesc( const std::string& name );
             
         public:
-            void init( NodePtr& node );
+            virtual bool canInit( Node* node ) const=0;
+            
+            virtual void init( Node* node ) const;
             
             std::string name() const;
             
-            virtual NodePtr build() const = 0;
+            virtual Node* build() const = 0;
     };
     
     typedef boost::shared_ptr< INodeDesc > INodeDescPtr;
@@ -124,9 +141,14 @@ namespace fhe
             {
             }
             
-            NodePtr build() const
+            Node* build() const
             {
-                return NodePtr( new T );
+                return new T;
+            }
+            
+            bool canInit( Node* node ) const
+            {
+                return dynamic_cast<T*>( node );
             }
     };
     
