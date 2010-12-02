@@ -19,7 +19,8 @@ namespace fhe
     INodeDescPtr NodeFactory::getNode( const std::string& name ) const
     {
         std::map< std::string, INodeDescPtr >::const_iterator i = m_nodes.find( name );
-        return i != m_nodes.end() ? i->second : INodeDescPtr();
+        FHE_ASSERT_MSG( i != m_nodes.end(), "unable to get unknown node type %s", name.c_str() );
+        return i->second;
     }
     
     NodeFactory& NodeFactory::instance()
@@ -30,15 +31,19 @@ namespace fhe
     
     NodePtr NodeFactory::build( const std::string& name ) const
     {
-        if ( INodeDescPtr desc = getNode( name ) )
+        INodeDescPtr desc = getNode( name );
+        FHE_ASSERT_MSG( desc, "unable to build unknown node type %s", name.c_str() );
+        return NodePtr( desc->build() );
+    }
+    
+    void NodeFactory::init( Node* node ) const
+    {
+        for ( std::map< std::string, INodeDescPtr >::const_iterator i = m_nodes.begin(); i != m_nodes.end(); ++i )
         {
-            NodePtr node = desc->build();
-            desc->init( node );
-            return node;
-        }
-        else
-        {
-            return NodePtr();
+            if ( i->second->canInit( node ) )
+            {
+                i->second->init( node );
+            }
         }
     }
     

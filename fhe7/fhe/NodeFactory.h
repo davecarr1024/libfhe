@@ -31,6 +31,8 @@ namespace fhe
             
             static NodeFactory& instance();
             
+            void init( Node* node ) const;
+            
             NodePtr build( const std::string& name ) const;
     };
 
