@@ -99,4 +99,27 @@ namespace fhe
         i->second->set( v );
     }
     
+    void INodeDesc::addDep( const INodeDescPtr& dep )
+    {
+        m_deps.push_back( dep );
+    }
+    
+    bool INodeDesc::isDep( const INodeDescPtr& dep ) const
+    {
+        if ( dep.get() == this )
+        {
+            return true;
+        }
+        
+        for ( std::vector< INodeDescPtr >::const_iterator i = m_deps.begin(); i != m_deps.end(); ++i )
+        {
+            if ( (*i)->isDep( dep ) )
+            {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
 }

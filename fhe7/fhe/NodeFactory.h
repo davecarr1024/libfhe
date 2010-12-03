@@ -8,6 +8,7 @@ namespace fhe
     
     class INodeRegisterer;
     class FuncRegisterer;
+    class DepRegisterer;
     
     class NodeFactory
     {
@@ -15,6 +16,7 @@ namespace fhe
             friend class INodeRegisterer;
             friend class FuncRegisterer;
             friend class VarRegisterer;
+            friend class DepRegisterer;
             
             std::map< std::string, INodeDescPtr > m_nodes;
             
@@ -96,6 +98,21 @@ namespace fhe
     };
     
     #define FHE_VAR( node, var ) VarRegisterer g_##node##_##var##_var_reg( #node, #var, &node::var );
+    
+    class DepRegisterer
+    {
+        public:
+            DepRegisterer( const std::string& nodeName, const std::string& depName )
+            {
+                INodeDescPtr node = NodeFactory::instance().getNode( nodeName );
+                FHE_ASSERT_MSG( node, "unable to add dep %s to unknown node %s", depName.c_str(), nodeName.c_str() );
+                INodeDescPtr dep = NodeFactory::instance().getNode( depName );
+                FHE_ASSERT_MSG( dep, "unabel to add unknown dep %s to node %s", depName.c_str(), nodeName.c_str() );
+                node->addDep( dep );
+            }
+    };
+    
+    #define FHE_DEP( node, dep ) DepRegisterer g_##node##_##dep##_dep_reg( #node, #dep );
     
 }
 
