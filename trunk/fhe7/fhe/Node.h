@@ -103,24 +103,34 @@ namespace fhe
     
     class FuncRegisterer;
     class VarRegisterer;
+    class DepRegisterer;
+    
+    class INodeDesc;
+    
+    typedef boost::shared_ptr< INodeDesc > INodeDescPtr;
     
     class INodeDesc
     {
         private:
             friend class FuncRegisterer;
             friend class VarRegisterer;
+            friend class DepRegisterer;
             
             std::string m_name;
             std::vector< IFuncDescPtr > m_funcs;
             std::vector< IVarDescPtr > m_vars;
+            std::vector< INodeDescPtr > m_deps;
             
             void addFunc( const IFuncDescPtr& func );
             void addVar( const IVarDescPtr& var );
+            void addDep( const INodeDescPtr& dep );
             
         protected:
             INodeDesc( const std::string& name );
             
         public:
+            bool isDep( const INodeDescPtr& dep ) const;
+            
             virtual bool canInit( Node* node ) const=0;
             
             virtual void init( Node* node ) const;
@@ -129,8 +139,6 @@ namespace fhe
             
             virtual Node* build() const = 0;
     };
-    
-    typedef boost::shared_ptr< INodeDesc > INodeDescPtr;
     
     template <class T>
     class NodeDesc : public INodeDesc

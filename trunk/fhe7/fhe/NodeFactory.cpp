@@ -38,12 +38,36 @@ namespace fhe
     
     void NodeFactory::init( Node* node ) const
     {
+        std::vector< INodeDescPtr > descs;
         for ( std::map< std::string, INodeDescPtr >::const_iterator i = m_nodes.begin(); i != m_nodes.end(); ++i )
         {
             if ( i->second->canInit( node ) )
             {
-                i->second->init( node );
+                descs.push_back( i->second );
             }
+        }
+        
+        while ( !descs.empty() )
+        {
+            bool found = false;
+            for ( std::vector< INodeDescPtr >::iterator i = descs.begin(); !found && i != descs.end(); ++i )
+            {
+                bool anyDeps = false;
+                for ( std::vector< INodeDescPtr >::const_iterator j = descs.begin(); !anyDeps && j != descs.end(); ++j )
+                {
+                    if ( *i != *j && (*i)->isDep( *j ) )
+                    {
+                        anyDeps = true;
+                    }
+                }
+                if ( !anyDeps )
+                {
+                    (*i)->init( node );
+                    descs.erase( i );
+                    found = true;
+                }
+            }
+            FHE_ASSERT_MSG( found, "unable to initialize node due to cyclic dependency" );
         }
     }
     
