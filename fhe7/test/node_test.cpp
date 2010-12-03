@@ -113,18 +113,13 @@ FHE_NODE( ChildNode );
 FHE_DEP( ChildNode, TestNode );
 FHE_FUNC( ChildNode, get );
 
-TEST( node_test, inheritance_direct )
+TEST( node_test, inheritance )
 {
     NodePtr node( new ChildNode );
     
     node->call( &TestNode::set, 1 );
     ASSERT_EQ( 2, node->call( &TestNode::get ) );
-}
 
-TEST( node_test, inheritance_name )
-{
-    NodePtr node( new ChildNode );
-    
     std::vector< Val > args;
     args.push_back( 2 );
     node->call( "set", args );
@@ -150,17 +145,12 @@ class InterfaceNode : public Node, public IFoo
 FHE_NODE( InterfaceNode );
 FHE_DEP( InterfaceNode, IFoo );
 
-TEST( node_test, interface_direct )
+TEST( node_test, interface )
 {
     NodePtr node( new InterfaceNode );
     
     ASSERT_EQ( 12, node->call( &IFoo::foo ) );
-}
 
-TEST( node_test, interface_name )
-{
-    NodePtr node( new InterfaceNode );
-    
     ASSERT_EQ( 12, (int)node->call( "foo", std::vector< Val >() ) );
 }
 
