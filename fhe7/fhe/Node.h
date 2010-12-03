@@ -21,7 +21,7 @@ namespace boost
 namespace fhe
 {
     
-    class INodeDesc;
+    class INodeIntDesc;
     
     class Node
     {
@@ -30,7 +30,7 @@ namespace fhe
             friend void boost::intrusive_ptr_release( Node* node );
             
         private:
-            friend class INodeDesc;
+            friend class INodeIntDesc;
             
             size_t m_refs;
             
@@ -106,10 +106,12 @@ namespace fhe
     class DepRegisterer;
     
     class INodeDesc;
-    
     typedef boost::shared_ptr< INodeDesc > INodeDescPtr;
     
-    class INodeDesc
+    class INodeIntDesc;
+    typedef boost::shared_ptr< INodeIntDesc > INodeIntDescPtr;
+    
+    class INodeIntDesc
     {
         private:
             friend class FuncRegisterer;
@@ -119,24 +121,46 @@ namespace fhe
             std::string m_name;
             std::vector< IFuncDescPtr > m_funcs;
             std::vector< IVarDescPtr > m_vars;
-            std::vector< INodeDescPtr > m_deps;
+            std::vector< INodeIntDescPtr > m_deps;
             
             void addFunc( const IFuncDescPtr& func );
             void addVar( const IVarDescPtr& var );
-            void addDep( const INodeDescPtr& dep );
+            void addDep( const INodeIntDescPtr& dep );
             
         protected:
-            INodeDesc( const std::string& name );
+            INodeIntDesc( const std::string& name );
             
         public:
-            bool isDep( const INodeDescPtr& dep ) const;
+            bool isDep( const INodeIntDescPtr& dep ) const;
             
             virtual bool canInit( Node* node ) const=0;
             
             virtual void init( Node* node ) const;
             
             std::string name() const;
+    };
+    
+    template <class T>
+    class NodeIntDesc : public INodeIntDesc
+    {
+        public:
+            NodeIntDesc( const std::string& name ) :
+                INodeIntDesc( name )
+            {
+            }
             
+            bool canInit( Node* node ) const
+            {
+                return dynamic_cast<T*>( node );
+            }
+    };
+    
+    class INodeDesc : public INodeIntDesc
+    {
+        protected:
+            INodeDesc( const std::string& name );
+            
+        public:
             virtual Node* build() const = 0;
     };
     

@@ -94,6 +94,39 @@ TEST( node_test, inheritance_name )
     ASSERT_EQ( 4, (int)node->call( "get", std::vector< Val >() ) );
 }
 
+class IFoo
+{
+    public:
+        int foo()
+        {
+            return 12;
+        }
+};
+
+FHE_INODE( IFoo );
+FHE_FUNC( IFoo, foo );
+
+class InterfaceNode : public Node, public IFoo
+{
+};
+
+FHE_NODE( InterfaceNode );
+FHE_DEP( InterfaceNode, IFoo );
+
+TEST( node_test, interface_direct )
+{
+    NodePtr node( new InterfaceNode );
+    
+    ASSERT_EQ( 12, node->call( &IFoo::foo ) );
+}
+
+TEST( node_test, interface_name )
+{
+    NodePtr node( new InterfaceNode );
+    
+    ASSERT_EQ( 12, (int)node->call( "foo", std::vector< Val >() ) );
+}
+
 int main( int argc, char** argv )
 {
     testing::InitGoogleTest( &argc, argv );
