@@ -5,23 +5,23 @@ using namespace fhe;
 class TestNode : public Node
 {
     public:
-        int m_i;
+        int i;
         
-        void set( int i )
+        void set( int _i )
         {
-            m_i = i;
+            i = _i;
         }
         
         virtual int get()
         {
-            return m_i;
+            return i;
         }
 };
 
 FHE_NODE( TestNode )
 FHE_FUNC( TestNode, set )
 FHE_FUNC( TestNode, get )
-FHE_VAR( TestNode, m_i )
+FHE_VAR( TestNode, i )
 
 TEST( node_test, factory )
 {
@@ -47,20 +47,41 @@ TEST( node_test, direct_funcs )
     ASSERT_EQ( 2, node->call( &TestNode::get ) );
 }
 
-TEST( node_test, name_vars )
+TEST( node_test, vars )
 {
     NodePtr node( new TestNode );
+    Val v;
+    int i;
     
-    node->set( "m_i", 3 );
-    ASSERT_EQ( 3, (int)node->get( "m_i" ) );
-}
-
-TEST( node_test, direct_vars )
-{
-    NodePtr node( new TestNode );
+    ASSERT_TRUE( node->hasVar( "i" ) );
     
-    node->set( &TestNode::m_i, 4 );
-    ASSERT_EQ( 4, node->get( &TestNode::m_i ) );
+    ASSERT_TRUE( node->trySetVar( "i", 1 ) );
+    ASSERT_TRUE( node->tryGetVar( "i", v ) );
+    ASSERT_TRUE( v.tryGet( i ) );
+    ASSERT_EQ( 1, i );
+    
+    node->setVar( "i", 2 );
+    ASSERT_EQ( 2, (int)node->getVar( "i" ) );
+    
+    ASSERT_TRUE( node->hasVar( &TestNode::i ) );
+    
+    ASSERT_TRUE( node->trySetVar( &TestNode::i, 3 ) );
+    ASSERT_TRUE( node->tryGetVar( &TestNode::i, i ) );
+    ASSERT_EQ( 3, i );
+    
+    node->setVar( &TestNode::i, 4 );
+    ASSERT_EQ( 4, node->getVar( &TestNode::i ) );
+    
+    NodePtr child( new Node );
+    child->attachToParent( node );
+    
+    node->setVar( "i", 5 );
+    ASSERT_TRUE( child->getAncestorVar( "i", v ) );
+    ASSERT_EQ( 5, (int)v );
+    
+    node->setVar( &TestNode::i, 6 );
+    ASSERT_TRUE( child->getAncestorVar( &TestNode::i, i ) );
+    ASSERT_EQ( 6, i );
 }
 
 class ChildNode : public TestNode

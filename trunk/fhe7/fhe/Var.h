@@ -2,7 +2,6 @@
 #define FHE_VAR_H
 
 #include <fhe/Val.h>
-#include <fhe/Util.h>
 #include <boost/shared_ptr.hpp>
 
 namespace fhe
@@ -13,6 +12,7 @@ namespace fhe
         public:
             virtual Val get() const = 0;
             virtual void set( const Val& v ) = 0;
+            virtual bool trySet( const Val& v ) = 0;
             virtual std::string name() const = 0;
     };
     
@@ -46,6 +46,19 @@ namespace fhe
             {
                 FHE_ASSERT_MSG( v.is<TVar>(), "var type mismatch" );
                 m_obj->*m_ptr = v.get<TVar>();
+            }
+            
+            bool trySet( const Val& v )
+            {
+                if ( v.is<TVar>() )
+                {
+                    m_obj->*m_ptr = v.get<TVar>();
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
             
             std::string name() const

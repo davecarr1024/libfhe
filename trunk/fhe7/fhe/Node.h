@@ -5,6 +5,7 @@
 #include <fhe/Func.h>
 #include <boost/intrusive_ptr.hpp>
 #include <map>
+#include <set>
 
 namespace fhe
 {
@@ -28,11 +29,16 @@ namespace fhe
         public:
             friend void boost::intrusive_ptr_add_ref( Node* node );
             friend void boost::intrusive_ptr_release( Node* node );
+
+            typedef std::set< NodePtr >::const_iterator ChildrenIterator;
             
         private:
             friend class INodeIntDesc;
             
             size_t m_refs;
+            
+            Node* m_parent;
+            std::set< NodePtr > m_children;
             
             std::map< std::string, IFuncPtr > m_funcs;
             std::map< std::string, IVarPtr > m_vars;
@@ -47,23 +53,88 @@ namespace fhe
             Node();
             virtual ~Node();
             
-            Val get( const std::string& name ) const;
-            void set( const std::string& name, const Val& v );
+            NodePtr parent() const;
+            NodePtr root() const;
+            bool hasChild( const NodePtr& child ) const;
+            ChildrenIterator childrenBegin() const;
+            ChildrenIterator childrenEnd() const;
+            
+            void attachToParent( const NodePtr& parent );
+            void detachFromParent();
+            void attachChild( const NodePtr& child );
+            void detachChild( const NodePtr& child );
+            
+            bool hasVar( const std::string& name ) const;
+            void setVar( const std::string& name, const Val& v );
+            bool trySetVar( const std::string& name, const Val& v );
+            Val getVar( const std::string& name ) const;
+            bool tryGetVar( const std::string& name, Val& v ) const;
+            bool getAncestorVar( const std::string& name, Val& v ) const;
             
             template <class TObj, class TVar>
-            TVar get( TVar (TObj::*ptr) )
+            TVar getVar( TVar (TObj::*ptr) ) const
             {
-                TObj* t = dynamic_cast<TObj*>( this );
+                const TObj* t = dynamic_cast<const TObj*>( this );
                 FHE_ASSERT_MSG( t, "unable to cast node to type %s", typeid(TObj).name() );
                 return t->*ptr;
             }
             
             template <class TObj, class TVar>
-            void set( TVar (TObj::*ptr), TVar val )
+            void setVar( TVar (TObj::*ptr), TVar val )
             {
-                TObj* t = dynamic_cast<TObj*>( this );
-                FHE_ASSERT_MSG( t, "unable to cast node to type %s", typeid(TObj).name() );
-                t->*ptr = val;
+                FHE_ASSERT_MSG( trySetVar( ptr, val ),
+                                "unable to set var for type %s", typeid(TObj).name() );
+            }
+            
+            template <class TObj, class TVar>
+            bool trySetVar( TVar (TObj::*ptr), TVar val )
+            {
+                if ( TObj* t = dynamic_cast<TObj*>( this ) )
+                {
+                    t->*ptr = val;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            
+            template <class TObj, class TVar>
+            bool hasVar( TVar (TObj::*ptr) ) const
+            {
+                return dynamic_cast<const TObj*>( this );
+            }
+            
+            template <class TObj, class TVar>
+            bool tryGetVar( TVar (TObj::*ptr), TVar& v ) const
+            {
+                if ( const TObj* t = dynamic_cast<const TObj*>( this ) )
+                {
+                    v = t->*ptr;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            
+            template <class TObj, class TVar>
+            bool getAncestorVar( TVar (TObj::*ptr), TVar& v ) const
+            {
+                if ( tryGetVar( ptr, v ) )
+                {
+                    return true;
+                }
+                else if ( m_parent )
+                {
+                    return m_parent->getAncestorVar( ptr, v );
+                }
+                else
+                {
+                    return false;
+                }
             }
             
             Val call( const std::string& name, const std::vector< Val >& args );

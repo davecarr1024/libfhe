@@ -2,7 +2,6 @@
 #define FHE_FUNC_H
 
 #include <fhe/Val.h>
-#include <fhe/Util.h>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/preprocessor/repetition.hpp>
@@ -17,11 +16,12 @@
 
 namespace fhe
 {
-    
+
     class IFunc
     {
         public:
             virtual Val call( const std::vector< Val >& args ) = 0;
+            
             virtual std::string name() const = 0;
     };
     
