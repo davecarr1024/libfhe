@@ -28,23 +28,39 @@ TEST( node_test, factory )
     ASSERT_TRUE( NodeFactory::instance().build( "TestNode" ) );
 }
 
-TEST( node_test, name_funcs )
+TEST( node_test, funcs )
 {
     NodePtr node( new TestNode );
+    std::vector< Val > args( 1 );
+    Val v;
+    int i;
     
-    std::vector< Val > args;
-    args.push_back( 1 );
+    args[0] = 1;
+    ASSERT_TRUE( node->tryCall( "set", args, v ) );
+    ASSERT_TRUE( node->tryCall( "get", std::vector< Val >(), v ) );
+    ASSERT_TRUE( v.tryGet( i ) );
+    ASSERT_EQ( 1, i );
+    
+    args[0] = 2;
     node->call( "set", args );
-
-    ASSERT_EQ( 1, (int)node->call( "get", std::vector< Val >() ) );
-}
-
-TEST( node_test, direct_funcs )
-{
-    NodePtr node( new TestNode );
+    ASSERT_EQ( 2, (int)node->call( "get", std::vector< Val >() ) );
     
-    node->call( &TestNode::set, 2 );
-    ASSERT_EQ( 2, node->call( &TestNode::get ) );
+    ASSERT_TRUE( node->tryCall( &TestNode::set, 3 ) );
+    ASSERT_TRUE( node->tryCall( &TestNode::get, i ) );
+    ASSERT_EQ( 3, i );
+    
+    node->call( &TestNode::set, 4 );
+    ASSERT_EQ( 4, node->call( &TestNode::get ) );
+    
+    NodePtr child( new TestNode );
+    node->attachChild( child );
+    
+    args[0] = 5;
+    node->publish( "set", args );
+    ASSERT_EQ( 5, (int)child->call( "get", std::vector< Val >() ) );
+    
+    node->publish( &TestNode::set, 6 );
+    ASSERT_EQ( 6, child->call( &TestNode::get ) );
 }
 
 TEST( node_test, vars )

@@ -21,6 +21,7 @@ namespace fhe
     {
         public:
             virtual Val call( const std::vector< Val >& args ) = 0;
+            virtual bool tryCall( const std::vector< Val >& args, Val& ret ) = 0;
             
             virtual std::string name() const = 0;
     };
@@ -35,6 +36,8 @@ namespace fhe
     #define FUNC_typecheck( z, n, unused ) FHE_ASSERT_MSG( args[n].is<BOOST_PP_CAT( TArg, n )>(), \
         "arg %d to %s::%s type mismatch: expected %s got %s", \
         n, m_nodeType.c_str(), m_name.c_str(), typeid( BOOST_PP_CAT( TArg, n ) ).name(), args[n].type().c_str() );
+        
+    #define FUNC_typeif( z, n, unused ) if ( args[n].is<BOOST_PP_CAT( TArg, n )>() )
     
     #define FUNC_arg( z, n, unused ) args[n].get< BOOST_PP_CAT( TArg, n ) >()
     
@@ -54,6 +57,13 @@ namespace fhe
                     BOOST_PP_REPEAT( n, FUNC_typecheck, ~ ) \
                     (m_obj->*m_ptr)( BOOST_PP_ENUM( n, FUNC_arg, ~ ) ); \
                     return Val(); \
+                } \
+                bool tryCall( const std::vector< Val >& args, Val& ret ) { \
+                    if ( args.size() == n ) BOOST_PP_REPEAT( n, FUNC_typeif, ~ ) {\
+                        (m_obj->*m_ptr)( BOOST_PP_ENUM( n, FUNC_arg, ~ ) ); \
+                        return true; \
+                    } \
+                    return false; \
                 } \
                 std::string name() const { return m_name; } \
             private: \
@@ -75,6 +85,8 @@ namespace fhe
         "arg %d to %s::%s type mismatch: expected %s got %s", \
         n, m_nodeType.c_str(), m_name.c_str(), typeid( BOOST_PP_CAT( TArg, n ) ).name(), args[n].type().c_str() );
     
+    #define RETFUNC_typeif( z, n, unused ) if ( args[n].is<BOOST_PP_CAT( TArg, n )>() )
+    
     #define RETFUNC_arg( z, n, unused ) args[n].get< BOOST_PP_CAT( TArg, n ) >()
     
     #define RETFUNC_iter( z, n, unused ) \
@@ -92,6 +104,13 @@ namespace fhe
                         m_nodeType.c_str(), m_name.c_str(), args.size(), n ); \
                     BOOST_PP_REPEAT( n, RETFUNC_typecheck, ~ ) \
                     return (m_obj->*m_ptr)( BOOST_PP_ENUM( n, RETFUNC_arg, ~ ) ); \
+                } \
+                bool tryCall( const std::vector< Val >& args, Val& ret ) { \
+                    if ( args.size() == n ) BOOST_PP_REPEAT( n, RETFUNC_typeif, ~ ) {\
+                        ret = (m_obj->*m_ptr)( BOOST_PP_ENUM( n, RETFUNC_arg, ~ ) ); \
+                        return true; \
+                    } \
+                    return false; \
                 } \
                 std::string name() const { return m_name; } \
             private: \
