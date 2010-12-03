@@ -141,6 +141,8 @@ namespace fhe
             bool tryCall( const std::string& name, const std::vector< Val >& args, Val& ret );
             void publish( const std::string& name, const std::vector< Val >& args );
             
+            //TRet call( &Class::Func, args );
+            
             #define CALL_arg( z, n, unused ) BOOST_PP_CAT( TArg, n ) BOOST_PP_CAT( arg, n )
             
             #define CALL_iter( z, n, unused ) \
@@ -183,6 +185,8 @@ namespace fhe
                 
             BOOST_PP_REPEAT( FHE_ARGS, TRYCALL_iter, ~ )
             
+            //bool tryCall( &Class::Func, args, TRet& ret );
+            
             #undef TRYCALL_iter
             
             #define RETTRYCALL_iter( z, n, unused ) \
@@ -200,6 +204,8 @@ namespace fhe
             BOOST_PP_REPEAT( FHE_ARGS, RETTRYCALL_iter, ~ )
             
             #undef RETTRYCALL_iter
+            
+            //void publish( &Class::Func, args );
 
             #define PUBLISH_iter( z, n, unused ) \
                 template <class TObj, class TRet BOOST_PP_COMMA_IF( n ) BOOST_PP_ENUM_PARAMS( n, class TArg )> \
