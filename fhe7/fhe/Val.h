@@ -1,6 +1,7 @@
 #ifndef FHE_VAL_H
 #define FHE_VAL_H
 
+#include <fhe/Util.h>
 #include <string>
 #include <typeinfo>
 
@@ -91,9 +92,26 @@ namespace fhe
             }
             
             template <class T>
-            T get( T def = T() ) const
+            bool tryGet( T& t ) const
             {
-                return is<T>() ? m_data->as<T>()->get() : def;
+                if ( is<T>() )
+                {
+                    t = m_data->as<T>()->get();
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            
+            template <class T>
+            T get() const
+            {
+                FHE_ASSERT_MSG( is<T>(), 
+                                "type mismatch while doing Val conversion: val is %s but %s requested",
+                                type().c_str(), typeid(T).name() );
+                return m_data->as<T>()->get();
             }
             
             template <class T>
