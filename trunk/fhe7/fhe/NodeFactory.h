@@ -9,6 +9,7 @@ namespace fhe
     class INodeRegisterer;
     class FuncRegisterer;
     class DepRegisterer;
+    class INodeIntRegisterer;
     
     class NodeFactory
     {
@@ -17,8 +18,10 @@ namespace fhe
             friend class FuncRegisterer;
             friend class VarRegisterer;
             friend class DepRegisterer;
+            friend class INodeIntRegisterer;
             
             std::map< std::string, INodeDescPtr > m_nodes;
+            std::map< std::string, INodeIntDescPtr > m_nodeInts;
             
             NodeFactory();
             NodeFactory( const NodeFactory& nf );
@@ -26,7 +29,7 @@ namespace fhe
             
             void addNode( const INodeDescPtr& node );
             
-            INodeDescPtr getNode( const std::string& name ) const;
+            void addNodeInt( const INodeIntDescPtr& nodeInt );
             
         public:
             virtual ~NodeFactory();
@@ -36,6 +39,14 @@ namespace fhe
             void init( Node* node ) const;
             
             NodePtr build( const std::string& name ) const;
+            
+            bool hasNode( const std::string& name ) const;
+
+            INodeDescPtr getNode( const std::string& name ) const;
+            
+            bool hasNodeInt( const std::string& name ) const;
+            
+            INodeIntDescPtr getNodeInt( const std::string& name ) const;
     };
 
     class INodeRegisterer
@@ -68,13 +79,25 @@ namespace fhe
                 template <class TObj, class TRet BOOST_PP_COMMA_IF( n ) BOOST_PP_ENUM_PARAMS( n, class TArg )> \
                 FuncRegisterer( const std::string& nodeName, const std::string& funcName, \
                     TRet (TObj::*func)( BOOST_PP_ENUM_PARAMS( n, TArg ) ) ) { \
-                    INodeDescPtr node = NodeFactory::instance().getNode( nodeName ); \
-                    FHE_ASSERT_MSG( node, "can't attach func %s to unknown node %s", funcName.c_str(), nodeName.c_str() ); \
-                    node->addFunc( IFuncDescPtr( new FuncDesc<TObj, TRet, \
-                        BOOST_PP_ENUM_PARAMS( n, TArg ) \
-                        BOOST_PP_COMMA_IF( n ) \
-                        BOOST_PP_ENUM( BOOST_PP_SUB( FHE_ARGS, n ), FUNCREG_id, void ) \
-                        > ( funcName, func ) ) ); \
+                    NodeFactory& nf = NodeFactory::instance(); \
+                    if ( nf.hasNode( nodeName ) ) { \
+                        nf.getNode( nodeName )->addFunc( \
+                            IFuncDescPtr( new FuncDesc<TObj, TRet, \
+                            BOOST_PP_ENUM_PARAMS( n, TArg ) \
+                            BOOST_PP_COMMA_IF( n ) \
+                            BOOST_PP_ENUM( BOOST_PP_SUB( FHE_ARGS, n ), FUNCREG_id, void ) \
+                            > ( funcName, func ) ) ); \
+                    } else if ( nf.hasNodeInt( nodeName ) ) { \
+                        nf.getNodeInt( nodeName )->addFunc( \
+                            IFuncDescPtr( new FuncDesc<TObj, TRet, \
+                            BOOST_PP_ENUM_PARAMS( n, TArg ) \
+                            BOOST_PP_COMMA_IF( n ) \
+                            BOOST_PP_ENUM( BOOST_PP_SUB( FHE_ARGS, n ), FUNCREG_id, void ) \
+                            > ( funcName, func ) ) ); \
+                    } else { \
+                        FHE_ERROR( "unable to attach func %s to unknown node type or int %s", \
+                            funcName.c_str(), nodeName.c_str() ); \
+                    } \
                 }
                 
             BOOST_PP_REPEAT( FHE_ARGS, FUNCREG_iter, ~ )
@@ -91,9 +114,22 @@ namespace fhe
             template <class TObj, class TVar>
             VarRegisterer( const std::string& nodeName, const std::string& varName, TVar (TObj::*ptr ) )
             {
-                INodeDescPtr node = NodeFactory::instance().getNode( nodeName );
-                FHE_ASSERT_MSG( node, "unable to add var %s to unknown node %s", varName.c_str(), nodeName.c_str() );
-                node->addVar( IVarDescPtr( new VarDesc<TObj,TVar>( varName, ptr ) ) );
+                NodeFactory& nf = NodeFactory::instance();
+                if ( nf.hasNode( nodeName ) )
+                {
+                    INodeDescPtr node = nf.getNode( nodeName );
+                    node->addVar( IVarDescPtr( new VarDesc<TObj,TVar>( varName, ptr ) ) );
+                }
+                else if ( nf.hasNodeInt( nodeName ) )
+                {
+                    INodeIntDescPtr nodeInt = nf.getNodeInt( nodeName );
+                    nodeInt->addVar( IVarDescPtr( new VarDesc<TObj,TVar>( varName, ptr ) ) );
+                }
+                else
+                {
+                    FHE_ERROR( "unable to attach var %s to unknown node type or int %s",
+                               varName.c_str(), nodeName.c_str() );
+                }
             }
     };
     
@@ -104,15 +140,46 @@ namespace fhe
         public:
             DepRegisterer( const std::string& nodeName, const std::string& depName )
             {
-                INodeDescPtr node = NodeFactory::instance().getNode( nodeName );
+                NodeFactory& nf = NodeFactory::instance();
+                INodeDescPtr node = nf.getNode( nodeName );
                 FHE_ASSERT_MSG( node, "unable to add dep %s to unknown node %s", depName.c_str(), nodeName.c_str() );
-                INodeDescPtr dep = NodeFactory::instance().getNode( depName );
-                FHE_ASSERT_MSG( dep, "unabel to add unknown dep %s to node %s", depName.c_str(), nodeName.c_str() );
-                node->addDep( dep );
+                if ( nf.hasNode( depName ) )
+                {
+                    node->addDep( nf.getNode( depName ) );
+                }
+                else if ( nf.hasNodeInt( depName ) )
+                {
+                    node->addDep( nf.getNodeInt( depName ) );
+                }
+                else
+                {
+                    FHE_ERROR( "unable to add unknown dep %s to node %s", depName.c_str(), nodeName.c_str() );
+                }
             }
     };
     
     #define FHE_DEP( node, dep ) DepRegisterer g_##node##_##dep##_dep_reg( #node, #dep );
+
+    class INodeIntRegisterer
+    {
+        protected:
+            void addNodeInt( const INodeIntDescPtr& nodeInt )
+            {
+                NodeFactory::instance().addNodeInt( nodeInt );
+            }
+    };
+    
+    template <class T>
+    class NodeIntRegisterer : public INodeIntRegisterer
+    {
+        public:
+            NodeIntRegisterer( const std::string& name )
+            {
+                addNodeInt( INodeIntDescPtr( new NodeIntDesc<T>( name ) ) );
+            }
+    };
+    
+    #define FHE_INODE( node ) NodeIntRegisterer<node> g_##node##_int_reg( #node );
     
 }
 

@@ -52,39 +52,6 @@ namespace fhe
         m_vars[var->name()] = var;
     }
     
-    INodeDesc::INodeDesc( const std::string& name ) :
-        m_name( name )
-    {
-    }
-    
-    void INodeDesc::addFunc( const IFuncDescPtr& func )
-    {
-        m_funcs.push_back( func );
-    }
-    
-    void INodeDesc::addVar( const IVarDescPtr& var )
-    {
-        m_vars.push_back( var );
-    }
-    
-    void INodeDesc::init( Node* node ) const
-    {
-        FHE_ASSERT( canInit( node ) );
-        for ( std::vector< IFuncDescPtr >::const_iterator i = m_funcs.begin(); i != m_funcs.end(); ++i )
-        {
-            node->addFunc( (*i)->build( m_name, node ) );
-        }
-        for ( std::vector< IVarDescPtr >::const_iterator i = m_vars.begin(); i != m_vars.end(); ++i )
-        {
-            node->addVar( (*i)->build( node ) );
-        }
-    }
-    
-    std::string INodeDesc::name() const
-    {
-        return m_name;
-    }
-    
     Val Node::get( const std::string& name ) const
     {
         std::map< std::string, IVarPtr >::const_iterator i = m_vars.find( name );
@@ -99,19 +66,57 @@ namespace fhe
         i->second->set( v );
     }
     
-    void INodeDesc::addDep( const INodeDescPtr& dep )
+    INodeIntDesc::INodeIntDesc( const std::string& name ) :
+        m_name( name )
+    {
+    }
+    
+    INodeDesc::INodeDesc( const std::string& name ) :
+        INodeIntDesc( name )
+    {
+    }
+    
+    void INodeIntDesc::addFunc( const IFuncDescPtr& func )
+    {
+        m_funcs.push_back( func );
+    }
+    
+    void INodeIntDesc::addVar( const IVarDescPtr& var )
+    {
+        m_vars.push_back( var );
+    }
+    
+    void INodeIntDesc::init( Node* node ) const
+    {
+        FHE_ASSERT( canInit( node ) );
+        for ( std::vector< IFuncDescPtr >::const_iterator i = m_funcs.begin(); i != m_funcs.end(); ++i )
+        {
+            node->addFunc( (*i)->build( m_name, node ) );
+        }
+        for ( std::vector< IVarDescPtr >::const_iterator i = m_vars.begin(); i != m_vars.end(); ++i )
+        {
+            node->addVar( (*i)->build( node ) );
+        }
+    }
+    
+    std::string INodeIntDesc::name() const
+    {
+        return m_name;
+    }
+    
+    void INodeIntDesc::addDep( const INodeIntDescPtr& dep )
     {
         m_deps.push_back( dep );
     }
     
-    bool INodeDesc::isDep( const INodeDescPtr& dep ) const
+    bool INodeIntDesc::isDep( const INodeIntDescPtr& dep ) const
     {
         if ( dep.get() == this )
         {
             return true;
         }
         
-        for ( std::vector< INodeDescPtr >::const_iterator i = m_deps.begin(); i != m_deps.end(); ++i )
+        for ( std::vector< INodeIntDescPtr >::const_iterator i = m_deps.begin(); i != m_deps.end(); ++i )
         {
             if ( (*i)->isDep( dep ) )
             {
