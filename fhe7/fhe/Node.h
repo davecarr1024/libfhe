@@ -138,6 +138,8 @@ namespace fhe
             }
             
             Val call( const std::string& name, const std::vector< Val >& args );
+            bool tryCall( const std::string& name, const std::vector< Val >& args, Val& ret );
+            void publish( const std::string& name, const std::vector< Val >& args );
             
             #define CALL_arg( z, n, unused ) BOOST_PP_CAT( TArg, n ) BOOST_PP_CAT( arg, n )
             
@@ -153,14 +155,11 @@ namespace fhe
             BOOST_PP_REPEAT( FHE_ARGS, CALL_iter, ~ )
             
             #undef CALL_iter
-            #undef CALL_arg
-
-            #define RETCALL_arg( z, n, unused ) BOOST_PP_CAT( TArg, n ) BOOST_PP_CAT( arg, n )
             
             #define RETCALL_iter( z, n, unused ) \
                 template <class TObj, class TRet BOOST_PP_COMMA_IF( n ) BOOST_PP_ENUM_PARAMS( n, class TArg )> \
                 TRet call( TRet (TObj::*func)( BOOST_PP_ENUM_PARAMS( n, TArg ) ) BOOST_PP_COMMA_IF(n)\
-                    BOOST_PP_ENUM( n, RETCALL_arg, ~ ) ) { \
+                    BOOST_PP_ENUM( n, CALL_arg, ~ ) ) { \
                     TObj* t = dynamic_cast<TObj*>( this ); \
                     FHE_ASSERT_MSG( t, "unable to cast node to type %s", typeid(TObj).name() ); \
                     return (t->*func)( BOOST_PP_ENUM_PARAMS( n, arg ) ); \
@@ -169,7 +168,56 @@ namespace fhe
             BOOST_PP_REPEAT( FHE_ARGS, RETCALL_iter, ~ )
             
             #undef RETCALL_iter
-            #undef RETCALL_arg
+            
+            #define TRYCALL_iter( z, n, unused ) \
+                template <class TObj BOOST_PP_COMMA_IF( n ) BOOST_PP_ENUM_PARAMS( n, class TArg )> \
+                bool tryCall( void (TObj::*func)( BOOST_PP_ENUM_PARAMS( n, TArg ) ) BOOST_PP_COMMA_IF(n)\
+                    BOOST_PP_ENUM( n, CALL_arg, ~ ) ) { \
+                    if ( TObj* t = dynamic_cast<TObj*>( this ) ) { \
+                        (t->*func)( BOOST_PP_ENUM_PARAMS( n, arg ) ); \
+                        return true; \
+                    } else {\
+                        return false; \
+                    }\
+                }
+                
+            BOOST_PP_REPEAT( FHE_ARGS, TRYCALL_iter, ~ )
+            
+            #undef TRYCALL_iter
+            
+            #define RETTRYCALL_iter( z, n, unused ) \
+                template <class TObj, class TRet BOOST_PP_COMMA_IF( n ) BOOST_PP_ENUM_PARAMS( n, class TArg )> \
+                bool tryCall( TRet (TObj::*func)( BOOST_PP_ENUM_PARAMS( n, TArg ) ) BOOST_PP_COMMA_IF(n)\
+                    BOOST_PP_ENUM( n, CALL_arg, ~ ), TRet& ret ) { \
+                    if ( TObj* t = dynamic_cast<TObj*>( this ) ) { \
+                        ret = (t->*func)( BOOST_PP_ENUM_PARAMS( n, arg ) ); \
+                        return true; \
+                    } else {\
+                        return false; \
+                    }\
+                }
+                
+            BOOST_PP_REPEAT( FHE_ARGS, RETTRYCALL_iter, ~ )
+            
+            #undef RETTRYCALL_iter
+
+            #define PUBLISH_iter( z, n, unused ) \
+                template <class TObj, class TRet BOOST_PP_COMMA_IF( n ) BOOST_PP_ENUM_PARAMS( n, class TArg )> \
+                void publish( TRet (TObj::*func)( BOOST_PP_ENUM_PARAMS( n, TArg ) ) BOOST_PP_COMMA_IF(n)\
+                    BOOST_PP_ENUM( n, CALL_arg, ~ ) ) { \
+                    if ( TObj* t = dynamic_cast<TObj*>( this ) ) { \
+                        (t->*func)( BOOST_PP_ENUM_PARAMS( n, arg ) ); \
+                    } \
+                    for ( ChildrenIterator i = m_children.begin(); i != m_children.end(); ++i ) { \
+                        (*i)->publish( func BOOST_PP_COMMA_IF( n ) BOOST_PP_ENUM_PARAMS( n, arg ) ); \
+                    } \
+                }
+                
+            BOOST_PP_REPEAT( FHE_ARGS, PUBLISH_iter, ~ )
+            
+            #undef PUBLISH_iter
+            
+            #undef CALL_arg
     };
     
     class FuncRegisterer;

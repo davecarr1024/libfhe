@@ -109,6 +109,21 @@ namespace fhe
         return i->second->call( args );
     }
     
+    bool Node::tryCall( const std::string& name, const std::vector< Val >& args, Val& ret )
+    {
+        std::map< std::string, IFuncPtr >::iterator i = m_funcs.find( name );
+        return i != m_funcs.end() ? i->second->tryCall( args, ret ) : false;
+    }
+    
+    void Node::publish( const std::string& name, const std::vector< Val >& args )
+    {
+        call( name, args );
+        for ( ChildrenIterator i = m_children.begin(); i != m_children.end(); ++i )
+        {
+            (*i)->publish( name, args );
+        }
+    }
+    
     void Node::addFunc( const IFuncPtr& func )
     {
         m_funcs[func->name()] = func;
