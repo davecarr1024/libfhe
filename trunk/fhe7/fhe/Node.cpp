@@ -6,6 +6,7 @@ namespace boost
     
     void intrusive_ptr_add_ref( fhe::Node* node )
     {
+        printf( "inc\n" );
         if ( !node->m_refs )
         {
             fhe::NodeFactory::instance().init( node );
@@ -15,8 +16,10 @@ namespace boost
     
     void intrusive_ptr_release( fhe::Node* node )
     {
+        printf( "dec\n" );
         if ( !--node->m_refs )
         {
+            printf( "del\n");
             delete node;
         }
     }
@@ -34,6 +37,12 @@ namespace fhe
     
     Node::~Node()
     {
+    }
+    
+    void Node::defineClass()
+    {
+        boost::python::class_<Node, boost::noncopyable>( "Node", boost::python::no_init )
+            ;
     }
     
     NodePtr Node::parent() const
