@@ -3,6 +3,7 @@
 
 #include <fhe/Var.h>
 #include <fhe/Func.h>
+#include <fhe/PyEnv.h>
 #include <boost/intrusive_ptr.hpp>
 #include <map>
 #include <set>
@@ -52,6 +53,8 @@ namespace fhe
         public:
             Node();
             virtual ~Node();
+            
+            static void defineClass();
             
             NodePtr parent() const;
             NodePtr root() const;
