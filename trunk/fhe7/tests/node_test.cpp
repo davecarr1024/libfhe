@@ -1,4 +1,5 @@
 #include <fhe/NodeFactory.h>
+#include <fhe/PyNode.h>
 #include <gtest/gtest.h>
 using namespace fhe;
 
@@ -156,17 +157,7 @@ TEST( node_test, interface )
 
 TEST( node_test, python )
 {
-    PyEnv::instance();
-    NodePtr node( new Node );
-    try
-    {
-        boost::python::object o( boost::python::ptr( node.get() ) );
-    }
-    catch ( boost::python::error_already_set )
-    {
-        PyErr_Print();
-        throw;
-    }
+    PyEnv::instance().runFile( "test.py", PyEnv::instance().defaultNamespace() );
 }
 
 int main( int argc, char** argv )

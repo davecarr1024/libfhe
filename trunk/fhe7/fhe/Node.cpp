@@ -6,7 +6,6 @@ namespace boost
     
     void intrusive_ptr_add_ref( fhe::Node* node )
     {
-        printf( "inc\n" );
         if ( !node->m_refs )
         {
             fhe::NodeFactory::instance().init( node );
@@ -16,10 +15,8 @@ namespace boost
     
     void intrusive_ptr_release( fhe::Node* node )
     {
-        printf( "dec\n" );
         if ( !--node->m_refs )
         {
-            printf( "del\n");
             delete node;
         }
     }
@@ -29,6 +26,8 @@ namespace boost
 namespace fhe
 {
     
+    FHE_NODE( Node );
+    
     Node::Node() :
         m_refs( 0 ),
         m_parent( 0 )
@@ -37,12 +36,6 @@ namespace fhe
     
     Node::~Node()
     {
-    }
-    
-    void Node::defineClass()
-    {
-        boost::python::class_<Node, boost::noncopyable>( "Node", boost::python::no_init )
-            ;
     }
     
     NodePtr Node::parent() const
@@ -257,6 +250,18 @@ namespace fhe
         }
         
         return false;
+    }
+    
+    bool Node::hasFunc( const std::string& name ) const
+    {
+        return m_funcs.find( name ) != m_funcs.end();
+    }
+    
+    IFuncPtr Node::getFunc( const std::string& name ) const
+    {
+        std::map< std::string, IFuncPtr >::const_iterator i = m_funcs.find( name );
+        FHE_ASSERT_MSG( i != m_funcs.end(), "unable to get unknown func %s", name.c_str() );
+        return i->second;
     }
     
 }
