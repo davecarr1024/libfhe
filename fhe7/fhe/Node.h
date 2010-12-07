@@ -3,7 +3,6 @@
 
 #include <fhe/Var.h>
 #include <fhe/Func.h>
-#include <fhe/PyEnv.h>
 #include <boost/intrusive_ptr.hpp>
 #include <map>
 #include <set>
@@ -32,6 +31,8 @@ namespace fhe
             friend void boost::intrusive_ptr_release( Node* node );
 
             typedef std::set< NodePtr >::const_iterator ChildrenIterator;
+            typedef std::map< std::string, IFuncPtr > FuncIterator;
+            typedef std::map< std::string, IVarPtr > VarIterator;
             
         private:
             friend class INodeIntDesc;
@@ -53,8 +54,6 @@ namespace fhe
         public:
             Node();
             virtual ~Node();
-            
-            static void defineClass();
             
             NodePtr parent() const;
             NodePtr root() const;
@@ -139,6 +138,9 @@ namespace fhe
                     return false;
                 }
             }
+            
+            bool hasFunc( const std::string& name ) const;
+            IFuncPtr getFunc( const std::string& name ) const;
             
             Val call( const std::string& name, const std::vector< Val >& args );
             bool tryCall( const std::string& name, const std::vector< Val >& args, Val& ret );
@@ -261,9 +263,9 @@ namespace fhe
         public:
             bool isDep( const INodeIntDescPtr& dep ) const;
             
-            virtual bool canInit( Node* node ) const=0;
+            virtual bool canInit( Node* node ) const = 0;
             
-            virtual void init( Node* node ) const;
+            void init( Node* node ) const;
             
             std::string name() const;
     };

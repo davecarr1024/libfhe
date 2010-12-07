@@ -1,5 +1,5 @@
 #include <fhe/PyEnv.h>
-#include <fhe/Node.h>
+#include <fhe/PyNode.h>
 #include <fhe/FileSystem.h>
 
 namespace fhe
@@ -12,7 +12,7 @@ namespace fhe
         m_mainNamespace = boost::python::dict(m_mainModule.attr("__dict__"));
         m_builtins = m_mainNamespace["__builtins__"].attr("__dict__");
         
-        Node::defineClass();
+        m_mainNamespace["Node"] = PyNode::defineClass();
     }
     
     PyEnv& PyEnv::instance()
