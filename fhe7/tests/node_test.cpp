@@ -17,16 +17,26 @@ class TestNode : public Node
         {
             return i;
         }
+        
+        float f;
+
+        struct Foo {};
+        Foo m_foo;
+        
 };
 
 FHE_NODE( TestNode )
 FHE_FUNC( TestNode, set )
 FHE_FUNC( TestNode, get )
 FHE_VAR( TestNode, i )
+FHE_VAR( TestNode, f );
+FHE_VAR( TestNode, m_foo );
 
 TEST( node_test, factory )
 {
-    ASSERT_TRUE( NodeFactory::instance().build( "TestNode" ) );
+    NodePtr node = NodeFactory::instance().build( "TestNode" );
+    ASSERT_TRUE( node );
+    ASSERT_EQ( "TestNode", node->type() );
 }
 
 TEST( node_test, funcs )
@@ -118,6 +128,8 @@ TEST( node_test, inheritance )
 {
     NodePtr node( new ChildNode );
     
+    ASSERT_EQ( "ChildNode", node->type() );
+    
     node->call( &TestNode::set, 1 );
     ASSERT_EQ( 2, node->call( &TestNode::get ) );
 
@@ -158,6 +170,30 @@ TEST( node_test, interface )
 TEST( node_test, python )
 {
     PyEnv::instance().runFile( "test.py", PyEnv::instance().defaultNamespace() );
+}
+
+void fileTest( const std::string& filename, NodePtr& node )
+{
+    node = Node::load( filename );
+    
+    ASSERT_TRUE( node );
+    ASSERT_EQ( "TestNode", node->type() );
+    ASSERT_EQ( 1, node->getVar( &TestNode::i ) );
+    
+    ASSERT_TRUE( node->childrenBegin() != node->childrenEnd() );
+    NodePtr child = *node->childrenBegin();
+    ASSERT_TRUE( child );
+    ASSERT_EQ( "TestNode", child->type() );
+    ASSERT_EQ( 2, child->getVar( &TestNode::i ) );
+}
+
+TEST( node_test, file )
+{
+    NodePtr node;
+    fileTest( "test.yaml", node );
+    node->save( "dump" );
+    node = NodePtr();
+    fileTest( "dump", node );
 }
 
 int main( int argc, char** argv )

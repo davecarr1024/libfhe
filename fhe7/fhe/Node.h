@@ -31,14 +31,15 @@ namespace fhe
             friend void boost::intrusive_ptr_release( Node* node );
 
             typedef std::set< NodePtr >::const_iterator ChildrenIterator;
-            typedef std::map< std::string, IFuncPtr > FuncIterator;
-            typedef std::map< std::string, IVarPtr > VarIterator;
+            typedef std::map< std::string, IFuncPtr >::const_iterator FuncIterator;
+            typedef std::map< std::string, IVarPtr >::const_iterator VarIterator;
             
         private:
             friend class INodeIntDesc;
             
             size_t m_refs;
             
+            std::string m_type;
             Node* m_parent;
             std::set< NodePtr > m_children;
             
@@ -54,6 +55,11 @@ namespace fhe
         public:
             Node();
             virtual ~Node();
+            
+            static NodePtr load( const std::string& filename );
+            void save( const std::string& filename ) const;
+            
+            std::string type() const;
             
             NodePtr parent() const;
             NodePtr root() const;
@@ -72,6 +78,9 @@ namespace fhe
             Val getVar( const std::string& name ) const;
             bool tryGetVar( const std::string& name, Val& v ) const;
             bool getAncestorVar( const std::string& name, Val& v ) const;
+            VarIterator varsBegin() const;
+            VarIterator varsEnd() const;
+            IVarPtr getIVar( const std::string& name ) const;
             
             template <class TObj, class TVar>
             TVar getVar( TVar (TObj::*ptr) ) const
@@ -313,6 +322,9 @@ namespace fhe
                 return dynamic_cast<T*>( node );
             }
     };
+    
+    void operator>>( const YAML::Node& doc, NodePtr& node );
+    YAML::Emitter& operator<<( YAML::Emitter& out, const NodePtr& node );
     
 }
 

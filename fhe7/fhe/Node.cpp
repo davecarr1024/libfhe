@@ -1,5 +1,7 @@
 #include <fhe/Node.h>
 #include <fhe/NodeFactory.h>
+#include <fhe/FileSystem.h>
+#include <fstream>
 
 namespace boost
 {
@@ -36,6 +38,11 @@ namespace fhe
     
     Node::~Node()
     {
+    }
+    
+    std::string Node::type() const
+    {
+        return m_type;
     }
     
     NodePtr Node::parent() const
@@ -131,6 +138,16 @@ namespace fhe
         m_funcs[func->name()] = func;
     }
     
+    Node::VarIterator Node::varsBegin() const
+    {
+        return m_vars.begin();
+    }
+    
+    Node::VarIterator Node::varsEnd() const
+    {
+        return m_vars.end();
+    }
+    
     void Node::addVar( const IVarPtr& var )
     {
         m_vars[var->name()] = var;
@@ -139,6 +156,13 @@ namespace fhe
     bool Node::hasVar( const std::string& name ) const
     {
         return m_vars.find( name ) != m_vars.end();
+    }
+    
+    IVarPtr Node::getIVar( const std::string& name ) const
+    {
+        std::map< std::string, IVarPtr >::const_iterator i = m_vars.find( name );
+        FHE_ASSERT_MSG( i != m_vars.end(), "unable to get unknown IVar %s", name.c_str() );
+        return i->second;
     }
     
     bool Node::tryGetVar( const std::string& name, Val& v ) const
@@ -222,6 +246,7 @@ namespace fhe
         {
             node->addVar( (*i)->build( node ) );
         }
+        node->m_type = m_name;
     }
     
     std::string INodeIntDesc::name() const
@@ -262,6 +287,81 @@ namespace fhe
         std::map< std::string, IFuncPtr >::const_iterator i = m_funcs.find( name );
         FHE_ASSERT_MSG( i != m_funcs.end(), "unable to get unknown func %s", name.c_str() );
         return i->second;
+    }
+    
+    void operator>>( const YAML::Node& doc, NodePtr& node )
+    {
+        node = NodeFactory::instance().build( doc["type"] );
+        
+        if ( const YAML::Node* vars = doc.FindValue( "vars" ) )
+        {
+            for ( YAML::Iterator i = vars->begin(); i != vars->end(); ++i )
+            {
+                std::string name = i.first();
+                FHE_ASSERT_MSG( node->hasVar( name ), "unable to set unknown var %s on type %s", 
+                                name.c_str(), node->type().c_str() );
+                node->getIVar( name )->deserialize( i.second() );
+            }
+        }
+        
+        if ( const YAML::Node* children = doc.FindValue( "children" ) )
+        {
+            for ( YAML::Iterator i = children->begin(); i != children->end(); ++i )
+            {
+                node->attachChild( *i );
+            }
+        }
+    }
+    
+    YAML::Emitter& operator<<( YAML::Emitter& out, const NodePtr& node )
+    {
+        FHE_ASSERT( node );
+
+        out << YAML::BeginMap;
+        out << YAML::Key << "type" << YAML::Value << node->type();
+        
+        out << YAML::Key << "vars" << YAML::Value << YAML::BeginMap;
+        
+        for ( Node::VarIterator i = node->varsBegin(); i != node->varsEnd(); ++i )
+        {
+            out << YAML::Key << i->first << YAML::Value;
+            i->second->serialize( out );
+        }
+        
+        out << YAML::EndMap;
+        
+        out << YAML::Key << "children" << YAML::Value << YAML::BeginSeq;
+        
+        for ( Node::ChildrenIterator i = node->childrenBegin(); i != node->childrenEnd(); ++i )
+        {
+            out << *i;
+        }
+        
+        out << YAML::EndSeq;
+        
+        out << YAML::EndMap;
+        
+        return out;
+    }
+    
+    NodePtr Node::load( const std::string& _filename )
+    {
+        std::string filename = FileSystem::instance().getFile( _filename );
+        std::ifstream fin( filename.c_str() );
+        YAML::Parser parser( fin );
+        YAML::Node doc;
+        FHE_ASSERT_MSG( parser.GetNextDocument( doc ), "unable to parse %s", filename.c_str() );
+        fin.close();
+        return doc;
+    }
+    
+    void Node::save( const std::string& filename ) const
+    {
+        YAML::Emitter out;
+        out << NodePtr( const_cast<Node*>( this ) );
+        std::ofstream fout( filename.c_str() );
+        fout << out.c_str();
+        fout.close();
     }
     
 }
