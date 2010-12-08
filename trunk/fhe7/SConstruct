@@ -3,10 +3,10 @@ env = Environment()
 import sys
 py_ver = sys.version[:3]
 env.Append( CPPPATH = [ '/usr/include/python%s' % py_ver ] )
-env.Append( LIBS = [ 'python%s' % py_ver, 'boost_python' ] )
+env.Append( LIBS = [ 'python%s' % py_ver, 'boost_python', 'yaml-cpp' ] )
 
 env.Append( CPPPATH = [ '#' ] )
-env.Append( RPATH = [ env.Dir( '#' ).abspath ] )
+env.Append( RPATH = [ env.Dir( '#' ).abspath, '/usr/local/lib' ] )
 env.Append( CPPFLAGS = [ '-g' ] )
 env.Append( LIBS = [ 'boost_filesystem' ] )
 

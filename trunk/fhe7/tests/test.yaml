@@ -1,0 +1,8 @@
+type: TestNode
+vars:
+    i: 1
+children:
+    - 
+        type: TestNode
+        vars:
+            i: 2

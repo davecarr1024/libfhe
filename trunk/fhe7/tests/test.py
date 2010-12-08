@@ -27,4 +27,4 @@ assert not child.parent()
 node.attachChild( child )
 child.attachChild( Node( "Node" ) )
 assert node == child.children()[0].root()
-print dir(node)
+
