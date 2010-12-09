@@ -187,7 +187,13 @@ void fileTest( const std::string& filename, NodePtr& node )
     ASSERT_EQ( 2, child->getVar( &TestNode::i ) );
 }
 
-TEST( node_test, file )
+TEST( node_test, file_read )
+{
+    NodePtr node;
+    fileTest( "test.yaml", node );
+}
+
+TEST( node_test, file_write )
 {
     NodePtr node;
     fileTest( "test.yaml", node );

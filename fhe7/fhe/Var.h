@@ -4,12 +4,12 @@
 #include <fhe/Val.h>
 #include <yaml-cpp/yaml.h>
 #include <boost/shared_ptr.hpp>
-#include <boost/utility/enable_if.hpp>
-#include  <boost/type_traits/is_convertible.hpp>
 #include <cstdio>
 
 namespace fhe
 {
+    
+    void deserialize( const YAML::Node& node, int& i );
     
     class IVar
     {
@@ -18,11 +18,49 @@ namespace fhe
             virtual void set( const Val& v ) = 0;
             virtual bool trySet( const Val& v ) = 0;
             virtual std::string name() const = 0;
-            virtual void deserialize( const YAML::Node& node ) = 0;
-            virtual void serialize( YAML::Emitter& out ) const = 0;
+            virtual void deser( const YAML::Node& node ) = 0;
+            virtual bool canSer() const = 0;
+            virtual void ser( YAML::Emitter& out ) const = 0;
     };
     
     typedef boost::shared_ptr<IVar> IVarPtr;
+    
+    template <bool>
+    struct deserialize_impl;
+    
+    template<>
+    struct deserialize_impl<true>
+    {
+        template <class T>
+        static void deser( const YAML::Node& node, T& t )
+        {
+            deserialize( node, t );
+        }
+    };
+    
+    template<>
+    struct deserialize_impl<false>
+    {
+        template <class T>
+        static void deser( const YAML::Node& node, T& t )
+        {
+            FHE_ERROR( "trying to deserialize unknown type %s", typeid(T).name() );
+        }
+    };
+    
+    namespace deserialize_fallback
+    {
+        struct flag { char c[2]; };
+        flag deserialize( ... );
+        
+        int operator,( flag, flag );
+        
+        template <typename T>
+        char operator,( flag, T const& );
+        
+        char operator,( int, flag );
+        int operator,( char, flag );
+    }
     
     template <class TObj, class TVar>
     class Var : public IVar
@@ -73,23 +111,21 @@ namespace fhe
                 return m_name;
             }
             
-            void deserialize( const YAML::Node& node )
+            void deser( const YAML::Node& node )
             {
-                deserialize( node, 0 );
+                using namespace deserialize_fallback;
+                TVar& t = m_obj->*m_ptr;
+                deserialize_impl
+                    <sizeof( deserialize_fallback::flag(), deserialize( node, t ), deserialize_fallback::flag() ) != 1>
+                    ::deser( node, t );
             }
             
-            void deserialize( const YAML::Node& node,
-                              typename boost::enable_if< boost::is_convertible< YAML::Node, TVar > >::type* dummy )
-            {
-                m_obj->*m_ptr = node;
-            }
-            
-            bool canSerialize() const
+            bool canSer() const
             {
                 return false;
             }
             
-            void serialize( YAML::Emitter& out ) const
+            void ser( YAML::Emitter& out ) const
             {
             }
     };
