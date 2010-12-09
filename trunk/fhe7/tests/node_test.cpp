@@ -18,7 +18,9 @@ class TestNode : public Node
             return i;
         }
         
-        float f;
+        bool b;
+        double d;
+        std::string s;
 
         struct Foo {};
         Foo m_foo;
@@ -28,8 +30,10 @@ class TestNode : public Node
 FHE_NODE( TestNode )
 FHE_FUNC( TestNode, set )
 FHE_FUNC( TestNode, get )
+FHE_VAR( TestNode, b )
 FHE_VAR( TestNode, i )
-FHE_VAR( TestNode, f );
+FHE_VAR( TestNode, d )
+FHE_VAR( TestNode, s )
 FHE_VAR( TestNode, m_foo );
 
 TEST( node_test, factory )
@@ -178,7 +182,10 @@ void fileTest( const std::string& filename, NodePtr& node )
     
     ASSERT_TRUE( node );
     ASSERT_EQ( "TestNode", node->type() );
+    ASSERT_TRUE( node->getVar( &TestNode::b ) );
     ASSERT_EQ( 1, node->getVar( &TestNode::i ) );
+    ASSERT_DOUBLE_EQ( 3.14, node->getVar( &TestNode::d ) );
+    ASSERT_EQ( "hi", node->getVar( &TestNode::s ) );
     
     ASSERT_TRUE( node->childrenBegin() != node->childrenEnd() );
     NodePtr child = *node->childrenBegin();
