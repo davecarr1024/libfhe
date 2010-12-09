@@ -300,7 +300,7 @@ namespace fhe
                 std::string name = i.first();
                 FHE_ASSERT_MSG( node->hasVar( name ), "unable to set unknown var %s on type %s", 
                                 name.c_str(), node->type().c_str() );
-                node->getIVar( name )->deser( i.second() );
+                node->getIVar( name )->deserialize( i.second() );
             }
         }
         
@@ -324,10 +324,10 @@ namespace fhe
         
         for ( Node::VarIterator i = node->varsBegin(); i != node->varsEnd(); ++i )
         {
-            if ( i->second->canSer() )
+            if ( i->second->canSerialize() )
             {
                 out << YAML::Key << i->first << YAML::Value;
-                i->second->ser( out );
+                i->second->serialize( out );
             }
         }
         
