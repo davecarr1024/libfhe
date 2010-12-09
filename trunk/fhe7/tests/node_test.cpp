@@ -1,5 +1,6 @@
 #include <fhe/NodeFactory.h>
-#include <fhe/PyNode.h>
+#include <py/PyNode.h>
+#include <test_mod/TestNode.h>
 #include <gtest/gtest.h>
 using namespace fhe;
 
@@ -173,6 +174,7 @@ TEST( node_test, interface )
 
 TEST( node_test, python )
 {
+    using namespace py;
     PyEnv::instance().runFile( "test.py", PyEnv::instance().defaultNamespace() );
 }
 
@@ -207,6 +209,26 @@ TEST( node_test, file_write )
     node->save( "dump" );
     node = NodePtr();
     fileTest( "dump", node );
+}
+
+TEST( node_test, mod_node )
+{
+    NodePtr node( NodeFactory::instance().build( "test_mod/TestNode" ) );
+    node->call( &test_mod::TestNode::setMsg, std::string( "hello" ) );
+    ASSERT_EQ( "hello", node->call( &test_mod::TestNode::getMsg ) );
+    node->setVar( &test_mod::TestNode::m_i, 3 );
+    ASSERT_EQ( 3, node->getVar( &test_mod::TestNode::m_i ) );
+}
+
+TEST( node_test, mod_var )
+{
+    NodePtr node( Node::load( "mod_test.yaml" ) );
+    ASSERT_EQ( "test_mod/TestNode", node->type() );
+    ASSERT_EQ( 15, node->getVar( &test_mod::TestNode::var ).i );
+    node->save( "dump" );
+    node = Node::load( "dump" );
+    ASSERT_EQ( "test_mod/TestNode", node->type() );
+    ASSERT_EQ( 15, node->getVar( &test_mod::TestNode::var ).i );
 }
 
 int main( int argc, char** argv )

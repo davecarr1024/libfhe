@@ -48,6 +48,26 @@ namespace fhe
             
             INodeIntDescPtr getNodeInt( const std::string& name ) const;
     };
+    
+    class ModRegisterer
+    {
+        private:
+            static std::string m_mod;
+            
+        public:
+            ModRegisterer( const std::string& mod )
+            {
+                m_mod = mod;
+            }
+            
+            static std::string prefix()
+            {
+                return m_mod.empty() ? m_mod : m_mod + "/";
+            }
+    };
+    
+    #define FHE_MOD( mod ) ::fhe::ModRegisterer g_##mod##_mod_registerer( #mod );
+    #define FHE_END_MOD ::fhe::ModRegisterer g_end_mod_registerer( "" );
 
     class INodeRegisterer
     {
@@ -64,11 +84,11 @@ namespace fhe
         public:
             NodeRegisterer( const std::string& name )
             {
-                addNode( INodeDescPtr( new NodeDesc<T>( name ) ) );
+                addNode( INodeDescPtr( new NodeDesc<T>( ModRegisterer::prefix() + name ) ) );
             }
     };
     
-    #define FHE_NODE( name ) NodeRegisterer<name> g_##name##_node_reg( #name );
+    #define FHE_NODE( name ) ::fhe::NodeRegisterer<name> g_##name##_node_reg( #name );
     
     class FuncRegisterer
     {
@@ -77,8 +97,9 @@ namespace fhe
             
             #define FUNCREG_iter( z, n, unused ) \
                 template <class TObj, class TRet BOOST_PP_COMMA_IF( n ) BOOST_PP_ENUM_PARAMS( n, class TArg )> \
-                FuncRegisterer( const std::string& nodeName, const std::string& funcName, \
+                FuncRegisterer( const std::string& _nodeName, const std::string& funcName, \
                     TRet (TObj::*func)( BOOST_PP_ENUM_PARAMS( n, TArg ) ) ) { \
+                    std::string nodeName = ModRegisterer::prefix() + _nodeName; \
                     NodeFactory& nf = NodeFactory::instance(); \
                     if ( nf.hasNode( nodeName ) ) { \
                         nf.getNode( nodeName )->addFunc( \
@@ -106,14 +127,15 @@ namespace fhe
             #undef FUNCREG_iter
     };
     
-    #define FHE_FUNC( node, func ) FuncRegisterer g_##node##_##func##_func_reg( #node, #func, &node::func );
+    #define FHE_FUNC( node, func ) ::fhe::FuncRegisterer g_##node##_##func##_func_reg( #node, #func, &node::func );
     
     class VarRegisterer
     {
         public:
             template <class TObj, class TVar>
-            VarRegisterer( const std::string& nodeName, const std::string& varName, TVar (TObj::*ptr ) )
+            VarRegisterer( const std::string& _nodeName, const std::string& varName, TVar (TObj::*ptr ) )
             {
+                std::string nodeName = ModRegisterer::prefix() + _nodeName;
                 NodeFactory& nf = NodeFactory::instance();
                 if ( nf.hasNode( nodeName ) )
                 {
@@ -133,12 +155,12 @@ namespace fhe
             }
     };
     
-    #define FHE_VAR( node, var ) VarRegisterer g_##node##_##var##_var_reg( #node, #var, &node::var );
+    #define FHE_VAR( node, var ) ::fhe::VarRegisterer g_##node##_##var##_var_reg( #node, #var, &node::var );
     
     class DepRegisterer
     {
-        public:
-            DepRegisterer( const std::string& nodeName, const std::string& depName )
+        private:
+            void reg( const std::string& nodeName, const std::string& depName )
             {
                 NodeFactory& nf = NodeFactory::instance();
                 INodeDescPtr node = nf.getNode( nodeName );
@@ -156,9 +178,22 @@ namespace fhe
                     FHE_ERROR( "unable to add unknown dep %s to node %s", depName.c_str(), nodeName.c_str() );
                 }
             }
+            
+        public:
+            DepRegisterer( const std::string& _nodeName, const std::string& _depName )
+            {
+                reg( ModRegisterer::prefix() + _nodeName, ModRegisterer::prefix() + _depName );
+            }
+
+            DepRegisterer( const std::string& _nodeName, const std::string& depMod, const std::string& depName )
+            {
+                reg( ModRegisterer::prefix() + _nodeName, depMod + "/" + depName );
+            }
     };
     
-    #define FHE_DEP( node, dep ) DepRegisterer g_##node##_##dep##_dep_reg( #node, #dep );
+    #define FHE_DEP( node, dep ) ::fhe::DepRegisterer g_##node##_##dep##_dep_reg( #node, #dep );
+    #define FHE_EXT_DEP( node, depMod, depName ) \
+        ::fhe::DepRegisterer g_##node##_##depMod##_##depName##_dep_reg( #node, #depMod, #depName );
 
     class INodeIntRegisterer
     {
@@ -175,11 +210,11 @@ namespace fhe
         public:
             NodeIntRegisterer( const std::string& name )
             {
-                addNodeInt( INodeIntDescPtr( new NodeIntDesc<T>( name ) ) );
+                addNodeInt( INodeIntDescPtr( new NodeIntDesc<T>( ModRegisterer::prefix() + name ) ) );
             }
     };
     
-    #define FHE_INODE( node ) NodeIntRegisterer<node> g_##node##_int_reg( #node );
+    #define FHE_INODE( node ) ::fhe::NodeIntRegisterer<node> g_##node##_int_reg( #node );
     
 }
 

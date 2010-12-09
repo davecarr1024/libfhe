@@ -25,13 +25,13 @@ namespace fhe
     
     typedef boost::shared_ptr<IVar> IVarPtr;
     
-    template <class T> class CanSerialize : public boost::false_type {};
+    template <class T> class can_serialize : public boost::false_type {};
     
     template <class T, class Enable = void>
     class TVar;
     
     template <class T>
-    class TVar<T, typename boost::disable_if< CanSerialize<T> >::type > : public IVar
+    class TVar<T, typename boost::disable_if< can_serialize<T> >::type > : public IVar
     {
         public:
             bool canSerialize() const
@@ -51,7 +51,7 @@ namespace fhe
     };
     
     template <class T>
-    class TVar<T, typename boost::enable_if< CanSerialize<T> >::type > : public IVar
+    class TVar<T, typename boost::enable_if< can_serialize<T> >::type > : public IVar
     {
         public:
             virtual T& var()=0;
@@ -168,7 +168,7 @@ namespace fhe
             }
     };
     
-    #define FHE_CAN_SERIALIZE( type ) template <> class CanSerialize<type> : public boost::true_type {};
+    #define FHE_CAN_SERIALIZE( type ) template <> class can_serialize<type> : public boost::true_type {};
     FHE_CAN_SERIALIZE( bool );
     FHE_CAN_SERIALIZE( int );
     FHE_CAN_SERIALIZE( double );

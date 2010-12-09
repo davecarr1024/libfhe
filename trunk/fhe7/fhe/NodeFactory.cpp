@@ -3,6 +3,8 @@
 namespace fhe
 {
     
+    std::string ModRegisterer::m_mod;
+    
     NodeFactory::NodeFactory()
     {
     }
