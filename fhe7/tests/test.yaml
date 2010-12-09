@@ -1,6 +1,9 @@
 type: TestNode
 vars:
+    b: yes
     i: 1
+    d: 3.14
+    s: hi
 children:
     - 
         type: TestNode

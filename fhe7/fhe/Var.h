@@ -4,6 +4,8 @@
 #include <fhe/Val.h>
 #include <yaml-cpp/yaml.h>
 #include <boost/shared_ptr.hpp>
+#include <boost/utility.hpp>
+#include <boost/type_traits.hpp>
 #include <cstdio>
 
 namespace fhe
@@ -23,21 +25,23 @@ namespace fhe
     
     typedef boost::shared_ptr<IVar> IVarPtr;
     
+    template <class T> class CanSerialize : public boost::false_type {};
+    
+    template <class T, class Enable = void>
+    class TVar;
+    
     template <class T>
-    class TVar : public IVar
+    class TVar<T, typename boost::disable_if< CanSerialize<T> >::type > : public IVar
     {
         public:
-            virtual T& var()=0;
-            virtual const T& var() const = 0;
+            bool canSerialize() const
+            {
+                return false;
+            }
             
             void deserialize( const YAML::Node& node )
             {
                 FHE_ERROR( "trying to deserialize %s", typeid(T).name() );
-            }
-            
-            bool canSerialize() const
-            {
-                return false;
             }
             
             void serialize( YAML::Emitter& out ) const
@@ -46,31 +50,28 @@ namespace fhe
             }
     };
     
-    #define TVAR_impl( type ) \
-        template <> \
-        class TVar<type> : public IVar \
-        { \
-            public: \
-                virtual type& var()=0; \
-                virtual const type& var() const = 0; \
-                void deserialize( const YAML::Node& node ) \
-                { \
-                    node >> var(); \
-                } \
-                bool canSerialize() const \
-                { \
-                    return true; \
-                } \
-                void serialize( YAML::Emitter& out ) const \
-                { \
-                    out << var(); \
-                } \
-        };
-        
-    TVAR_impl( bool );
-    TVAR_impl( int );
-    TVAR_impl( double );
-    TVAR_impl( std::string );
+    template <class T>
+    class TVar<T, typename boost::enable_if< CanSerialize<T> >::type > : public IVar
+    {
+        public:
+            virtual T& var()=0;
+            virtual const T& var() const = 0;
+            
+            bool canSerialize() const
+            {
+                return true;
+            }
+            
+            void deserialize( const YAML::Node& node )
+            {
+                node >> var();
+            }
+            
+            void serialize( YAML::Emitter& out ) const
+            {
+                out << var();
+            }
+    };
     
     template <class TObj, class T>
     class Var : public TVar<T>
@@ -167,6 +168,12 @@ namespace fhe
             }
     };
     
+    #define FHE_CAN_SERIALIZE( type ) template <> class CanSerialize<type> : public boost::true_type {};
+    FHE_CAN_SERIALIZE( bool );
+    FHE_CAN_SERIALIZE( int );
+    FHE_CAN_SERIALIZE( double );
+    FHE_CAN_SERIALIZE( std::string );
+
 }
 
 #endif
