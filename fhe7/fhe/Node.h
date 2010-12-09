@@ -163,9 +163,9 @@ namespace fhe
                 template <class TObj BOOST_PP_COMMA_IF( n ) BOOST_PP_ENUM_PARAMS( n, class TArg )> \
                 void call( void (TObj::*func)( BOOST_PP_ENUM_PARAMS( n, TArg ) ) BOOST_PP_COMMA_IF(n)\
                     BOOST_PP_ENUM( n, CALL_arg, ~ ) ) { \
-                    if ( TObj* t = dynamic_cast<TObj*>( this ) ) { \
-                        (t->*func)( BOOST_PP_ENUM_PARAMS( n, arg ) ); \
-                    } \
+                    TObj* t = dynamic_cast<TObj*>( this ); \
+                    FHE_ASSERT_MSG( t, "unable to cast node to type %s", typeid(TObj).name() ); \
+                    (t->*func)( BOOST_PP_ENUM_PARAMS( n, arg ) ); \
                 }
                 
             BOOST_PP_REPEAT( FHE_ARGS, CALL_iter, ~ )
@@ -329,3 +329,5 @@ namespace fhe
 }
 
 #endif
+
+#include <fhe/NodeFactory.h>

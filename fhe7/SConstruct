@@ -1,3 +1,4 @@
+import os
 env = Environment()
 
 import sys
@@ -5,7 +6,7 @@ py_ver = sys.version[:3]
 env.Append( CPPPATH = [ '/usr/include/python%s' % py_ver ] )
 env.Append( LIBS = [ 'python%s' % py_ver, 'boost_python', 'yaml-cpp' ] )
 
-env.Append( CPPPATH = [ '#' ] )
+env.Append( CPPPATH = [ '#', '#mods' ] )
 env.Append( RPATH = [ env.Dir( '#' ).abspath, '/usr/local/lib' ] )
 env.Append( CPPFLAGS = [ '-g' ] )
 env.Append( LIBS = [ 'boost_filesystem' ] )
@@ -14,6 +15,14 @@ lib_fhe = env.SharedLibrary( 'fhe', env.Glob( 'fhe/*.cpp' ) )
 
 env = env.Clone()
 env.Append( LIBS = [ lib_fhe ] )
+
+mod_libs = []
+for mod in filter( os.path.isdir, map( str, env.Glob( 'mods/*' ) ) ):
+    mod_srcs = env.Glob( '%s/*.cpp' % mod )
+    mod_libs.append( env.SharedLibrary( mod, mod_srcs ) )
+    
+env = env.Clone()
+env.Append( LIBS = [ mod_libs ] )
 
 app_srcs = env.Glob( 'apps/*.cpp' )
 for app_src in app_srcs:

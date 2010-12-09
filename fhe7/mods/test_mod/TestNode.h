@@ -6,6 +6,20 @@
 namespace test_mod
 {
     
+    class TestVar
+    {
+        public:
+            TestVar( int _i = 0 ) :
+                i( _i )
+            {
+            }
+            
+            int i;
+    };
+    
+    void operator>>( const YAML::Node& node, TestVar& v );
+    YAML::Emitter& operator<<( YAML::Emitter& out, const TestVar& v );
+    
     class TestNode : public fhe::Node
     {
         private:
@@ -23,8 +37,14 @@ namespace test_mod
             }
             
             int m_i;
+            TestVar var;
     };
     
+}
+
+namespace fhe
+{
+    FHE_CAN_SERIALIZE( test_mod::TestVar );
 }
 
 #endif
