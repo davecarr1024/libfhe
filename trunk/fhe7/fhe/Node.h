@@ -237,6 +237,42 @@ namespace fhe
             
             #undef PUBLISH_iter
             
+            #define ANCESTORCALL_iter( z, n, unused ) \
+                template <class TObj BOOST_PP_COMMA_IF( n ) BOOST_PP_ENUM_PARAMS( n, class TArg )> \
+                bool ancestorCall( void (TObj::*func)( BOOST_PP_ENUM_PARAMS( n, TArg ) ) BOOST_PP_COMMA_IF(n)\
+                    BOOST_PP_ENUM( n, CALL_arg, ~ ) ) { \
+                    if ( TObj* t = dynamic_cast<TObj*>( this ) ) { \
+                        (t->*func)( BOOST_PP_ENUM_PARAMS( n, arg ) ); \
+                        return true; \
+                    } else if ( m_parent ) {\
+                        return m_parent->ancestorCall( func BOOST_PP_COMMA_IF(n) BOOST_PP_ENUM_PARAMS( n, arg ) ); \
+                    } else { \
+                        return false; \
+                    }\
+                }
+
+            BOOST_PP_REPEAT( FHE_ARGS, ANCESTORCALL_iter, ~ )
+            
+            #undef ANCESTORCALL_iter
+
+            #define RETANCESTORCALL_iter( z, n, unused ) \
+                template <class TObj, class TRet BOOST_PP_COMMA_IF( n ) BOOST_PP_ENUM_PARAMS( n, class TArg )> \
+                bool ancestorCall( TRet (TObj::*func)( BOOST_PP_ENUM_PARAMS( n, TArg ) ) BOOST_PP_COMMA_IF(n)\
+                    BOOST_PP_ENUM( n, CALL_arg, ~ ), TRet& ret ) { \
+                    if ( TObj* t = dynamic_cast<TObj*>( this ) ) { \
+                        ret = (t->*func)( BOOST_PP_ENUM_PARAMS( n, arg ) ); \
+                        return true; \
+                    } else if ( m_parent ) {\
+                        return m_parent->ancestorCall( func, BOOST_PP_ENUM_PARAMS( n, arg ) BOOST_PP_COMMA_IF(n) ret ); \
+                    } else { \
+                        return false; \
+                    }\
+                }
+
+            BOOST_PP_REPEAT( FHE_ARGS, RETANCESTORCALL_iter, ~ )
+            
+            #undef RETANCESTORCALL_iter
+
             #undef CALL_arg
     };
     
@@ -328,6 +364,7 @@ namespace fhe
     
 }
 
+#include <fhe/NodeFactory.h>
+
 #endif
 
-#include <fhe/NodeFactory.h>

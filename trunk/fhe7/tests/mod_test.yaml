@@ -1,0 +1,3 @@
+type: test_mod/TestNode
+vars:
+    var: 15

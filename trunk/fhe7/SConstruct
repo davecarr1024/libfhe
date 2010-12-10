@@ -11,7 +11,7 @@ env.Append( RPATH = [ env.Dir( '#' ).abspath, '/usr/local/lib' ] )
 env.Append( CPPFLAGS = [ '-g' ] )
 env.Append( LIBS = [ 'boost_filesystem' ] )
 
-lib_fhe = env.SharedLibrary( 'fhe', env.Glob( 'fhe/*.cpp' ) )
+lib_fhe = env.SharedLibrary( 'fhe', env.Glob( 'fhe/*.cpp' ) + env.Glob( 'fhe/math/*.cpp' ) )
 
 env = env.Clone()
 env.Append( LIBS = [ lib_fhe ] )
@@ -23,6 +23,8 @@ for mod in filter( os.path.isdir, map( str, env.Glob( 'mods/*' ) ) ):
     
 env = env.Clone()
 env.Append( LIBS = [ mod_libs ] )
+
+env.SharedLibrary( 'fhe', [], SHLIBPREFIX = '' )
 
 app_srcs = env.Glob( 'apps/*.cpp' )
 for app_src in app_srcs:

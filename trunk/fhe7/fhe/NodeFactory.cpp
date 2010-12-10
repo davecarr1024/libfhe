@@ -111,4 +111,24 @@ namespace fhe
         }
     }
     
+    NodeFactory::NodeIterator NodeFactory::nodesBegin() const
+    {
+        return m_nodes.begin();
+    }
+    
+    NodeFactory::NodeIterator NodeFactory::nodesEnd() const
+    {
+        return m_nodes.end();
+    }
+    
+    NodeFactory::NodeIntIterator NodeFactory::nodeIntsBegin() const
+    {
+        return m_nodeInts.begin();
+    }
+    
+    NodeFactory::NodeIntIterator NodeFactory::nodeIntsEnd() const
+    {
+        return m_nodeInts.end();
+    }
+    
 }
