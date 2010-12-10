@@ -32,21 +32,25 @@ namespace fhe
             void addNodeInt( const INodeIntDescPtr& nodeInt );
             
         public:
+            typedef std::map< std::string, INodeDescPtr >::const_iterator NodeIterator;
+            typedef std::map< std::string, INodeIntDescPtr >::const_iterator NodeIntIterator;
+            
             virtual ~NodeFactory();
             
             static NodeFactory& instance();
             
             void init( Node* node ) const;
-            
             NodePtr build( const std::string& name ) const;
             
             bool hasNode( const std::string& name ) const;
-
             INodeDescPtr getNode( const std::string& name ) const;
+            NodeIterator nodesBegin() const;
+            NodeIterator nodesEnd() const;
             
             bool hasNodeInt( const std::string& name ) const;
-            
             INodeIntDescPtr getNodeInt( const std::string& name ) const;
+            NodeIntIterator nodeIntsBegin() const;
+            NodeIntIterator nodeIntsEnd() const;
     };
     
     class ModRegisterer

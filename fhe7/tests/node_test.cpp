@@ -1,5 +1,5 @@
 #include <fhe/NodeFactory.h>
-#include <py/PyNode.h>
+#include <fhe/PyNode.h>
 #include <test_mod/TestNode.h>
 #include <gtest/gtest.h>
 using namespace fhe;
@@ -77,6 +77,13 @@ TEST( node_test, funcs )
     
     node->publish( &TestNode::set, 6 );
     ASSERT_EQ( 6, child->call( &TestNode::get ) );
+    
+    NodePtr gchild( new Node );
+    child->attachChild( gchild );
+    ASSERT_TRUE( gchild->ancestorCall( &TestNode::set, 7 ) );
+    ASSERT_EQ( 7, child->call( &TestNode::get ) );
+    ASSERT_TRUE( gchild->ancestorCall( &TestNode::get, i ) );
+    ASSERT_EQ( 7, i );
 }
 
 TEST( node_test, vars )
@@ -151,13 +158,21 @@ class IFoo
         {
             return 12;
         }
+        
+        virtual int bar() = 0;
 };
 
 FHE_INODE( IFoo );
 FHE_FUNC( IFoo, foo );
+FHE_FUNC( IFoo, bar );
 
 class InterfaceNode : public Node, public IFoo
 {
+    public:
+        int bar()
+        {
+            return foo() * 2;
+        }
 };
 
 FHE_NODE( InterfaceNode );
@@ -168,13 +183,14 @@ TEST( node_test, interface )
     NodePtr node( new InterfaceNode );
     
     ASSERT_EQ( 12, node->call( &IFoo::foo ) );
+    ASSERT_EQ( 24, node->call( &IFoo::bar ) );
 
     ASSERT_EQ( 12, (int)node->call( "foo", std::vector< Val >() ) );
+    ASSERT_EQ( 24, (int)node->call( "bar", std::vector< Val >() ) );
 }
 
 TEST( node_test, python )
 {
-    using namespace py;
     PyEnv::instance().runFile( "test.py", PyEnv::instance().defaultNamespace() );
 }
 
