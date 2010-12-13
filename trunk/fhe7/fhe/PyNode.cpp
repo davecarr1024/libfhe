@@ -67,13 +67,13 @@ namespace fhe
     
     #define CALL_arg( z, n, unused ) boost::python::object BOOST_PP_CAT( arg, n )
     
-    #define CALL_app( z, n, unused ) args.push_back( PyEnv::instance().convert( BOOST_PP_CAT( arg, n ) ) );
+    #define CALL_app( z, n, unused ) args.push_back( Val( BOOST_PP_CAT( arg, n ) ) );
     
     #define CALL_iter( z, n, unused ) \
         boost::python::object PyNode::Call::BOOST_PP_CAT( call, n )( BOOST_PP_ENUM( n, CALL_arg, ~ ) ) { \
             std::vector< Val > args; \
             BOOST_PP_REPEAT( n, CALL_app, ~ ) \
-            return PyEnv::instance().convert( m_node->call( m_name, args ) ); \
+            return m_node->call( m_name, args ).toPy(); \
         }
             
     BOOST_PP_REPEAT( FHE_ARGS, CALL_iter, ~ )
@@ -95,7 +95,7 @@ namespace fhe
             Val v;
             if ( m_node->tryGetVar( name, v ) )
             {
-                return PyEnv::instance().convert( v );
+                return v.toPy();
             }
         }
         else if ( m_node->hasFunc( name ) )
@@ -107,7 +107,10 @@ namespace fhe
     
     void PyNode::setAttr( const std::string& name, boost::python::object o )
     {
-        FHE_ASSERT_MSG( m_node->trySetVar( name, PyEnv::instance().convert( o ) ), "unable to set var %s", name.c_str() );
+        m_node->setVar( name, Val( o ) );
+        FHE_ASSERT_MSG( m_node->trySetVar( name, Val( o ) ), 
+                        "unable to set var %s with python value %s", 
+                        name.c_str(), PyEnv::instance().toString( o ).c_str() );
     }
     
     PyNode* PyNode::root() const

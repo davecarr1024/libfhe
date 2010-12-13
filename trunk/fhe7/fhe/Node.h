@@ -239,6 +239,8 @@ namespace fhe
             
             #undef PUBLISH_iter
             
+            //bool ancestorCall( Class::Func, args, ret );
+            
             #define ANCESTORCALL_iter( z, n, unused ) \
                 template <class TObj BOOST_PP_COMMA_IF( n ) BOOST_PP_ENUM_PARAMS( n, class TArg )> \
                 bool ancestorCall( void (TObj::*func)( BOOST_PP_ENUM_PARAMS( n, TArg ) ) BOOST_PP_COMMA_IF(n)\

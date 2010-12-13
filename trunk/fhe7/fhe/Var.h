@@ -109,8 +109,8 @@ namespace fhe
             
             void set( const Val& v )
             {
-                FHE_ASSERT_MSG( v.is<T>(), "var type mismatch: expected %s got %s", 
-                                typeid(T).name(), v.type().c_str() );
+                FHE_ASSERT_MSG( v.is<T>(), "unable to set var %s of type %s with val of type %s", 
+                                m_name.c_str(), typeid(T).name(), v.type().c_str() );
                 m_obj->*m_ptr = v.get<T>();
             }
             
