@@ -158,16 +158,12 @@ TEST( math_test, rot3 )
     ASSERT_EQ( Rot3( axis, -angle ), r.inverse() );
 }
 
-TEST( math_test, mat2 )
+template <size_t dim>
+void mat_test( const Vec<dim>& v, const Vec<dim>& t, const Rot<dim>& r, const Vec<dim>& s )
 {
-    Vec2 v( 1, 2 );
-    Vec2 t( 5, 6 );
-    Rot2 r = Rot2::fromDegrees( 50 );
-    Vec2 s( -1, 3 );
-    
-    Mat2 mt = Mat2::translation( t );
-    Mat2 mr = Mat2::rotation( r );
-    Mat2 ms = Mat2::scale( s );
+    Mat<dim> mt = Mat<dim>::translation( t );
+    Mat<dim> mr = Mat<dim>::rotation( r );
+    Mat<dim> ms = Mat<dim>::scale( s );
     
     ASSERT_EQ( v + t, mt * v );
     ASSERT_EQ( r * v, mr * v );
@@ -175,17 +171,27 @@ TEST( math_test, mat2 )
     ASSERT_EQ( s * ( r * ( t + v ) ), ms * ( mr * ( mt * v ) ) );
     ASSERT_EQ( s * ( r * ( t + v ) ), ( ms * mr * mt ) * v );
     
-    Rot2 ri = r.inverse();
+    Rot<dim> ri = r.inverse();
     
-    Mat2 mti = mt.inverse();
-    Mat2 mri = mr.inverse();
-    Mat2 msi = ms.inverse();
+    Mat<dim> mti = mt.inverse();
+    Mat<dim> mri = mr.inverse();
+    Mat<dim> msi = ms.inverse();
     
     ASSERT_EQ( v - t, mti * v );
     ASSERT_EQ( ri * v, mri * v );
     ASSERT_EQ( v / s, msi * v );
     ASSERT_EQ( ( ri * ( v - t ) ) / s, msi * ( mri * ( mti * v ) ) );
     ASSERT_EQ( ( ri * ( v - t ) ) / s, ( msi * mri * mti ) * v );
+}
+
+TEST( math_test, mat2 )
+{
+    Vec2 v( 1, 2 );
+    Vec2 t( 5, 6 );
+    Rot2 r = Rot2::fromDegrees( 50 );
+    Vec2 s( -1, 3 );
+    
+    mat_test( v, t, r, s );
 }
 
 TEST( math_test, mat3 )
@@ -195,27 +201,7 @@ TEST( math_test, mat3 )
     Rot3 r( Vec3( -1, -10, 20 ), -2 );
     Vec3 s( -1, 3, -4 );
     
-    Mat3 mt = Mat3::translation( t );
-    Mat3 mr = Mat3::rotation( r );
-    Mat3 ms = Mat3::scale( s );
-    
-    ASSERT_EQ( v + t, mt * v );
-    ASSERT_EQ( r * v, mr * v );
-    ASSERT_EQ( v * s, ms * v );
-    ASSERT_EQ( s * ( r * ( t + v ) ), ms * ( mr * ( mt * v ) ) );
-    ASSERT_EQ( s * ( r * ( t + v ) ), ( ms * mr * mt ) * v );
-    
-    Rot3 ri = r.inverse();
-    
-    Mat3 mti = mt.inverse();
-    Mat3 mri = mr.inverse();
-    Mat3 msi = ms.inverse();
-    
-    ASSERT_EQ( v - t, mti * v );
-    ASSERT_EQ( ri * v, mri * v );
-    ASSERT_EQ( v / s, msi * v );
-    ASSERT_EQ( ( ri * ( v - t ) ) / s, msi * ( mri * ( mti * v ) ) );
-    ASSERT_EQ( ( ri * ( v - t ) ) / s, ( msi * mri * mti ) * v );
+    mat_test( v, t, r, s );
 }
 
 int main( int argc, char** argv )
