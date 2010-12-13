@@ -1,7 +1,6 @@
 #ifndef PYENV_H
 #define PYENV_H
 
-#include <fhe/Val.h>
 #include <boost/python.hpp>
 
 namespace fhe
@@ -26,9 +25,7 @@ namespace fhe
             boost::python::object eval( const std::string& script, boost::python::dict ns );
             
             std::string getType( boost::python::object obj );
-            
-            Val convert( boost::python::object obj );
-            boost::python::object convert( const Val& var );
+            std::string toString( boost::python::object obj );
     };
 }
 

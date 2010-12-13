@@ -2,6 +2,11 @@
 #define FHE_VAL_H
 
 #include <fhe/Util.h>
+#include <fhe/Mat.h>
+#include <fhe/Rot.h>
+#include <fhe/Vec.h>
+#include <boost/python.hpp>
+#include <boost/mpl/list.hpp>
 #include <string>
 #include <typeinfo>
 
@@ -26,6 +31,8 @@ namespace fhe
                     virtual IData* clone() const = 0;
                     
                     virtual std::string type() const = 0;
+                    
+                    virtual boost::python::object toPy() const = 0;
             };
             
             template <class T>
@@ -59,13 +66,23 @@ namespace fhe
                     {
                         return typeid(T).name();
                     }
+                    
+                    boost::python::object toPy() const
+                    {
+                        return boost::python::object( m_t );
+                    }
             };
             
             IData* m_data;
             
         public:
+            typedef 
+                boost::mpl::list< Mat3, Mat2, Rot3, Rot2, Vec3, Vec2, std::string, double, int, bool > 
+                python_convertable_types;
+            
             Val();
             Val( const Val& v );
+            Val( boost::python::object obj );
             Val& operator=( const Val& v );
             ~Val();
             
@@ -126,6 +143,11 @@ namespace fhe
                     clear();
                     m_data = new Data<T>( t );
                 }
+            }
+            
+            boost::python::object toPy() const
+            {
+                return m_data ? m_data->toPy() : boost::python::object();
             }
     };
     

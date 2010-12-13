@@ -1,6 +1,7 @@
 #include <fhe/Mat.h>
 #include <fhe/Vec.h>
 #include <fhe/Rot.h>
+#include <fhe/Util.h>
 #include <sstream>
 
 namespace fhe
