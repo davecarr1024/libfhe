@@ -66,7 +66,7 @@ namespace fhe
     Rot2 Rot2::operator/( double d ) const
     {
         FHE_ASSERT( !Math::equal( d, 0 ) );
-        return Rot( m_a * d );
+        return Rot( m_a / d );
     }
     
     Vec2 Rot2::operator*( const Vec2& v ) const
@@ -93,16 +93,21 @@ namespace fhe
         return Math::equal( m_a, r.m_a, eps );
     }
     
+    bool Rot2::operator==( const Rot& r ) const
+    {
+        return equals( r );
+    }
+    
     std::string Rot2::toString() const
     {
         std::ostringstream os;
-        os << "Rot2(" << m_a << ")";
+        os << "Rot2(" << degrees() << ")";
         return os.str();
     }
     
-    bool Rot2::pyEquals( const Rot& r ) const
+    std::ostream& operator<<( std::ostream& os, const Rot2& r )
     {
-        return equals( r );
+        return os << r.toString();
     }
     
     boost::python::object Rot2::defineClass()
@@ -112,7 +117,7 @@ namespace fhe
             .staticmethod( "fromDegrees" )
             .def( "fromRadians", &Rot2::fromRadians )
             .staticmethod( "fromRadians" )
-            .def( "__eq__", &Rot2::pyEquals )
+            .def( "__eq__", &Rot2::operator== )
             .def( "__repr__", &Rot2::toString )
             .def( boost::python::self + boost::python::other<Rot2>() )
             .def( boost::python::self - boost::python::other<Rot2>() )
@@ -217,6 +222,11 @@ namespace fhe
         return Math::equal(w,q.w,eps) && Math::equal(x,q.x,eps) && Math::equal(y,q.y,eps) && Math::equal(z,q.z,eps);
     }
     
+    bool Rot3::operator==( const Rot& r ) const
+    {
+        return equals( r );
+    }
+    
     std::string Rot3::toString() const
     {
         Vec3 axis;
@@ -227,9 +237,9 @@ namespace fhe
         return outs.str();
     }
     
-    bool Rot3::pyEquals( const Rot3& q )
+    std::ostream& operator<<( std::ostream& os, const Rot3& r )
     {
-        return equals(q);
+        return os << r.toString();
     }
     
     boost::python::object Rot3::pyToAxisAngle()
@@ -251,7 +261,7 @@ namespace fhe
             .def_readwrite("y", &Rot3::y)
             .def_readwrite("z", &Rot3::z)
             .def("__repr__", &Rot3::toString)
-            .def("__eq__", &Rot3::pyEquals )
+            .def("__eq__", &Rot3::operator== )
             .def(boost::python::self * boost::python::other<Rot3>())
             .def(boost::python::self * boost::python::other<Vec3>())
             .def(boost::python::self * double())

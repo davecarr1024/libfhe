@@ -14,6 +14,9 @@ namespace fhe
     template <size_t dim>
     class Rot;
     
+    typedef Rot<2> Rot2;
+    typedef Rot<3> Rot3;
+    
     template <>
     class Rot<2>
     {
@@ -24,7 +27,7 @@ namespace fhe
             
         public:
             Rot();
-            Rot( const Vec<2>& v );
+            explicit Rot( const Vec<2>& v );
             static Rot fromDegrees( double degrees );
             static Rot fromRadians( double radians );
             
@@ -36,17 +39,20 @@ namespace fhe
             Rot operator*( double d ) const;
             Rot operator/( double d ) const;
             Vec<2> operator*( const Vec<2>& v ) const;
+            
+            bool operator==( const Rot& r ) const;
 
             Rot inverse() const;
             Rot norm() const;
             bool equals( const Rot& r, double eps = Math::EPS ) const;
             std::string toString() const;
             
-            bool pyEquals( const Rot& r ) const;
             static boost::python::object defineClass();
             
             static const Rot IDENTITY;
     };
+    
+    std::ostream& operator<<( std::ostream& os, const Rot2& r );
     
     template <>
     class Rot<3>
@@ -57,7 +63,7 @@ namespace fhe
             Rot();
             Rot( double _w, double _x, double _y, double _z );
             Rot( const Vec<3>& axis, double angle );
-            Rot( const Vec<3>& v );
+            explicit Rot( const Vec<3>& v );
             
             void toAxisAngle( Vec<3>& axis, double& angle ) const;
             
@@ -66,6 +72,8 @@ namespace fhe
             Rot operator*( double d ) const;
             Rot operator/( double d ) const;
             
+            bool operator==( const Rot& r ) const;
+            
             Rot conjugate() const;
             double magnitude() const;
             Rot norm() const;
@@ -73,15 +81,13 @@ namespace fhe
             bool equals( const Rot& r, double eps = Math::EPS ) const;
             std::string toString() const;
 
-            bool pyEquals( const Rot& q );
             boost::python::object pyToAxisAngle();
             static boost::python::object defineClass();
             
             static const Rot IDENTITY;
     };
     
-    typedef Rot<2> Rot2;
-    typedef Rot<3> Rot3;
+    std::ostream& operator<<( std::ostream& os, const Rot3& r );
     
 }
 
