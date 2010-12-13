@@ -3,6 +3,7 @@
 #include <fhe/FileSystem.h>
 #include <fhe/Vec.h>
 #include <fhe/Rot.h>
+#include <fhe/Mat.h>
 
 BOOST_PYTHON_MODULE( fhe )
 {
@@ -11,6 +12,8 @@ BOOST_PYTHON_MODULE( fhe )
     fhe::Vec3::defineClass();
     fhe::Rot2::defineClass();
     fhe::Rot3::defineClass();
+    fhe::Mat2::defineClass();
+    fhe::Mat3::defineClass();
 }
 
 namespace fhe
@@ -24,6 +27,12 @@ namespace fhe
         m_builtins = m_mainNamespace["__builtins__"].attr("__dict__");
         
         m_mainNamespace["Node"] = PyNode::defineClass();
+        m_mainNamespace["Vec2"] = Vec2::defineClass();
+        m_mainNamespace["Vec3"] = Vec3::defineClass();
+        m_mainNamespace["Rot2"] = Rot2::defineClass();
+        m_mainNamespace["Rot3"] = Rot3::defineClass();
+        m_mainNamespace["Mat2"] = Mat2::defineClass();
+        m_mainNamespace["Mat3"] = Mat3::defineClass();
     }
     
     PyEnv& PyEnv::instance()

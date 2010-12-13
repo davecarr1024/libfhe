@@ -50,6 +50,9 @@ namespace fhe
             void attachChild( PyNode* child );
             void detachChild( PyNode* child );
             
+            boost::python::list funcNames() const;
+            boost::python::list varNames() const;
+            
             boost::python::object getAttr( const std::string& name ) const;
             void setAttr( const std::string& name, boost::python::object o );
             

@@ -33,6 +33,8 @@ namespace fhe
             .def( "__getattr__", &PyNode::getAttr )
             .def( "__setattr__", &PyNode::setAttr )
             .def( "__eq__", &PyNode::eq )
+            .add_property( "func_names", &PyNode::funcNames )
+            .add_property( "var_names", &PyNode::varNames )
         ;
         
         boost::python::class_<PyNode::Call>( "Call", boost::python::no_init )
@@ -155,5 +157,25 @@ namespace fhe
     bool PyNode::eq( PyNode* node )
     {
         return node && m_node == node->m_node;
+    }
+    
+    boost::python::list PyNode::funcNames() const
+    {
+        boost::python::list names;
+        for ( Node::FuncIterator i = m_node->funcsBegin(); i != m_node->funcsEnd(); ++i )
+        {
+            names.append( i->first );
+        }
+        return names;
+    }
+
+    boost::python::list PyNode::varNames() const
+    {
+        boost::python::list names;
+        for ( Node::VarIterator i = m_node->varsBegin(); i != m_node->varsEnd(); ++i )
+        {
+            names.append( i->first );
+        }
+        return names;
     }
 }

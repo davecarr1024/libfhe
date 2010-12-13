@@ -367,4 +367,14 @@ namespace fhe
         fout.close();
     }
     
+    Node::FuncIterator Node::funcsBegin() const
+    {
+        return m_funcs.begin();
+    }
+    
+    Node::FuncIterator Node::funcsEnd() const
+    {
+        return m_funcs.end();
+    }
+    
 }

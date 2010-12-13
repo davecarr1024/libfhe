@@ -66,7 +66,7 @@ namespace fhe
     Vec2 Vec2::operator/( double d ) const
     {
         FHE_ASSERT( !Math::equal( d, 0 ) );
-        return Vec2( x / d, y / 2 );
+        return Vec2( x / d, y / d );
     }
 
     void Vec2::operator+=( const Vec2& v )
@@ -106,7 +106,7 @@ namespace fhe
         x /= d;
         y /= d;
     }
-
+    
     double Vec2::length() const
     {
         return Math::sqrt( x * x + y * y );
@@ -134,6 +134,11 @@ namespace fhe
         return Math::equal( x, v.x, eps ) && Math::equal( y, v.y, eps );
     }
     
+    bool Vec2::operator==( const Vec& v ) const
+    {
+        return equals( v );
+    }
+
     std::string Vec2::toString() const
     {
         std::ostringstream os;
@@ -141,9 +146,9 @@ namespace fhe
         return os.str();
     }
     
-    bool Vec2::pyEquals( const Vec& v ) const
+    std::ostream& operator<<( std::ostream& os, const Vec2& v )
     {
-        return equals( v );
+        return os << v.toString();
     }
     
     boost::python::object Vec2::defineClass()
@@ -155,7 +160,7 @@ namespace fhe
             .def_readwrite( "x", &Vec2::x )
             .def_readwrite( "y", &Vec2::y )
             .def( "__repr__", &Vec2::toString )
-            .def( "__eq__", &Vec2::pyEquals )
+            .def( "__eq__", &Vec2::operator== )
             .def( boost::python::self + boost::python::other<Vec2>() )
             .def( boost::python::self - boost::python::other<Vec2>() )
             .def( boost::python::self * boost::python::other<Vec2>() )
@@ -226,7 +231,7 @@ namespace fhe
 
     Vec3 Vec3::operator*( double d ) const
     {
-        return Vec3( x * d, y * d, z / d );
+        return Vec3( x * d, y * d, z * d );
     }
 
     Vec3 Vec3::operator/( double d ) const
@@ -320,11 +325,21 @@ namespace fhe
         return Math::equal( x, v.x, eps ) && Math::equal( y, v.y, eps ) && Math::equal( z, v.z, eps );
     }
     
+    bool Vec3::operator==( const Vec3& v ) const
+    {
+        return equals( v );
+    }
+    
     std::string Vec3::toString() const
     {
         std::ostringstream os;
         os << "Vec3(" << x << "," << y << "," << z << ")";
         return os.str();
+    }
+    
+    std::ostream& operator<<( std::ostream& os, const Vec3& v )
+    {
+        return os << v.toString();
     }
     
     Vec3 makePerp( const Vec3& v )
@@ -349,11 +364,6 @@ namespace fhe
         }
     }
     
-    bool Vec3::pyEquals( const Vec& v ) const
-    {
-        return equals( v );
-    }
-    
     boost::python::object Vec3::defineClass()
     {
         boost::python::scope c = boost::python::class_<Vec3>( "Vec3", boost::python::init<>() )
@@ -364,7 +374,7 @@ namespace fhe
             .def_readwrite( "y", &Vec3::y )
             .def_readwrite( "z", &Vec3::z )
             .def( "__repr__", &Vec3::toString )
-            .def( "__eq__", &Vec3::pyEquals )
+            .def( "__eq__", &Vec3::operator== )
             .def( boost::python::self + boost::python::other<Vec3>() )
             .def( boost::python::self - boost::python::other<Vec3>() )
             .def( boost::python::self * boost::python::other<Vec3>() )

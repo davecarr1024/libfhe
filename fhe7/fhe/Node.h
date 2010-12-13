@@ -150,6 +150,8 @@ namespace fhe
             
             bool hasFunc( const std::string& name ) const;
             IFuncPtr getFunc( const std::string& name ) const;
+            FuncIterator funcsBegin() const;
+            FuncIterator funcsEnd() const;
             
             Val call( const std::string& name, const std::vector< Val >& args );
             bool tryCall( const std::string& name, const std::vector< Val >& args, Val& ret );

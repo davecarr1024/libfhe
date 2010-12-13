@@ -14,6 +14,9 @@ namespace fhe
     template <size_t dim>
     class Vec;
     
+    typedef Vec<2> Vec2;
+    typedef Vec<3> Vec3;
+    
     template <>
     class Vec<2>
     {
@@ -22,7 +25,7 @@ namespace fhe
             
             Vec();
             Vec( double _x, double _y );
-            Vec( const Rot<2>& rot, double length = 1 );
+            explicit Vec( const Rot<2>& rot, double length = 1 );
             
             Vec operator-() const;
             Vec operator+( const Vec& v ) const;
@@ -38,6 +41,8 @@ namespace fhe
             void operator/=( const Vec& v );
             void operator*=( double d );
             void operator/=( double d );
+            
+            bool operator==( const Vec& v ) const;
             
             double length() const;
             Vec norm() const;
@@ -47,13 +52,15 @@ namespace fhe
             std::string toString() const;
             Rot<2> getRotTo( const Vec& v ) const;
             
-            bool pyEquals( const Vec& v ) const;
             static boost::python::object defineClass();
             
             const static Vec ZERO;
             const static Vec UNIT_X;
             const static Vec UNIT_Y;
+            
     };
+    
+    std::ostream& operator<<( std::ostream& os, const Vec2& v );
     
     template <>
     class Vec<3>
@@ -63,7 +70,7 @@ namespace fhe
             
             Vec();
             Vec( double _x, double _y, double _z );
-            Vec( const Rot<3>& rot, double length = 1 );
+            explicit Vec( const Rot<3>& rot, double length = 1 );
             
             Vec operator-() const;
             Vec operator+( const Vec& v ) const;
@@ -79,6 +86,8 @@ namespace fhe
             void operator/=( const Vec& v );
             void operator*=( double d );
             void operator/=( double d );
+            
+            bool operator==( const Vec& v ) const;
             
             double length() const;
             Vec norm() const;
@@ -90,7 +99,6 @@ namespace fhe
             std::string toString() const;
             Rot<3> getRotTo( const Vec& v ) const;
             
-            bool pyEquals( const Vec& v ) const;
             static boost::python::object defineClass();
             
             static const Vec ZERO;
@@ -99,8 +107,7 @@ namespace fhe
             static const Vec UNIT_Z;
     };
     
-    typedef Vec<2> Vec2;
-    typedef Vec<3> Vec3;
+    std::ostream& operator<<( std::ostream& os, const Vec3& v );
     
 }
 
