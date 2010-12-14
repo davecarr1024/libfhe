@@ -3,8 +3,6 @@
 namespace fhe
 {
     
-    std::string ModRegisterer::m_mod;
-    
     NodeFactory::NodeFactory()
     {
     }
@@ -131,4 +129,15 @@ namespace fhe
         return m_nodeInts.end();
     }
     
+    std::string NodeFactory::modFromFilename( const std::string& filename )
+    {
+        if ( filename.substr( 0, 4 ) == "mods" )
+        {
+            return filename.substr( 5, filename.rfind( "/" ) - 4 );
+        }
+        else
+        {
+            return "";
+        }
+    }
 }

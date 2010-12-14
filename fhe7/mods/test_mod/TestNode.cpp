@@ -13,13 +13,9 @@ namespace test_mod
         return out;
     }
     
-    FHE_MOD( test_mod );
-    
     FHE_NODE( TestNode );
     FHE_FUNC( TestNode, setMsg );
     FHE_FUNC( TestNode, getMsg );
     FHE_VAR( TestNode, m_i );
     FHE_VAR( TestNode, var );
-    
-    FHE_END_MOD
 }

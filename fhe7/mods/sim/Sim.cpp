@@ -7,6 +7,11 @@ namespace fhe
     namespace sim
     {
         
+        FHE_NODE( Sim )
+        FHE_FUNC( Sim, time )
+        FHE_FUNC( Sim, run )
+        FHE_FUNC( Sim, shutdown )
+        
         Sim::Sim() :
             m_shutdown( false )
         {
