@@ -1,6 +1,7 @@
 #include <sim/SpatialNode.h>
 #include <gtest/gtest.h>
 using namespace fhe;
+using namespace sim;
 
 template <size_t dim>
 void spatial_node_test( const Vec<dim>& p, const Rot<dim>& r )
