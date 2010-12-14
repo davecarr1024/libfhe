@@ -510,6 +510,7 @@ namespace fhe
             .def( "det", &Mat3::det )
             .def( "inverse", &Mat3::inverse )
             .def( "__eq__", &Mat3::operator== )
+            .def( "__repr__", &Mat3::toString )
             .def( "__getitem__", &Mat3::pyGet )
             .def( "__setitem__", &Mat3::pySet )
         ;

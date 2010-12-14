@@ -181,13 +181,16 @@ namespace fhe
     
     bool Node::getAncestorVar( const std::string& name, Val& v ) const
     {
-        if ( tryGetVar( name, v ) )
+        if ( m_parent )
         {
-            return true;
-        }
-        else if ( m_parent )
-        {
-            return m_parent->getAncestorVar( name, v );
+            if ( m_parent->tryGetVar( name, v ) )
+            {
+                return true;
+            }
+            else
+            {
+                return m_parent->getAncestorVar( name, v );
+            }
         }
         else
         {

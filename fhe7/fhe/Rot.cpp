@@ -233,7 +233,7 @@ namespace fhe
         double angle;
         toAxisAngle(axis,angle);
         std::ostringstream outs;
-        outs << "Rot3(" << axis.toString() << ", " << angle << ")";
+        outs << "Rot3(" << axis.toString() << "," << angle << ")";
         return outs.str();
     }
     
