@@ -8,40 +8,43 @@
 
 namespace fhe
 {
-    
-    template <size_t dim>
-    class SpatialNode : public Node
+    namespace sim
     {
-        public:
-            typedef Mat<dim> M;
-            typedef Vec<dim> V;
-            typedef Rot<dim> R;
-            
-            V position;
-            R rotation;
-            
-            M localTransform()
-            {
-                return M::translation( position ) * M::rotation( rotation );
-            }
-            
-            M globalTransform()
-            {
-                M parentTransform;
-                if ( ancestorCall( &SpatialNode<dim>::globalTransform, parentTransform ) )
+        
+        template <size_t dim>
+        class SpatialNode : public Node
+        {
+            public:
+                typedef Mat<dim> M;
+                typedef Vec<dim> V;
+                typedef Rot<dim> R;
+                
+                V position;
+                R rotation;
+                
+                M localTransform()
                 {
-                    return parentTransform * localTransform();
+                    return M::translation( position ) * M::rotation( rotation );
                 }
-                else
+                
+                M globalTransform()
                 {
-                    return localTransform();
+                    M parentTransform;
+                    if ( ancestorCall( &SpatialNode<dim>::globalTransform, parentTransform ) )
+                    {
+                        return parentTransform * localTransform();
+                    }
+                    else
+                    {
+                        return localTransform();
+                    }
                 }
-            }
-    };
-    
-    typedef SpatialNode<2> SpatialNode2;
-    typedef SpatialNode<3> SpatialNode3;
-    
+        };
+        
+        typedef SpatialNode<2> SpatialNode2;
+        typedef SpatialNode<3> SpatialNode3;
+
+    }
 }
 
 #endif
