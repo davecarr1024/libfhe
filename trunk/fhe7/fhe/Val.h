@@ -141,10 +141,7 @@ namespace fhe
                 }
             }
             
-            boost::python::object toPy() const
-            {
-                return m_data ? m_data->toPy() : boost::python::object();
-            }
+            boost::python::object toPy() const;
     };
     
 }

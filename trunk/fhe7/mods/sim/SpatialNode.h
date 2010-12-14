@@ -17,7 +17,6 @@ namespace fhe
             typedef Vec<dim> V;
             typedef Rot<dim> R;
             
-        public:
             V position;
             R rotation;
             

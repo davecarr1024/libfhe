@@ -98,4 +98,8 @@ namespace fhe
         return m_data ? m_data->type() : "null";
     }
     
+    boost::python::object Val::toPy() const
+    {
+        return m_data ? m_data->toPy() : boost::python::object();
+    }
 }
