@@ -134,13 +134,16 @@ namespace fhe
             template <class TObj, class TVar>
             bool getAncestorVar( TVar (TObj::*ptr), TVar& v ) const
             {
-                if ( tryGetVar( ptr, v ) )
+                if ( m_parent )
                 {
-                    return true;
-                }
-                else if ( m_parent )
-                {
-                    return m_parent->getAncestorVar( ptr, v );
+                    if ( m_parent->tryGetVar( ptr, v ) )
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return m_parent->getAncestorVar( ptr, v );
+                    }
                 }
                 else
                 {
@@ -245,14 +248,16 @@ namespace fhe
                 template <class TObj BOOST_PP_COMMA_IF( n ) BOOST_PP_ENUM_PARAMS( n, class TArg )> \
                 bool ancestorCall( void (TObj::*func)( BOOST_PP_ENUM_PARAMS( n, TArg ) ) BOOST_PP_COMMA_IF(n)\
                     BOOST_PP_ENUM( n, CALL_arg, ~ ) ) { \
-                    if ( TObj* t = dynamic_cast<TObj*>( this ) ) { \
-                        (t->*func)( BOOST_PP_ENUM_PARAMS( n, arg ) ); \
-                        return true; \
-                    } else if ( m_parent ) {\
-                        return m_parent->ancestorCall( func BOOST_PP_COMMA_IF(n) BOOST_PP_ENUM_PARAMS( n, arg ) ); \
+                    if ( m_parent ) { \
+                        if ( TObj* t = dynamic_cast<TObj*>( m_parent ) )  { \
+                            (t->*func)( BOOST_PP_ENUM_PARAMS( n, arg ) ); \
+                            return true; \
+                        } else { \
+                            return m_parent->ancestorCall( func BOOST_PP_COMMA_IF(n) BOOST_PP_ENUM_PARAMS( n, arg ) ); \
+                        } \
                     } else { \
                         return false; \
-                    }\
+                    } \
                 }
 
             BOOST_PP_REPEAT( FHE_ARGS, ANCESTORCALL_iter, ~ )
@@ -263,14 +268,16 @@ namespace fhe
                 template <class TObj, class TRet BOOST_PP_COMMA_IF( n ) BOOST_PP_ENUM_PARAMS( n, class TArg )> \
                 bool ancestorCall( TRet (TObj::*func)( BOOST_PP_ENUM_PARAMS( n, TArg ) ) BOOST_PP_COMMA_IF(n)\
                     BOOST_PP_ENUM( n, CALL_arg, ~ ), TRet& ret ) { \
-                    if ( TObj* t = dynamic_cast<TObj*>( this ) ) { \
-                        ret = (t->*func)( BOOST_PP_ENUM_PARAMS( n, arg ) ); \
-                        return true; \
-                    } else if ( m_parent ) {\
-                        return m_parent->ancestorCall( func, BOOST_PP_ENUM_PARAMS( n, arg ) BOOST_PP_COMMA_IF(n) ret ); \
+                    if ( m_parent ) { \
+                        if ( TObj* t = dynamic_cast<TObj*>( m_parent ) )  { \
+                            ret = (t->*func)( BOOST_PP_ENUM_PARAMS( n, arg ) ); \
+                            return true; \
+                        } else { \
+                            return m_parent->ancestorCall( func, BOOST_PP_ENUM_PARAMS( n, arg ) BOOST_PP_COMMA_IF(n) ret ); \
+                        } \
                     } else { \
                         return false; \
-                    }\
+                    } \
                 }
 
             BOOST_PP_REPEAT( FHE_ARGS, RETANCESTORCALL_iter, ~ )

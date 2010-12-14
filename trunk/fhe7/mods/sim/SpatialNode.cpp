@@ -17,5 +17,4 @@ namespace fhe
     FHE_FUNC( SpatialNode3, globalTransform );
     
     FHE_END_MOD
-    
 }
