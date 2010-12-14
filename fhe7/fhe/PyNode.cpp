@@ -107,10 +107,7 @@ namespace fhe
     
     void PyNode::setAttr( const std::string& name, boost::python::object o )
     {
-        m_node->setVar( name, Val( o ) );
-        FHE_ASSERT_MSG( m_node->trySetVar( name, Val( o ) ), 
-                        "unable to set var %s with python value %s", 
-                        name.c_str(), PyEnv::instance().toString( o ).c_str() );
+        m_node->setVar( name, o );
     }
     
     PyNode* PyNode::root() const
