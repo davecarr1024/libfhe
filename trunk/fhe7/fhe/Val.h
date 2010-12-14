@@ -76,10 +76,6 @@ namespace fhe
             IData* m_data;
             
         public:
-            typedef 
-                boost::mpl::list< Mat3, Mat2, Rot3, Rot2, Vec3, Vec2, std::string, double, int, bool > 
-                python_convertable_types;
-            
             Val();
             Val( const Val& v );
             Val( boost::python::object obj );

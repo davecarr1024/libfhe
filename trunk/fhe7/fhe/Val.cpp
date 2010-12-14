@@ -3,47 +3,63 @@
 
 namespace fhe
 {
-    
+
     Val::Val() :
         m_data( 0 )
     {
     }
     
-    class ValExtractor
-    {
-        private:
-            boost::python::object* m_obj;
-            Val* m_val;
-            
-        public:
-            ValExtractor( boost::python::object* obj, Val* val ) :
-                m_obj( obj ),
-                m_val( val )
-            {
-            }
-            
-            template <class T>
-            void operator()( T )
-            {
-                if ( m_val->empty() )
-                {
-                    try
-                    {
-                        m_val->set<T>( boost::python::extract<T>( *m_obj ) );
-                    }
-                    catch ( boost::python::error_already_set )
-                    {
-                    }
-                }
-            }
-    };
-
     Val::Val( boost::python::object o ) :
         m_data( 0 )
     {
-        boost::mpl::for_each<python_convertable_types>( ValExtractor( &o, this ) );
-        FHE_ASSERT_MSG( !empty(), "unable to build val from python type %s", PyEnv::instance().getType( o ).c_str() );
-        printf( "set %s %s\n", PyEnv::instance().getType( o ).c_str(), type().c_str() );
+        if ( o != boost::python::object() )
+        {
+            std::string type = PyEnv::instance().getType( o );
+            if ( type == "bool" )
+            {
+                set<bool>( boost::python::extract<bool>( o ) );
+            }
+            else if ( type == "int" )
+            {
+                set<int>( boost::python::extract<int>( o ) );
+            }
+            else if ( type == "float" )
+            {
+                set<double>( boost::python::extract<double>( o ) );
+            }
+            else if ( type == "str" )
+            {
+                set<std::string>( boost::python::extract<std::string>( o ) );
+            }
+            else if ( type == "Vec2" )
+            {
+                set<Vec2>( boost::python::extract<Vec2>( o ) );
+            }
+            else if ( type == "Vec3" )
+            {
+                set<Vec3>( boost::python::extract<Vec3>( o ) );
+            }
+            else if ( type == "Rot2" )
+            {
+                set<Rot2>( boost::python::extract<Rot2>( o ) );
+            }
+            else if ( type == "Rot3" )
+            {
+                set<Rot3>( boost::python::extract<Rot3>( o ) );
+            }
+            else if ( type == "Mat2" )
+            {
+                set<Mat2>( boost::python::extract<Mat2>( o ) );
+            }
+            else if ( type == "Mat3" )
+            {
+                set<Mat3>( boost::python::extract<Mat3>( o ) );
+            }
+            else
+            {
+                FHE_ERROR( "unable to convert unknown python type %s to Val", type.c_str() );
+            }
+        }
     }
     
     Val::Val( const Val& v ) :
