@@ -178,7 +178,8 @@ namespace fhe
 
             DepRegisterer( const std::string& _nodeName, const std::string& depMod, const std::string& depName, const std::string& file )
             {
-                reg( NodeFactory::instance().modFromFilename( file ) + _nodeName, depMod + "/" + depName );
+                std::string prefix = depMod.empty() ? "" : depMod + "/";
+                reg( NodeFactory::instance().modFromFilename( file ) + _nodeName, prefix + depName );
             }
     };
     

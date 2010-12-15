@@ -1,6 +1,7 @@
 #include <fhe/Node.h>
 #include <fhe/NodeFactory.h>
 #include <fhe/FileSystem.h>
+#include <fhe/IOnAttach.h>
 #include <fstream>
 
 namespace boost
@@ -79,6 +80,7 @@ namespace fhe
             if ( m_parent )
             {
                 m_parent->attachChild( this );
+                tryCall( &IOnAttach::onAttach );
             }
         }
     }
@@ -90,6 +92,7 @@ namespace fhe
             Node* parent = m_parent;
             m_parent = 0;
             parent->detachChild( this );
+            tryCall( &IOnAttach::onDetach );
         }
     }
     

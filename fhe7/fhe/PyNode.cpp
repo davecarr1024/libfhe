@@ -50,10 +50,6 @@ namespace fhe
         {
             types.append( i->first );
         }
-        for ( NodeFactory::NodeIntIterator i = nf.nodeIntsBegin(); i != nf.nodeIntsEnd(); ++i )
-        {
-            types.append( i->first );
-        }
         s.attr( "types" ) = types;
         
         return s;
