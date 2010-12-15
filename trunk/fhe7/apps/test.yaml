@@ -1,0 +1,4 @@
+type: physics/World
+children:
+    - 
+        type: physics/Body

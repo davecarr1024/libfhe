@@ -8,17 +8,17 @@ void spatial_node_test( const Vec<dim>& p, const Rot<dim>& r )
 {
     NodePtr node( new SpatialNode<dim> );
     ASSERT_TRUE( node );
-    ASSERT_EQ( Vec<dim>::ZERO, node->getVar( &SpatialNode<dim>::position ) );
-    ASSERT_EQ( Rot<dim>::IDENTITY, node->getVar( &SpatialNode<dim>::rotation ) );
-    ASSERT_EQ( Mat<dim>::IDENTITY, node->call( &SpatialNode<dim>::localTransform ) );
-    ASSERT_EQ( Mat<dim>::IDENTITY, node->call( &SpatialNode<dim>::globalTransform ) );
+    ASSERT_EQ( Vec<dim>::ZERO, node->call( &SpatialNode<dim>::getPosition ) );
+    ASSERT_EQ( Rot<dim>::IDENTITY, node->call( &SpatialNode<dim>::getRotation ) );
+    ASSERT_EQ( Mat<dim>::IDENTITY, node->call( &SpatialNode<dim>::getGlobalTransform ) );
+    ASSERT_EQ( Mat<dim>::IDENTITY, node->call( &SpatialNode<dim>::getGlobalTransform ) );
     
-    node->setVar( &SpatialNode<dim>::position, p );
-    node->setVar( &SpatialNode<dim>::rotation, r );
-    ASSERT_EQ( p, node->getVar( &SpatialNode<dim>::position ) );
-    ASSERT_EQ( r, node->getVar( &SpatialNode<dim>::rotation ) );
-    ASSERT_EQ( Mat<dim>::translation( p ) * Mat<dim>::rotation( r ), node->call( &SpatialNode<dim>::localTransform ) );
-    ASSERT_EQ( Mat<dim>::translation( p ) * Mat<dim>::rotation( r ), node->call( &SpatialNode<dim>::globalTransform ) );
+    node->call( &SpatialNode<dim>::setPosition, p );
+    node->call( &SpatialNode<dim>::setRotation, r );
+    ASSERT_EQ( p, node->call( &SpatialNode<dim>::getPosition ) );
+    ASSERT_EQ( r, node->call( &SpatialNode<dim>::getRotation ) );
+    ASSERT_EQ( Mat<dim>::translation( p ) * Mat<dim>::rotation( r ), node->call( &SpatialNode<dim>::getLocalTransform ) );
+    ASSERT_EQ( Mat<dim>::translation( p ) * Mat<dim>::rotation( r ), node->call( &SpatialNode<dim>::getGlobalTransform ) );
     
     Vec<dim> cp = p * 5.1;
     Rot<dim> cr = r * -3.14;
@@ -26,13 +26,13 @@ void spatial_node_test( const Vec<dim>& p, const Rot<dim>& r )
     NodePtr child( new SpatialNode<dim> );
     ASSERT_TRUE( child );
     node->attachChild( child );
-    child->setVar( &SpatialNode<dim>::position, cp );
-    child->setVar( &SpatialNode<dim>::rotation, cr );
-    ASSERT_EQ( cp, child->getVar( &SpatialNode<dim>::position ) );
-    ASSERT_EQ( cr, child->getVar( &SpatialNode<dim>::rotation ) );
-    ASSERT_EQ( Mat<dim>::translation( cp ) * Mat<dim>::rotation( cr ), child->call( &SpatialNode<dim>::localTransform ) );
+    child->call( &SpatialNode<dim>::setPosition, cp );
+    child->call( &SpatialNode<dim>::setRotation, cr );
+    ASSERT_EQ( cp, child->call( &SpatialNode<dim>::getPosition ) );
+    ASSERT_EQ( cr, child->call( &SpatialNode<dim>::getRotation ) );
+    ASSERT_EQ( Mat<dim>::translation( cp ) * Mat<dim>::rotation( cr ), child->call( &SpatialNode<dim>::getLocalTransform ) );
     ASSERT_EQ( Mat<dim>::translation( p ) * Mat<dim>::rotation( r ) * Mat<dim>::translation( cp ) * Mat<dim>::rotation( cr ), 
-               child->call( &SpatialNode<dim>::globalTransform ) );
+               child->call( &SpatialNode<dim>::getGlobalTransform ) );
 }
 
 TEST( sim_test, SpatialNode2 )

@@ -19,24 +19,46 @@ namespace fhe
                 typedef Vec<dim> V;
                 typedef Rot<dim> R;
                 
-                V position;
-                R rotation;
+            private:
+                V m_pos;
+                R m_rot;
                 
-                M localTransform()
+            public:
+                virtual void setPosition( V pos )
                 {
-                    return M::translation( position ) * M::rotation( rotation );
+                    m_pos = pos;
                 }
                 
-                M globalTransform()
+                virtual V getPosition()
+                {
+                    return m_pos;
+                }
+                
+                virtual void setRotation( R rot )
+                {
+                    m_rot = rot;
+                }
+                
+                virtual R getRotation()
+                {
+                    return m_rot;
+                }
+                
+                virtual M getLocalTransform()
+                {
+                    return M::translation( m_pos ) * M::rotation( m_rot );
+                }
+                
+                virtual M getGlobalTransform()
                 {
                     M parentTransform;
-                    if ( ancestorCall( &SpatialNode<dim>::globalTransform, parentTransform ) )
+                    if ( ancestorCall( &SpatialNode<dim>::getGlobalTransform, parentTransform ) )
                     {
-                        return parentTransform * localTransform();
+                        return parentTransform * getLocalTransform();
                     }
                     else
                     {
-                        return localTransform();
+                        return getLocalTransform();
                     }
                 }
         };
