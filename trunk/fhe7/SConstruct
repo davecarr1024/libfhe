@@ -10,13 +10,8 @@ env.Append( CPPFLAGS = [ '-g' ] )
 env.Append( LIBS = [ 'boost_filesystem', 'python%s' % py_ver, 'boost_python', 'yaml-cpp',  ] )
 env.ParseConfig( 'pkg-config --cflags --libs bullet' )
 
-lib_fhe = env.SharedLibrary( 'fhe', env.Glob( 'fhe/*.cpp' ) + env.Glob( 'fhe/math/*.cpp' ) )
-
-env = env.Clone()
-env.Append( LIBS = [ lib_fhe ] )
-
 mod_libs = []
-for mod in filter( os.path.isdir, map( str, env.Glob( 'mods/*' ) ) ):
+for mod in filter( os.path.isdir, map( str, env.Glob( 'fhe/*' ) ) ):
     mod_srcs = env.Glob( '%s/*.cpp' % mod )
     mod_libs.append( env.SharedLibrary( mod, mod_srcs ) )
     

@@ -1,7 +1,7 @@
 #ifndef FHE_SIM_H
 #define FHE_SIM_H
 
-#include <fhe/Node.h>
+#include <fhe/core/Node.h>
 
 namespace fhe
 {

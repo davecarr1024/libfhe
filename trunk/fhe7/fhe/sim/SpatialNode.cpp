@@ -1,20 +1,23 @@
-#include <sim/SpatialNode.h>
+#include <fhe/sim/SpatialNode.h>
 
 namespace fhe
 {
-    FHE_MOD( sim );
-    
-    FHE_NODE( SpatialNode2 );
-    FHE_VAR( SpatialNode2, position );
-    FHE_VAR( SpatialNode2, rotation );
-    FHE_FUNC( SpatialNode2, localTransform );
-    FHE_FUNC( SpatialNode2, globalTransform );
-    
-    FHE_NODE( SpatialNode3 );
-    FHE_VAR( SpatialNode3, position );
-    FHE_VAR( SpatialNode3, rotation );
-    FHE_FUNC( SpatialNode3, localTransform );
-    FHE_FUNC( SpatialNode3, globalTransform );
-    
-    FHE_END_MOD
+    namespace sim
+    {
+        FHE_NODE( SpatialNode2 );
+        FHE_FUNC( SpatialNode2, getPosition );
+        FHE_FUNC( SpatialNode2, setPosition );
+        FHE_FUNC( SpatialNode2, getRotation );
+        FHE_FUNC( SpatialNode2, setRotation );
+        FHE_FUNC( SpatialNode2, getLocalTransform );
+        FHE_FUNC( SpatialNode2, getGlobalTransform );
+
+        FHE_NODE( SpatialNode3 );
+        FHE_FUNC( SpatialNode3, getPosition );
+        FHE_FUNC( SpatialNode3, setPosition );
+        FHE_FUNC( SpatialNode3, getRotation );
+        FHE_FUNC( SpatialNode3, setRotation );
+        FHE_FUNC( SpatialNode3, getLocalTransform );
+        FHE_FUNC( SpatialNode3, getGlobalTransform );
+    }
 }
