@@ -267,8 +267,7 @@ namespace fhe
     
     bool INodeIntDesc::isDep( const INodeIntDescPtr& dep ) const
     {
-        //core/Node is always a dep and isn't required to be declared to be one
-        if ( dep->name() == "core/Node" || dep.get() == this )
+        if ( dep.get() == this )
         {
             return true;
         }

@@ -55,32 +55,6 @@ namespace fhe
             NodeIntIterator nodeIntsEnd() const;
     };
     
-    class INodeRegisterer
-    {
-        protected:
-            void addNode( const INodeDescPtr& node )
-            {
-                NodeFactory::instance().addNode( node );
-            }
-            
-            std::string mod( const std::string& file )
-            {
-                return NodeFactory::instance().modFromFilename( file );
-            }
-    };
-
-    template <class T>
-    class NodeRegisterer  : public INodeRegisterer
-    {
-        public:
-            NodeRegisterer( const std::string& name, const std::string& file )
-            {
-                addNode( INodeDescPtr( new NodeDesc<T>( mod( file ) + name ) ) );
-            }
-    };
-    
-    #define FHE_NODE( name ) ::fhe::NodeRegisterer<name> g_##name##_node_reg( #name, __FILE__ );
-    
     class FuncRegisterer
     {
         public:
@@ -192,11 +166,14 @@ namespace fhe
             
             void reg( const std::string& nodeName, const std::string& depName )
             {
-                if ( !doReg( nodeName, depName ) )
+                if ( nodeName != depName )
                 {
-                    m_pending.push_back( std::make_pair( nodeName, depName ) );
+                    if ( !doReg( nodeName, depName ) )
+                    {
+                        m_pending.push_back( std::make_pair( nodeName, depName ) );
+                    }
+                    processPending();
                 }
-                processPending();
             }
             
         public:
@@ -210,6 +187,34 @@ namespace fhe
     #define FHE_DEP( node, depMod, depName ) \
         ::fhe::DepRegisterer g_##node##_##depMod##_##depName##_dep_reg( #node, #depMod, #depName, __FILE__ );
 
+    class INodeRegisterer
+    {
+        protected:
+            void addNode( const INodeDescPtr& node )
+            {
+                NodeFactory::instance().addNode( node );
+            }
+            
+            std::string mod( const std::string& file )
+            {
+                return NodeFactory::instance().modFromFilename( file );
+            }
+    };
+
+    template <class T>
+    class NodeRegisterer  : public INodeRegisterer
+    {
+        public:
+            NodeRegisterer( const std::string& name, const std::string& file )
+            {
+                addNode( INodeDescPtr( new NodeDesc<T>( mod( file ) + name ) ) );
+            }
+    };
+    
+    #define FHE_NODE( name ) \
+        ::fhe::NodeRegisterer<name> g_##name##_node_reg( #name, __FILE__ ); \
+        ::fhe::DepRegisterer g_##name##_node_dep_reg( #name, "core", "Node", __FILE__ );
+    
     class INodeIntRegisterer
     {
         protected:
