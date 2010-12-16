@@ -213,7 +213,7 @@ namespace fhe
     
     #define FHE_NODE( name ) \
         ::fhe::NodeRegisterer<name> g_##name##_node_reg( #name, __FILE__ ); \
-        ::fhe::DepRegisterer g_##name##_node_dep_reg( #name, "core", "Node", __FILE__ );
+        FHE_DEP( name, core, Node );
     
     class INodeIntRegisterer
     {
