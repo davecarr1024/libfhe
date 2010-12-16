@@ -133,7 +133,7 @@ class ChildNode : public TestNode
 };
 
 FHE_NODE( ChildNode );
-FHE_DEP( ChildNode, TestNode );
+FHE_DEP( ChildNode, , TestNode );
 FHE_FUNC( ChildNode, get );
 
 TEST( node_test, inheritance )
@@ -176,7 +176,7 @@ class InterfaceNode : public Node, public IFoo
 };
 
 FHE_NODE( InterfaceNode );
-FHE_DEP( InterfaceNode, IFoo );
+FHE_DEP( InterfaceNode, , IFoo );
 
 TEST( node_test, interface )
 {

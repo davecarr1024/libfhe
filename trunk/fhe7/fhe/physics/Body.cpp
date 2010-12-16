@@ -7,8 +7,8 @@ namespace fhe
     {
         
         FHE_NODE( Body );
-        FHE_EXT_DEP( Body, sim, SpatialNode3 );
-        FHE_EXT_DEP( Body, core, IOnAttach );
+        FHE_DEP( Body, sim, SpatialNode3 );
+        FHE_DEP( Body, core, IOnAttach );
         FHE_FUNC( Body, setPosition );
         FHE_FUNC( Body, getPosition );
         FHE_FUNC( Body, setRotation );
@@ -51,6 +51,8 @@ namespace fhe
         
         void Body::onDetach()
         {
+            Super::setPosition( getPosition() );
+            Super::setRotation( getRotation() );
             m_dynamicsWorld->removeRigidBody( m_rigidBody );
             delete m_rigidBody;
             m_rigidBody = 0;

@@ -200,11 +200,6 @@ namespace fhe
             }
             
         public:
-            DepRegisterer( const std::string& _nodeName, const std::string& _depName, const std::string& file )
-            {
-                reg( NodeFactory::instance().modFromFilename( file ) + _nodeName, NodeFactory::instance().modFromFilename( file ) + _depName );
-            }
-
             DepRegisterer( const std::string& _nodeName, const std::string& depMod, const std::string& depName, const std::string& file )
             {
                 std::string prefix = depMod.empty() ? "" : depMod + "/";
@@ -212,8 +207,7 @@ namespace fhe
             }
     };
     
-    #define FHE_DEP( node, dep ) ::fhe::DepRegisterer g_##node##_##dep##_dep_reg( #node, #dep, __FILE__ );
-    #define FHE_EXT_DEP( node, depMod, depName ) \
+    #define FHE_DEP( node, depMod, depName ) \
         ::fhe::DepRegisterer g_##node##_##depMod##_##depName##_dep_reg( #node, #depMod, #depName, __FILE__ );
 
     class INodeIntRegisterer

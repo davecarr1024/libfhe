@@ -6,9 +6,10 @@ namespace fhe
     {
         
         FHE_NODE( World );
-        FHE_EXT_DEP( World, sim, IUpdate );
+        FHE_DEP( World, sim, IUpdate );
         FHE_FUNC( World, update );
         FHE_FUNC( World, getDynamicsWorld );
+        FHE_FUNC( World, setGravity );
         FHE_VAR( World, fps );
         
         World::World() :
@@ -28,6 +29,7 @@ namespace fhe
                                                            m_broadphase,
                                                            m_solver,
                                                            m_collisionConfiguration );
+            setGravity( Vec3( 0, 0, -10 ) );
         }
         
         World::~World()
@@ -56,6 +58,11 @@ namespace fhe
                 m_lastUpdate += d;
                 m_dynamicsWorld->stepSimulation( d );
             }
+        }
+        
+        void World::setGravity( const Vec3& gravity )
+        {
+            m_dynamicsWorld->setGravity( convert( gravity ) );
         }
         
         btDiscreteDynamicsWorld* World::getDynamicsWorld()
