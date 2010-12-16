@@ -28,6 +28,8 @@ namespace fhe
                 
                 virtual void update( double time, double dtime );
                 
+                void setGravity( const Vec3& gravity );
+                
                 btDiscreteDynamicsWorld* getDynamicsWorld();
                 
                 static btVector3 convert( const Vec3& v );
