@@ -191,7 +191,7 @@ TEST( node_test, interface )
 
 TEST( node_test, python )
 {
-    PyEnv::instance().runFile( "test.py", PyEnv::instance().defaultNamespace() );
+    PyEnv::instance().runFile( "node_test.py", PyEnv::instance().defaultNamespace() );
 }
 
 void fileTest( const std::string& filename, NodePtr& node )
@@ -215,13 +215,13 @@ void fileTest( const std::string& filename, NodePtr& node )
 TEST( node_test, file_read )
 {
     NodePtr node;
-    fileTest( "test.yaml", node );
+    fileTest( "node_test.yaml", node );
 }
 
 TEST( node_test, file_write )
 {
     NodePtr node;
-    fileTest( "test.yaml", node );
+    fileTest( "node_test.yaml", node );
     node->save( "dump" );
     node = NodePtr();
     fileTest( "dump", node );
