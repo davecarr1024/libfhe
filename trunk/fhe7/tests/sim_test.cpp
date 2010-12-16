@@ -1,4 +1,4 @@
-#include <sim/SpatialNode.h>
+#include <fhe/sim/SpatialNode.h>
 #include <gtest/gtest.h>
 using namespace fhe;
 using namespace sim;
