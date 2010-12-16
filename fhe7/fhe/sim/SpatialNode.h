@@ -1,48 +1,72 @@
 #ifndef FHE_SIM_SPATIAL_NODE_H
 #define FHE_SIM_SPATIAL_NODE_H
 
-#include <fhe/Node.h>
-#include <fhe/Mat.h>
-#include <fhe/Vec.h>
-#include <fhe/Rot.h>
+#include <fhe/core/Node.h>
+#include <fhe/core/Mat.h>
+#include <fhe/core/Vec.h>
+#include <fhe/core/Rot.h>
 
 namespace fhe
 {
-    
-    template <size_t dim>
-    class SpatialNode : public Node
+    namespace sim
     {
-        public:
-            typedef Mat<dim> M;
-            typedef Vec<dim> V;
-            typedef Rot<dim> R;
-            
-        public:
-            V position;
-            R rotation;
-            
-            M localTransform()
-            {
-                return M::translation( position ) * M::rotation( rotation );
-            }
-            
-            M globalTransform()
-            {
-                M parentTransform;
-                if ( ancestorCall( &SpatialNode<dim>::globalTransform, parentTransform ) )
+        
+        template <size_t dim>
+        class SpatialNode : public Node
+        {
+            public:
+                typedef Mat<dim> M;
+                typedef Vec<dim> V;
+                typedef Rot<dim> R;
+                
+            private:
+                V m_pos;
+                R m_rot;
+                
+            public:
+                virtual void setPosition( V pos )
                 {
-                    return parentTransform * localTransform();
+                    m_pos = pos;
                 }
-                else
+                
+                virtual V getPosition()
                 {
-                    return localTransform();
+                    return m_pos;
                 }
-            }
-    };
-    
-    typedef SpatialNode<2> SpatialNode2;
-    typedef SpatialNode<3> SpatialNode3;
-    
+                
+                virtual void setRotation( R rot )
+                {
+                    m_rot = rot;
+                }
+                
+                virtual R getRotation()
+                {
+                    return m_rot;
+                }
+                
+                virtual M getLocalTransform()
+                {
+                    return M::translation( m_pos ) * M::rotation( m_rot );
+                }
+                
+                virtual M getGlobalTransform()
+                {
+                    M parentTransform;
+                    if ( ancestorCall( &SpatialNode<dim>::getGlobalTransform, parentTransform ) )
+                    {
+                        return parentTransform * getLocalTransform();
+                    }
+                    else
+                    {
+                        return getLocalTransform();
+                    }
+                }
+        };
+        
+        typedef SpatialNode<2> SpatialNode2;
+        typedef SpatialNode<3> SpatialNode3;
+
+    }
 }
 
 #endif

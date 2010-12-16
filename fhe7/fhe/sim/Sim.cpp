@@ -1,5 +1,5 @@
-#include <sim/Sim.h>
-#include <sim/IUpdate.h>
+#include <fhe/sim/Sim.h>
+#include <fhe/sim/IUpdate.h>
 #include <boost/date_time/posix_time/posix_time_types.hpp> 
 
 namespace fhe
@@ -7,12 +7,10 @@ namespace fhe
     namespace sim
     {
         
-        FHE_MOD( sim )
         FHE_NODE( Sim )
         FHE_FUNC( Sim, time )
         FHE_FUNC( Sim, run )
         FHE_FUNC( Sim, shutdown )
-        FHE_END_MOD
         
         Sim::Sim() :
             m_shutdown( false )
