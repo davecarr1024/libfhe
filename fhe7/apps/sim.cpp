@@ -1,4 +1,4 @@
-#include <sim/Sim.h>
+#include <fhe/sim/Sim.h>
 using namespace fhe;
 using namespace sim;
 
