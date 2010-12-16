@@ -1,6 +1,6 @@
-#include <fhe/NodeFactory.h>
-#include <fhe/PyNode.h>
-#include <test_mod/TestNode.h>
+#include <fhe/core/NodeFactory.h>
+#include <fhe/core/PyNode.h>
+#include <fhe/test_mod/TestNode.h>
 #include <gtest/gtest.h>
 using namespace fhe;
 

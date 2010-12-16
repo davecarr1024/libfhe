@@ -25,6 +25,6 @@ assert not node.hasChild( child )
 assert not child.parent()
 
 node.attachChild( child )
-child.attachChild( Node( "Node" ) )
+child.attachChild( Node( "core/Node" ) )
 assert node == child.children()[0].root()
 

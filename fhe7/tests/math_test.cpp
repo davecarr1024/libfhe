@@ -1,6 +1,6 @@
-#include <fhe/Vec.h>
-#include <fhe/Rot.h>
-#include <fhe/Mat.h>
+#include <fhe/core/Vec.h>
+#include <fhe/core/Rot.h>
+#include <fhe/core/Mat.h>
 #include <gtest/gtest.h>
 using namespace fhe;
 
