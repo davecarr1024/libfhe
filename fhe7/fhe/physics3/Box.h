@@ -1,12 +1,12 @@
-#ifndef FHE_PHYSICS_BOX_H
-#define FHE_PHYSICS_BOX_H
+#ifndef FHE_PHYSICS3_BOX_H
+#define FHE_PHYSICS3_BOX_H
 
-#include <fhe/physics/Body.h>
+#include <fhe/physics3/Body.h>
 #include <fhe/core/Vec.h>
 
 namespace fhe
 {
-    namespace physics
+    namespace physics3
     {
         
         class Box : public Body

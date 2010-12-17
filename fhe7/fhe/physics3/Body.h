@@ -1,5 +1,5 @@
-#ifndef FHE_PHYSICS_BODY_H
-#define FHE_PHYSICS_BODY_H
+#ifndef FHE_PHYSICS3_BODY_H
+#define FHE_PHYSICS3_BODY_H
 
 #include <fhe/sim/SpatialNode.h>
 #include <fhe/core/IOnAttach.h>
@@ -7,7 +7,7 @@
 
 namespace fhe
 {
-    namespace physics
+    namespace physics3
     {
         class Body : public sim::SpatialNode3, public IOnAttach
         {

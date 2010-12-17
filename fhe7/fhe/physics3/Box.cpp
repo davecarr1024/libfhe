@@ -1,9 +1,9 @@
-#include <fhe/physics/Box.h>
-#include <fhe/physics/World.h>
+#include <fhe/physics3/Box.h>
+#include <fhe/physics3/World.h>
 
 namespace fhe
 {
-    namespace physics
+    namespace physics3
     {
         
         FHE_NODE( Box );

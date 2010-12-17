@@ -1,5 +1,5 @@
-#ifndef FHE_PHYSICS_WORLD_H
-#define FHE_PHYSICS_WORLD_H
+#ifndef FHE_PHYSICS3_WORLD_H
+#define FHE_PHYSICS3_WORLD_H
 
 #include <fhe/core/Node.h>
 #include <fhe/sim/IUpdate.h>
@@ -7,7 +7,7 @@
 
 namespace fhe
 {
-    namespace physics
+    namespace physics3
     {
         
         class World : public Node, public sim::IUpdate
