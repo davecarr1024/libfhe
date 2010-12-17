@@ -46,20 +46,14 @@ namespace fhe
                 
                 virtual M getLocalTransform()
                 {
-                    return M::translation( m_pos ) * M::rotation( m_rot );
+                    return M::translation( getPosition() ) * M::rotation( getRotation() );
                 }
                 
                 virtual M getGlobalTransform()
                 {
                     M parentTransform;
-                    if ( ancestorCall( &SpatialNode<dim>::getGlobalTransform, parentTransform ) )
-                    {
-                        return parentTransform * getLocalTransform();
-                    }
-                    else
-                    {
-                        return getLocalTransform();
-                    }
+                    ancestorCall( &SpatialNode<dim>::getGlobalTransform, parentTransform );
+                    return parentTransform * getLocalTransform();
                 }
         };
         
