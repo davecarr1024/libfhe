@@ -110,6 +110,10 @@ namespace fhe
                      m_d[3] * v.x + m_d[4] * v.y + m_d[5] );
     }
     
+    Vec2 Mat2::getTranslation() const
+    {
+        return Vec2( (*this)(0,2), (*this)(1,2) );
+    }
     
     double Mat2::det() const
     {
