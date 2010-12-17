@@ -90,6 +90,7 @@ namespace fhe
 
             #undef FUNCREG_id
             #undef FUNCREG_iter
+
     };
     
     #define FHE_FUNC( node, func ) ::fhe::FuncRegisterer g_##node##_##func##_func_reg( #node, #func, __FILE__, &node::func );
@@ -146,8 +147,19 @@ namespace fhe
             bool doReg( const std::string nodeName, const std::string& depName )
             {
                 NodeFactory& nf = NodeFactory::instance();
-                INodeDescPtr node = nf.getNode( nodeName );
-                FHE_ASSERT_MSG( node, "unable to add dep %s to unknown node %s", depName.c_str(), nodeName.c_str() );
+                INodeIntDescPtr node;
+                if ( nf.hasNode( nodeName ) )
+                {
+                    node = nf.getNode( nodeName );
+                }
+                else if ( nf.hasNodeInt( nodeName ) )
+                {
+                    node = nf.getNodeInt( nodeName );
+                }
+                else
+                {
+                    FHE_ERROR( "unable to add dep %s to unknown node %s", depName.c_str(), nodeName.c_str() );
+                }
                 if ( nf.hasNode( depName ) )
                 {
                     node->addDep( nf.getNode( depName ) );
