@@ -20,6 +20,7 @@ namespace fhe
             m_world( 0 ),
             m_body( 0 )
         {
+            m_def.type = b2_dynamicBody;
         }
         
         Body::~Body()

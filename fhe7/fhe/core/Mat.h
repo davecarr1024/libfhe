@@ -46,6 +46,8 @@ namespace fhe
             
             bool operator==( const Mat& m ) const;
             
+            Vec<2> getTranslation() const;
+            Rot<2> getRotation() const;
             double det() const;
             Mat inverse() const;
             bool equals( const Mat& m, double eps = Math::EPS ) const;
