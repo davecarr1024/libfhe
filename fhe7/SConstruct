@@ -4,11 +4,16 @@ env = Environment()
 import sys
 py_ver = sys.version[:3]
 
-env.Append( CPPPATH = [ '#', '/usr/include/python%s' % py_ver ] )
-env.Append( RPATH = [ env.Dir( '#' ).abspath, '/usr/local/lib' ] )
+os.system( './ext/yaml-cpp.sh' )
+os.system( './ext/box2d.sh' )
+os.system( './ext/bullet.sh' )
+
 env.Append( CPPFLAGS = [ '-g' ] )
-env.Append( LIBS = [ 'boost_filesystem', 'python%s' % py_ver, 'boost_python', 'yaml-cpp', 'Box2D' ] )
-env.ParseConfig( 'pkg-config --cflags --libs bullet' )
+env.Append( CPPPATH = [ '#', '/usr/include/python%s' % py_ver, 'ext/yaml-cpp/include', 'ext/box2d/include', 'ext/bullet/include/bullet' ] )
+env.Append( LIBPATH = [ 'ext/yaml-cpp/lib', 'ext/box2d/lib', 'ext/bullet/lib' ] )
+env.Append( LIBS = [ 'boost_filesystem', 'python%s' % py_ver, 'boost_python', 'yaml-cpp', 'Box2D', 'BulletCollision', 'BulletDynamics', 'LinearMath' ] )
+pwd = env.Dir( '#' ).abspath
+env.Append( RPATH = [ pwd, pwd + '/ext/yaml-cpp/lib', pwd + '/ext/bullet/lib' ] )
 
 mod_libs = []
 for mod in filter( os.path.isdir, map( str, env.Glob( 'fhe/*' ) ) ):
