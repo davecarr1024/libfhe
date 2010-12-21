@@ -32,8 +32,8 @@ namespace fhe
         m_mainNamespace["Node"] = PyNode::defineClass();
         m_mainNamespace["Vec2d"] = Vec2d::defineClass();
         m_mainNamespace["Vec3d"] = Vec3d::defineClass();
-        m_mainNamespace["Vec2i"] = Vec2d::defineClass();
-        m_mainNamespace["Vec3i"] = Vec3d::defineClass();
+        m_mainNamespace["Vec2i"] = Vec2i::defineClass();
+        m_mainNamespace["Vec3i"] = Vec3i::defineClass();
         m_mainNamespace["Rot2"] = Rot2::defineClass();
         m_mainNamespace["Rot3"] = Rot3::defineClass();
         m_mainNamespace["Mat2"] = Mat2::defineClass();
