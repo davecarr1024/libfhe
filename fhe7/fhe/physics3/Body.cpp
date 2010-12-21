@@ -31,7 +31,7 @@ namespace fhe
         void Body::onAttach()
         {
             Vec3d pos = getPosition();
-            Rot3 rot = getRotation();
+            Rot3d rot = getRotation();
             double mass = getMass();
             btVector3 inertia;
             
@@ -83,7 +83,7 @@ namespace fhe
             }
         }
         
-        void Body::setRotation( Rot3 rot )
+        void Body::setRotation( Rot3d rot )
         {
             if ( m_rigidBody )
             {
@@ -95,7 +95,7 @@ namespace fhe
             }
         }
         
-        Rot3 Body::getRotation()
+        Rot3d Body::getRotation()
         {
             if ( m_rigidBody )
             {

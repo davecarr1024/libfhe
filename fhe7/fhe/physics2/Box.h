@@ -13,7 +13,7 @@ namespace fhe
             private:
                 Vec2d m_size;
                 Vec2d m_pos;
-                Rot2 m_rot;
+                Rot2d m_rot;
                 
             protected:
                 b2Shape* build();
@@ -26,8 +26,8 @@ namespace fhe
                 Vec2d getSize();
                 void setPosition( Vec2d pos );
                 Vec2d getPosition();
-                void setRotation( Rot2 rot );
-                Rot2 getRotation();
+                void setRotation( Rot2d rot );
+                Rot2d getRotation();
         };
         
     }

@@ -14,17 +14,21 @@ namespace fhe
     typedef Vec<2,int> Vec2i;
     typedef Vec<3,int> Vec3i;
     
-    template <size_t dim>
+    template <size_t dim, typename T>
     class Rot;
     
-    typedef Rot<2> Rot2;
-    typedef Rot<3> Rot3;
+    typedef Rot<2,double> Rot2d;
+    typedef Rot<3,double> Rot3d;
+    typedef Rot<2,int> Rot2i;
+    typedef Rot<3,int> Rot3i;
     
-    template <size_t dim>
+    template <size_t dim, typename T>
     class Mat;
     
-    typedef Mat<2> Mat2;
-    typedef Mat<3> Mat3;
+    typedef Mat<2,double> Mat2d;
+    typedef Mat<3,double> Mat3d;
+    typedef Mat<2,int> Mat2i;
+    typedef Mat<3,int> Mat3i;
     
     class Math
     {

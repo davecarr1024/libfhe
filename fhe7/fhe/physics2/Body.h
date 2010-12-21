@@ -28,8 +28,8 @@ namespace fhe
                 
                 Vec2d getPosition();
                 void setPosition( Vec2d pos );
-                Rot2 getRotation();
-                void setRotation( Rot2 rot );
+                Rot2d getRotation();
+                void setRotation( Rot2d rot );
                 
         };
         

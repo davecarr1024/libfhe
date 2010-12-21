@@ -13,7 +13,7 @@ class TestNode : public sim::SpatialNode2d, public sim::IUpdate
             if ( time > 1 )
             {
                 FHE_ASSERT( ancestorCall( &sim::Sim::shutdown ) );
-                ASSERT_LT( getGlobalTransform().getTranslation<double>().y, -1 );
+                ASSERT_LT( getGlobalTransform().getTranslation().y, -1 );
             }
         }
 };

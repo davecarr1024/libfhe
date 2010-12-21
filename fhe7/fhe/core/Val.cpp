@@ -39,21 +39,45 @@ namespace fhe
             {
                 set<Vec3d>( boost::python::extract<Vec3d>( o ) );
             }
-            else if ( type == "Rot2" )
+            else if ( type == "Vec2i" )
             {
-                set<Rot2>( boost::python::extract<Rot2>( o ) );
+                set<Vec2i>( boost::python::extract<Vec2i>( o ) );
             }
-            else if ( type == "Rot3" )
+            else if ( type == "Vec3i" )
             {
-                set<Rot3>( boost::python::extract<Rot3>( o ) );
+                set<Vec3i>( boost::python::extract<Vec3i>( o ) );
             }
-            else if ( type == "Mat2" )
+            else if ( type == "Rot2d" )
             {
-                set<Mat2>( boost::python::extract<Mat2>( o ) );
+                set<Rot2d>( boost::python::extract<Rot2d>( o ) );
             }
-            else if ( type == "Mat3" )
+            else if ( type == "Rot3d" )
             {
-                set<Mat3>( boost::python::extract<Mat3>( o ) );
+                set<Rot3d>( boost::python::extract<Rot3d>( o ) );
+            }
+            else if ( type == "Rot2i" )
+            {
+                set<Rot2i>( boost::python::extract<Rot2i>( o ) );
+            }
+            else if ( type == "Rot3i" )
+            {
+                set<Rot3i>( boost::python::extract<Rot3i>( o ) );
+            }
+            else if ( type == "Mat2d" )
+            {
+                set<Mat2d>( boost::python::extract<Mat2d>( o ) );
+            }
+            else if ( type == "Mat3d" )
+            {
+                set<Mat3d>( boost::python::extract<Mat3d>( o ) );
+            }
+            else if ( type == "Mat2i" )
+            {
+                set<Mat2i>( boost::python::extract<Mat2i>( o ) );
+            }
+            else if ( type == "Mat3i" )
+            {
+                set<Mat3i>( boost::python::extract<Mat3i>( o ) );
             }
             else
             {

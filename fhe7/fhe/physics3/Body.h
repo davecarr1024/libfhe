@@ -28,8 +28,8 @@ namespace fhe
                 
                 virtual void setPosition( Vec3d pos );
                 virtual Vec3d getPosition();
-                virtual void setRotation( Rot3 rot );
-                virtual Rot3 getRotation();
+                virtual void setRotation( Rot3d rot );
+                virtual Rot3d getRotation();
                 virtual void setMass( double mass );
                 virtual double getMass();
                 

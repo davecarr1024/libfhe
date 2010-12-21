@@ -13,6 +13,8 @@ namespace fhe
     class Vec<2, T>
     {
         public:
+            typedef Rot<2,T> R;
+            
             T x, y;
             
             Vec() :
@@ -27,7 +29,7 @@ namespace fhe
             {
             }
             
-            explicit Vec( const Rot2& rot, T length = 1 ) :
+            explicit Vec( const R& rot, T length = 1 ) :
                 x( length * Math::cos( rot.radians() ) ),
                 y( length * Math::sin( rot.radians() ) )
             {
@@ -147,9 +149,9 @@ namespace fhe
                 return os.str();
             }
             
-            Rot2 getRotTo( const Vec& v ) const
+            R getRotTo( const Vec& v ) const
             {
-                return Rot2( v ) - Rot2( *this );
+                return R( v ) - R( *this );
             }
             
             static std::string typeName()
@@ -161,8 +163,8 @@ namespace fhe
             {
                 boost::python::scope c = boost::python::class_<Vec>( typeName().c_str(), boost::python::init<>() )
                     .def( boost::python::init< T, T >() )
-                    .def( boost::python::init< Rot2, T >() )
-                    .def( boost::python::init< Rot2 >() )
+                    .def( boost::python::init< R, T >() )
+                    .def( boost::python::init< R >() )
                     .def_readwrite( "x", &Vec::x )
                     .def_readwrite( "y", &Vec::y )
                     .def( "__repr__", &Vec::toString )
@@ -203,6 +205,8 @@ namespace fhe
     class Vec<3, T>
     {
         public:
+            typedef Rot<3,T> R;
+            
             T x, y, z;
             
             Vec() :
@@ -219,7 +223,7 @@ namespace fhe
             {
             }
             
-            explicit Vec( const Rot3& rot, T length = 1 )
+            explicit Vec( const R& rot, T length = 1 )
             {
                 *this = ( rot * UNIT_X ) * length;
             }
@@ -363,20 +367,20 @@ namespace fhe
                 return v.cross( v.dot( UNIT_Y ) < 0.75 ? UNIT_Y : UNIT_Z );
             }
 
-            Rot3 getRotTo( const Vec& v ) const
+            R getRotTo( const Vec& v ) const
             {
                 T d = dot( v );
                 if ( d > 1 - Math::EPS )
                 {
-                    return Rot3();
+                    return R();
                 }
                 else if ( d < -1 + Math::EPS )
                 {
-                    return Rot3( makePerp( v ), Math::PI );
+                    return R( makePerp( v ), Math::PI );
                 }
                 else
                 {
-                    return Rot3( cross( v ).norm(), Math::acos( norm().dot( v.norm() ) ) );
+                    return R( cross( v ).norm(), Math::acos( norm().dot( v.norm() ) ) );
                 }
             }
             
@@ -389,8 +393,8 @@ namespace fhe
             {
                 boost::python::scope c = boost::python::class_<Vec>( typeName().c_str(), boost::python::init<>() )
                     .def( boost::python::init< T, T, T >() )
-                    .def( boost::python::init< Rot3, T >() )
-                    .def( boost::python::init< Rot3 >() )
+                    .def( boost::python::init< R, T >() )
+                    .def( boost::python::init< R >() )
                     .def_readwrite( "x", &Vec::x )
                     .def_readwrite( "y", &Vec::y )
                     .def_readwrite( "z", &Vec::z )

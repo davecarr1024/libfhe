@@ -28,8 +28,8 @@ namespace fhe
                 
                 static b2Vec2 convert( const Vec2d& v );
                 static Vec2d convert( const b2Vec2& v );
-                static Rot2 convert( double r );
-                static double convert( const Rot2& r );
+                static Rot2d convert( double r );
+                static double convert( const Rot2d& r );
         };
         
     }

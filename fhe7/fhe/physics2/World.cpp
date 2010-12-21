@@ -51,12 +51,12 @@ namespace fhe
             return Vec2d( v.x, v.y );
         }
         
-        Rot2 World::convert( double r )
+        Rot2d World::convert( double r )
         {
-            return Rot2::fromRadians( r );
+            return Rot2d::fromRadians( r );
         }
         
-        double World::convert( const Rot2& r )
+        double World::convert( const Rot2d& r )
         {
             return r.radians();
         }
