@@ -1,4 +1,5 @@
 #include <fhe/core/PyNode.h>
+#include <fhe/core/PyFunc.h>
 #include <fhe/core/NodeFactory.h>
 
 namespace fhe
@@ -30,6 +31,7 @@ namespace fhe
             .def( "detachFromParent", &PyNode::detachFromParent )
             .def( "attachChild", &PyNode::attachChild )
             .def( "detachChild", &PyNode::detachChild )
+            .def( "func", &PyNode::func )
             .def( "__getattr__", &PyNode::getAttr )
             .def( "__setattr__", &PyNode::setAttr )
             .def( "__eq__", &PyNode::eq )
@@ -98,7 +100,9 @@ namespace fhe
         {
             return boost::python::object( Call( m_node, name ) );
         }
+        
         FHE_ERROR( "unable to get unknown attr %s", name.c_str() );
+        return boost::python::object();
     }
     
     void PyNode::setAttr( const std::string& name, boost::python::object o )
@@ -173,5 +177,10 @@ namespace fhe
             names.append( i->first );
         }
         return names;
+    }
+    
+    void PyNode::func( boost::python::object func )
+    {
+        m_node->addFunc( IFuncPtr( new PyFunc( func ) ) );
     }
 }

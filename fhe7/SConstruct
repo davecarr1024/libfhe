@@ -8,7 +8,7 @@ os.system( './ext/yaml-cpp.sh' )
 os.system( './ext/box2d.sh' )
 os.system( './ext/bullet.sh' )
 
-env.Append( CPPFLAGS = [ '-g' ] )
+env.Append( CPPFLAGS = [ '-g', '-Wall', '-Werror' ] )
 env.Append( CPPPATH = [ '#', '/usr/include/python%s' % py_ver, 'ext/yaml-cpp/include', 'ext/box2d/include', 'ext/bullet/include/bullet' ] )
 env.Append( LIBPATH = [ 'ext/yaml-cpp/lib', 'ext/box2d/lib', 'ext/bullet/lib' ] )
 env.Append( LIBS = [ 'boost_filesystem', 'python%s' % py_ver, 'boost_python', 'yaml-cpp', 'Box2D', 'BulletCollision', 'BulletDynamics', 'LinearMath' ] )

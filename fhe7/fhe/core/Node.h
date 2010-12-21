@@ -23,6 +23,7 @@ namespace fhe
 {
     
     class INodeIntDesc;
+    class PyNode;
     
     class Node
     {
@@ -36,6 +37,7 @@ namespace fhe
             
         private:
             friend class INodeIntDesc;
+            friend class PyNode;
             
             size_t m_refs;
             

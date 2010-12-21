@@ -24,7 +24,6 @@ namespace fhe
             virtual bool tryCall( const std::vector< Val >& args, Val& ret ) = 0;
             
             virtual std::string name() const = 0;
-            virtual size_t arity() const = 0;
     };
     
     typedef boost::shared_ptr< IFunc > IFuncPtr;
@@ -67,7 +66,6 @@ namespace fhe
                     return false; \
                 } \
                 std::string name() const { return m_name; } \
-                size_t arity() const { return n; } \
             private: \
                 std::string m_nodeType; \
                 std::string m_name; \
@@ -115,7 +113,6 @@ namespace fhe
                     return false; \
                 } \
                 std::string name() const { return m_name; } \
-                size_t arity() const { return n; } \
             private: \
                 std::string m_nodeType; \
                 std::string m_name; \
