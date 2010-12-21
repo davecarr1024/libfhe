@@ -18,7 +18,13 @@ namespace fhe
             
         public:
             Rot();
-            explicit Rot( const Vec2d& v );
+            
+            template <typename T>
+            explicit Rot( const Vec<2,T>& v ) :
+                m_a( Math::atan2( v.y, v.x ) )
+            {
+            }
+            
             static Rot fromDegrees( double degrees );
             static Rot fromRadians( double radians );
             
@@ -29,7 +35,12 @@ namespace fhe
             Rot operator-( const Rot& r ) const;
             Rot operator*( double d ) const;
             Rot operator/( double d ) const;
-            Vec2d operator*( const Vec2d& v ) const;
+            
+            template <typename T>
+            Vec<2,T> operator*( const Vec<2,T>& v ) const
+            {
+                return Vec<2,T>( Rot( v ) + *this ) * v.length();
+            }
             
             bool operator==( const Rot& r ) const;
 
@@ -53,13 +64,43 @@ namespace fhe
             
             Rot();
             Rot( double _w, double _x, double _y, double _z );
-            Rot( const Vec3d& axis, double angle );
-            explicit Rot( const Vec3d& v );
             
-            void toAxisAngle( Vec3d& axis, double& angle ) const;
+            template <typename T>
+            Rot( const Vec<3,T>& axis, double angle )
+            {
+                Vec<3,T> axisNorm = axis.norm();
+                double sa = Math::sin( angle / 2 );
+                double ca = Math::cos( angle / 2 );
+                *this = Rot( ca, axisNorm.x * sa, axisNorm.y * sa, axisNorm.z * sa );
+            }
+            
+            template <typename T>
+            explicit Rot( const Vec<3,T>& v )
+            {
+                *this = Vec<3,T>::UNIT_X.getRotTo( v );
+            }
+            
+            template <typename T>
+            void toAxisAngle( Vec<3,T>& axis, double& angle ) const
+            {
+                Rot3 q = norm();
+                double ca = q.w;
+                angle = Math::acos(ca) * 2.0;
+                double sa = Math::sqrt(1.0 - ca * ca);
+                if (Math::abs(sa) < Math::EPS)
+                    sa = 1;
+                axis = Vec<3,T>(q.x / sa, q.y / sa, q.z /sa);
+            }
             
             Rot operator*( const Rot& r ) const;
-            Vec3d operator*( const Vec3d& v ) const;
+            
+            template <typename T>
+            Vec<3,T> operator*( const Vec<3,T>& v ) const
+            {
+                Rot3 q = *this * Rot3(0,v.x,v.y,v.z) * inverse();
+                return Vec<3,T>(q.x,q.y,q.z);
+            }
+            
             Rot operator*( double d ) const;
             Rot operator/( double d ) const;
             
