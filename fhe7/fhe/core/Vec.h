@@ -152,7 +152,10 @@ namespace fhe
                 return Rot2( v ) - Rot2( *this );
             }
             
-            static std::string typeName();
+            static std::string typeName()
+            {
+                return std::string( "Vec2" ) + typeid(T).name();
+            }
             
             static boost::python::object defineClass()
             {
@@ -186,6 +189,15 @@ namespace fhe
             const static Vec UNIT_X;
             const static Vec UNIT_Y;
     };
+    
+    template <typename T>
+    const Vec<2,T> Vec<2,T>::ZERO( 0, 0 );
+
+    template <typename T>
+    const Vec<2,T> Vec<2,T>::UNIT_X( 1, 0 );
+
+    template <typename T>
+    const Vec<2,T> Vec<2,T>::UNIT_Y( 0, 1 );
 
     template <typename T>
     class Vec<3, T>
@@ -368,7 +380,10 @@ namespace fhe
                 }
             }
             
-            static std::string typeName();
+            static std::string typeName()
+            {
+                return std::string( "Vec3" ) + typeid(T).name();
+            }
             
             static boost::python::object defineClass()
             {
@@ -408,6 +423,15 @@ namespace fhe
             static const Vec UNIT_Y;
             static const Vec UNIT_Z;
     };
+    
+    template <typename T>
+    const Vec<3,T> Vec<3,T>::ZERO( 0, 0, 0 );
+    template <typename T>
+    const Vec<3,T> Vec<3,T>::UNIT_X( 1, 0, 0 );
+    template <typename T>
+    const Vec<3,T> Vec<3,T>::UNIT_Y( 0, 1, 0 );
+    template <typename T>
+    const Vec<3,T> Vec<3,T>::UNIT_Z( 0, 0, 1 );
     
     template <size_t dim, typename T>
     std::ostream& operator<<( std::ostream& os, const Vec<dim,T>& v )
