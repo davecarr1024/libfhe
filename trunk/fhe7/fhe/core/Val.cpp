@@ -31,13 +31,13 @@ namespace fhe
             {
                 set<std::string>( boost::python::extract<std::string>( o ) );
             }
-            else if ( type == "Vec2" )
+            else if ( type == "Vec2d" )
             {
-                set<Vec2>( boost::python::extract<Vec2>( o ) );
+                set<Vec2d>( boost::python::extract<Vec2d>( o ) );
             }
-            else if ( type == "Vec3" )
+            else if ( type == "Vec3d" )
             {
-                set<Vec3>( boost::python::extract<Vec3>( o ) );
+                set<Vec3d>( boost::python::extract<Vec3d>( o ) );
             }
             else if ( type == "Rot2" )
             {

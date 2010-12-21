@@ -3,103 +3,405 @@
 
 #include <fhe/core/fhe_math.h>
 #include <fhe/core/PyEnv.h>
-#include <string>
+#include <fhe/core/Rot.h>
+#include <fhe/core/Util.h>
 
 namespace fhe
 {
     
-    template <size_t dim>
-    class Rot;
-    
-    template <size_t dim>
-    class Vec;
-    
-    typedef Vec<2> Vec2;
-    typedef Vec<3> Vec3;
-    
-    template <>
-    class Vec<2>
+    template <typename T>
+    class Vec<2, T>
     {
         public:
-            double x, y;
+            T x, y;
             
-            Vec();
-            Vec( double _x, double _y );
-            explicit Vec( const Rot<2>& rot, double length = 1 );
+            Vec() :
+                x( 0 ),
+                y( 0 )
+            {
+            }
             
-            Vec operator-() const;
-            Vec operator+( const Vec& v ) const;
-            Vec operator-( const Vec& v ) const;
-            Vec operator*( const Vec& v ) const;
-            Vec operator/( const Vec& v ) const;
-            Vec operator*( double d ) const;
-            Vec operator/( double d ) const;
+            Vec( T _x, T _y ) :
+                x( _x ),
+                y( _y )
+            {
+            }
             
-            void operator+=( const Vec& v );
-            void operator-=( const Vec& v );
-            void operator*=( const Vec& v );
-            void operator/=( const Vec& v );
-            void operator*=( double d );
-            void operator/=( double d );
+            explicit Vec( const Rot2& rot, T length = 1 ) :
+                x( length * Math::cos( rot.radians() ) ),
+                y( length * Math::sin( rot.radians() ) )
+            {
+            }
             
-            bool operator==( const Vec& v ) const;
+            Vec operator-() const
+            {
+                return Vec( -x, -y );
+            }
             
-            double length() const;
-            Vec norm() const;
-            double dot( const Vec& v ) const;
-            Vec lerp( const Vec& v, double i ) const;
-            bool equals( const Vec& v, double eps = Math::EPS ) const;
-            std::string toString() const;
-            Rot<2> getRotTo( const Vec& v ) const;
+            Vec operator+( const Vec& v ) const
+            {
+                return Vec( x + v.x, y + v.y );
+            }
             
-            static boost::python::object defineClass();
+            Vec operator-( const Vec& v ) const
+            {
+                return Vec( x - v.x, y - v.y );
+            }
+            
+            Vec operator*( const Vec& v ) const
+            {
+                return Vec( x * v.x, y * v.y );
+            }
+            
+            Vec operator/( const Vec& v ) const
+            {
+                FHE_ASSERT( !Math::equal( v.x, 0 ) && !Math::equal( v.y, 0 ) );
+                return Vec( x / v.x, y / v.y );
+            }
+            
+            Vec operator*( T d ) const
+            {
+                return Vec( x * d, y * d );
+            }
+            
+            Vec operator/( T d ) const
+            {
+                FHE_ASSERT( !Math::equal( d, 0 ) );
+                return Vec( x / d, y / d );
+            }
+            
+            void operator+=( const Vec& v )
+            {
+                x += v.x;
+                y += v.y;
+            }
+                
+            void operator-=( const Vec& v )
+            {
+                x -= v.x;
+                y -= v.y;
+            }
+            
+            void operator*=( const Vec& v )
+            {
+                x *= v.x;
+                y *= v.y;
+            }
+            
+            void operator/=( const Vec& v )
+            {
+                FHE_ASSERT( !Math::equal( v.x, 0 ) && !Math::equal( v.y, 0 ) );
+                x /= v.x;
+                y /= v.y;
+            }
+            
+            void operator*=( T d )
+            {
+                x *= d;
+                y *= d;
+            }
+            
+            void operator/=( T d )
+            {
+                FHE_ASSERT( !Math::equal( d, 0 ) );
+                x /= d;
+                y /= d;
+            }
+            
+            bool operator==( const Vec& v ) const
+            {
+                return equals( v, Math::EPS );
+            }
+            
+            T length() const
+            {
+                return Math::sqrt( x * x + y * y );
+            }
+            
+            Vec norm() const
+            {
+                T l = length();
+                FHE_ASSERT( !Math::equal( l, 0 ) );
+                return *this / l;
+            }
+            
+            T dot( const Vec& v ) const
+            {
+                return x * v.x + y * v.y;
+            }
+            
+            Vec lerp( const Vec& v, T i ) const
+            {
+                return *this + ( v - *this ) * i;
+            }
+            
+            bool equals( const Vec& v, T eps = Math::EPS ) const
+            {
+                return Math::equal( x, v.x, eps ) && Math::equal( y, v.y, eps );
+            }
+            
+            std::string toString() const
+            {
+                std::ostringstream os;
+                os << typeName() << "(" << x << "," << y << ")";
+                return os.str();
+            }
+            
+            Rot2 getRotTo( const Vec& v ) const
+            {
+                return Rot2( v ) - Rot2( *this );
+            }
+            
+            static std::string typeName();
+            
+            static boost::python::object defineClass()
+            {
+                boost::python::scope c = boost::python::class_<Vec>( typeName().c_str(), boost::python::init<>() )
+                    .def( boost::python::init< T, T >() )
+                    .def( boost::python::init< Rot2, T >() )
+                    .def( boost::python::init< Rot2 >() )
+                    .def_readwrite( "x", &Vec::x )
+                    .def_readwrite( "y", &Vec::y )
+                    .def( "__repr__", &Vec::toString )
+                    .def( "__eq__", &Vec::operator== )
+                    .def( boost::python::self + boost::python::other<Vec>() )
+                    .def( boost::python::self - boost::python::other<Vec>() )
+                    .def( boost::python::self * boost::python::other<Vec>() )
+                    .def( boost::python::self / boost::python::other<Vec>() )
+                    .def( boost::python::self * T() )
+                    .def( boost::python::self / T() )
+                    .def("length", &Vec::length)
+                    .def("norm", &Vec::norm)
+                    .def("dot", &Vec::dot)
+                    .def("lerp", &Vec::lerp)
+                    .def("getRotTo", &Vec::getRotTo)
+                ;
+                c.attr( "ZERO" ) = ZERO;
+                c.attr( "UNIT_X" ) = UNIT_X;
+                c.attr( "UNIT_Y" ) = UNIT_Y;
+                return c;
+            }
             
             const static Vec ZERO;
             const static Vec UNIT_X;
             const static Vec UNIT_Y;
-            
     };
-    
-    std::ostream& operator<<( std::ostream& os, const Vec2& v );
-    
-    template <>
-    class Vec<3>
+
+    template <typename T>
+    class Vec<3, T>
     {
         public:
-            double x, y, z;
+            T x, y, z;
             
-            Vec();
-            Vec( double _x, double _y, double _z );
-            explicit Vec( const Rot<3>& rot, double length = 1 );
+            Vec() :
+                x( 0 ),
+                y( 0 ),
+                z( 0 )
+            {
+            }
             
-            Vec operator-() const;
-            Vec operator+( const Vec& v ) const;
-            Vec operator-( const Vec& v ) const;
-            Vec operator*( const Vec& v ) const;
-            Vec operator/( const Vec& v ) const;
-            Vec operator*( double d ) const;
-            Vec operator/( double d ) const;
+            Vec( T _x, T _y, T _z ) :
+                x( _x ),
+                y( _y ),
+                z( _z )
+            {
+            }
             
-            void operator+=( const Vec& v );
-            void operator-=( const Vec& v );
-            void operator*=( const Vec& v );
-            void operator/=( const Vec& v );
-            void operator*=( double d );
-            void operator/=( double d );
+            explicit Vec( const Rot3& rot, T length = 1 )
+            {
+                *this = ( rot * UNIT_X ) * length;
+            }
             
-            bool operator==( const Vec& v ) const;
+            Vec operator-() const
+            {
+                return Vec( -x, -y, -z );
+            }
             
-            double length() const;
-            Vec norm() const;
-            double dot( const Vec& v ) const;
-            Vec cross( const Vec& v ) const;
-            Vec project( const Vec& v ) const;
-            Vec lerp( const Vec& v, double i ) const;
-            bool equals( const Vec& v, double eps = Math::EPS ) const;
-            std::string toString() const;
-            Rot<3> getRotTo( const Vec& v ) const;
+            Vec operator+( const Vec& v ) const
+            {
+                return Vec( x + v.x, y + v.y, z + v.z );
+            }
             
-            static boost::python::object defineClass();
+            Vec operator-( const Vec& v ) const
+            {
+                return Vec( x - v.x, y - v.y, z - v.z );
+            }
+            
+            Vec operator*( const Vec& v ) const
+            {
+                return Vec( x * v.x, y * v.y, z * v.z );
+            }
+            
+            Vec operator/( const Vec& v ) const
+            {
+                FHE_ASSERT( !Math::equal( v.x, 0 ) && !Math::equal( v.y, 0 ) && !Math::equal( v.z, 0 ) );
+                return Vec( x / v.x, y / v.y, z / v.z );
+            }
+            
+            Vec operator*( T d ) const
+            {
+                return Vec( x * d, y * d, z * d );
+            }
+            
+            Vec operator/( T d ) const
+            {
+                FHE_ASSERT( !Math::equal( d, 0 ) );
+                return Vec( x / d, y / d, z / d );
+            }
+            
+            void operator+=( const Vec& v )
+            {
+                x += v.x;
+                y += v.y;
+                z += v.z;
+            }
+            
+            void operator-=( const Vec& v )
+            {
+                x -= v.x;
+                y -= v.y;
+                z -= v.z;
+            }
+            
+            void operator*=( const Vec& v )
+            {
+                x *= v.x;
+                y *= v.y;
+                z *= v.z;
+            }
+            
+            void operator/=( const Vec& v )
+            {
+                FHE_ASSERT( !Math::equal( v.x, 0 ) && !Math::equal( v.y, 0 ) && !Math::equal( v.z, 0 ) );
+                x /= v.x;
+                y /= v.y;
+                z /= v.z;
+            }
+            
+            void operator*=( T d )
+            {
+                x *= d;
+                y *= d;
+                z *= d;
+            }
+                    
+            void operator/=( T d )
+            {
+                FHE_ASSERT( !Math::equal( d, 0 ) );
+                x /= d;
+                y /= d;
+                z /= d;
+            }
+            
+            bool operator==( const Vec& v ) const
+            {
+                return equals( v );
+            }
+            
+            T length() const
+            {
+                return Math::sqrt( x * x + y * y + z * z );
+            }
+            
+            Vec norm() const
+            {
+                T l = length();
+                FHE_ASSERT( !Math::equal( l, 0 ) );
+                return *this / l;
+            }
+            
+            T dot( const Vec& v ) const
+            {
+                return x * v.x + y * v.y + z * v.z;
+            }
+            
+            Vec cross( const Vec& v ) const
+            {
+                return Vec( y * v.z - z * v.y,
+                            z * v.x - x * v.z,
+                            x * v.y - y * v.x );
+            }
+            
+            Vec project( const Vec& v ) const
+            {
+                T l = length();
+                FHE_ASSERT( !Math::equal( l, 0 ) );
+                return *this * ( dot( v ) / ( l * l ) );
+            }
+            
+            Vec lerp( const Vec& v, T i ) const
+            {
+                return *this + ( v - *this ) * i;
+            }
+            
+            bool equals( const Vec& v, T eps = Math::EPS ) const
+            {
+                return Math::equal( x, v.x, eps ) && Math::equal( y, v.y, eps ) && Math::equal( z, v.z, eps );
+            }
+            
+            std::string toString() const
+            {
+                std::ostringstream os;
+                os << "Vec3(" << x << "," << y << "," << z << ")";
+                return os.str();
+            }
+            
+            Vec makePerp( const Vec& v ) const
+            {
+                return v.cross( v.dot( UNIT_Y ) < 0.75 ? UNIT_Y : UNIT_Z );
+            }
+
+            Rot3 getRotTo( const Vec& v ) const
+            {
+                T d = dot( v );
+                if ( d > 1 - Math::EPS )
+                {
+                    return Rot3();
+                }
+                else if ( d < -1 + Math::EPS )
+                {
+                    return Rot3( makePerp( v ), Math::PI );
+                }
+                else
+                {
+                    return Rot3( cross( v ).norm(), Math::acos( norm().dot( v.norm() ) ) );
+                }
+            }
+            
+            static std::string typeName();
+            
+            static boost::python::object defineClass()
+            {
+                boost::python::scope c = boost::python::class_<Vec>( typeName().c_str(), boost::python::init<>() )
+                    .def( boost::python::init< T, T, T >() )
+                    .def( boost::python::init< Rot3, T >() )
+                    .def( boost::python::init< Rot3 >() )
+                    .def_readwrite( "x", &Vec::x )
+                    .def_readwrite( "y", &Vec::y )
+                    .def_readwrite( "z", &Vec::z )
+                    .def( "__repr__", &Vec::toString )
+                    .def( "__eq__", &Vec::operator== )
+                    .def( boost::python::self + boost::python::other<Vec>() )
+                    .def( boost::python::self - boost::python::other<Vec>() )
+                    .def( boost::python::self * boost::python::other<Vec>() )
+                    .def( boost::python::self / boost::python::other<Vec>() )
+                    .def( boost::python::self * T() )
+                    .def( boost::python::self / T() )
+                    .def("length",&Vec::length)
+                    .def("norm",&Vec::norm)
+                    .def("dot",&Vec::dot)
+                    .def("cross",&Vec::cross)
+                    .def("project",&Vec::project)
+                    .def("lerp",&Vec::lerp)
+                    .def("getRotTo",&Vec::getRotTo)
+                ;
+                c.attr( "ZERO" ) = ZERO;
+                c.attr( "UNIT_X" ) = UNIT_X;
+                c.attr( "UNIT_Y" ) = UNIT_Y;
+                c.attr( "UNIT_Z" ) = UNIT_Z;
+                return c;
+            }
+                
             
             static const Vec ZERO;
             static const Vec UNIT_X;
@@ -107,7 +409,11 @@ namespace fhe
             static const Vec UNIT_Z;
     };
     
-    std::ostream& operator<<( std::ostream& os, const Vec3& v );
+    template <size_t dim, typename T>
+    std::ostream& operator<<( std::ostream& os, const Vec<dim,T>& v )
+    {
+        return os << v.toString();
+    }
     
 }
 

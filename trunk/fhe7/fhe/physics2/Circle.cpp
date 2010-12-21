@@ -31,7 +31,7 @@ namespace fhe
             return m_radius;
         }
         
-        void Circle::setPosition( Vec2 pos )
+        void Circle::setPosition( Vec2d pos )
         {
             FHE_ASSERT_MSG( !built(), "position must be set before attaching" );
             Shape::setPosition( pos );

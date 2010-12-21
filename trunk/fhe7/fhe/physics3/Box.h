@@ -12,7 +12,7 @@ namespace fhe
         class Box : public Body
         {
             public:
-                Vec3 size;
+                Vec3d size;
                 
                 btCollisionShape* makeShape();
         };

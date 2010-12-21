@@ -8,15 +8,6 @@
 namespace fhe
 {
     
-    template <size_t dim>
-    class Vec;
-    
-    template <size_t dim>
-    class Rot;
-    
-    typedef Rot<2> Rot2;
-    typedef Rot<3> Rot3;
-    
     template <>
     class Rot<2>
     {
@@ -27,7 +18,7 @@ namespace fhe
             
         public:
             Rot();
-            explicit Rot( const Vec<2>& v );
+            explicit Rot( const Vec2d& v );
             static Rot fromDegrees( double degrees );
             static Rot fromRadians( double radians );
             
@@ -38,7 +29,7 @@ namespace fhe
             Rot operator-( const Rot& r ) const;
             Rot operator*( double d ) const;
             Rot operator/( double d ) const;
-            Vec<2> operator*( const Vec<2>& v ) const;
+            Vec2d operator*( const Vec2d& v ) const;
             
             bool operator==( const Rot& r ) const;
 
@@ -62,13 +53,13 @@ namespace fhe
             
             Rot();
             Rot( double _w, double _x, double _y, double _z );
-            Rot( const Vec<3>& axis, double angle );
-            explicit Rot( const Vec<3>& v );
+            Rot( const Vec3d& axis, double angle );
+            explicit Rot( const Vec3d& v );
             
-            void toAxisAngle( Vec<3>& axis, double& angle ) const;
+            void toAxisAngle( Vec3d& axis, double& angle ) const;
             
             Rot operator*( const Rot& r ) const;
-            Vec<3> operator*( const Vec<3>& v ) const;
+            Vec3d operator*( const Vec3d& v ) const;
             Rot operator*( double d ) const;
             Rot operator/( double d ) const;
             

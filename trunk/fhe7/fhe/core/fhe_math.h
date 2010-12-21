@@ -1,8 +1,28 @@
 #ifndef FHE_MATH_H
 #define FHE_MATH_H
 
+#include <string>
+
 namespace fhe
 {
+    
+    template <size_t dim, typename T>
+    class Vec;
+    
+    typedef Vec<2,double> Vec2d;
+    typedef Vec<3,double> Vec3d;
+    
+    template <size_t dim>
+    class Rot;
+    
+    typedef Rot<2> Rot2;
+    typedef Rot<3> Rot3;
+    
+    template <size_t dim>
+    class Mat;
+    
+    typedef Mat<2> Mat2;
+    typedef Mat<3> Mat3;
     
     class Math
     {

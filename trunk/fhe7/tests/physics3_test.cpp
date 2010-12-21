@@ -14,7 +14,7 @@ class TestNode : public Node, public sim::IUpdate
             {
                 NodePtr parent = this->parent();
                 ASSERT_TRUE( parent );
-                Vec3 pos;
+                Vec3d pos;
                 ASSERT_TRUE( parent->tryCall( &physics3::Body::getPosition, pos ) );
                 ASSERT_LT( Math::abs( pos.z ), 1 );
                 ancestorCall( &sim::Sim::shutdown );
@@ -34,7 +34,7 @@ TEST( physics3_test, falling_box )
     sim->attachChild( world );
     
     NodePtr box( new physics3::Box );
-    box->call( &physics3::Body::setPosition, Vec3( 0, 0, 20 ) );
+    box->call( &physics3::Body::setPosition, Vec3d( 0, 0, 20 ) );
     world->attachChild( box );
     
     NodePtr test( new TestNode );

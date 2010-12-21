@@ -41,14 +41,14 @@ namespace fhe
             }
         }
         
-        b2Vec2 World::convert( const Vec2& v )
+        b2Vec2 World::convert( const Vec2d& v )
         {
             return b2Vec2( v.x, v.y );
         }
         
-        Vec2 World::convert( const b2Vec2& v )
+        Vec2d World::convert( const b2Vec2& v )
         {
-            return Vec2( v.x, v.y );
+            return Vec2d( v.x, v.y );
         }
         
         Rot2 World::convert( double r )

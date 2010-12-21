@@ -9,8 +9,8 @@
 BOOST_PYTHON_MODULE( fhe )
 {
     fhe::PyNode::defineClass();
-    fhe::Vec2::defineClass();
-    fhe::Vec3::defineClass();
+    fhe::Vec2d::defineClass();
+    fhe::Vec3d::defineClass();
     fhe::Rot2::defineClass();
     fhe::Rot3::defineClass();
     fhe::Mat2::defineClass();
@@ -28,8 +28,8 @@ namespace fhe
         m_builtins = m_mainNamespace["__builtins__"].attr("__dict__");
         
         m_mainNamespace["Node"] = PyNode::defineClass();
-        m_mainNamespace["Vec2"] = Vec2::defineClass();
-        m_mainNamespace["Vec3"] = Vec3::defineClass();
+        m_mainNamespace["Vec2d"] = Vec2d::defineClass();
+        m_mainNamespace["Vec3d"] = Vec3d::defineClass();
         m_mainNamespace["Rot2"] = Rot2::defineClass();
         m_mainNamespace["Rot3"] = Rot3::defineClass();
         m_mainNamespace["Mat2"] = Mat2::defineClass();

@@ -52,7 +52,7 @@ namespace fhe
         return *this;
     }
     
-    Mat2 Mat2::translation( const Vec2& v )
+    Mat2 Mat2::translation( const Vec2d& v )
     {
         return Mat2( 1, 0, v.x,
                      0, 1, v.y,
@@ -68,9 +68,9 @@ namespace fhe
                      0, 0, 1 );
     }
     
-    Vec2 Mat2::getTranslation() const
+    Vec2d Mat2::getTranslation() const
     {
-        return Vec2( (*this)(0,2), (*this)(1,2) );
+        return Vec2d( (*this)(0,2), (*this)(1,2) );
     }
     
     Rot2 Mat2::getRotation() const
@@ -79,7 +79,7 @@ namespace fhe
         return Rot2::fromRadians( Math::acos( (*this)(0,0) ) );
     }
     
-    Mat2 Mat2::scale( const Vec2& v )
+    Mat2 Mat2::scale( const Vec2d& v )
     {
         return Mat2( v.x, 0, 0,
                      0, v.y, 0,
@@ -115,9 +115,9 @@ namespace fhe
         return result;
     }
     
-    Vec2 Mat2::operator*( const Vec2& v ) const
+    Vec2d Mat2::operator*( const Vec2d& v ) const
     {
-        return Vec2( m_d[0] * v.x + m_d[1] * v.y + m_d[2],
+        return Vec2d( m_d[0] * v.x + m_d[1] * v.y + m_d[2],
                      m_d[3] * v.x + m_d[4] * v.y + m_d[5] );
     }
     
@@ -205,7 +205,7 @@ namespace fhe
             .def( "__repr__", &Mat::toString )
             .def( "__er__", &Mat::operator== )
             .def( boost::python::self * boost::python::other<Mat2>() )
-            .def( boost::python::self * boost::python::other<Vec2>() )
+            .def( boost::python::self * boost::python::other<Vec2d>() )
             .def( "det", &Mat::det )
             .def( "inverse", &Mat::inverse )
         ;
@@ -271,7 +271,7 @@ namespace fhe
         return *this;
     }
     
-    Mat3 Mat3::translation( const Vec3& v )
+    Mat3 Mat3::translation( const Vec3d& v )
     {
         return Mat3( 1, 0, 0, v.x,
                      0, 1, 0, v.y,
@@ -305,7 +305,7 @@ namespace fhe
                     0,0,0,1);
     }
     
-    Mat3 Mat3::scale( const Vec3& v )
+    Mat3 Mat3::scale( const Vec3d& v )
     {
         return Mat3( v.x, 0, 0, 0,
                      0, v.y, 0, 0,
@@ -342,16 +342,16 @@ namespace fhe
         return result;
     }
     
-    Vec3 Mat3::operator*( const Vec3& v ) const
+    Vec3d Mat3::operator*( const Vec3d& v ) const
     {
-        return Vec3( m_d[0] * v.x + m_d[1] * v.y + m_d[2] * v.z + m_d[3],
+        return Vec3d( m_d[0] * v.x + m_d[1] * v.y + m_d[2] * v.z + m_d[3],
                      m_d[4] * v.x + m_d[5] * v.y + m_d[6] * v.z + m_d[7],
                      m_d[8] * v.x + m_d[9] * v.y + m_d[10] * v.z + m_d[11] );
     }
     
-    Vec3 Mat3::getTranslation() const
+    Vec3d Mat3::getTranslation() const
     {
-        return Vec3( m_d[3], m_d[7], m_d[11] );
+        return Vec3d( m_d[3], m_d[7], m_d[11] );
     }
     
     Rot3 Mat3::getRotation() const
@@ -515,7 +515,7 @@ namespace fhe
             .def( "__getitem__", &Mat3::pyGet )
             .def( "__setitem__", &Mat3::pySet )
             .def( boost::python::self * boost::python::other<Mat3>() )
-            .def( boost::python::self * boost::python::other<Vec3>() )
+            .def( boost::python::self * boost::python::other<Vec3d>() )
         ;
         
         c.attr( "ZERO" ) = ZERO;

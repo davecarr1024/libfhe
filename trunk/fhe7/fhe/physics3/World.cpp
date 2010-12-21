@@ -29,7 +29,7 @@ namespace fhe
                                                            m_broadphase,
                                                            m_solver,
                                                            m_collisionConfiguration );
-            setGravity( Vec3( 0, 0, -10 ) );
+            setGravity( Vec3d( 0, 0, -10 ) );
         }
         
         World::~World()
@@ -60,7 +60,7 @@ namespace fhe
             }
         }
         
-        void World::setGravity( const Vec3& gravity )
+        void World::setGravity( const Vec3d& gravity )
         {
             m_dynamicsWorld->setGravity( convert( gravity ) );
         }
@@ -70,14 +70,14 @@ namespace fhe
             return m_dynamicsWorld;
         }
         
-        btVector3 World::convert( const Vec3& v )
+        btVector3 World::convert( const Vec3d& v )
         {
             return btVector3( v.x, v.y, v.z );
         }
         
-        Vec3 World::convert( const btVector3& v )
+        Vec3d World::convert( const btVector3& v )
         {
-            return Vec3( v.x(), v.y(), v.z() );
+            return Vec3d( v.x(), v.y(), v.z() );
         }
         
         btQuaternion World::convert( const Rot3& r )
