@@ -1,4 +1,1 @@
-type: physics/World
-children:
-    - 
-        type: physics/Body
+type: text/Screen

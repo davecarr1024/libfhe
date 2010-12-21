@@ -32,6 +32,7 @@ namespace fhe
             .def( "attachChild", &PyNode::attachChild )
             .def( "detachChild", &PyNode::detachChild )
             .def( "func", &PyNode::func )
+            .def( "type", &PyNode::type )
             .def( "__getattr__", &PyNode::getAttr )
             .def( "__setattr__", &PyNode::setAttr )
             .def( "__eq__", &PyNode::eq )
@@ -182,5 +183,10 @@ namespace fhe
     void PyNode::func( boost::python::object func )
     {
         m_node->addFunc( IFuncPtr( new PyFunc( func ) ) );
+    }
+    
+    std::string PyNode::type() const
+    {
+        return m_node->type();
     }
 }
