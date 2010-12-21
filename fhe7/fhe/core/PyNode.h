@@ -59,6 +59,8 @@ namespace fhe
             bool eq( PyNode* node );
             
             void func( boost::python::object func );
+            
+            std::string type() const;
     };
 }
 
