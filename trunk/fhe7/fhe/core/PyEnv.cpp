@@ -88,6 +88,7 @@ namespace fhe
             PyErr_Print();
             PyErr_Clear();
             FHE_ERROR( "error evaling python script %s", script.c_str() );
+            return boost::python::object();
         }
     }
     

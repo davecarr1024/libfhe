@@ -28,3 +28,8 @@ node.attachChild( child )
 child.attachChild( Node( "core/Node" ) )
 assert node == child.children()[0].root()
 
+@node.func
+def foo( i ):
+    return i * i
+
+assert node.foo( 2 ) == 4

@@ -57,6 +57,8 @@ namespace fhe
             void setAttr( const std::string& name, boost::python::object o );
             
             bool eq( PyNode* node );
+            
+            void func( boost::python::object func );
     };
 }
 

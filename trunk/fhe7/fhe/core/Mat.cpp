@@ -68,6 +68,17 @@ namespace fhe
                      0, 0, 1 );
     }
     
+    Vec2 Mat2::getTranslation() const
+    {
+        return Vec2( (*this)(0,2), (*this)(1,2) );
+    }
+    
+    Rot2 Mat2::getRotation() const
+    {
+        //?
+        return Rot2::fromRadians( Math::acos( (*this)(0,0) ) );
+    }
+    
     Mat2 Mat2::scale( const Vec2& v )
     {
         return Mat2( v.x, 0, 0,
@@ -108,11 +119,6 @@ namespace fhe
     {
         return Vec2( m_d[0] * v.x + m_d[1] * v.y + m_d[2],
                      m_d[3] * v.x + m_d[4] * v.y + m_d[5] );
-    }
-    
-    Vec2 Mat2::getTranslation() const
-    {
-        return Vec2( (*this)(0,2), (*this)(1,2) );
     }
     
     double Mat2::det() const
@@ -157,16 +163,7 @@ namespace fhe
     std::string Mat2::toString() const
     {
         std::ostringstream os;
-        os << "Mat2(";
-        for ( size_t i = 0; i < 9; ++i )
-        {
-            os << m_d[i];
-            if ( i != 8 )
-            {
-                os << ",";
-            }
-        }
-        os << ")";
+        os << "Mat2(" << getTranslation() << "," << getRotation() << ")";
         return os.str();
     }
     
@@ -468,7 +465,7 @@ namespace fhe
     std::string Mat3::toString() const
     {
         std::ostringstream os;
-        os << "Mat3(" << getTranslation().toString() << "," << getRotation().toString() << ")";
+        os << "Mat3(" << getTranslation() << "," << getRotation() << ")";
         return os.str();
     }
     
@@ -517,6 +514,8 @@ namespace fhe
             .def( "__repr__", &Mat3::toString )
             .def( "__getitem__", &Mat3::pyGet )
             .def( "__setitem__", &Mat3::pySet )
+            .def( boost::python::self * boost::python::other<Mat3>() )
+            .def( boost::python::self * boost::python::other<Vec3>() )
         ;
         
         c.attr( "ZERO" ) = ZERO;
