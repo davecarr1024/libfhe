@@ -52,13 +52,6 @@ namespace fhe
         return *this;
     }
     
-    Mat2 Mat2::translation( const Vec2d& v )
-    {
-        return Mat2( 1, 0, v.x,
-                     0, 1, v.y,
-                     0, 0, 1 );
-    }
-    
     Mat2 Mat2::rotation( const Rot2& r )
     {
         double sa = Math::sin( -r.radians() );
@@ -68,22 +61,10 @@ namespace fhe
                      0, 0, 1 );
     }
     
-    Vec2d Mat2::getTranslation() const
-    {
-        return Vec2d( (*this)(0,2), (*this)(1,2) );
-    }
-    
     Rot2 Mat2::getRotation() const
     {
         //?
         return Rot2::fromRadians( Math::acos( (*this)(0,0) ) );
-    }
-    
-    Mat2 Mat2::scale( const Vec2d& v )
-    {
-        return Mat2( v.x, 0, 0,
-                     0, v.y, 0,
-                     0, 0, 1 );
     }
     
     double Mat2::operator()( size_t i, size_t j ) const
@@ -113,12 +94,6 @@ namespace fhe
             }
         }
         return result;
-    }
-    
-    Vec2d Mat2::operator*( const Vec2d& v ) const
-    {
-        return Vec2d( m_d[0] * v.x + m_d[1] * v.y + m_d[2],
-                     m_d[3] * v.x + m_d[4] * v.y + m_d[5] );
     }
     
     double Mat2::det() const
@@ -163,7 +138,7 @@ namespace fhe
     std::string Mat2::toString() const
     {
         std::ostringstream os;
-        os << "Mat2(" << getTranslation() << "," << getRotation() << ")";
+        os << "Mat2(" << getTranslation<double>() << "," << getRotation() << ")";
         return os.str();
     }
     
@@ -194,12 +169,16 @@ namespace fhe
     {
         boost::python::scope c = boost::python::class_<Mat2>( "Mat2", boost::python::init<>() )
             .def( boost::python::init<double,double,double,double,double,double,double,double,double>() )
-            .def( "translation", &Mat::translation )
+            .def( "translation", &Mat::translation<double> )
+            .def( "translation", &Mat::translation<int> )
             .staticmethod( "translation" )
             .def( "rotation", &Mat::rotation )
             .staticmethod( "rotation" )
-            .def( "scale", &Mat::scale )
+            .def( "scale", &Mat::scale<double> )
+            .def( "scale", &Mat::scale<int> )
             .staticmethod( "scale" )
+            .def( "getTranslation", &Mat::getTranslation<double> )
+            .def( "getRotation", &Mat::getRotation )
             .def( "__getitem__", &Mat::pyGet )
             .def( "__setitem__", &Mat::pySet )
             .def( "__repr__", &Mat::toString )
@@ -271,14 +250,6 @@ namespace fhe
         return *this;
     }
     
-    Mat3 Mat3::translation( const Vec3d& v )
-    {
-        return Mat3( 1, 0, 0, v.x,
-                     0, 1, 0, v.y,
-                     0, 0, 1, v.z,
-                     0, 0, 0, 1 );
-    }
-    
     Mat3 Mat3::rotation( const Rot3& r )
     {
         double xx = r.x * r.x,
@@ -303,14 +274,6 @@ namespace fhe
                     1 - 2 * (xx + yy),  //10
                     0,                  //11
                     0,0,0,1);
-    }
-    
-    Mat3 Mat3::scale( const Vec3d& v )
-    {
-        return Mat3( v.x, 0, 0, 0,
-                     0, v.y, 0, 0,
-                     0, 0, v.z, 0,
-                     0, 0, 0, 1 );
     }
     
     double Mat3::operator()( size_t i, size_t j ) const
@@ -340,18 +303,6 @@ namespace fhe
             }
         }
         return result;
-    }
-    
-    Vec3d Mat3::operator*( const Vec3d& v ) const
-    {
-        return Vec3d( m_d[0] * v.x + m_d[1] * v.y + m_d[2] * v.z + m_d[3],
-                     m_d[4] * v.x + m_d[5] * v.y + m_d[6] * v.z + m_d[7],
-                     m_d[8] * v.x + m_d[9] * v.y + m_d[10] * v.z + m_d[11] );
-    }
-    
-    Vec3d Mat3::getTranslation() const
-    {
-        return Vec3d( m_d[3], m_d[7], m_d[11] );
     }
     
     Rot3 Mat3::getRotation() const
@@ -465,7 +416,7 @@ namespace fhe
     std::string Mat3::toString() const
     {
         std::ostringstream os;
-        os << "Mat3(" << getTranslation() << "," << getRotation() << ")";
+        os << "Mat3(" << getTranslation<double>() << "," << getRotation() << ")";
         return os.str();
     }
     
@@ -499,13 +450,15 @@ namespace fhe
                                       double,double,double,double,
                                       double,double,double,double,
                                       double,double,double,double>() )*/
-            .def( "translation", &Mat3::translation )
+            .def( "translation", &Mat3::translation<double> )
+            .def( "translation", &Mat3::translation<int> )
             .staticmethod( "translation" )
             .def( "rotation", &Mat3::rotation )
             .staticmethod( "rotation" )
-            .def( "scale", &Mat3::scale )
+            .def( "scale", &Mat3::scale<double> )
+            .def( "scale", &Mat3::scale<int> )
             .staticmethod( "scale" )
-            .def( "getTranslation", &Mat3::getTranslation )
+            .def( "getTranslation", &Mat3::getTranslation<double> )
             .def( "getRotation", &Mat3::getRotation )
             .def( "submat", &Mat3::submat )
             .def( "det", &Mat3::det )

@@ -7,7 +7,7 @@ namespace fhe
     {
         
         FHE_NODE( Body );
-        FHE_DEP( Body, sim, SpatialNode3 );
+        FHE_DEP( Body, sim, SpatialNode3d );
         FHE_DEP( Body, core, IOnAttach );
         FHE_FUNC( Body, setPosition );
         FHE_FUNC( Body, getPosition );

@@ -22,19 +22,44 @@ namespace fhe
             Mat( const Mat& m );
             Mat& operator=( const Mat& m );
             
-            static Mat translation( const Vec2d& v );
+            template <typename T>
+            static Mat translation( const Vec<2,T>& v )
+            {
+                return Mat( 1, 0, v.x,
+                            0, 1, v.y,
+                            0, 0, 1 );
+            }
+            
             static Mat rotation( const Rot2& r );
-            static Mat scale( const Vec2d& v );
+            
+            template <typename T>
+            static Mat scale( const Vec<2,T>& v )
+            {
+                return Mat( v.x, 0, 0,
+                            0, v.y, 0,
+                            0, 0, 1 );
+            }
             
             double operator()( size_t i, size_t j ) const;
             double& operator()( size_t i, size_t j );
             
             Mat operator*( const Mat& m ) const;
-            Vec2d operator*( const Vec2d& v ) const;
+            
+            template <typename T>
+            Vec<2,T> operator*( const Vec<2,T>& v ) const
+            {
+                return Vec<2,T>( m_d[0] * v.x + m_d[1] * v.y + m_d[2],
+                                m_d[3] * v.x + m_d[4] * v.y + m_d[5] );
+            }
             
             bool operator==( const Mat& m ) const;
             
-            Vec2d getTranslation() const;
+            template <typename T>
+            Vec<2,T> getTranslation() const
+            {
+                return Vec<2,T>( (*this)(0,2), (*this)(1,2) );
+            }
+            
             Rot2 getRotation() const;
             double det() const;
             Mat inverse() const;
@@ -66,19 +91,47 @@ namespace fhe
             Mat( const Mat& m );
             Mat& operator=( const Mat& m );
             
-            static Mat translation( const Vec3d& v );
+            template <typename T>
+            static Mat translation( const Vec<3,T>& v )
+            {
+                return Mat( 1, 0, 0, v.x,
+                            0, 1, 0, v.y,
+                            0, 0, 1, v.z,
+                            0, 0, 0, 1 );
+            }
+            
             static Mat rotation( const Rot3& r );
-            static Mat scale( const Vec3d& s );
+            
+            template <typename T>
+            static Mat scale( const Vec<3,T>& v )
+            {
+                return Mat( v.x, 0, 0, 0,
+                            0, v.y, 0, 0,
+                            0, 0, v.z, 0,
+                            0, 0, 0, 1 );
+            }
             
             double operator()( size_t i, size_t j ) const;
             double& operator()( size_t i, size_t j );
             
             Mat operator*( const Mat& m ) const;
-            Vec3d operator*( const Vec3d& v ) const;
+            
+            template <typename T>
+            Vec<3,T> operator*( const Vec<3,T>& v ) const
+            {
+                return Vec<3,T>( m_d[0] * v.x + m_d[1] * v.y + m_d[2] * v.z + m_d[3],
+                                 m_d[4] * v.x + m_d[5] * v.y + m_d[6] * v.z + m_d[7],
+                                 m_d[8] * v.x + m_d[9] * v.y + m_d[10] * v.z + m_d[11] );
+            }
             
             bool operator==( const Mat& m ) const;
             
-            Vec3d getTranslation() const;
+            template <typename T>
+            Vec<3,T> getTranslation() const
+            {
+                return Vec<3,T>( m_d[3], m_d[7], m_d[11] );
+            }
+            
             Rot3 getRotation() const;
             
             Mat2 submat( size_t i, size_t j ) const;
