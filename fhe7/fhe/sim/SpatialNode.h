@@ -11,12 +11,12 @@ namespace fhe
     namespace sim
     {
         
-        template <size_t dim>
+        template <size_t dim, typename T>
         class SpatialNode : public Node
         {
             public:
                 typedef Mat<dim> M;
-                typedef Vec<dim> V;
+                typedef Vec<dim,T> V;
                 typedef Rot<dim> R;
                 
             private:
@@ -52,13 +52,13 @@ namespace fhe
                 virtual M getGlobalTransform()
                 {
                     M parentTransform;
-                    ancestorCall( &SpatialNode<dim>::getGlobalTransform, parentTransform );
+                    ancestorCall( &SpatialNode<dim,T>::getGlobalTransform, parentTransform );
                     return parentTransform * getLocalTransform();
                 }
         };
         
-        typedef SpatialNode<2> SpatialNode2;
-        typedef SpatialNode<3> SpatialNode3;
+        typedef SpatialNode<2,double> SpatialNode2;
+        typedef SpatialNode<3,double> SpatialNode3;
 
     }
 }

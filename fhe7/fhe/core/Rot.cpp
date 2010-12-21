@@ -18,7 +18,7 @@ namespace fhe
     {
     }
     
-    Rot2::Rot( const Vec2& v ) :
+    Rot2::Rot( const Vec2d& v ) :
         m_a( Math::atan2( v.y, v.x ) )
     {
     }
@@ -69,9 +69,9 @@ namespace fhe
         return Rot( m_a / d );
     }
     
-    Vec2 Rot2::operator*( const Vec2& v ) const
+    Vec2d Rot2::operator*( const Vec2d& v ) const
     {
-        return Vec2( Rot( v ) + *this ) * v.length();
+        return Vec2d( Rot( v ) + *this ) * v.length();
     }
     
     Rot2 Rot2::norm() const
@@ -148,20 +148,20 @@ namespace fhe
     {
     }
     
-    Rot3::Rot( const Vec3& axis, double angle )
+    Rot3::Rot( const Vec3d& axis, double angle )
     {
-        Vec3 axisNorm = axis.norm();
+        Vec3d axisNorm = axis.norm();
         double sa = Math::sin( angle / 2 );
         double ca = Math::cos( angle / 2 );
         *this = Rot( ca, axisNorm.x * sa, axisNorm.y * sa, axisNorm.z * sa );
     }
 
-    Rot3::Rot(const Vec3& v)
+    Rot3::Rot(const Vec3d& v)
     {
-        *this = Vec3::UNIT_X.getRotTo(v);
+        *this = Vec3d::UNIT_X.getRotTo(v);
     }
     
-    void Rot3::toAxisAngle(Vec3& axis, double& angle) const
+    void Rot3::toAxisAngle(Vec3d& axis, double& angle) const
     {
         Rot3 q = norm();
         double ca = q.w;
@@ -169,7 +169,7 @@ namespace fhe
         double sa = Math::sqrt(1.0 - ca * ca);
         if (Math::abs(sa) < Math::EPS)
             sa = 1;
-        axis = Vec3(q.x / sa, q.y / sa, q.z /sa);
+        axis = Vec3d(q.x / sa, q.y / sa, q.z /sa);
     }
     
     Rot3 Rot3::operator*(const Rot3& q) const
@@ -180,10 +180,10 @@ namespace fhe
                     w * q.z + z * q.w + x * q.y - y * q.x);
     }
     
-    Vec3 Rot3::operator*(const Vec3& v) const
+    Vec3d Rot3::operator*(const Vec3d& v) const
     {
         Rot3 q = *this * Rot3(0,v.x,v.y,v.z) * inverse();
-        return Vec3(q.x,q.y,q.z);
+        return Vec3d(q.x,q.y,q.z);
     }
     
     Rot3 Rot3::operator*(double f) const
@@ -229,7 +229,7 @@ namespace fhe
     
     std::string Rot3::toString() const
     {
-        Vec3 axis;
+        Vec3d axis;
         double angle;
         toAxisAngle(axis,angle);
         std::ostringstream outs;
@@ -244,7 +244,7 @@ namespace fhe
     
     boost::python::object Rot3::pyToAxisAngle()
     {
-        Vec3 axis;
+        Vec3d axis;
         double angle;
         toAxisAngle(axis,angle);
         return boost::python::make_tuple(axis,angle);
@@ -254,8 +254,8 @@ namespace fhe
     {
         boost::python::scope c = boost::python::class_<Rot3>("Rot3",boost::python::init<>())
             .def(boost::python::init<double,double,double,double>())
-            .def(boost::python::init<Vec3,double>())
-            .def(boost::python::init<Vec3>())
+            .def(boost::python::init<Vec3d,double>())
+            .def(boost::python::init<Vec3d>())
             .def_readwrite("w", &Rot3::w)
             .def_readwrite("x", &Rot3::x)
             .def_readwrite("y", &Rot3::y)
@@ -263,7 +263,7 @@ namespace fhe
             .def("__repr__", &Rot3::toString)
             .def("__eq__", &Rot3::operator== )
             .def(boost::python::self * boost::python::other<Rot3>())
-            .def(boost::python::self * boost::python::other<Vec3>())
+            .def(boost::python::self * boost::python::other<Vec3d>())
             .def(boost::python::self * double())
             .def(boost::python::self / double())
             .def("norm",&Rot3::norm)

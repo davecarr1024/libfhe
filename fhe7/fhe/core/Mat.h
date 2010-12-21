@@ -8,18 +8,6 @@
 namespace fhe
 {
     
-    template <size_t dim>
-    class Vec;
-    
-    template <size_t dim>
-    class Rot;
-    
-    template <size_t dim>
-    class Mat;
-    
-    typedef Mat<2> Mat2;
-    typedef Mat<3> Mat3;
-    
     template <>
     class Mat<2>
     {
@@ -34,20 +22,20 @@ namespace fhe
             Mat( const Mat& m );
             Mat& operator=( const Mat& m );
             
-            static Mat translation( const Vec<2>& v );
-            static Mat rotation( const Rot<2>& r );
-            static Mat scale( const Vec<2>& v );
+            static Mat translation( const Vec2d& v );
+            static Mat rotation( const Rot2& r );
+            static Mat scale( const Vec2d& v );
             
             double operator()( size_t i, size_t j ) const;
             double& operator()( size_t i, size_t j );
             
             Mat operator*( const Mat& m ) const;
-            Vec<2> operator*( const Vec<2>& v ) const;
+            Vec2d operator*( const Vec2d& v ) const;
             
             bool operator==( const Mat& m ) const;
             
-            Vec<2> getTranslation() const;
-            Rot<2> getRotation() const;
+            Vec2d getTranslation() const;
+            Rot2 getRotation() const;
             double det() const;
             Mat inverse() const;
             bool equals( const Mat& m, double eps = Math::EPS ) const;
@@ -78,20 +66,20 @@ namespace fhe
             Mat( const Mat& m );
             Mat& operator=( const Mat& m );
             
-            static Mat translation( const Vec<3>& v );
-            static Mat rotation( const Rot<3>& r );
-            static Mat scale( const Vec<3>& s );
+            static Mat translation( const Vec3d& v );
+            static Mat rotation( const Rot3& r );
+            static Mat scale( const Vec3d& s );
             
             double operator()( size_t i, size_t j ) const;
             double& operator()( size_t i, size_t j );
             
             Mat operator*( const Mat& m ) const;
-            Vec<3> operator*( const Vec<3>& v ) const;
+            Vec3d operator*( const Vec3d& v ) const;
             
             bool operator==( const Mat& m ) const;
             
-            Vec<3> getTranslation() const;
-            Rot<3> getRotation() const;
+            Vec3d getTranslation() const;
+            Rot3 getRotation() const;
             
             Mat2 submat( size_t i, size_t j ) const;
             double det() const;

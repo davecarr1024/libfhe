@@ -26,8 +26,8 @@ namespace fhe
                 
                 b2World* getWorld();
                 
-                static b2Vec2 convert( const Vec2& v );
-                static Vec2 convert( const b2Vec2& v );
+                static b2Vec2 convert( const Vec2d& v );
+                static Vec2d convert( const b2Vec2& v );
                 static Rot2 convert( double r );
                 static double convert( const Rot2& r );
         };

@@ -26,8 +26,8 @@ namespace fhe
                 virtual void onAttach();
                 virtual void onDetach();
                 
-                virtual void setPosition( Vec3 pos );
-                virtual Vec3 getPosition();
+                virtual void setPosition( Vec3d pos );
+                virtual Vec3d getPosition();
                 virtual void setRotation( Rot3 rot );
                 virtual Rot3 getRotation();
                 virtual void setMass( double mass );

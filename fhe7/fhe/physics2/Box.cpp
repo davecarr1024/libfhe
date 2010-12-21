@@ -24,24 +24,24 @@ namespace fhe
         {
         }
         
-        void Box::setSize( Vec2 size )
+        void Box::setSize( Vec2d size )
         {
             FHE_ASSERT_MSG( !built(), "size must be set before attaching" );
             m_size = size;
         }
         
-        Vec2 Box::getSize()
+        Vec2d Box::getSize()
         {
             return m_size;
         }
         
-        void Box::setPosition( Vec2 pos )
+        void Box::setPosition( Vec2d pos )
         {
             FHE_ASSERT_MSG( !built(), "position must be set before attaching" );
             m_pos = pos;
         }
         
-        Vec2 Box::getPosition()
+        Vec2d Box::getPosition()
         {
             return m_pos;
         }

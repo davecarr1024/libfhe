@@ -26,8 +26,8 @@ namespace fhe
                 void onAttach();
                 void onDetach();
                 
-                Vec2 getPosition();
-                void setPosition( Vec2 pos );
+                Vec2d getPosition();
+                void setPosition( Vec2d pos );
                 Rot2 getRotation();
                 void setRotation( Rot2 rot );
                 

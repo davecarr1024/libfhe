@@ -11,8 +11,8 @@ namespace fhe
         class Box : public Shape
         {
             private:
-                Vec2 m_size;
-                Vec2 m_pos;
+                Vec2d m_size;
+                Vec2d m_pos;
                 Rot2 m_rot;
                 
             protected:
@@ -22,10 +22,10 @@ namespace fhe
                 Box();
                 virtual ~Box();
                 
-                void setSize( Vec2 size );
-                Vec2 getSize();
-                void setPosition( Vec2 pos );
-                Vec2 getPosition();
+                void setSize( Vec2d size );
+                Vec2d getSize();
+                void setPosition( Vec2d pos );
+                Vec2d getPosition();
                 void setRotation( Rot2 rot );
                 Rot2 getRotation();
         };

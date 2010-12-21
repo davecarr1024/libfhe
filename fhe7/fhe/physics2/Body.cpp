@@ -48,12 +48,12 @@ namespace fhe
             m_world = 0;
         }
         
-        Vec2 Body::getPosition()
+        Vec2d Body::getPosition()
         {
             return World::convert( m_body ? m_body->GetPosition() : m_def.position );
         }
         
-        void Body::setPosition( Vec2 pos )
+        void Body::setPosition( Vec2d pos )
         {
             if ( m_body )
             {

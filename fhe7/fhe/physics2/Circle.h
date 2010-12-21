@@ -21,7 +21,7 @@ namespace fhe
                 
                 void setRadius( double radius );
                 double getRadius();
-                void setPosition( Vec2 position );
+                void setPosition( Vec2d position );
         };
     }
 }
