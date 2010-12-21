@@ -57,8 +57,10 @@ namespace fhe
                 }
         };
         
-        typedef SpatialNode<2,double> SpatialNode2;
-        typedef SpatialNode<3,double> SpatialNode3;
+        typedef SpatialNode<2,double> SpatialNode2d;
+        typedef SpatialNode<3,double> SpatialNode3d;
+        typedef SpatialNode<2,int> SpatialNode2i;
+        typedef SpatialNode<3,int> SpatialNode3i;
 
     }
 }

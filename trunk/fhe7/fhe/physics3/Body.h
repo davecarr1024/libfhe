@@ -9,9 +9,9 @@ namespace fhe
 {
     namespace physics3
     {
-        class Body : public sim::SpatialNode3, public IOnAttach
+        class Body : public sim::SpatialNode3d, public IOnAttach
         {
-            typedef sim::SpatialNode3 Super;
+            typedef sim::SpatialNode3d Super;
             
             private:
                 btRigidBody* m_rigidBody;

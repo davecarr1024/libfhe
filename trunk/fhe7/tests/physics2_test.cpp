@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 using namespace fhe;
 
-class TestNode : public sim::SpatialNode2, public sim::IUpdate
+class TestNode : public sim::SpatialNode2d, public sim::IUpdate
 {
     public:
         void update( double time, double dtime )
@@ -13,14 +13,14 @@ class TestNode : public sim::SpatialNode2, public sim::IUpdate
             if ( time > 1 )
             {
                 FHE_ASSERT( ancestorCall( &sim::Sim::shutdown ) );
-                ASSERT_LT( getGlobalTransform().getTranslation().y, -1 );
+                ASSERT_LT( getGlobalTransform().getTranslation<double>().y, -1 );
             }
         }
 };
 
 FHE_NODE( TestNode );
+FHE_DEP( TestNode, sim, SpatialNode2d );
 FHE_DEP( TestNode, sim, IUpdate );
-FHE_DEP( TestNode, sim, SpatialNode2 );
 FHE_FUNC( TestNode, update );
 
 TEST( physics2_test, falling_box )

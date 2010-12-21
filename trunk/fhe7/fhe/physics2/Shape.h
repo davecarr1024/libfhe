@@ -10,7 +10,7 @@ namespace fhe
     namespace physics2
     {
         
-        class Shape : public sim::SpatialNode2, public IOnAttach
+        class Shape : public sim::SpatialNode2d, public IOnAttach
         {
             private:
                 b2Body* m_body;

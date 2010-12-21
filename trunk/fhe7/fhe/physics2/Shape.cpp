@@ -8,7 +8,7 @@ namespace fhe
     {
         
         FHE_INODE( Shape );
-        FHE_DEP( Shape, sim, SpatialNode2 );
+        FHE_DEP( Shape, sim, SpatialNode2d );
         FHE_DEP( Shape, core, IOnAttach );
         FHE_FUNC( Shape, onAttach );
         FHE_FUNC( Shape, onDetach );
