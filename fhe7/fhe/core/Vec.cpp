@@ -33,4 +33,32 @@ namespace fhe
         return "Vec3d";
     }
     
+    template <>
+    const Vec2i Vec2i::ZERO( 0, 0 );
+    template <>
+    const Vec2i Vec2i::UNIT_X( 1, 0 );
+    template <>
+    const Vec2i Vec2i::UNIT_Y( 0, 1 );
+    
+    template <>
+    std::string Vec2i::typeName()
+    {
+        return "Vec2i";
+    }
+    
+    template <>
+    const Vec3i Vec3i::ZERO( 0, 0, 0 );
+    template <>
+    const Vec3i Vec3i::UNIT_X( 1, 0, 0 );
+    template <>
+    const Vec3i Vec3i::UNIT_Y( 0, 1, 0 );
+    template <>
+    const Vec3i Vec3i::UNIT_Z( 0, 0, 1 );
+    
+    template <>
+    std::string Vec3i::typeName()
+    {
+        return "Vec3i";
+    }
+    
 }

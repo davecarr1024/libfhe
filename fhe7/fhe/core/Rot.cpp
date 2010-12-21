@@ -18,11 +18,6 @@ namespace fhe
     {
     }
     
-    Rot2::Rot( const Vec2d& v ) :
-        m_a( Math::atan2( v.y, v.x ) )
-    {
-    }
-    
     Rot2 Rot2::fromDegrees( double degrees )
     {
         return Rot( Math::radians( degrees ) );
@@ -67,11 +62,6 @@ namespace fhe
     {
         FHE_ASSERT( !Math::equal( d, 0 ) );
         return Rot( m_a / d );
-    }
-    
-    Vec2d Rot2::operator*( const Vec2d& v ) const
-    {
-        return Vec2d( Rot( v ) + *this ) * v.length();
     }
     
     Rot2 Rot2::norm() const
@@ -148,42 +138,12 @@ namespace fhe
     {
     }
     
-    Rot3::Rot( const Vec3d& axis, double angle )
-    {
-        Vec3d axisNorm = axis.norm();
-        double sa = Math::sin( angle / 2 );
-        double ca = Math::cos( angle / 2 );
-        *this = Rot( ca, axisNorm.x * sa, axisNorm.y * sa, axisNorm.z * sa );
-    }
-
-    Rot3::Rot(const Vec3d& v)
-    {
-        *this = Vec3d::UNIT_X.getRotTo(v);
-    }
-    
-    void Rot3::toAxisAngle(Vec3d& axis, double& angle) const
-    {
-        Rot3 q = norm();
-        double ca = q.w;
-        angle = Math::acos(ca) * 2.0;
-        double sa = Math::sqrt(1.0 - ca * ca);
-        if (Math::abs(sa) < Math::EPS)
-            sa = 1;
-        axis = Vec3d(q.x / sa, q.y / sa, q.z /sa);
-    }
-    
     Rot3 Rot3::operator*(const Rot3& q) const
     {
         return Rot3(w * q.w - x * q.x - y * q.y - z * q.z,
                     w * q.x + x * q.w + y * q.z - z * q.y,
                     w * q.y + y * q.w + z * q.x - x * q.z,
                     w * q.z + z * q.w + x * q.y - y * q.x);
-    }
-    
-    Vec3d Rot3::operator*(const Vec3d& v) const
-    {
-        Rot3 q = *this * Rot3(0,v.x,v.y,v.z) * inverse();
-        return Vec3d(q.x,q.y,q.z);
     }
     
     Rot3 Rot3::operator*(double f) const

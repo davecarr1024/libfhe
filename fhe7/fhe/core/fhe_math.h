@@ -11,6 +11,8 @@ namespace fhe
     
     typedef Vec<2,double> Vec2d;
     typedef Vec<3,double> Vec3d;
+    typedef Vec<2,int> Vec2i;
+    typedef Vec<3,int> Vec3i;
     
     template <size_t dim>
     class Rot;
