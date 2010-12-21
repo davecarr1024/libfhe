@@ -9,14 +9,21 @@
 BOOST_PYTHON_MODULE( fhe )
 {
     fhe::PyNode::defineClass();
+    
     fhe::Vec2d::defineClass();
     fhe::Vec3d::defineClass();
     fhe::Vec2i::defineClass();
     fhe::Vec3i::defineClass();
-    fhe::Rot2::defineClass();
-    fhe::Rot3::defineClass();
-    fhe::Mat2::defineClass();
-    fhe::Mat3::defineClass();
+    
+    fhe::Rot2d::defineClass();
+    fhe::Rot3d::defineClass();
+    fhe::Rot2i::defineClass();
+    fhe::Rot3i::defineClass();
+    
+    fhe::Mat2d::defineClass();
+    fhe::Mat3d::defineClass();
+    fhe::Mat2i::defineClass();
+    fhe::Mat3i::defineClass();
 }
 
 namespace fhe
@@ -34,10 +41,14 @@ namespace fhe
         m_mainNamespace["Vec3d"] = Vec3d::defineClass();
         m_mainNamespace["Vec2i"] = Vec2i::defineClass();
         m_mainNamespace["Vec3i"] = Vec3i::defineClass();
-        m_mainNamespace["Rot2"] = Rot2::defineClass();
-        m_mainNamespace["Rot3"] = Rot3::defineClass();
-        m_mainNamespace["Mat2"] = Mat2::defineClass();
-        m_mainNamespace["Mat3"] = Mat3::defineClass();
+        m_mainNamespace["Rot2d"] = Rot2d::defineClass();
+        m_mainNamespace["Rot3d"] = Rot3d::defineClass();
+        m_mainNamespace["Rot2i"] = Rot2i::defineClass();
+        m_mainNamespace["Rot3i"] = Rot3i::defineClass();
+        m_mainNamespace["Mat2d"] = Mat2d::defineClass();
+        m_mainNamespace["Mat3d"] = Mat3d::defineClass();
+        m_mainNamespace["Mat2i"] = Mat2i::defineClass();
+        m_mainNamespace["Mat3i"] = Mat3i::defineClass();
     }
     
     PyEnv& PyEnv::instance()

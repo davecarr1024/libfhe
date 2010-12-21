@@ -46,13 +46,13 @@ namespace fhe
             return m_pos;
         }
         
-        void Box::setRotation( Rot2 rot )
+        void Box::setRotation( Rot2d rot )
         {
             FHE_ASSERT_MSG( !built(), "rotation must be set before attaching" );
             m_rot = rot;
         }
         
-        Rot2 Box::getRotation()
+        Rot2d Box::getRotation()
         {
             return m_rot;
         }

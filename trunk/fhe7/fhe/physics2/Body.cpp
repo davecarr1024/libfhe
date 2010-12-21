@@ -65,12 +65,12 @@ namespace fhe
             }
         }
         
-        Rot2 Body::getRotation()
+        Rot2d Body::getRotation()
         {
             return World::convert( m_body ? m_body->GetAngle() : m_def.angle );
         }
         
-        void Body::setRotation( Rot2 rot )
+        void Body::setRotation( Rot2d rot )
         {
             if ( m_body )
             {

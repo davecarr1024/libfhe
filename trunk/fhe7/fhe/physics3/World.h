@@ -34,8 +34,8 @@ namespace fhe
                 
                 static btVector3 convert( const Vec3d& v );
                 static Vec3d convert( const btVector3& v );
-                static btQuaternion convert( const Rot3& r );
-                static Rot3 convert( const btQuaternion& r );
+                static btQuaternion convert( const Rot3d& r );
+                static Rot3d convert( const btQuaternion& r );
         };
         
     }

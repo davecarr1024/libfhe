@@ -15,9 +15,9 @@ namespace fhe
         class SpatialNode : public Node
         {
             public:
-                typedef Mat<dim> M;
-                typedef Vec<dim,T> V;
-                typedef Rot<dim> R;
+                typedef Mat<dim,T> M;
+                typedef typename M::V V;
+                typedef typename M::R R;
                 
             private:
                 V m_pos;

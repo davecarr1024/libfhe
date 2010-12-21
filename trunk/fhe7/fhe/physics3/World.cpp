@@ -80,14 +80,14 @@ namespace fhe
             return Vec3d( v.x(), v.y(), v.z() );
         }
         
-        btQuaternion World::convert( const Rot3& r )
+        btQuaternion World::convert( const Rot3d& r )
         {
             return btQuaternion( r.x, r.y, r.z, r.w );
         }
         
-        Rot3 World::convert( const btQuaternion& r )
+        Rot3d World::convert( const btQuaternion& r )
         {
-            return Rot3( r.w(), r.x(), r.y(), r.z() );
+            return Rot3d( r.w(), r.x(), r.y(), r.z() );
         }
     }
 }
