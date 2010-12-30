@@ -253,7 +253,7 @@ namespace fhe
             
             static std::string typeName()
             {
-                return std::string( "Rot" ) + typeid(T).name();
+                return std::string( "Rot3" ) + typeid(T).name();
             }
             
             std::string toString() const
