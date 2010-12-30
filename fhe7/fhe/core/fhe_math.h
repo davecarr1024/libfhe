@@ -1,7 +1,7 @@
 #ifndef FHE_MATH_H
 #define FHE_MATH_H
 
-#include <string>
+#include <cstddef>
 
 namespace fhe
 {

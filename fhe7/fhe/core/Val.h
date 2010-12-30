@@ -2,11 +2,7 @@
 #define FHE_VAL_H
 
 #include <fhe/core/Util.h>
-#include <fhe/core/Mat.h>
-#include <fhe/core/Rot.h>
-#include <fhe/core/Vec.h>
-#include <boost/python.hpp>
-#include <boost/mpl/list.hpp>
+#include <fhe/core/PyEnv.h>
 #include <string>
 #include <typeinfo>
 
