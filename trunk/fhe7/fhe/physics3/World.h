@@ -2,6 +2,8 @@
 #define FHE_PHYSICS3_WORLD_H
 
 #include <fhe/core/Node.h>
+#include <fhe/core/Vec.h>
+#include <fhe/core/Rot.h>
 #include <fhe/sim/IUpdate.h>
 #include <btBulletDynamicsCommon.h>
 

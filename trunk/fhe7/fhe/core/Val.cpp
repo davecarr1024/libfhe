@@ -1,5 +1,7 @@
 #include <fhe/core/Val.h>
-#include <fhe/core/PyEnv.h>
+#include <fhe/core/Mat.h>
+#include <fhe/core/Rot.h>
+#include <fhe/core/Vec.h>
 
 namespace fhe
 {
