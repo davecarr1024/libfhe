@@ -164,7 +164,7 @@ namespace fhe
             
             static std::string typeName()
             {
-                return std::string( "Mat" ) + typeid(T).name();
+                return std::string( "Mat2" ) + typeid(T).name();
             }
             
             std::string toString() const
@@ -481,7 +481,7 @@ namespace fhe
             
             static std::string typeName()
             {
-                return std::string( "Mat" ) + typeid(T).name();
+                return std::string( "Mat3" ) + typeid(T).name();
             }
             
             std::string toString() const
