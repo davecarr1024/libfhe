@@ -7,13 +7,19 @@ py_ver = sys.version[:3]
 os.system( './ext/yaml-cpp.sh' )
 os.system( './ext/box2d.sh' )
 os.system( './ext/bullet.sh' )
+os.system( './ext/tinyxml.sh' )
 
 env.Append( CPPFLAGS = [ '-g', '-Wall', '-Werror' ] )
-env.Append( CPPPATH = [ '#', '/usr/include/python%s' % py_ver, 'ext/yaml-cpp/include', 'ext/box2d/include', 'ext/bullet/include/bullet' ] )
+env.Append( CPPPATH = [ '#', '/usr/include/python%s' % py_ver, 'ext/yaml-cpp/include', 'ext/box2d/include', 'ext/bullet/include/bullet', 'ext/tinyxml' ] )
 env.Append( LIBPATH = [ 'ext/yaml-cpp/lib', 'ext/box2d/lib', 'ext/bullet/lib' ] )
 env.Append( LIBS = [ 'boost_filesystem', 'python%s' % py_ver, 'boost_python', 'ncurses', 'yaml-cpp', 'Box2D', 'BulletCollision', 'BulletDynamics', 'LinearMath' ] )
 pwd = env.Dir( '#' ).abspath
 env.Append( RPATH = [ pwd, pwd + '/ext/yaml-cpp/lib', pwd + '/ext/bullet/lib' ] )
+
+tinyxml = env.SharedLibrary( 'ext/tinyxml/tinyxml', env.Glob( 'ext/tinyxml/tiny*.cpp' ) )
+
+env = env.Clone()
+env.Append( LIBS = [ tinyxml ] )
 
 mod_libs = []
 for mod in filter( os.path.isdir, map( str, env.Glob( 'fhe/*' ) ) ):
