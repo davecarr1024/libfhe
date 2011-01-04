@@ -1,4 +1,5 @@
 #include <fhe/text/Screen.h>
+#include <fhe/text/SceneNode.h>
 #include <ncurses.h>
 
 namespace fhe
@@ -22,12 +23,22 @@ namespace fhe
             keypad( stdscr, 0 );
             echo();
             endwin();
-            printf( "~Screen\n" );
         }
         
         void Screen::update( double time, double dtime )
         {
-            mvprintw( 10, 10, "update %f", time );
+            m_rc.clear();
+            publish( &SceneNode::render, &m_rc );
+            int w, h, i, j;
+            getmaxyx( stdscr, h, w );
+            char c;
+            for ( i = 0; i < w; ++i )
+            {
+                for ( j = 0; j < h; ++j )
+                {
+                    mvaddch( j, i, m_rc.get( i, j, c ) ? c : ' ' );
+                }
+            }
             refresh();
         }
         

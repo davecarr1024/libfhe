@@ -3,6 +3,7 @@
 
 #include <fhe/core/Node.h>
 #include <fhe/sim/IUpdate.h>
+#include <fhe/text/RenderContext.h>
 
 namespace fhe
 {
@@ -10,6 +11,9 @@ namespace fhe
     {
         class Screen : public Node, public sim::IUpdate
         {
+            private:
+                RenderContext m_rc;
+                
             public:
                 Screen();
                 virtual ~Screen();
