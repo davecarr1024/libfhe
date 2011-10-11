@@ -1,0 +1,20 @@
+<package>
+  <description brief="re2robotUtil">
+
+     re2robotUtil
+
+  </description>
+  <author>Dave Carr</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/re2robotUtil</url>
+  <depend package="roscpp"/>
+  <depend package="tinyxml"/>
+
+  <export>
+    <cpp cflags="-I${prefix}/include -I${prefix}/msg/cpp" lflags="-L${prefix}/lib -lre2robotUtil"/>
+  </export>
+
+</package>
+
+

@@ -1,0 +1,22 @@
+<package>
+  <description brief="re2robotDriver">
+
+     re2robotDriver
+
+  </description>
+  <author>Dave Carr</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/re2robotDriver</url>
+  <depend package="roscpp"/>
+  <depend package="re2robotUtil"/>
+  <depend package="pluginlib"/>
+  <depend package="re2math"/>
+
+  <export>
+    <cpp cflags="-I${prefix}/include -I${prefix}/msg/cpp" lflags="-L${prefix}/lib -lre2robotDriver"/>
+    <re2robotDriver plugin="${prefix}/drive_plugin.xml"/>
+  </export>
+</package>
+
+

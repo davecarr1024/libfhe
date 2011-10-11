@@ -1,0 +1,15 @@
+(cl:defpackage re2robotDriver-srv
+  (:use )
+  (:export
+   "ADDDRIVE"
+   "<ADDDRIVE-REQUEST>"
+   "ADDDRIVE-REQUEST"
+   "<ADDDRIVE-RESPONSE>"
+   "ADDDRIVE-RESPONSE"
+   "REMOVEDRIVE"
+   "<REMOVEDRIVE-REQUEST>"
+   "REMOVEDRIVE-REQUEST"
+   "<REMOVEDRIVE-RESPONSE>"
+   "REMOVEDRIVE-RESPONSE"
+  ))
+

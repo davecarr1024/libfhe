@@ -1,0 +1,6 @@
+uint8 MODE_ADD_CONTROLLER = 1
+uint8 MODE_REMOVE_CONTROLLER = 2
+uint8 MODE_SET_ACTIVE_CONTROLLER = 3
+
+uint8 mode
+string controller

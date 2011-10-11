@@ -1,0 +1,71 @@
+<robot name="tool_" xmlns:xacro="http://ros.org/wiki/xacro">
+        <xacro:property name="meshes" value="package://re2automatic_models/meshes" />
+        
+    <drive
+        name="test_drive"
+        type="re2robotDriver/SimDrive"
+        />
+        
+    <transmission
+        type="re2robotModel/SimpleTransmission"
+        drive="test_drive"
+        joint="mpto"
+        />
+        
+    <arbiter
+        type="re2robotModel/ControlArbiter"
+        />
+        
+    <link name = "world"/>
+    <link name="tool">
+        <visual>            
+            <geometry>                
+                <box size = ".2 .2 .2"/>
+                <origin xyz="0.0 0.0 0.1" rpy="0 0 0" />
+            </geometry>
+            <material name="puroke">
+                <color rgba="0.8 0 0.8 1"/>
+            </material> 
+        </visual>
+        <inertial>
+        <origin xyz="-0.00516167 0.05509145 0.19865271" />
+        <mass value=".10578420" />
+        <inertia ixx="0.04553344"  ixy="-0.00000096"  ixz="0.00278259"
+                 iyy="0.04728426"  iyz="0.00002801"
+                 izz="0.00400261" />
+        </inertial>
+    <collision>
+            <origin xyz="0 0 0"/>
+            <geometry>
+                <box size = ".2 .2 .2"/>
+            </geometry>
+        </collision> 
+    </link>
+    <link name = "grip left">
+        <visual>            
+            <geometry>                
+                <box size = ".05 .05 .2"/>
+                <origin xyz="0.0 .5 1" rpy="0 0 0" />
+            </geometry>
+            <material name="puroke">
+                <color rgba="0.8 0 0.8 1"/>
+            </material> 
+        </visual>
+    </link>
+    <joint name = "base_joint" type = "floating">
+        <parent link="world"/>
+        <child link="tool"/>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <axis xyz="1 0 0" />
+    </joint>
+    <joint name = "mpto" type = "fixed">
+        <parent link="tool"/>
+        <child link="grip left"/>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <axis xyz="1 0 0" />
+        <dynamics damping="1.0" friction="100.0"/>
+        <limit lower = "-.8" upper = ".8" effort = "500" velocity = "500"/>
+    </joint>
+      
+   
+</robot>

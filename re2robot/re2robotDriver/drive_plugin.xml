@@ -1,0 +1,5 @@
+<library path="lib/libre2robotDriver">
+    <class name="re2robotDriver/SimDrive" type="re2::robot::SimDrive" base_class_type="re2::robot::Drive">
+        <description>simulated drive</description>
+    </class>
+</library>

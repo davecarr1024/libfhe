@@ -1,0 +1,4 @@
+<launch>
+    <param name="robot_description" command="$(find xacro)/xacro.py '$(find re2robotUtil)/src/tests/ConfigTest.urdf.xacro'"/>
+    <test test-name="ConfigTest" pkg="re2robotUtil" type="ConfigTest"/>
+</launch>

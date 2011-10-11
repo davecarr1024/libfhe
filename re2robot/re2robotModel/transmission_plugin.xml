@@ -1,0 +1,8 @@
+<library path="lib/libre2robotModel">
+    <class name="re2robotModel/SimpleTransmission" type="re2::robot::SimpleTransmission" base_class_type="re2::robot::Transmission">
+        <description>simple transmission</description>
+    </class>
+    <class name="re2robotModel/ControlArbiter" type="re2::robot::ControlArbiter" base_class_type="re2::robot::Arbiter">
+        <description>control arbiter</description>
+    </class>
+</library>
