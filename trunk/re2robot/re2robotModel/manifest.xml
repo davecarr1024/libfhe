@@ -1,0 +1,21 @@
+<package>
+  <description brief="re2robotModel">
+
+     re2robotModel
+
+  </description>
+  <author>Dave Carr</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/re2robotModel</url>
+  <depend package="roscpp"/>
+  <depend package="re2robotDriver"/>
+  <depend package="urdf"/>
+
+  <export>
+    <cpp cflags="-I${prefix}/include -I${prefix}/msg/cpp" lflags="-L${prefix}/lib -lre2robotModel"/>
+    <re2robotModel plugin="${prefix}/transmission_plugin.xml"/>
+  </export>
+</package>
+
+

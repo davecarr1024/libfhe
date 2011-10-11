@@ -1,0 +1,24 @@
+(cl:in-package re2robotDriver-msg)
+(cl:export '(NAME-VAL
+          NAME
+          TYPE-VAL
+          TYPE
+          UPDATEINTERVALS-VAL
+          UPDATEINTERVALS
+          CMDTIMEOUTS-VAL
+          CMDTIMEOUTS
+          MAXVELOCITY-VAL
+          MAXVELOCITY
+          MINPOSITION-VAL
+          MINPOSITION
+          MAXPOSITION-VAL
+          MAXPOSITION
+          INITIALPOSITION-VAL
+          INITIALPOSITION
+          POSITIONPGAIN-VAL
+          POSITIONPGAIN
+          POSITIONDGAIN-VAL
+          POSITIONDGAIN
+          VELOCITYTIMETOTARGETS-VAL
+          VELOCITYTIMETOTARGETS
+))

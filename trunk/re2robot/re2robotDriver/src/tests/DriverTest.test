@@ -1,0 +1,5 @@
+<launch>
+    <param name="robot_description" command="$(find xacro)/xacro.py '$(find re2robotDriver)/src/tests/DriverTest.urdf.xacro'"/>
+    <test test-name="DriverTest" pkg="re2robotDriver" type="DriverTest"/>
+    <node name="re2_robot_driver" pkg="re2robotDriver" type="re2_robot_driver"/>
+</launch>

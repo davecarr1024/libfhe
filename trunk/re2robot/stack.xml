@@ -1,0 +1,9 @@
+<stack>
+  <description brief="re2robot">re2robot</description>
+  <author>Maintained by Dave Carr</author>
+  <license>BSD</license>  
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/re2robot</url>
+  <depend stack="ros" />
+
+</stack>
