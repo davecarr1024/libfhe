@@ -7,223 +7,153 @@ using System.Text.RegularExpressions;
 
 namespace libterp
 {
-  public class Parser
-  {
-    public class Result
+    public class Parser
     {
-      public string Type { get; private set; }
-
-      public string Value { get; private set; }
-
-      public List<Result> Children { get; private set; }
-
-      public Result(string type, string value)
-      {
-        Type = type;
-        Value = value;
-        Children = new List<Result>();
-      }
-
-      public Result(string type, params Result[] children)
-      {
-        Type = type;
-        Children = new List<Result>(children);
-      }
-    };
-
-    internal class Context
-    {
-      private List<Lexer.Token> tokens;
-
-      private int position = 0;
-
-      private Stack<int> PositionStack = new Stack<int>();
-
-      public Context(List<Lexer.Token> tokens)
-      {
-        this.tokens = tokens;
-      }
-
-      public Lexer.Token Next()
-      {
-        if (position < tokens.Count)
+        public class Result
         {
-          return tokens[position++];
-        }
-        else
+            public string Type;
+
+            public string Value;
+
+            public List<Result> Children { get; set; }
+
+            public 
+        };
+
+        public class Context
         {
-          return null;
-        }
-      }
+            public List<Lexer.Result> Tokens { get; set; }
 
-      public void Push()
-      {
-        PositionStack.Push(position);
-      }
+            public int Position { get; set; }
 
-      public void Pop()
-      {
-        position = PositionStack.Pop();
-      }
-    }
+            public Stack<Rule> Rules { get; set; }
 
-    public class Rule
-    {
-      public enum Type
-      {
-        Token,
-        Or,
-        And,
-        OneOrMore,
-      };
+            public Stack<Result> Results { get; set; }
 
-      public string Name { get; private set; }
-
-      public Type type { get; private set; }
-
-      public List<Rule> Children { get; private set; }
-
-      public Rule(Type type, string name, params Rule[] children)
-      {
-        this.type = type;
-        Name = name;
-        Children = new List<Rule>(children);
-      }
-
-      internal Result Parse(Context context)
-      {
-        switch (type)
-        {
-          case Type.Token:
+            public Context()
             {
-              context.Push();
-              Lexer.Token token = context.Next();
-              if (token != null && token.Type == Name)
-              {
-                return new Result(Name, token.Value);
-              }
-              context.Pop();
-              return null;
+                Tokens = new List<Lexer.Result>();
+                Position = 0;
+                Rules = new Stack<Rule>();
+                Results = new Stack<Result>();
             }
-          case Type.Or:
+
+            private Context(Context context)
             {
-              foreach (Rule rule in Children)
-              {
-                context.Push();
-                Result result = rule.Parse(context);
-                if (result != null)
+                Tokens = new List<Lexer.Result>(context.Tokens);
+                Position = context.Position;
+                Rules = new Stack<Rule>(Rules);
+                Results = new Stack<Result>(Results);
+            }
+
+            public List<Context> Expand()
+            {
+                List<Context> contexts = new List<Context>();
+                if (Rules.Any())
                 {
-                  return result;
+                    Rule rule = Rules.Peek();
+                    switch (rule.type)
+                    {
+                        case Rule.Type.Terminal:
+                            if (Position < Tokens.Count && Tokens[Position].Type == rule.Name)
+                            {
+                                Context context = new Context(this);
+                                context.Position++;
+                                context.Results.Push(new Result()
+                                {
+                                    Type = rule.Name,
+                                    Value = Tokens[Position].Value,
+                                });
+                                context.Rules.Pop();
+                                contexts.Add(context);
+                            }
+                            break;
+                        case Rule.Type.Or:
+                            foreach (Rule childRule in rule.Children)
+                            {
+                                Context context = new Context(this);
+                                context.Results.Push(new Result() { Type = rule.Name, });
+                                context.Rules.Pop();
+                                context.Rules.Push(childRule);
+                                contexts.Add(context);
+                            }
+                            break;
+                        case Rule.Type.And:
+                            {
+                                Context context = new Context(this);
+                                context.Results.Push(new Result() { Type = rule.Name });
+                                context.Rules.Pop();
+                                foreach (Rule childRule in rule.Children)
+                                {
+                                    context.Rules.Push(childRule);
+                                }
+                                contexts.Add(context);
+                            }
+                            break;
+                    }
                 }
-                context.Pop();
-              }
-              return null;
+                return contexts;
             }
-          case Type.And:
+        };
+
+        public class Rule
+        {
+            public enum Type
             {
-              context.Push();
-              Result result = new Result(Name);
-              foreach (Rule rule in Children)
-              {
-                Result childResult = rule.Parse(context);
-                if (childResult == null)
+                Terminal,
+                Or,
+                And,
+            };
+
+            public Type type { get; set; }
+
+            public string Name { get; set; }
+
+            public List<Rule> Children { get; set; }
+
+            public List<string> ChildNames { get; set; }
+
+            public Rule()
+            {
+                Children = new List<Rule>();
+                ChildNames = new List<string>();
+            }
+        };
+
+        public Dictionary<string, Rule> Rules { get; set; }
+
+        public Rule Root { get; set; }
+
+        public Lexer Lexer { get; set; }
+
+        public void ConnectRules()
+        {
+            Rules.Values
+                .ToList().ForEach(rule => rule.ChildNames
+                    .Where(name => rule.Children.All(child => child.Name != name))
+                    .ToList().ForEach(name => rule.Children.Add(Rules[name])));
+        }
+
+        public Result Parse(string str)
+        {
+            ConnectRules();
+            Queue<Context> contexts = new Queue<Context>();
+            Context context = new Context() { Tokens = Lexer.Lex(str) };
+            context.Rules.Push(Root);
+
+            while (contexts.Any())
+            {
+                if (!context.Rules.Any() && context.Position == context.Tokens.Count)
                 {
-                  context.Pop();
-                  return null;
+                    return context.Results.First();
                 }
                 else
                 {
-                  result.Children.Add(childResult);
+                    context.Expand().ForEach(c => contexts.Enqueue(c));
                 }
-              }
-              return result;
             }
-          case Type.OneOrMore:
-            {
-              context.Push();
-              Result result = new Result(Name);
-              Result childResult = Children.First().Parse(context);
-              if (childResult == null)
-              {
-                context.Pop();
-                return null;
-              }
-              else
-              {
-                while (childResult != null)
-                {
-                  context.Push();
-                  result.Children.Add(childResult);
-                  childResult = Children.First().Parse(context);
-                  if (childResult == null)
-                  {
-                    context.Pop();
-                  }
-                }
-                return result;
-              }
-            }
-          default:
+
             return null;
         }
-      }
     }
-
-    public Rule Root { get; set; }
-
-    public Lexer Lexer { get; set; }
-
-    public Result Parse(string s)
-    {
-      return Root.Parse(new Context(Lexer.Lex(s)));
-    }
-
-    public Parser(Rule root, Lexer lexer)
-    {
-      Root = root;
-      Lexer = lexer;
-    }
-
-    public Parser(string s)
-    {
-      Lexer lexer = new Lexer(
-        new Lexer.Rule("enddecl", @";"),
-        new Lexer.Rule("ruleop", @"=>"),
-        new Lexer.Rule("tokenop", @"="),
-        new Lexer.Rule("orop", @"\|"),
-        new Lexer.Rule("andop", @"\+"),
-        new Lexer.Rule("lparen", @"\("),
-        new Lexer.Rule("rparen", @"\)"),
-        new Lexer.Rule("oneormoreop", @"\*"),
-        new Lexer.Rule("delimop", @"\(delim\)"),
-        new Lexer.Rule("id", @"\w+"),
-        new Lexer.Rule("regex", @"\S+"),
-        new Lexer.Rule("ws", @"\s+", true)
-        );
-
-      Parser parser = new Parser(
-        new Rule(Rule.Type.OneOrMore, "grammar",
-          new Rule(Rule.Type.And, "decl",
-            new Rule(Rule.Type.Or, "decl2",
-              new Rule(Rule.Type.And, "rule",
-                new Rule(Rule.Type.Token, "id"),
-                new Rule(Rule.Type.Token, "ruleop"),
-                new Rule(Rule.Type.Token, "id")
-              ),
-              new Rule(Rule.Type.And, "token",
-                new Rule(Rule.Type.Token, "id"),
-                new Rule(Rule.Type.Token, "tokenop"),
-                new Rule(Rule.Type.Token, "id")
-              )
-            ),
-            new Rule(Rule.Type.Token, "enddecl")
-          )
-        ),
-        lexer
-      );
-
-      Result result = parser.Parse(s);
-    }
-
-  }
 }
