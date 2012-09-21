@@ -3,24 +3,38 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Text.RegularExpressions;
-using System.Collections.ObjectModel;
-using libterp;
+using System.IO;
+using terp;
 
-namespace terptest
+namespace terpTest
 {
   /// <summary>
-  /// Summary description for TerpTest
+  /// Summary description for terpTest
   /// </summary>
   [TestClass]
-  public class TerpTest
+  public class terpTest
   {
-    public TerpTest()
+    public terpTest()
     {
-      //
-      // TODO: Add constructor logic here
-      //
+      lexer = new Lexer(
+        new Lexer.Rule("lp", @"\(", false),
+        new Lexer.Rule("rp", @"\)", false),
+        new Lexer.Rule("id", @"[a-zA-Z]\w*", false),
+        new Lexer.Rule("string", "\"((\\.)|[^\\\\\"])*\"", false),
+        new Lexer.Rule("int", @"-?\d+", false),
+        new Lexer.Rule("float", @"-?\d+\.\d*", false),
+        new Lexer.Rule("ws", @"\s+", true));
+
+      parser = new Parser(lexer,
+        new Parser.RuleDef(Parser.RuleType.Or, "expr", "id", "parenExpr", "int", "float", "string"),
+        new Parser.RuleDef(Parser.RuleType.And, "parenExpr", "lp", "exprList", "rp"),
+        new Parser.RuleDef(Parser.RuleType.ZeroOrMore, "exprList", "expr")
+      );
     }
+
+    Lexer lexer;
+
+    Parser parser;
 
     private TestContext testContextInstance;
 
@@ -62,67 +76,88 @@ namespace terptest
     //
     #endregion
 
-    //[TestMethod]
-    public void LexTest()
+    [TestMethod]
+    public void lex()
     {
-      Lexer lexer = new Lexer(
-        new Lexer.Rule("whitespace", @"\s+"),
-        new Lexer.Rule("nonwhitespace", @"\w+")
-        );
-
-      List<Lexer.Token> tokens = lexer.Lex(" abc\t");
-      Assert.AreEqual(3, tokens.Count);
-      Assert.AreEqual("whitespace", tokens[0].Type);
-      Assert.AreEqual(" ", tokens[0].Value);
-      Assert.AreEqual("nonwhitespace", tokens[1].Type);
-      Assert.AreEqual("abc", tokens[1].Value);
-      Assert.AreEqual("whitespace", tokens[2].Type);
-      Assert.AreEqual("\t", tokens[2].Value);
+      List<Lexer.Result> results = lexer.Lex(" ( a ) ");
+      Assert.AreEqual(3, results.Count);
+      Assert.AreEqual("lp", results[0].Type);
+      Assert.AreEqual("(", results[0].Value);
+      Assert.AreEqual("id", results[1].Type);
+      Assert.AreEqual("a", results[1].Value);
+      Assert.AreEqual("rp", results[2].Type);
+      Assert.AreEqual(")", results[2].Value);
     }
 
-    //[TestMethod]
-    public void ParseTest()
+    private void CheckResult(Parser.Result result, string type, string value, int numChildren)
     {
-      Lexer lexer = new Lexer(
-        new Lexer.Rule("whitespace", @"\s+", true),
-        new Lexer.Rule("leftParen", @"\("),
-        new Lexer.Rule("rightParen", @"\)"),
-        new Lexer.Rule("id", @"[\D\w]\w*")
-        );
-
-
-      Parser parser = new Parser(
-        new Parser.Rule(Parser.Rule.Type.And,"expression",
-          new Parser.Rule(Parser.Rule.Type.Token,"leftParen"),
-          new Parser.Rule(Parser.Rule.Type.OneOrMore,"expressionBody",
-            new Parser.Rule(Parser.Rule.Type.Token,"id")
-            ),
-          new Parser.Rule(Parser.Rule.Type.Token,"rightParen")
-        ),
-        lexer
-      );
-
-      Parser.Result result = parser.Parse("( a )");
-      Assert.IsNotNull(result);
-      Assert.AreEqual("expression", result.Type);
-      Assert.AreEqual(3, result.Children.Count);
-      Assert.AreEqual("leftParen", result.Children[0].Type);
-      Assert.AreEqual("expressionBody", result.Children[1].Type);
-      Assert.AreEqual(1, result.Children[1].Children.Count);
-      Assert.AreEqual("id", result.Children[1].Children[0].Type);
-      Assert.AreEqual("a", result.Children[1].Children[0].Value);
-      Assert.AreEqual("rightParen", result.Children[2].Type);
+      Assert.AreEqual(type, result.Type);
+      Assert.AreEqual(value, result.Value);
+      Assert.AreEqual(numChildren, result.Children.Count);
     }
 
     [TestMethod]
-    public void ParseParseTest()
+    public void parse()
     {
-      Parser parser = new Parser(@"
-        a => b ;
-      ");
+      Assert.AreEqual(5, parser.RootRule.Children.Count);
 
-      //Parser.Result result = parser.Parse("(a)");
-      //Assert.IsNotNull(result);
+      Parser.Result result = parser.Parse(" ( a1b2c3 12 3.14 \"hello world\" ) ");
+
+      Parser.Result expected =
+        new Parser.Result("expr", null,
+          new Parser.Result("parenExpr", null,
+            new Parser.Result("lp", "("),
+            new Parser.Result("exprList", null,
+              new Parser.Result("expr", null,
+                new Parser.Result("id", "a1b2c3")
+              ),
+              new Parser.Result("expr", null,
+                new Parser.Result("int", "12")
+              ),
+              new Parser.Result("expr", null,
+                new Parser.Result("float","3.14")
+              ),
+              new Parser.Result("expr", null,
+                new Parser.Result("string", "\"hello world\"")
+              )
+            ),
+            new Parser.Result("rp", ")")
+          )
+        );
+
+      Assert.IsTrue(result.Equals(expected));
+    }
+
+    [TestMethod]
+    public void grammar()
+    {
+      Parser parser = new Parser(File.ReadAllText("../../../terpTest/lisp.trp"));
+
+      Parser.Result result = parser.Parse(" ( a1b2c3 12 3.14 \"hello world\" ) ");
+
+      Parser.Result expected =
+        new Parser.Result("expr", null,
+          new Parser.Result("parenExpr", null,
+            new Parser.Result("lp", "("),
+            new Parser.Result("exprList", null,
+              new Parser.Result("expr", null,
+                new Parser.Result("id", "a1b2c3")
+              ),
+              new Parser.Result("expr", null,
+                new Parser.Result("int", "12")
+              ),
+              new Parser.Result("expr", null,
+                new Parser.Result("float", "3.14")
+              ),
+              new Parser.Result("expr", null,
+                new Parser.Result("string", "\"hello world\"")
+              )
+            ),
+            new Parser.Result("rp", ")")
+          )
+        );
+
+      Assert.IsTrue(result.Equals(expected));
     }
   }
 }
