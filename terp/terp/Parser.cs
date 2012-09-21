@@ -68,6 +68,7 @@ namespace terp
       And,
       Or,
       ZeroOrMore,
+      OneOrMore,
     };
 
     public class RuleDef
@@ -165,11 +166,12 @@ namespace terp
               throw new Exception("or rule " + Name + " failed to add any children:\r\n  " + string.Join("\r\n  ", childExceptions.ConvertAll(ex => ex.Message).ToArray()));
             }
           case RuleType.ZeroOrMore:
-            {
               if (Children.Count != 1)
               {
                 throw new Exception("zero or more rule " + Name + " must have 1 child");
               }
+              else
+              {
               Result result = new Result(Name, null);
               bool added = true;
               while (added)
@@ -180,7 +182,7 @@ namespace terp
                 {
                   result.AddChild(Children.First().Parse(ref childInput));
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                   added = false;
                 }
@@ -190,7 +192,40 @@ namespace terp
                 }
               }
               return result;
-            }
+              }
+          case RuleType.OneOrMore:
+              if (Children.Count != 1)
+              {
+                throw new Exception("one or more rule " + Name + " must have 1 child");
+              }
+              else
+              {
+                Result result = new Result(Name, null);
+                Result childResult;
+                Queue<Lexer.Result> childInput = new Queue<Lexer.Result>(input);
+                try
+                {
+                  childResult = Children.First().Parse(ref childInput);
+                }
+                catch (Exception ex)
+                {
+                  throw new Exception("one or more rule " + Name + " failed to parse first child: " + ex.Message);
+                }
+                while (childResult != null)
+                {
+                  input = new Queue<Lexer.Result>(childInput);
+                  result.AddChild(childResult);
+                  try
+                  {
+                    childResult = Children.First().Parse(ref childInput);
+                  }
+                  catch (Exception)
+                  {
+                    childResult = null;
+                  }
+                }
+                return result;
+              }
           default:
             throw new NotImplementedException();
         }
@@ -259,32 +294,52 @@ namespace terp
       return result;
     }
 
+    public List<Result> ParseMultiple(string input)
+    {
+      if (RootRule == null)
+      {
+        throw new Exception("unable to parse: no rules provided");
+      }
+      Queue<Lexer.Result> tokens = new Queue<Lexer.Result>(Lexer.Lex(input));
+      List<Result> results = new List<Result>();
+      while (tokens.Any())
+      {
+        results.Add(RootRule.Parse(ref tokens));
+      }
+      return results;
+    }
+
     public Parser(string input)
     {
       /**
-       * id = "[a-zA-Z]\w*";
-       * semicolon = "\;";
-       * equals = "\=";
-       * plus = "\+";
-       * star = "\*";
-       * lparen = "\(";
-       * rparen = "\)";
-       * string = "\"((\\.)|[^\\\\\"])*\"";
-       * whitespace *= "\s+";
+       * id = "[a-zA-Z]\w*"
+       * equals = "\="
+       * plus = "\+"
+       * star = "\*"
+       * lparen = "\("
+       * rparen = "\)"
+       * cr = "\r"
+       * lf = "\n"
+       * comment = "\#([^\r\n].)+"
+       * string = "\"((\\.)|[^\\\\\"])*\""
+       * whitespace *= "[ \t]+"
        * 
-       * grammar = line*;
-       * line = lineDecl semicolon;
-       * lineDecl = token | delimToken | rule;
-       * token = id equals string;
-       * delimToken = id star equals string;
-       * rule = id equals ruleDecl;
-       * ruleDecl = ruleDeclAnd | ruleDeclOr | ruleDeclStar;
-       * ruleDeclAnd = id id ruleDeclAndTail;
-       * ruleDeclAndTail = id*;
-       * ruleDeclOr = id pipe id ruleDeclOrTail;
-       * ruleDeclOrTail = ruleDeclOrIter*;
-       * ruleDeclOrIter = pipe id;
-       * ruleDeclStar = id star;
+       * grammar = line*
+       * newline = cr | lf | crlf | comment
+       * crlf = cr lf
+       * line = token | delimToken | rule | newline
+       * comment = hash commentContent
+       * token = id equals string newline
+       * delimToken = id star equals string newline
+       * rule = id equals ruleDecl newline
+       * ruleDecl = ruleDeclAnd | ruleDeclOr | ruleDeclStar | ruleDeclPlus
+       * ruleDeclAnd = id id ruleDeclAndTail
+       * ruleDeclAndTail = id*
+       * ruleDeclOr = id pipe id ruleDeclOrTail
+       * ruleDeclOrTail = ruleDeclOrIter*
+       * ruleDeclOrIter = pipe id
+       * ruleDeclStar = id star
+       * ruleDeclPlus = id plus
        */
 
       Lexer lexer = new Lexer(
@@ -293,24 +348,29 @@ namespace terp
         new Lexer.Rule("equals", @"\=", false),
         new Lexer.Rule("pipe", @"\|", false),
         new Lexer.Rule("star", @"\*", false),
-        new Lexer.Rule("semicolon",@"\;",false),
+        new Lexer.Rule("plus", @"\+", false),
+        new Lexer.Rule("cr", "\r", false),
+        new Lexer.Rule("lf", "\n", false),
+        new Lexer.Rule("comment", @"\#.*\n", false),
         new Lexer.Rule("whitespace", @"\s+", true)
       );
 
       Parser grammarParser = new Parser(lexer,
         new RuleDef(RuleType.ZeroOrMore, "grammar", "line"),
-        new RuleDef(RuleType.And, "line", "lineDecl", "semicolon" ),
-        new RuleDef(RuleType.Or, "lineDecl", "token", "delimToken", "rule"),
-        new RuleDef(RuleType.And, "token", "id", "equals", "string"),
-        new RuleDef(RuleType.And, "delimToken", "id", "star", "equals", "string"),
-        new RuleDef(RuleType.And, "rule", "id", "equals", "ruleDecl"),
-        new RuleDef(RuleType.Or, "ruleDecl", "ruleDeclAnd", "ruleDeclOr", "ruleDeclStar"),
+        new RuleDef(RuleType.Or, "newline", "cr", "lf", "crlf", "comment"),
+        new RuleDef(RuleType.And, "crlf", "cr", "lf"),
+        new RuleDef(RuleType.Or, "line", "token", "delimToken", "rule", "newline"),
+        new RuleDef(RuleType.And, "token", "id", "equals", "string", "newline"),
+        new RuleDef(RuleType.And, "delimToken", "id", "star", "equals", "string", "newline"),
+        new RuleDef(RuleType.And, "rule", "id", "equals", "ruleDecl", "newline"),
+        new RuleDef(RuleType.Or, "ruleDecl", "ruleDeclAnd", "ruleDeclOr", "ruleDeclStar", "ruleDeclPlus"),
         new RuleDef(RuleType.And, "ruleDeclAnd", "id", "id", "ruleDeclAndTail"),
         new RuleDef(RuleType.ZeroOrMore, "ruleDeclAndTail", "id"),
         new RuleDef(RuleType.And, "ruleDeclOr", "id", "pipe", "id", "ruleDeclOrTail"),
         new RuleDef(RuleType.ZeroOrMore, "ruleDeclOrTail", "ruleDeclOrIter"),
         new RuleDef(RuleType.And, "ruleDeclOrIter", "pipe", "id"),
-        new RuleDef(RuleType.And, "ruleDeclStar", "id", "star")
+        new RuleDef(RuleType.And, "ruleDeclStar", "id", "star"),
+        new RuleDef(RuleType.And, "ruleDeclPlus", "id", "plus")
       );
 
       Result grammar = grammarParser.Parse(input);
@@ -320,26 +380,25 @@ namespace terp
       Lexer = new Lexer();
       foreach (Result line in grammar.Children)
       {
-        Result lineDecl = line.Children[0];
-        if (lineDecl.Children[0].Type == "token")
+        if (line.Children[0].Type == "token")
         {
-          Result token = lineDecl.Children[0];
+          Result token = line.Children[0];
           string name = token.Children[0].Value;
           string regex = token.Children[2].Value;
           regex = regex.Substring(1, regex.Length - 2);
           Lexer.Rules.Add(new Lexer.Rule(name, regex, false));
         }
-        else if (lineDecl.Children[0].Type == "delimToken")
+        else if (line.Children[0].Type == "delimToken")
         {
-          Result token = lineDecl.Children[0];
+          Result token = line.Children[0];
           string name = token.Children[0].Value;
           string regex = token.Children[3].Value;
           regex = regex.Substring(1, regex.Length - 2);
           Lexer.Rules.Add(new Lexer.Rule(name, regex, true));
         }
-        else if (lineDecl.Children[0].Type == "rule")
+        else if (line.Children[0].Type == "rule")
         {
-          Result ruleLine = lineDecl.Children[0];
+          Result ruleLine = line.Children[0];
           string name = ruleLine.Children[0].Value;
           Result ruleDecl = ruleLine.Children[2];
           rules.Add(ReadRule(name, ruleDecl));
@@ -374,6 +433,10 @@ namespace terp
       else if (rule.Type == "ruleDeclStar")
       {
         return new RuleDef(RuleType.ZeroOrMore, name, rule.Children[0].Value);
+      }
+      else if (rule.Type == "ruleDeclPlus")
+      {
+        return new RuleDef(RuleType.OneOrMore, name, rule.Children[0].Value);
       }
       else
       {
