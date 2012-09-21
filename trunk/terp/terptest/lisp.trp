@@ -1,0 +1,12 @@
+﻿#hello I'm a comment
+lp = "\(" #and I'm an end of line comment
+rp = "\)"
+id = "[a-zA-Z]\w*"
+string = "\"((\\.)|[^\\\\\"])*\""
+int = "-?\d+"
+float = "-?\d+\.\d*"
+ws *= "\s+"
+
+expr = id | parenExpr | int | float | string
+parenExpr = lp exprList rp
+exprList = expr*
