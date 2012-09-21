@@ -159,5 +159,36 @@ namespace terpTest
 
       Assert.IsTrue(result.Equals(expected));
     }
+
+    private void AssertNear(float f1, float f2)
+    {
+      Assert.IsTrue(Math.Abs(f1 - f2) <= 1e-5);
+    }
+
+    [TestMethod]
+    public void lisp()
+    {
+      LispInterpreter terp = new LispInterpreter("../../../terpTest/lisp.trp");
+
+      LispInterpreter.Value value = terp.Interpret("-12");
+      Assert.AreEqual(LispInterpreter.Value.Type.Int, value.type);
+      Assert.AreEqual(-12, value.Int);
+
+      value = terp.Interpret("-3.14");
+      Assert.AreEqual(LispInterpreter.Value.Type.Float, value.type);
+      AssertNear(-3.14f, value.Float);
+
+      value = terp.Interpret("\"herro\"");
+      Assert.AreEqual(LispInterpreter.Value.Type.String, value.type);
+      Assert.AreEqual("herro", value.String);
+
+      value = terp.Interpret("(add 1 2)");
+      Assert.AreEqual(LispInterpreter.Value.Type.Float, value.type);
+      AssertNear(3, value.Float);
+
+      value = terp.Interpret("(define foo (a b) (add a (add 3 b))) (foo 2 10)");
+      Assert.AreEqual(LispInterpreter.Value.Type.Float, value.type);
+      AssertNear(15, value.Float);
+    }
   }
 }

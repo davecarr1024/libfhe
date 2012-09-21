@@ -84,7 +84,7 @@ namespace terp
         }
         if (len == 0)
         {
-          throw new Exception("lex error at " + position);
+          throw new Exception("lex error at " + position + " " + input.Substring(position));
         }
         if (matchName != null)
         {
