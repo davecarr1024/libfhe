@@ -1,35 +1,45 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C# Express 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "terp", "terp\terp.csproj", "{AECFA52F-D21D-449E-A19A-DCBB04A14F54}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "terpTest", "terpTest\terpTest.csproj", "{56E03D1B-7CA9-40B4-9718-CB8A17B3587C}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1C5D62FD-68A5-4FBE-A884-E8AC7B348C10}"
-	ProjectSection(SolutionItems) = preProject
-		LocalTestRun.testrunconfig = LocalTestRun.testrunconfig
-		terp.vsmdi = terp.vsmdi
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "interp", "interp\interp.csproj", "{9A689B1B-DB8E-47C5-85B3-EC937A0A7018}"
 EndProject
 Global
-	GlobalSection(TestCaseManagementSettings) = postSolution
-		CategoryFile = terp.vsmdi
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{AECFA52F-D21D-449E-A19A-DCBB04A14F54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AECFA52F-D21D-449E-A19A-DCBB04A14F54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AECFA52F-D21D-449E-A19A-DCBB04A14F54}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{AECFA52F-D21D-449E-A19A-DCBB04A14F54}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{AECFA52F-D21D-449E-A19A-DCBB04A14F54}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{AECFA52F-D21D-449E-A19A-DCBB04A14F54}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AECFA52F-D21D-449E-A19A-DCBB04A14F54}.Release|Any CPU.Build.0 = Release|Any CPU
-		{56E03D1B-7CA9-40B4-9718-CB8A17B3587C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{56E03D1B-7CA9-40B4-9718-CB8A17B3587C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{56E03D1B-7CA9-40B4-9718-CB8A17B3587C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{56E03D1B-7CA9-40B4-9718-CB8A17B3587C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AECFA52F-D21D-449E-A19A-DCBB04A14F54}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{AECFA52F-D21D-449E-A19A-DCBB04A14F54}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{AECFA52F-D21D-449E-A19A-DCBB04A14F54}.Release|x86.ActiveCfg = Release|Any CPU
+		{9A689B1B-DB8E-47C5-85B3-EC937A0A7018}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{9A689B1B-DB8E-47C5-85B3-EC937A0A7018}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{9A689B1B-DB8E-47C5-85B3-EC937A0A7018}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{9A689B1B-DB8E-47C5-85B3-EC937A0A7018}.Debug|x86.ActiveCfg = Debug|x86
+		{9A689B1B-DB8E-47C5-85B3-EC937A0A7018}.Debug|x86.Build.0 = Debug|x86
+		{9A689B1B-DB8E-47C5-85B3-EC937A0A7018}.Release|Any CPU.ActiveCfg = Release|x86
+		{9A689B1B-DB8E-47C5-85B3-EC937A0A7018}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{9A689B1B-DB8E-47C5-85B3-EC937A0A7018}.Release|Mixed Platforms.Build.0 = Release|x86
+		{9A689B1B-DB8E-47C5-85B3-EC937A0A7018}.Release|x86.ActiveCfg = Release|x86
+		{9A689B1B-DB8E-47C5-85B3-EC937A0A7018}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = terp.vsmdi
 	EndGlobalSection
 EndGlobal
