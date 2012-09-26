@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "terp", "terp\terp.csproj", "{844E3B51-7B0A-4778-AE48-A065253E9D79}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "terptest", "terptest\terptest.csproj", "{118D8F95-5719-4BFA-8814-2FC3898771A7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{78B02276-AAE5-4AFE-B620-D1C55B0C2959}"
+	ProjectSection(SolutionItems) = preProject
+		LocalTestRun.testrunconfig = LocalTestRun.testrunconfig
+		terp1.vsmdi = terp1.vsmdi
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = terp1.vsmdi
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{844E3B51-7B0A-4778-AE48-A065253E9D79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{844E3B51-7B0A-4778-AE48-A065253E9D79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{844E3B51-7B0A-4778-AE48-A065253E9D79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{844E3B51-7B0A-4778-AE48-A065253E9D79}.Release|Any CPU.Build.0 = Release|Any CPU
+		{118D8F95-5719-4BFA-8814-2FC3898771A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{118D8F95-5719-4BFA-8814-2FC3898771A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{118D8F95-5719-4BFA-8814-2FC3898771A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{118D8F95-5719-4BFA-8814-2FC3898771A7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
