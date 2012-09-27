@@ -61,54 +61,12 @@ namespace terptest
     #endregion
 
     [TestMethod]
-    public void assigment()
+    public void builtin()
     {
       Scope scope = VirtualMachine.DefaultScope();
-      new Assignment() { Name = "a", Value = new Literal() { Value = new IntValue() { Value = 12 } } }.Evaluate(scope);
-      IntValue a = scope.GetValue("a") as IntValue;
-      Assert.IsNotNull(a);
-      Assert.AreEqual(12, a.Value);
-    }
-
-    [TestMethod]
-    public void functionReturn()
-    {
-      Scope scope = VirtualMachine.DefaultScope();
-      StringValue ret = new Function() { Expressions = { new Literal() { Value = new StringValue() { Value = "herro" } } } }.Apply(scope, new List<Value>()) as StringValue;
-      Assert.IsNotNull(ret);
-      Assert.AreEqual("herro", ret.Value);
-    }
-
-    [TestMethod]
-    public void functionArgs()
-    {
-      Scope scope = VirtualMachine.DefaultScope();
-      IntValue ret = new Function()
-      {
-        Parameters = { new Parameter() { Name = "foo" } },
-        Expressions = { new Variable() { Name = "foo" } }
-      }.Apply(scope, new List<Value>() { new IntValue() { Value = -1 } }) as IntValue;
-      Assert.IsNotNull(ret);
-      Assert.AreEqual(-1, ret.Value);
-    }
-
-    [TestMethod]
-    public void ctor()
-    {
-      Scope scope = VirtualMachine.DefaultScope();
-      scope.SetValue("foo", new Class() { Name = "foo", });
-      scope.SetValue("foo.__init__",
-        new Function()
-        {
-          Parameters = { new Parameter() { Name = "this" } },
-          Expressions = { new Assignment() { Name = "this.a", Value = new Literal() { Value = new IntValue() { Value = 11 } } } }
-        }
-      );
-      new Assignment(){Name = "bar", Value = new Invocation() { Functor = new Variable() { Name = "foo" } }}.Evaluate(scope);
-      IntValue a = scope.GetValue("bar.a") as IntValue;
-      Assert.IsNotNull(a);
-      Assert.AreEqual(11, a.Value);
-      Assert.IsNull(scope.GetValue("foo.a"));
+      ClassInstance i = new Invocation() { Functor = new Variable() { Name = "int" } }.Evaluate(scope) as ClassInstance;
+      Assert.IsNotNull(i);
+      Assert.AreEqual("int", i.Class.Name);
     }
   }
 }

@@ -10,43 +10,36 @@ namespace terp
   public abstract class Value
   {
     public Scope ParentScope { get; set; }
+
+    public abstract string GetValueType();
   }
 
   public class NullValue : Value
   {
-  }
-
-  public class BoolValue : Value
-  {
-    public bool Value { get; set; }
-  }
-
-  public class IntValue : Value
-  {
-    public int Value { get; set; }
-  }
-
-  public class FloatValue : Value
-  {
-    public float Value { get; set; }
-  }
-
-  public class StringValue : Value
-  {
-    public string Value { get; set; }
+    public override string GetValueType()
+    {
+      return "Null";
+    }
   }
 
   public class Parameter
   {
     public string Name { get; set; }
 
+    public string Type { get; set; }
+
     public bool Matches(Value value)
     {
-      return true;
+      return value.GetValueType() == Type;
     }
   }
 
-  public class Function : Value
+  public abstract class IFunction : Value
+  {
+    public abstract Value Apply(Scope scope, List<Value> args);
+  }
+
+  public class Function : IFunction
   {
     public List<Parameter> Parameters { get; set; }
 
@@ -58,26 +51,7 @@ namespace terp
       Expressions = new List<Expression>();
     }
 
-    public bool SignatureMatches(List<Value> args)
-    {
-      if (args.Count != Parameters.Count)
-      {
-        return false;
-      }
-      else
-      {
-        for (int i = 0; i < args.Count; ++i)
-        {
-          if (!Parameters[i].Matches(args[i]))
-          {
-            return false;
-          }
-        }
-        return true;
-      }
-    }
-
-    public Value Apply(Scope scope, List<Value> args)
+    public override Value Apply(Scope scope, List<Value> args)
     {
       if (args.Count != Parameters.Count)
       {
@@ -108,6 +82,11 @@ namespace terp
         }
         return new NullValue();
       }
+    }
+
+    public override string GetValueType()
+    {
+      return "Function";
     }
   }
 
@@ -203,15 +182,45 @@ namespace terp
     {
       return getValue(name.Split('.').ToList());
     }
+
+    public override string GetValueType()
+    {
+      return "Scope";
+    }
   }
 
-  public class Class : Scope
+  public abstract class IClass : Scope
   {
+    protected abstract void Bind(ClassInstance obj);
+
     public string Name { get; set; }
 
+    public ClassInstance Construct(Scope scope, List<Value> args)
+    {
+      ClassInstance obj = new ClassInstance() { Class = this };
+
+      Bind(obj);
+
+      IFunction ctor = obj.GetValue("__init__") as IFunction;
+      if (ctor != null)
+      {
+        ctor.Apply(scope, args);
+      }
+
+      return obj;
+    }
+
+    public override string GetValueType()
+    {
+      return Name;
+    }
+  }
+
+  public class Class : IClass
+  {
     public Class Parent { get; set; }
 
-    private void Bind(ClassInstance obj)
+    protected override void Bind(ClassInstance obj)
     {
       if (Parent != null)
       {
@@ -248,26 +257,16 @@ namespace terp
         }
       }
     }
-
-    public ClassInstance Construct(Scope scope, List<Value> args)
-    {
-      ClassInstance obj = new ClassInstance() { Class = this };
-
-      Bind(obj);
-
-      Function ctor = obj.GetValue("__init__") as Function;
-      if (ctor != null)
-      {
-        ctor.Apply(scope, args);
-      }
-
-      return obj;
-    }
   }
 
   public class ClassInstance : Scope
   {
-    public Class Class { get; set; }
+    public IClass Class { get; set; }
+
+    public override string GetValueType()
+    {
+      return Class.Name;
+    }
   }
 
   public abstract class Expression
@@ -319,13 +318,13 @@ namespace terp
     {
       List<Value> args = Args.Select(arg => arg.Evaluate(scope)).ToList();
       Value functorValue = Functor.Evaluate(scope);
-      if (functorValue is Function)
+      if (functorValue is IFunction)
       {
-        return (functorValue as Function).Apply(scope, args);
+        return (functorValue as IFunction).Apply(scope, args);
       }
-      else if (functorValue is Class)
+      else if (functorValue is IClass)
       {
-        return (functorValue as Class).Construct(scope, args);
+        return (functorValue as IClass).Construct(scope, args);
       }
       else if (functorValue is ClassInstance)
       {
@@ -352,24 +351,112 @@ namespace terp
   }
 
   [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-  public class BuiltinMethod : Attribute { }
-
-  public class BuiltinInt : Value
+  public class BuiltinMethod : Attribute
   {
+    public string Name { get; set; }
+  }
 
+  public class BuiltinClass : IClass
+  {
+    protected BuiltinClass(string name)
+    {
+      Name = name;
+    }
+
+    protected override void Bind(ClassInstance obj)
+    {
+      object builtinObject = GetType().InvokeMember(null, BindingFlags.CreateInstance, null, null, new object[] { });
+      foreach (MethodInfo method in GetType().GetMethods())
+      {
+        if (method.GetCustomAttributes(true).OfType<BuiltinMethod>().Any())
+        {
+          obj.SetValue(method.Name, new BuiltinFunction() { BuiltinMethod = method, BuiltinObject = builtinObject });
+        }
+      }
+    }
+  }
+
+  public class BuiltinFunction : IFunction
+  {
+    public MethodInfo BuiltinMethod { get; set; }
+
+    public object BuiltinObject { get; set; }
+
+    public override Value Apply(Scope scope, List<Value> unboundArgs)
+    {
+      List<ParameterInfo> parameters = BuiltinMethod.GetParameters().ToList();
+
+      if (parameters.Count != unboundArgs.Count)
+      {
+        throw new Exception("unable to call builtin method " + BuiltinMethod.Name + " arg count mismatch");
+      }
+      else
+      {
+        List<object> boundArgs = new List<object>();
+
+        for (int i = 0; i < parameters.Count; ++i)
+        {
+          if (parameters[i].ParameterType.IsAssignableFrom(unboundArgs[i].GetType()))
+          {
+            boundArgs.Add(unboundArgs[i]);
+          }
+          else
+          {
+            throw new Exception("builtin function " + BuiltinMethod.Name + " failed to apply: can't convert arg " + i + " from " + unboundArgs[i].GetType() + " to " + parameters[i].ParameterType);
+          }
+        }
+
+        Value ret = BuiltinMethod.Invoke(BuiltinObject, boundArgs.ToArray()) as Value;
+        if (ret != null)
+        {
+          return ret;
+        }
+        else
+        {
+          return new NullValue();
+        }
+      }
+    }
+
+    public override string GetValueType()
+    {
+      return "BuiltinFunction";
+    }
+  }
+
+  public class BuiltinInt : BuiltinClass
+  {
+    public int Value { get; set; }
+
+    public BuiltinInt()
+      : base("int")
+    {
+    }
   }
 
   public static class VirtualMachine
   {
+    public static List<Type> GetBuiltinClasses()
+    {
+      List<Type> types = new List<Type>();
+      foreach (Type type in Assembly.GetExecutingAssembly().GetTypes())
+      {
+        if (type.Namespace == "terp" && typeof(BuiltinClass).IsAssignableFrom(type) && type != typeof(BuiltinClass))
+        {
+          types.Add(type);
+        }
+      }
+      return types;
+    }
+
     public static Scope DefaultScope()
     {
       Scope scope = new Scope();
 
-      foreach (Type type in Assembly.GetExecutingAssembly().GetTypes())
+      foreach (Type type in GetBuiltinClasses())
       {
-        if (type.Namespace == "terp" && type.GetMethods().Any(method => method.GetCustomAttributes(true).OfType<BuiltinMethod>().Any()))
-        {
-        }
+        BuiltinClass builtinClass = type.InvokeMember(null, BindingFlags.CreateInstance, null, null, new object[0]) as BuiltinClass;
+        scope.SetValue(builtinClass.Name, builtinClass);
       }
 
       return scope;
