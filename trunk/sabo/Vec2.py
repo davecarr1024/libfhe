@@ -50,9 +50,5 @@ class Vec2:
   def cross( self, v ):
     return self.x * v.y - self.y * v.x
 
-  #which side of the line formed by a and b is c on?
-  @staticmethod
-  def classify( a, b, c ):
-    return ( b - a ).cross( c - a )
-    #return ( b.x - a.x ) * ( c.y - a.y ) - ( b.y - a.y ) * ( c.x - a.x )
-    
+  def perp( self ):
+    return Vec2( -self.y, self.x )

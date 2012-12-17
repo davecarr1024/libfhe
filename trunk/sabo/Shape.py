@@ -1,4 +1,4 @@
 class Shape:
-  #return whether p is inside this shape
-  def isPointInside( self, p ):
+  #if p isn't inside return None, else return vector to get to surface
+  def test( self, p ):
     raise RuntimeError( "not implemented" )
