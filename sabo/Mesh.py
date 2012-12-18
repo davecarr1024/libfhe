@@ -105,5 +105,6 @@ if __name__ == '__main__':
   assert not mesh.test( Vec2( 1.1, 0.5 ) )
   assert Vec2( -0.1, 0 ) == mesh.test( Vec2( 0.1, 0.5 ) )
   assert Vec2( 0.4, 0 ) == mesh.test( Vec2( 0.6, 0.5 ) )
-
-  print mesh.getContours()
+  
+  assert len( mesh.getContours() ) == 1
+  assert len( mesh.getContours()[0] ) == 4
