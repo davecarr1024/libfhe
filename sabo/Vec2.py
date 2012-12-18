@@ -9,7 +9,7 @@ class Vec2:
     return 'Vec2( %f, %f )' % ( self.x, self.y )
     
   def __eq__( self, v, eps = 1e-5 ):
-    return abs( self.x - v.x ) <= eps and abs( self.y - v.y ) <= eps
+    return v and abs( self.x - v.x ) <= eps and abs( self.y - v.y ) <= eps
     
   def __neg__( self ):
     return Vec2( -self.x, -self.y )

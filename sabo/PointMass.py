@@ -16,4 +16,3 @@ class PointMass:
     self.vel += ( acc - self.vel * self.friction ) * dt
     self.pos += self.vel * dt
     self.force = Vec2()
-    
