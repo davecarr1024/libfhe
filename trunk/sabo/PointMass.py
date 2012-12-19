@@ -7,6 +7,7 @@ class PointMass:
     self.force = Vec2()
     self.mass = float( mass )
     self.friction = 0.1
+    self.lastForce = Vec2()
     
   def applyForce( self, f ):
     self.force += f
@@ -15,4 +16,5 @@ class PointMass:
     acc = self.force / self.mass
     self.vel += ( acc - self.vel * self.friction ) * dt
     self.pos += self.vel * dt
+    self.lastForce = self.force
     self.force = Vec2()

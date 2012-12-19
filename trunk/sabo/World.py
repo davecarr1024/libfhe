@@ -6,7 +6,7 @@ class World:
   def __init__( self, bodies = [] ):
     self.bodies = bodies
     self.collisionPropGain = 1000
-    self.collisionDiffGain = 100
+    self.collisionDiffGain = 10
     self.gravity = Vec2( 0, -1 )
     
   def run( self, minDt = 0.01 ):
@@ -30,12 +30,17 @@ class World:
                   diffForce = projVel * -self.collisionDiffGain
                   force = propForce + diffForce
                   pm.applyForce( force )
+                  
                   reactionForce = force / -float( len( reactionPms ) )
                   for reactionPm in reactionPms:
                     reactionPm.applyForce( reactionForce )
+                    
               pm.applyForce( self.gravity * pm.mass )
       
       for body in self.bodies:
         body.update( dt )
+        
+      for body in self.bodies:
+        print body.getBoundingBox(), sum( [ pm.lastForce for pm in body.pointMasses ], Vec2() )
+      print '\n\n'
       
-      print map( Body.getCenterOfMass, self.bodies )

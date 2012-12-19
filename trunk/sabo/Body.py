@@ -26,7 +26,6 @@ class Body:
     for dx in ( -0.5, 0.5 ):
       for dy in ( -0.5, 0.5 ):
         pms.append( PointMass( pos + size * Vec2( dx, dy ) ) )
-        print pos, size, dx, dy, pms[-1].pos
     return Body( pms, [], [ Mesh( [ ( 0, 1, 2 ), ( 1, 2, 3 ) ] ) ], pin )
     
   def update( self, dt ):
@@ -36,6 +35,19 @@ class Body:
     for pointMass in self.pointMasses:
       pointMass.update( dt )
 
-  def getCenterOfMass( self ):
+  def getCenter( self ):
     return sum( [ pm.pos for pm in self.pointMasses ], Vec2() ) / float( len( self.pointMasses ) )
-      
+    
+  def getRadius( self ):
+    center = self.getCenter()
+    return max( [ ( pm.pos - center ).length() for pm in self.pointMasses ] )
+    
+  def getBoundingBox( self ):
+    return ( Vec2( min( [ pm.pos.x for pm in self.pointMasses ] ),
+                   min( [ pm.pos.y for pm in self.pointMasses ] ) ),
+             Vec2( max( [ pm.pos.x for pm in self.pointMasses ] ),
+                   max( [ pm.pos.y for pm in self.pointMasses ] ) ) )
+                   
+  def getBoundingBoxSize( self ):
+    min, max = self.getBoundingBox()
+    return max - min

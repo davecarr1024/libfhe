@@ -6,7 +6,7 @@ class Vec2:
     self.y = float( y )
     
   def __repr__( self ):
-    return 'Vec2( %f, %f )' % ( self.x, self.y )
+    return 'Vec2( %.2f, %.2f )' % ( self.x, self.y )
     
   def __eq__( self, v, eps = 1e-5 ):
     return v and abs( self.x - v.x ) <= eps and abs( self.y - v.y ) <= eps
