@@ -1,12 +1,13 @@
 from Vec2 import Vec2
+from Body import Body
 import time
 
 class World:
   def __init__( self, bodies = [] ):
     self.bodies = bodies
-    self.collisionPropGain = 10
-    self.collisionDiffGain = 1
-    self.gravity = Vec2( 0, -10 )
+    self.collisionPropGain = 1000
+    self.collisionDiffGain = 100
+    self.gravity = Vec2( 0, -1 )
     
   def run( self, minDt = 0.01 ):
     last = time.time()
@@ -21,12 +22,20 @@ class World:
           if i != j:
             for pm in self.bodies[i].pointMasses:
               for shape in self.bodies[j].shapes:
-                diff = shape.test( pm.pos )
-                if diff != None:
+                testResult = shape.test( pm.pos )
+                if testResult != None:
+                  diff, reactionPms = testResult
                   propForce = diff * self.collisionPropGain 
-                  diffForce = pm.vel.project( diff ) * -self.collisionDiffGain
-                  pm.applyForce( propForce + diffForce )
+                  projVel = pm.vel.project( diff )
+                  diffForce = projVel * -self.collisionDiffGain
+                  force = propForce + diffForce
+                  pm.applyForce( force )
+                  reactionForce = force / -float( len( reactionPms ) )
+                  for reactionPm in reactionPms:
+                    reactionPm.applyForce( reactionForce )
               pm.applyForce( self.gravity * pm.mass )
       
       for body in self.bodies:
         body.update( dt )
+      
+      print map( Body.getCenterOfMass, self.bodies )

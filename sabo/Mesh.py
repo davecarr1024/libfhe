@@ -1,8 +1,8 @@
 from Shape import Shape
 
 class Mesh( Shape ):
-  def __init__( self, body, tris = [] ):
-    self.body = body
+  def __init__( self, tris = [] ):
+    self.body = None
     self.tris = tris
     #TODO tesselate and generate tris if not provided
     
@@ -63,7 +63,7 @@ class Mesh( Shape ):
       minEdge = perimeter[ minDistIndex ]
       minNorm = ( allPoss[ minEdge[1] ] - allPoss[ minEdge[0] ] ).norm().perp()
       diff = minNorm * minDist
-      return diff
+      return diff, [ self.body.pointMasses[i] for i in minEdge ]
 
 if __name__ == '__main__':
   from PointMass import PointMass
