@@ -5,8 +5,8 @@ import time
 class World:
   def __init__( self, bodies = [] ):
     self.bodies = bodies
-    self.collisionPropGain = 1000
-    self.collisionDiffGain = 10
+    self.collisionPropGain = 2000
+    self.collisionDiffGain = 100
     self.gravity = Vec2( 0, -1 )
     
   def run( self, minDt = 0.01 ):
@@ -35,12 +35,15 @@ class World:
                   for reactionPm in reactionPms:
                     reactionPm.applyForce( reactionForce )
                     
+                  print i, pm.pos, diff, projVel, force
+                  assert not i or pm.pos.y >= self.bodies[0].getCenter().y
+                    
               pm.applyForce( self.gravity * pm.mass )
-      
+              
       for body in self.bodies:
         body.update( dt )
         
-      for body in self.bodies:
-        print body.getBoundingBox(), sum( [ pm.lastForce for pm in body.pointMasses ], Vec2() )
+      for i, body in enumerate( self.bodies ):
+        print i, body.getBoundingBox(), sum( [ pm.lastForce for pm in body.pointMasses ], Vec2() )
       print '\n\n'
       
