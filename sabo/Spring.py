@@ -4,7 +4,7 @@ class Spring:
   def __init__( self, p1, p2 = None ):
     self.p1 = p1
     self.p2 = p2
-    self.propGain = 50
+    self.propGain = 100
     self.diffGain = 10
     if self.p1 and self.p2:
       self.baseDist = ( self.p1.pos - self.p2.pos ).length()
