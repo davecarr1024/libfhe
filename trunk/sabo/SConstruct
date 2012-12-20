@@ -1,0 +1,18 @@
+import os
+import glob
+
+boostUrl = 'http://downloads.sourceforge.net/project/boost/boost/1.52.0/boost_1_52_0.zip'
+boostZip = 'boost_1_52_0.zip'
+boostDir = 'boost_1_52_0'
+
+if not os.path.isdir( 'ext' ):
+  os.mkdir( 'ext' )
+
+if not os.path.isfile( 'ext/%s' % boostZip ):
+  assert not os.system( "bash -c 'cd ext; wget %s'" % boostUrl )
+
+if not os.path.isdir( 'ext/%s' % boostDir ):
+  assert not os.system( "bash -c 'cd ext; unzip %s'" % boostZip )
+
+env = Environment( ENV = os.environ, CPPPATH = [ '.', 'ext/%s' % boostDir ] )
+env.Program( 'sabo', glob.glob( 'sabo/*.cpp' ) )
