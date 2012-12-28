@@ -20,7 +20,7 @@ class Lexer:
       self.exclude = exclude
       
     def __repr__( self ):
-      return 'Rule( %s, %s, %s )' % ( self.name, self.pattern, self.exclude )
+      return 'Rule( %s, \'%s\', %s )' % ( self.name, self.pattern, self.exclude )
       
     def match( self, input ):
       result = re.match( self.pattern, input )
@@ -36,7 +36,7 @@ class Lexer:
     while pos < len( input ):
       rawResults = [ ( rule, rule.match( input[pos:] ) ) for rule in self.rules ]
       results = filter( lambda result: result[1], rawResults )
-      assert results, 'no results in %s for %s' % ( rawResults, input[pos:] )
+      assert results, 'no results in %s for \'%s\'' % ( rawResults, input[pos:] )
       bestResult = max( results, key = lambda result: len( result[1].value ) )
       if not bestResult[0].exclude:
         toks.append( bestResult[1] )

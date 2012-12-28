@@ -12,9 +12,8 @@ class Parser:
     def __eq__( self, result ):
       return self.name == result.name and self.value == result.value and self.children == result.children
       
-    def __repr__( self, tabs = 0 ):
-      return '%s%s %s\n' % ( '  ' * tabs, self.name, self.value ) + \
-             ''.join( [ child.__repr__( tabs + 1 ) for child in self.children ] )
+    def __repr__( self ):
+      return 'Parser.Result( %s, %s, %s )' % ( self.name, self.value, self.children )
 
   class Rule:
     AND = 'and'
@@ -29,11 +28,7 @@ class Parser:
       self.children = children
       
     def __repr__( self, tabs = 0 ):
-      if all( [ isinstance( child, Parser.Rule ) for child in self.children ] ):
-        return '%s%s %s\n' % ( '  ' * tabs, self.name, self.type ) + \
-               ''.join( [ child.__repr__( tabs + 1 ) for child in self.children ] )
-      else:
-        return 'Parser.Rule( %s, %s, %s )' % ( self.name, self.type, self.children )
+      return 'Parser.Rule( %s, %s, %s )' % ( self.name, self.type, self.children )
       
     def parse( self, tokens ):
     
@@ -93,15 +88,16 @@ class Parser:
     resultAndTokens = self.root.parse( tokens )
     assert resultAndTokens, 'failed to parse %s' % tokens
     result, tokens = resultAndTokens
-    assert not tokens, 'leftover tokens %s' % tokens
+    assert not tokens, 'leftover tokens %s\n%s' % ( tokens, result )
     return result
     
   @staticmethod
   def load( input ):
-    lexer = Lexer( [ Lexer.Rule( 'str', '\"\S+\"', False ),
+    lexer = Lexer( [ Lexer.Rule( 'str', '\"[\S \t]*\"', False ),
                      Lexer.Rule( 'id', '\w+', False ),
                      Lexer.Rule( 'equals', '=', False ),
                      Lexer.Rule( 'star', '\*', False ),
+                     Lexer.Rule( 'plus', '\+', False ),
                      Lexer.Rule( 'pipe', '\|', False ),
                      Lexer.Rule( 'tilde', '\~', False ),
                      Lexer.Rule( 'nl', '[\n\r]', False ),
@@ -137,6 +133,10 @@ class Parser:
                               ] ),
                             ] ),
                             Parser.Rule( 'parserRuleOneOrMore', Parser.Rule.AND, [
+                              Parser.Rule( 'id', Parser.Rule.LITERAL, [] ),
+                              Parser.Rule( 'plus', Parser.Rule.LITERAL, [] ),
+                            ] ),
+                            Parser.Rule( 'parserRuleZeroOrMore', Parser.Rule.AND, [
                               Parser.Rule( 'id', Parser.Rule.LITERAL, [] ),
                               Parser.Rule( 'star', Parser.Rule.LITERAL, [] ),
                             ] ),
@@ -185,6 +185,9 @@ class Parser:
         elif parserRuleDef.name == 'parserRuleOneOrMore':
           id = parserRuleDef.children[0].value
           parserRules[ name ] = Parser.Rule( name, Parser.Rule.ONE_OR_MORE, [ id ] )
+        elif parserRuleDef.name == 'parserRuleZeroOrMore':
+          id = parserRuleDef.children[0].value
+          parserRules[ name ] = Parser.Rule( name, Parser.Rule.ZERO_OR_MORE, [ id ] )
         elif parserRuleDef.name == 'parserRuleOr':
           ids = [ parserRuleDef.children[0].value ]
           for tail in parserRuleDef.children[1].children:
@@ -214,17 +217,18 @@ if __name__ == '__main__':
     rparen = "\)"
     int = "-?\d+"
     float = "-?\d+\.\d+"
+    str = "\"[\S \t]*\""
     id = "\w+"
     ws = ~"\s+"
     
-    exprs = expr*
+    exprs = expr+
     expr = lparen exprContents rparen
     exprContents = exprContent*
-    exprContent = id | int | float | expr
+    exprContent = id | int | float | str | expr
   ''' )
   assert parser
   
-  result = parser.parse( '( foo -2 10.2 ( bar ) )' )
+  result = parser.parse( '( foo -2 10.2 "oh hello" ( bar ) )' )
   
   assert result == \
     Parser.Result( 'exprs', None, [
@@ -239,6 +243,9 @@ if __name__ == '__main__':
           ] ),
           Parser.Result( 'exprContent', None, [
             Parser.Result( 'float', '10.2', [] ),
+          ] ),
+          Parser.Result( 'exprContent', None, [
+            Parser.Result( 'str', '"oh hello"', [] ),
           ] ),
           Parser.Result( 'exprContent', None, [
             Parser.Result( 'expr', None, [
