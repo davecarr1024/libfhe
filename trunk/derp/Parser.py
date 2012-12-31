@@ -14,6 +14,10 @@ class Parser:
       
     def __repr__( self ):
       return 'Parser.Result( %s, %s, %s )' % ( self.name, self.value, self.children )
+      
+    def tree( self, tabs = 0 ):
+      return '%s%s %s\n' % ( '  ' * tabs, self.name, self.value ) + \
+        ''.join( [ child.tree( tabs + 1 ) for child in self.children ]  )
 
   class Rule:
     AND = 'and'
@@ -27,8 +31,12 @@ class Parser:
       self.type = type
       self.children = children
       
-    def __repr__( self, tabs = 0 ):
+    def __repr__( self ):
       return 'Parser.Rule( %s, %s, %s )' % ( self.name, self.type, self.children )
+      
+    def tree( self, tabs = 0 ):
+      return '%s%s %s\n' % ( '  ' * tabs, self.name, self.type ) + \
+        ''.join( [ child.tree( tabs + 1 ) for child in self.children ] )
       
     def parse( self, tokens ):
     
@@ -43,11 +51,18 @@ class Parser:
         return Parser.Result( self.name, None, childResults ), tokens
         
       elif self.type == self.OR:
+        bestResult = None
+        
         for child in self.children:
           childResultAndTokens = child.parse( copy( tokens ) )
           if childResultAndTokens:
-            childResult, tokens = childResultAndTokens
-            return Parser.Result( self.name, None, [ childResult ] ), tokens
+            childResult, childTokens = childResultAndTokens
+            if not bestResult or len( childTokens ) < len( bestTokens ):
+              bestResult = childResult
+              bestTokens = childTokens
+            
+        if bestResult:
+          return Parser.Result( self.name, None, [ bestResult ] ), bestTokens
             
       elif self.type == self.LITERAL:
         if tokens and tokens[0].name == self.name:
@@ -88,7 +103,7 @@ class Parser:
     resultAndTokens = self.root.parse( tokens )
     assert resultAndTokens, 'failed to parse %s' % tokens
     result, tokens = resultAndTokens
-    assert not tokens, 'leftover tokens %s\n%s' % ( tokens, result )
+    assert not tokens, 'leftover tokens %s\n%s' % ( ' '.join( [ token.name for token in tokens ] ), result.tree() )
     return result
     
   @staticmethod

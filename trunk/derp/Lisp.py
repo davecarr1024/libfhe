@@ -41,17 +41,14 @@ class Lisp:
     return expr.children[0].name, expr.children[0].value
     
   def _getCompoundExpr( self, expr ):
-    assert expr.name == 'expr'
+    assert expr.name == 'expr' and expr.children[0].name == 'compoundExpr'
     return expr.children[0].children[1].children
     
   def _eval( self, expr, scope ):
     exprType, exprValue = self._getExpr( expr )
     if exprType == 'id':
-      if exprValue == 'null':
-        return Lisp.Value( Lisp.Value.NULL, None )
-      else:
-        assert exprValue in scope, 'unknown var %s' % exprValue
-        return scope[exprValue]
+      assert exprValue in scope, 'unknown var %s' % exprValue
+      return scope[exprValue]
     elif exprType == 'int':
       return Lisp.Value( Lisp.Value.INT, int( exprValue ) )
     elif exprType == 'float':
@@ -81,7 +78,9 @@ class Lisp:
     
   def defaultScope( self ):
     prefix = 'builtin_'
-    return dict( [ ( name[ len( prefix ): ], Lisp.Value( Lisp.Value.FUNCTION, getattr( self, name ) ) ) for name in dir( self ) if name.startswith( prefix ) ] )
+    scope = dict( [ ( name[ len( prefix ): ], Lisp.Value( Lisp.Value.FUNCTION, getattr( self, name ) ) ) for name in dir( self ) if name.startswith( prefix ) ] )
+    scope['null'] = Lisp.Value( Lisp.Value.NULL, None )
+    return scope
     
   def builtin_add( self, argExprs, scope ):
     args = [ self._eval( argExpr, scope ) for argExpr in argExprs ]
@@ -113,8 +112,6 @@ class Lisp:
     nameType, name = self._getExpr( args[0] )
     assert nameType == 'id'
     
-    paramsType, paramsValue = self._getExpr( args[1] )
-    assert paramsType == 'compoundExpr'
     paramExprs = self._getCompoundExpr( args[1] )
     params = []
     for paramExpr in paramExprs:
@@ -130,8 +127,9 @@ class Lisp:
     
 if __name__ == '__main__':
   lisp = Lisp()
-  assert lisp.eval( 'null' )[0] == Lisp.Value( Lisp.Value.NULL, None )
-  assert lisp.eval( '1' )[0] == Lisp.Value( Lisp.Value.INT, 1 )
-  assert lisp.eval( '1.1' )[0] == Lisp.Value( Lisp.Value.FLOAT, 1.1 )
-  assert lisp.eval( '"hello world"' )[0] == Lisp.Value( Lisp.Value.STR, "hello world" )
-  assert lisp.eval( '( define square ( a ) ( mul a a ) ) (square 2)' )[1] == Lisp.Value( Lisp.Value.INT, 4 )
+  assert lisp.eval( 'null' ) == [ Lisp.Value( Lisp.Value.NULL, None ) ]
+  assert lisp.eval( '1' ) == [ Lisp.Value( Lisp.Value.INT, 1 ) ]
+  assert lisp.eval( '1.1' ) == [ Lisp.Value( Lisp.Value.FLOAT, 1.1 ) ]
+  assert lisp.eval( '"hello world"' ) == [ Lisp.Value( Lisp.Value.STR, "hello world" ) ]
+  assert lisp.eval( '( define square ( a ) ( mul a a ) ) (square 2)' ) == \
+    [ Lisp.Value( Lisp.Value.NULL, None ), Lisp.Value( Lisp.Value.INT, 4 ) ]
