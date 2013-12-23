@@ -14,6 +14,11 @@ namespace derp
             public Rule Rule { get; set; }
 
             public string Value { get; set; }
+
+            public override string ToString()
+            {
+                return "Lexer.Result( " + Rule.Name + ", " + Value + " )";
+            }
         }
 
         public class Rule
@@ -25,6 +30,13 @@ namespace derp
             public bool Include { get; set; }
 
             private Regex regex = null;
+
+            public Rule(string name, string pattern, bool include)
+            {
+                Name = name;
+                Pattern = pattern;
+                Include = include;
+            }
 
             public Result Apply(string input, int pos)
             {
@@ -42,6 +54,11 @@ namespace derp
                     return null;
                 }
             }
+
+            public override string ToString()
+            {
+                return "Lexer.Rule( " + Name + ", " + Pattern + ", " + Include + " )";
+            }
         }
 
         private List<Rule> rules = new List<Rule>();
@@ -50,6 +67,11 @@ namespace derp
         {
             get { return rules; }
             set { rules = value; }
+        }
+
+        public Lexer(params Rule[] rules)
+        {
+            Rules = rules.ToList();
         }
 
         public List<Result> Lex(string input)
@@ -63,7 +85,7 @@ namespace derp
                     .FirstOrDefault();
                 if (result == null)
                 {
-                    throw new Exception("lex error");
+                    throw new Exception("lex error " + input.Substring(pos));
                 }
                 else
                 {
