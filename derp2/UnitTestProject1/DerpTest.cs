@@ -13,17 +13,13 @@ namespace UnitTestProject1
         [TestMethod]
         public void Lex()
         {
-            Lexer lexer = new Lexer()
-            {
-                Rules = new List<Lexer.Rule>()
-                {
-                    new Lexer.Rule() { Name = "lparen", Pattern = @"\(", Include = true },
-                    new Lexer.Rule() { Name = "rparen", Pattern = @"\)", Include = true },
-                    new Lexer.Rule() { Name = "num", Pattern = @"\d+", Include = true },
-                    new Lexer.Rule() { Name = "id", Pattern = @"\w+", Include = true },
-                    new Lexer.Rule() { Name = "ws", Pattern = @"\s+", Include = false },
-                }
-            };
+            Lexer lexer = new Lexer(
+                new Lexer.Rule( "lparen", @"\(", true ),
+                new Lexer.Rule( "rparen", @"\)", true ),
+                new Lexer.Rule( "num", @"\d+", true ),
+                new Lexer.Rule( "id", @"\w+", true ),
+                new Lexer.Rule( "ws", @"\s+", false )
+            );
             CollectionAssert.AreEqual(
                 new List<Tuple<string, string>>() 
                 { 
@@ -39,31 +35,124 @@ namespace UnitTestProject1
         [TestMethod]
         public void DirectParse()
         {
-            Parser parser = new Parser()
+            Parser parser = new Parser(
+                new Lexer(
+                    new Lexer.Rule("lparen", @"\(", true),
+                    new Lexer.Rule("rparen", @"\)", true),
+                    new Lexer.Rule("num", @"\d+", true),
+                    new Lexer.Rule("id", @"\w+", true),
+                    new Lexer.Rule("ws", @"\s+", false)
+                ),
+                new Parser.Rule("program", Parser.Rule.Types.OneOrMore,
+                    new Parser.Rule("expr", Parser.Rule.Types.And,
+                        new Parser.Rule("lparen", Parser.Rule.Types.Terminal),
+                        new Parser.Rule("valList", Parser.Rule.Types.OneOrMore,
+                            new Parser.Rule("val", Parser.Rule.Types.Or,
+                                new Parser.Rule("num", Parser.Rule.Types.Terminal),
+                                new Parser.Rule("id", Parser.Rule.Types.Terminal)
+                            )
+                        ),
+                        new Parser.Rule("rparen", Parser.Rule.Types.Terminal)
+                    )
+                )
+            );
+            Assert.AreEqual(new ParseResult("program", null,
+                                new ParseResult("expr", null,
+                                    new ParseResult("lparen", "("),
+                                    new ParseResult("valList", null,
+                                        new ParseResult("val", null,
+                                            new ParseResult("id", "a")
+                                        ),
+                                        new ParseResult("val", null,
+                                            new ParseResult("num", "1")
+                                        )
+                                    ),
+                                    new ParseResult("rparen", ")")
+                                )
+                            ),
+                            new ParseResult(parser.Parse("( a 1 )")));
+        }
+
+        private class ParseResult
+        {
+            public string Type { get; set; }
+
+            public string Value { get; set; }
+
+            public List<ParseResult> Children { get; set; }
+
+            public ParseResult(Parser.Result result)
             {
-                Lexer = new Lexer()
-                {
-                    Rules = new List<Lexer.Rule>()
-                    {
-                        new Lexer.Rule() { Name = "lparen", Pattern = @"\(", Include = true },
-                        new Lexer.Rule() { Name = "rparen", Pattern = @"\)", Include = true },
-                        new Lexer.Rule() { Name = "num", Pattern = @"\d+", Include = true },
-                        new Lexer.Rule() { Name = "id", Pattern = @"\w+", Include = true },
-                        new Lexer.Rule() { Name = "ws", Pattern = @"\s+", Include = false },
-                    }
-                },
-                Root = new Parser.Rule()
-                {
-                    Name = "program",
-                    Type = Parser.Rule.Types.OneOrMore,
-                    Children = new List<Parser.Rule>()
-                    {
-                        new Parser.Rule()
-                        {
-                        },
-                    },
-                },
-            };
+                Type = result.Rule.Name;
+                Value = result.Value;
+                Children = result.Children.Select(childResult => new ParseResult(childResult)).ToList();
+            }
+
+            public ParseResult(string type, string value, params ParseResult[] children)
+            {
+                Type = type;
+                Value = value;
+                Children = children.ToList();
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is ParseResult &&
+                    (obj as ParseResult).Type == Type &&
+                    (obj as ParseResult).Value == Value &&
+                    Enumerable.SequenceEqual((obj as ParseResult).Children, Children);
+            }
+
+            public override int GetHashCode()
+            {
+                return base.GetHashCode();
+            }
+
+            private string ToString(int numTabs)
+            {
+                return string.Concat(Enumerable.Repeat("\t", numTabs)) +
+                    "ParseResult( " + Type + ", " + (Value ?? "null") + " )\n" +
+                    string.Concat(Children.Select(child => child.ToString(numTabs + 1)));
+            }
+
+            public override string ToString()
+            {
+                return ToString(0);
+            }
+        }
+
+        [TestMethod]
+        public void IndirectParse()
+        {
+            Parser parser = Parser.Load(@"
+lparen = ""\("";
+rparen = ""\)"";
+num = ""\d+"";
+id = ""\w+"";
+ws *= ""\s+"";
+
+exprList => expr+;
+expr => listExpr | id | num;
+listExpr => lparen exprList rparen;
+            ");
+            Assert.AreEqual(
+                new ParseResult("exprList", null,
+                    new ParseResult("expr", null,
+                        new ParseResult("listExpr", null,
+                            new ParseResult("lparen", "("),
+                            new ParseResult("exprList", null,
+                                new ParseResult("expr", null,
+                                    new ParseResult("id", "a")
+                                ),
+                                new ParseResult("expr", null,
+                                    new ParseResult("num", "1")
+                                )
+                            ),
+                            new ParseResult("rparen", ")")
+                        )
+                    )
+                ),
+                new ParseResult(parser.Parse("( a 1 )")));
         }
     }
 }
