@@ -1,0 +1,5 @@
+E:\libfhe\derp3\derp3\derp3\bin\Debug\derp3.dll
+E:\libfhe\derp3\derp3\derp3\bin\Debug\derp3.pdb
+E:\libfhe\derp3\derp3\derp3\obj\Debug\derp3.csprojResolveAssemblyReference.cache
+E:\libfhe\derp3\derp3\derp3\obj\Debug\derp3.dll
+E:\libfhe\derp3\derp3\derp3\obj\Debug\derp3.pdb
