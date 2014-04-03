@@ -206,7 +206,7 @@ namespace derp3
              * semicolon = ';';
              * gt = '>';
              * str = '\'.*\'';
-             * id = '\w+';
+             * id = '[a-zA-Z0-9_-]+';
              * ws ~= '\s+';
              * grammar => rule*;
              * rule => lexerRule | negLexerRule | parserRule;
@@ -250,31 +250,31 @@ namespace derp3
                             new Rule(Rule.Types.TERMINAL, "str"),
                             new Rule(Rule.Types.TERMINAL, "semicolon")
                         ),
-                        new Rule(Rule.Types.AND,"parserRule",
+                        new Rule(Rule.Types.AND, "parserRule",
                             new Rule(Rule.Types.TERMINAL, "id"),
                             new Rule(Rule.Types.TERMINAL, "equals"),
                             new Rule(Rule.Types.TERMINAL, "gt"),
-                            new Rule(Rule.Types.OR,"parserRuleImpl",
-                                new Rule(Rule.Types.AND,"andRule",
-                                    new Rule(Rule.Types.TERMINAL,"id"),
-                                    new Rule(Rule.Types.ONEORMORE,"andRuleRail",
-                                        new Rule(Rule.Types.TERMINAL,"id")
+                            new Rule(Rule.Types.OR, "parserRuleImpl",
+                                new Rule(Rule.Types.AND, "andRule",
+                                    new Rule(Rule.Types.TERMINAL, "id"),
+                                    new Rule(Rule.Types.ONEORMORE, "andRuleRail",
+                                        new Rule(Rule.Types.TERMINAL, "id")
                                     )
                                 ),
-                                new Rule(Rule.Types.AND,"oneOrMoreRule",
-                                    new Rule(Rule.Types.TERMINAL,"id"),
-                                    new Rule(Rule.Types.TERMINAL,"plus")
+                                new Rule(Rule.Types.AND, "oneOrMoreRule",
+                                    new Rule(Rule.Types.TERMINAL, "id"),
+                                    new Rule(Rule.Types.TERMINAL, "plus")
                                 ),
-                                new Rule(Rule.Types.AND,"zeroOrMoreRule",
-                                    new Rule(Rule.Types.TERMINAL,"id"),
-                                    new Rule(Rule.Types.TERMINAL,"star")
+                                new Rule(Rule.Types.AND, "zeroOrMoreRule",
+                                    new Rule(Rule.Types.TERMINAL, "id"),
+                                    new Rule(Rule.Types.TERMINAL, "star")
                                 ),
-                                new Rule(Rule.Types.AND,"orRule",
-                                    new Rule(Rule.Types.TERMINAL,"id"),
-                                    new Rule(Rule.Types.ONEORMORE,"orRuleTail",
-                                        new Rule(Rule.Types.AND,"orRuleInc",
-                                            new Rule(Rule.Types.TERMINAL,"pipe"),
-                                            new Rule(Rule.Types.TERMINAL,"id")
+                                new Rule(Rule.Types.AND, "orRule",
+                                    new Rule(Rule.Types.TERMINAL, "id"),
+                                    new Rule(Rule.Types.ONEORMORE, "orRuleTail",
+                                        new Rule(Rule.Types.AND, "orRuleInc",
+                                            new Rule(Rule.Types.TERMINAL, "pipe"),
+                                            new Rule(Rule.Types.TERMINAL, "id")
                                         )
                                     )
                                 )
@@ -286,7 +286,7 @@ namespace derp3
             );
 
             Result grammar = grammarParser.Parse(grammarStr);
-            Dictionary<string,UnboundRule> unboundRules = new Dictionary<string,UnboundRule>();
+            Dictionary<string, UnboundRule> unboundRules = new Dictionary<string, UnboundRule>();
             string rootRuleName = null;
             Lexer = new Lexer();
             foreach (Parser.Result ruleParent in grammar.Children)
@@ -360,13 +360,13 @@ namespace derp3
                 }
             }
 
-            if ( rootRuleName == null )
+            if (rootRuleName == null)
             {
-                throw new Exception("no root rule" );
+                throw new Exception("no root rule");
             }
 
-            Dictionary<string,Rule> boundRules = new Dictionary<string,Rule>();
-            Root = Bind(unboundRules,rootRuleName,boundRules);
+            Dictionary<string, Rule> boundRules = new Dictionary<string, Rule>();
+            Root = Bind(unboundRules, boundRules, rootRuleName);
         }
 
         public Result Parse(string input)
@@ -384,7 +384,7 @@ namespace derp3
             }
         }
 
-        private Rule Bind(Dictionary<string, UnboundRule> unboundRules, string name, Dictionary<string, Rule> boundRules)
+        private Rule Bind(Dictionary<string, UnboundRule> unboundRules, Dictionary<string, Rule> boundRules, string name)
         {
             UnboundRule unboundRule;
             Rule boundRule;
@@ -397,7 +397,7 @@ namespace derp3
                 boundRules[name] = boundRule = new Rule(unboundRule.Type, unboundRule.Name);
                 foreach (string childName in unboundRule.Children)
                 {
-                    boundRule.Children.Add(Bind(unboundRules, childName, boundRules));
+                    boundRule.Children.Add(Bind(unboundRules, boundRules, childName));
                 }
                 return boundRule;
             }
