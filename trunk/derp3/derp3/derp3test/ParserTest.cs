@@ -103,19 +103,16 @@ namespace derp3test
         public void TestGrammarParse()
         {
             Parser parser = new Parser(@"
-lparen = '\(';
-rparen = '\)';
-num = '\d+';
-id = '\w+';
-ws ~= '\s+';
-exprs => expr+;
-expr => lparen exprContent rparen;
-exprContent => val*;
-val => id | num;
-");
-            /*
+                lparen = '\(';
+                rparen = '\)';
+                num = '\d+';
+                id = '\w+';
+                ws ~= '\s+';
+                exprs => expr+;
+                expr => lparen exprContent rparen;
+                exprContent => val*;
+                val => id | num;
                 ");
-             */
             Assert.AreEqual(
                 new ParseResult("exprs",
                     new ParseResult("expr",
