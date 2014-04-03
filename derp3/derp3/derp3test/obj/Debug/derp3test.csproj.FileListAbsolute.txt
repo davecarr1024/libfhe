@@ -1,7 +1,0 @@
-E:\libfhe\derp3\derp3\derp3test\obj\Debug\derp3test.csprojResolveAssemblyReference.cache
-E:\libfhe\derp3\derp3\derp3test\bin\Debug\derp3test.dll
-E:\libfhe\derp3\derp3\derp3test\bin\Debug\derp3test.pdb
-E:\libfhe\derp3\derp3\derp3test\obj\Debug\derp3test.dll
-E:\libfhe\derp3\derp3\derp3test\obj\Debug\derp3test.pdb
-E:\libfhe\derp3\derp3\derp3test\bin\Debug\derp3.dll
-E:\libfhe\derp3\derp3\derp3test\bin\Debug\derp3.pdb

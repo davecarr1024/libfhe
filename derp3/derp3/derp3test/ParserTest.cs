@@ -35,7 +35,10 @@ namespace derp3test
             {
                 RuleName = result.Rule.Name;
                 Value = result.Value;
-                Children = result.Children.Select(childResult => new ParseResult(childResult)).ToList();
+                if (result.Children != null)
+                {
+                    Children = result.Children.Select(childResult => new ParseResult(childResult)).ToList();
+                }
             }
 
             public override bool Equals(object obj)
@@ -46,6 +49,11 @@ namespace derp3test
                     result.Value == Value &&
                     ((result.Children == null && Children == null) ||
                     (result.Children.Count == Children.Count && result.Children.SequenceEqual(Children)));
+            }
+
+            public override int GetHashCode()
+            {
+                return base.GetHashCode();
             }
         }
 
@@ -59,31 +67,71 @@ namespace derp3test
                 new Lexer.Rule("id", @"\w+", true),
                 new Lexer.Rule("ws", @"\s+", false));
             Parser parser = new Parser(lexer,
-                new Parser.Rule(Parser.Rule.Types.AND, "expr",
-                    new Parser.Rule(Parser.Rule.Types.TERMINAL, "lparen"),
-                    new Parser.Rule(Parser.Rule.Types.ONEORMORE, "exprContent",
-                        new Parser.Rule(Parser.Rule.Types.OR, "val",
-                            new Parser.Rule(Parser.Rule.Types.TERMINAL, "id"),
-                            new Parser.Rule(Parser.Rule.Types.TERMINAL, "num")
-                            )
-                        ),
-                    new Parser.Rule(Parser.Rule.Types.TERMINAL, "rparen")
+                new Parser.Rule(Parser.Rule.Types.ONEORMORE,"exprs",
+                    new Parser.Rule(Parser.Rule.Types.AND, "expr",
+                        new Parser.Rule(Parser.Rule.Types.TERMINAL, "lparen"),
+                        new Parser.Rule(Parser.Rule.Types.ZEROORMORE, "exprContent",
+                            new Parser.Rule(Parser.Rule.Types.OR, "val",
+                                new Parser.Rule(Parser.Rule.Types.TERMINAL, "id"),
+                                new Parser.Rule(Parser.Rule.Types.TERMINAL, "num")
+                                )
+                            ),
+                        new Parser.Rule(Parser.Rule.Types.TERMINAL, "rparen")
+                        )
                     )
                 );
             Assert.AreEqual(
-                new ParseResult("expr",
-                    new ParseResult("lparen", "("),
-                    new ParseResult("exprContent",
-                        new ParseResult("val",
-                            new ParseResult("id", "foo")
+                new ParseResult("exprs",
+                    new ParseResult("expr",
+                        new ParseResult("lparen", "("),
+                        new ParseResult("exprContent",
+                            new ParseResult("val",
+                                new ParseResult("id", "foo")
+                                ),
+                            new ParseResult("val",
+                                new ParseResult("num", "3")
+                                )
                             ),
-                        new ParseResult("val",
-                            new ParseResult("num", "3")
-                            )
-                        ),
-                    new ParseResult("rparen", ")")
+                        new ParseResult("rparen", ")")
+                        )
+                ),
+                new ParseResult(parser.Parse(@"( foo 3 )"))
+                );
+        }
+
+        [TestMethod]
+        public void TestGrammarParse()
+        {
+            Parser parser = new Parser(@"
+lparen = '\(';
+rparen = '\)';
+num = '\d+';
+id = '\w+';
+ws ~= '\s+';
+exprs => expr+;
+expr => lparen exprContent rparen;
+exprContent => val*;
+val => id | num;
+");
+            /*
+                ");
+             */
+            Assert.AreEqual(
+                new ParseResult("exprs",
+                    new ParseResult("expr",
+                        new ParseResult("lparen", "("),
+                        new ParseResult("exprContent",
+                            new ParseResult("val",
+                                new ParseResult("id", "foo")
+                                ),
+                            new ParseResult("val",
+                                new ParseResult("num", "3")
+                                )
+                            ),
+                        new ParseResult("rparen", ")")
+                        )
                     ),
-                parser.Parse(@"( foo 3 )")
+                new ParseResult(parser.Parse(@"( foo 3 )"))
                 );
         }
     }

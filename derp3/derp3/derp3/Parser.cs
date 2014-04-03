@@ -169,6 +169,22 @@ namespace derp3
             }
         }
 
+        private class UnboundRule
+        {
+            public Rule.Types Type { get; set; }
+
+            public string Name { get; set; }
+
+            public List<string> Children { get; set; }
+
+            public UnboundRule(Rule.Types type, string name, params string[] children)
+            {
+                Type = type;
+                Name = name;
+                Children = children.ToList();
+            }
+        }
+
         public Lexer Lexer { get; set; }
 
         public Rule Root { get; set; }
@@ -177,6 +193,180 @@ namespace derp3
         {
             Lexer = lexer;
             Root = root;
+        }
+
+        public Parser(string grammarStr)
+        {
+            /*
+             * pipe = '|';
+             * plus = '+';
+             * star = '*';
+             * tilde = '~';
+             * equals = '=';
+             * semicolon = ';';
+             * gt = '>';
+             * str = '\'.*\'';
+             * id = '\w+';
+             * ws ~= '\s+';
+             * grammar => rule*;
+             * rule => lexerRule | negLexerRule | parserRule;
+             * lexerRule => id equals str semicolon;
+             * negLexerRule => id tilde equals str semicolon;
+             * parserRule => id equals gt parserRuleImpl semicolon;
+             * parserRuleImpl => andRule | orRule | oneOrMoreRule | zeroOrMoreRule;
+             * andRule => id andRuleTail;
+             * andRuleTail => id+;
+             * orRule => id orRuleTail;
+             * orRuleTail => orRuleTailInc+;
+             * orRuleTailInc => pipe id;
+             * oneOrMoreRule => id plus;
+             * zeroOrMoreRule => id star;
+             */
+            Parser grammarParser = new Parser(
+                new Lexer(
+                    new Lexer.Rule("pipe", @"\|", true),
+                    new Lexer.Rule("plus", @"\+", true),
+                    new Lexer.Rule("star", @"\*", true),
+                    new Lexer.Rule("tilde", @"\~", true),
+                    new Lexer.Rule("equals", @"=", true),
+                    new Lexer.Rule("semicolon", @";", true),
+                    new Lexer.Rule("gt", @">", true),
+                    new Lexer.Rule("str", @"'.*'", true),
+                    new Lexer.Rule("id", @"[a-zA-Z0-9_-]+", true),
+                    new Lexer.Rule("ws", @"\s+", false)
+                ),
+                new Rule(Rule.Types.ONEORMORE, "grammar",
+                    new Rule(Rule.Types.OR, "rule",
+                        new Rule(Rule.Types.AND, "lexerRule",
+                            new Rule(Rule.Types.TERMINAL, "id"),
+                            new Rule(Rule.Types.TERMINAL, "equals"),
+                            new Rule(Rule.Types.TERMINAL, "str"),
+                            new Rule(Rule.Types.TERMINAL, "semicolon")
+                        ),
+                        new Rule(Rule.Types.AND, "negLexerRule",
+                            new Rule(Rule.Types.TERMINAL, "id"),
+                            new Rule(Rule.Types.TERMINAL, "tilde"),
+                            new Rule(Rule.Types.TERMINAL, "equals"),
+                            new Rule(Rule.Types.TERMINAL, "str"),
+                            new Rule(Rule.Types.TERMINAL, "semicolon")
+                        ),
+                        new Rule(Rule.Types.AND,"parserRule",
+                            new Rule(Rule.Types.TERMINAL, "id"),
+                            new Rule(Rule.Types.TERMINAL, "equals"),
+                            new Rule(Rule.Types.TERMINAL, "gt"),
+                            new Rule(Rule.Types.OR,"parserRuleImpl",
+                                new Rule(Rule.Types.AND,"andRule",
+                                    new Rule(Rule.Types.TERMINAL,"id"),
+                                    new Rule(Rule.Types.ONEORMORE,"andRuleRail",
+                                        new Rule(Rule.Types.TERMINAL,"id")
+                                    )
+                                ),
+                                new Rule(Rule.Types.AND,"oneOrMoreRule",
+                                    new Rule(Rule.Types.TERMINAL,"id"),
+                                    new Rule(Rule.Types.TERMINAL,"plus")
+                                ),
+                                new Rule(Rule.Types.AND,"zeroOrMoreRule",
+                                    new Rule(Rule.Types.TERMINAL,"id"),
+                                    new Rule(Rule.Types.TERMINAL,"star")
+                                ),
+                                new Rule(Rule.Types.AND,"orRule",
+                                    new Rule(Rule.Types.TERMINAL,"id"),
+                                    new Rule(Rule.Types.ONEORMORE,"orRuleTail",
+                                        new Rule(Rule.Types.AND,"orRuleInc",
+                                            new Rule(Rule.Types.TERMINAL,"pipe"),
+                                            new Rule(Rule.Types.TERMINAL,"id")
+                                        )
+                                    )
+                                )
+                            ),
+                            new Rule(Rule.Types.TERMINAL, "semicolon")
+                        )
+                    )
+                )
+            );
+
+            Result grammar = grammarParser.Parse(grammarStr);
+            Dictionary<string,UnboundRule> unboundRules = new Dictionary<string,UnboundRule>();
+            string rootRuleName = null;
+            Lexer = new Lexer();
+            foreach (Parser.Result ruleParent in grammar.Children)
+            {
+                Result rule = ruleParent.Children.First();
+                switch (rule.Rule.Name)
+                {
+                    case "lexerRule":
+                        {
+                            string name = rule.Children[0].Value;
+                            string pattern = rule.Children[2].Value;
+                            Lexer.Rules.Add(new Lexer.Rule(
+                                name,
+                                pattern.Substring(1, pattern.Length - 2),
+                                true));
+                            break;
+                        }
+                    case "negLexerRule":
+                        {
+                            string name = rule.Children[0].Value;
+                            string pattern = rule.Children[3].Value;
+                            Lexer.Rules.Add(new Lexer.Rule(
+                                name,
+                                pattern.Substring(1, pattern.Length - 2),
+                                false));
+                            break;
+                        }
+                    case "parserRule":
+                        {
+                            string name = rule.Children[0].Value;
+                            if (rootRuleName == null)
+                            {
+                                rootRuleName = name;
+                            }
+                            Result parserRule = rule.Children[3].Children[0];
+                            switch (parserRule.Rule.Name)
+                            {
+                                case "andRule":
+                                    {
+                                        UnboundRule unboundRule = new UnboundRule(Rule.Types.AND, name, parserRule.Children[0].Value);
+                                        foreach (Result child in parserRule.Children[1].Children)
+                                        {
+                                            unboundRule.Children.Add(child.Value);
+                                        }
+                                        unboundRules[name] = unboundRule;
+                                        break;
+                                    }
+                                case "oneOrMoreRule":
+                                    unboundRules[name] = new UnboundRule(Rule.Types.ONEORMORE, name, parserRule.Children[0].Value);
+                                    break;
+                                case "zeroOrMoreRule":
+                                    unboundRules[name] = new UnboundRule(Rule.Types.ZEROORMORE, name, parserRule.Children[0].Value);
+                                    break;
+                                case "orRule":
+                                    {
+                                        UnboundRule unboundRule = new UnboundRule(Rule.Types.OR, name, parserRule.Children[0].Value);
+                                        foreach (Result tail in parserRule.Children[1].Children)
+                                        {
+                                            unboundRule.Children.Add(tail.Children[1].Value);
+                                        }
+                                        unboundRules[name] = unboundRule;
+                                        break;
+                                    }
+                                default:
+                                    throw new Exception("unknown parserRule type " + parserRule.Rule.Name);
+                            }
+                            break;
+                        }
+                    default:
+                        throw new Exception("unknown rule type " + rule.Rule.Name);
+                }
+            }
+
+            if ( rootRuleName == null )
+            {
+                throw new Exception("no root rule" );
+            }
+
+            Dictionary<string,Rule> boundRules = new Dictionary<string,Rule>();
+            Root = Bind(unboundRules,rootRuleName,boundRules);
         }
 
         public Result Parse(string input)
@@ -191,6 +381,38 @@ namespace derp3
             else
             {
                 return result;
+            }
+        }
+
+        private Rule Bind(Dictionary<string, UnboundRule> unboundRules, string name, Dictionary<string, Rule> boundRules)
+        {
+            UnboundRule unboundRule;
+            Rule boundRule;
+            if (boundRules.TryGetValue(name, out boundRule))
+            {
+                return boundRule;
+            }
+            else if (unboundRules.TryGetValue(name, out unboundRule))
+            {
+                boundRules[name] = boundRule = new Rule(unboundRule.Type, unboundRule.Name);
+                foreach (string childName in unboundRule.Children)
+                {
+                    boundRule.Children.Add(Bind(unboundRules, childName, boundRules));
+                }
+                return boundRule;
+            }
+            else
+            {
+                Lexer.Rule lexerRule = Lexer.Rules.FirstOrDefault(lr => lr.Name == name);
+                if (lexerRule != null)
+                {
+                    boundRules[name] = boundRule = new Rule(Rule.Types.TERMINAL, name);
+                    return boundRule;
+                }
+                else
+                {
+                    throw new Exception("unknown rule " + name);
+                }
             }
         }
     }
