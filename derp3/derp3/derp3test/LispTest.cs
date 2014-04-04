@@ -17,12 +17,11 @@ namespace derp3test
             Assert.AreEqual(
                 Lisp.Eval(
                     "x",
-                    new Dictionary<string, Lisp.Value>()
-                    { 
-                        {"x", new Lisp.Value(2)}
-                    }),
+                    new Lisp.Env(new Dictionary<string, Lisp.Value>() { { "x", new Lisp.Value(2) } })
+                    ),
                 new Lisp.Value(2));
             Assert.AreEqual(Lisp.Eval("(define y 3) y"), new Lisp.Value(3));
+            Assert.AreEqual(Lisp.Eval("(define double (x) (mul 2 x)) (double 3)"), new Lisp.Value(6));
         }
     }
 }
