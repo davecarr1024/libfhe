@@ -54,6 +54,7 @@
     <Compile Include="LexerTest.cs" />
     <Compile Include="ParserTest.cs" />
     <Compile Include="LispTest.cs" />
+    <Compile Include="DerpTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\derp3\derp3.csproj">
