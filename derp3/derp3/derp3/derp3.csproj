@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Derp.cs" />
     <Compile Include="Lexer.cs" />
     <Compile Include="Lisp.cs" />
     <Compile Include="Parser.cs" />
