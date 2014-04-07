@@ -4,15 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Derp
+namespace Derp.Exprs
 {
-    public class ClassDeclExpr : Expr
+    public class ClassDecl : Expr
     {
         public string Name { get; set; }
 
         public List<Expr> Body { get; set; }
 
-        public ClassDeclExpr(string name, List<Expr> body)
+        public ClassDecl(string name, List<Expr> body)
         {
             Name = name;
             Body = body;
@@ -25,7 +25,7 @@ namespace Derp
             {
                 child.Eval(classScope);
             }
-            return scope.Vals[Name] = new ClassVal(Name, classScope);
+            return scope.Vals[Name] = new Vals.Class(Name, classScope);
         }
     }
 }

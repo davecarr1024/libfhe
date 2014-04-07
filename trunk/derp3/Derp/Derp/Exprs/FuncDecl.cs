@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Derp
+namespace Derp.Exprs
 {
-    public class FuncDeclExpr : Expr
+    public class FuncDecl : Expr
     {
         public string Name { get; set; }
 
@@ -14,7 +14,7 @@ namespace Derp
 
         public List<Expr> Body { get; set; }
 
-        public FuncDeclExpr(string name, List<string> paramList, List<Expr> body)
+        public FuncDecl(string name, List<string> paramList, List<Expr> body)
         {
             Name = name;
             Params = paramList;
@@ -23,7 +23,7 @@ namespace Derp
 
         public Val Eval(Scope scope)
         {
-            return scope.Vals[Name] = new FuncVal(Params, Body);
+            return scope.Vals[Name] = new Vals.Func(Params, Body);
         }
     }
 }

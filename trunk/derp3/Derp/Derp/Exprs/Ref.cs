@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Derp
+namespace Derp.Exprs
 {
-    public class RefExpr : Expr
+    public class Ref : Expr
     {
         public List<string> Ids { get; set; }
 
-        public RefExpr(params string[] ids)
+        public Ref(params string[] ids)
         {
             Ids = ids.ToList();
         }
@@ -23,9 +23,9 @@ namespace Derp
                 Val val;
                 if (scope.Vals.TryGetValue(Ids[i], out val))
                 {
-                    if (val is ObjectVal)
+                    if (val is Vals.Object)
                     {
-                        scope = (val as ObjectVal).Scope;
+                        scope = (val as Vals.Object).Scope;
                     }
                     else
                     {

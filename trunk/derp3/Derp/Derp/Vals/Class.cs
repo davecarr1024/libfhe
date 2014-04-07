@@ -4,15 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Derp
+namespace Derp.Vals
 {
-    public class ClassVal : Val
+    public class Class : Val
     {
         public string Name { get; set; }
 
         public Scope Scope { get; set; }
 
-        public ClassVal(string name, Scope scope)
+        public Class(string name, Scope scope)
         {
             Name = name;
             Scope = scope;
@@ -20,12 +20,12 @@ namespace Derp
 
         public Val Clone()
         {
-            return new ClassVal(Name, Scope.Clone());
+            return new Class(Name, Scope.Clone());
         }
 
         public Val Apply(List<Expr> args, Scope scope)
         {
-            return new ObjectVal(this);
+            return new Object(this);
         }
     }
 }

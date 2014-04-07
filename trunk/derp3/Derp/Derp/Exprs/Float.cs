@@ -4,20 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Derp
+namespace Derp.Exprs
 {
-    public class FloatExpr : Expr
+    public class Float : Expr
     {
         public float Value { get; set; }
 
-        public FloatExpr(float value)
+        public Float(float value)
         {
             Value = value;
         }
 
         public Val Eval(Scope scope)
         {
-            return new FloatVal(Value);
+            return new Vals.Float(Value);
         }
     }
 }

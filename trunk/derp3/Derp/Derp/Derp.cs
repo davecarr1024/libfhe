@@ -77,11 +77,11 @@ namespace Derp
                 case "parenExpr":
                     return InitExpr(expr.Children[1]);
                 case "int":
-                    return new IntExpr(int.Parse(expr.Value));
+                    return new Exprs.Int(int.Parse(expr.Value));
                 case "float":
-                    return new FloatExpr(float.Parse(expr.Value));
+                    return new Exprs.Float(float.Parse(expr.Value));
                 case "string":
-                    return new StringExpr(expr.Value.Substring(1, expr.Value.Length - 2));
+                    return new Exprs.String(expr.Value.Substring(1, expr.Value.Length - 2));
                 case "call":
                     {
                         Expr func = InitExpr(expr.Children[0]);
@@ -91,10 +91,10 @@ namespace Derp
                         {
                             args.Add(InitExpr(exprIter.Children[1]));
                         }
-                        return new CallExpr(func, args);
+                        return new Exprs.Call(func, args);
                     }
                 case "callEmpty":
-                    return new CallExpr(InitExpr(expr.Children[0]), new List<Expr>());
+                    return new Exprs.Call(InitExpr(expr.Children[0]), new List<Expr>());
                 case "funcDecl":
                     {
                         string name = expr.Children[1].Value;
@@ -105,19 +105,19 @@ namespace Derp
                             paramList.Add(param.Children[1].Value);
                         }
                         List<Expr> body = expr.Children[6].Children.Select(child => InitExpr(child)).ToList();
-                        return new FuncDeclExpr(name, paramList, body);
+                        return new Exprs.FuncDecl(name, paramList, body);
                     }
                 case "binaryOperation":
-                    return new CallExpr(InitExpr(expr.Children[1]), new List<Expr>() { InitExpr(expr.Children[0]), InitExpr(expr.Children[2]) });
+                    return new Exprs.Call(InitExpr(expr.Children[1]), new List<Expr>() { InitExpr(expr.Children[0]), InitExpr(expr.Children[2]) });
                 case "binaryOperator":
-                    return new RefExpr(expr.Children[0].Rule.Name);
+                    return new Exprs.Ref(expr.Children[0].Rule.Name);
                 case "classDecl":
-                    return new ClassDeclExpr(expr.Children[1].Value, expr.Children[3].Children.Select(child => InitExpr(child)).ToList());
+                    return new Exprs.ClassDecl(expr.Children[1].Value, expr.Children[3].Children.Select(child => InitExpr(child)).ToList());
                 case "ref":
                     {
                         List<string> objectIds = new List<string>() { expr.Children[0].Value };
                         objectIds.AddRange(expr.Children[1].Children.Select(child => child.Children[1].Value));
-                        return new RefExpr(objectIds.ToArray());
+                        return new Exprs.Ref(objectIds.ToArray());
                     }
                 default:
                     throw new Exception("invalid expr type " + expr.Rule.Name);
@@ -126,9 +126,9 @@ namespace Derp
 
         internal static Val Assign(List<Expr> args, Scope scope)
         {
-            if (args.Count == 2 && args[0] is RefExpr)
+            if (args.Count == 2 && args[0] is Exprs.Ref)
             {
-                RefExpr refArg = args[0] as RefExpr;
+                Exprs.Ref refArg = args[0] as Exprs.Ref;
                 return refArg.Resolve(scope).Vals[refArg.Ids.Last()] = args[1].Eval(scope);
             }
             else
@@ -140,9 +140,9 @@ namespace Derp
         internal static Val Add(List<Expr> args, Scope scope)
         {
             List<Val> vals = args.Select(arg => arg.Eval(scope)).ToList();
-            if (vals.Count == 2 && vals[0] is IntVal && vals[1] is IntVal)
+            if (vals.Count == 2 && vals[0] is Vals.Int && vals[1] is Vals.Int)
             {
-                return new IntVal((vals[0] as IntVal).Value + (vals[1] as IntVal).Value);
+                return new Vals.Int((vals[0] as Vals.Int).Value + (vals[1] as Vals.Int).Value);
             }
             else
             {
@@ -153,9 +153,9 @@ namespace Derp
         internal static Val Subtract(List<Expr> args, Scope scope)
         {
             List<Val> vals = args.Select(arg => arg.Eval(scope)).ToList();
-            if (vals.Count == 2 && vals[0] is IntVal && vals[1] is IntVal)
+            if (vals.Count == 2 && vals[0] is Vals.Int && vals[1] is Vals.Int)
             {
-                return new IntVal((vals[0] as IntVal).Value - (vals[1] as IntVal).Value);
+                return new Vals.Int((vals[0] as Vals.Int).Value - (vals[1] as Vals.Int).Value);
             }
             else
             {
@@ -166,9 +166,9 @@ namespace Derp
         internal static Val Multiply(List<Expr> args, Scope scope)
         {
             List<Val> vals = args.Select(arg => arg.Eval(scope)).ToList();
-            if (vals.Count == 2 && vals[0] is IntVal && vals[1] is IntVal)
+            if (vals.Count == 2 && vals[0] is Vals.Int && vals[1] is Vals.Int)
             {
-                return new IntVal((vals[0] as IntVal).Value * (vals[1] as IntVal).Value);
+                return new Vals.Int((vals[0] as Vals.Int).Value * (vals[1] as Vals.Int).Value);
             }
             else
             {
@@ -179,9 +179,9 @@ namespace Derp
         internal static Val Divide(List<Expr> args, Scope scope)
         {
             List<Val> vals = args.Select(arg => arg.Eval(scope)).ToList();
-            if (vals.Count == 2 && vals[0] is IntVal && vals[1] is IntVal)
+            if (vals.Count == 2 && vals[0] is Vals.Int && vals[1] is Vals.Int)
             {
-                return new IntVal((vals[0] as IntVal).Value / (vals[1] as IntVal).Value);
+                return new Vals.Int((vals[0] as Vals.Int).Value / (vals[1] as Vals.Int).Value);
             }
             else
             {

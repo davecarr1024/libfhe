@@ -4,23 +4,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Derp
+namespace Derp.Vals
 {
-    public class ObjectVal : Val
+    public class Object : Val
     {
-        public ClassVal Class { get; set; }
+        public Class Class { get; set; }
 
         public Scope Scope { get; set; }
 
-        public ObjectVal(ClassVal class_)
+        public Object(Class class_)
         {
             Class = class_;
             Scope = new Scope();
             foreach (KeyValuePair<string, Val> val in Class.Scope.Vals)
             {
-                if (val.Value is FuncVal)
+                if (val.Value is Func)
                 {
-                    Scope.Vals[val.Key] = new MethodVal(this, val.Value as FuncVal);
+                    Scope.Vals[val.Key] = new Method(this, val.Value as Func);
                 }
                 else
                 {
@@ -31,7 +31,7 @@ namespace Derp
 
         public Val Clone()
         {
-            return new ObjectVal(Class)
+            return new Object(Class)
             {
                 Scope = Scope.Clone(),
             };
