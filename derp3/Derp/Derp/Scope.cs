@@ -14,14 +14,14 @@ namespace Derp
         {
             Vals = new Dictionary<string, Val>()
             {
-                { "None", new NoneVal() },
-                { "False", new BoolVal(false) },
-                { "True", new BoolVal(true) },
-                { "Assign", new BuiltinFuncVal(Derp.Assign) },
-                { "Add", new BuiltinFuncVal(Derp.Add) },
-                { "Subtract", new BuiltinFuncVal(Derp.Subtract) },
-                { "Multiply", new BuiltinFuncVal(Derp.Multiply) },
-                { "Divide", new BuiltinFuncVal(Derp.Divide) },
+                { "None", new Vals.None() },
+                { "False", new Vals.Bool(false) },
+                { "True", new Vals.Bool(true) },
+                { "Assign", new Vals.BuiltinFunc(Derp.Assign) },
+                { "Add", new Vals.BuiltinFunc(Derp.Add) },
+                { "Subtract", new Vals.BuiltinFunc(Derp.Subtract) },
+                { "Multiply", new Vals.BuiltinFunc(Derp.Multiply) },
+                { "Divide", new Vals.BuiltinFunc(Derp.Divide) },
             };
         }
 

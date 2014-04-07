@@ -4,20 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Derp
+namespace Derp.Exprs
 {
-    public class IntExpr : Expr
+    public class Int : Expr
     {
         public int Value { get; set; }
 
-        public IntExpr(int value)
+        public Int(int value)
         {
             Value = value;
         }
 
         public Val Eval(Scope scope)
         {
-            return new IntVal(Value);
+            return new Vals.Int(Value);
         }
     }
 }

@@ -41,26 +41,26 @@
   <ItemGroup>
     <Compile Include="Derp.cs" />
     <Compile Include="Expr.cs" />
-    <Compile Include="Exprs\CallExpr.cs" />
-    <Compile Include="Exprs\ClassDeclExpr.cs" />
-    <Compile Include="Exprs\FloatExpr.cs" />
-    <Compile Include="Exprs\FuncDeclExpr.cs" />
-    <Compile Include="Exprs\IntExpr.cs" />
-    <Compile Include="Exprs\RefExpr.cs" />
-    <Compile Include="Exprs\StringExpr.cs" />
+    <Compile Include="Exprs\Call.cs" />
+    <Compile Include="Exprs\ClassDecl.cs" />
+    <Compile Include="Exprs\Float.cs" />
+    <Compile Include="Exprs\FuncDecl.cs" />
+    <Compile Include="Exprs\Int.cs" />
+    <Compile Include="Exprs\Ref.cs" />
+    <Compile Include="Exprs\String.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scope.cs" />
     <Compile Include="Val.cs" />
-    <Compile Include="Vals\BoolVal.cs" />
-    <Compile Include="Vals\BuiltinFuncVal.cs" />
-    <Compile Include="Vals\ClassVal.cs" />
-    <Compile Include="Vals\FloatVal.cs" />
-    <Compile Include="Vals\FuncVal.cs" />
-    <Compile Include="Vals\IntVal.cs" />
-    <Compile Include="Vals\MethodVal.cs" />
-    <Compile Include="Vals\NoneVal.cs" />
-    <Compile Include="Vals\ObjectVal.cs" />
-    <Compile Include="Vals\StringVal.cs" />
+    <Compile Include="Vals\Bool.cs" />
+    <Compile Include="Vals\BuiltinFunc.cs" />
+    <Compile Include="Vals\Class.cs" />
+    <Compile Include="Vals\Float.cs" />
+    <Compile Include="Vals\Func.cs" />
+    <Compile Include="Vals\Int.cs" />
+    <Compile Include="Vals\Method.cs" />
+    <Compile Include="Vals\None.cs" />
+    <Compile Include="Vals\Object.cs" />
+    <Compile Include="Vals\String.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

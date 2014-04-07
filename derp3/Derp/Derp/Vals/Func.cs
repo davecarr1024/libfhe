@@ -4,15 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Derp
+namespace Derp.Vals
 {
-    public class FuncVal : Val
+    public class Func : Val
     {
         public List<string> Params { get; set; }
 
         public List<Expr> Body { get; set; }
 
-        public FuncVal(List<string> paramList, List<Expr> body)
+        public Func(List<string> paramList, List<Expr> body)
         {
             Params = paramList;
             Body = body;
@@ -20,7 +20,7 @@ namespace Derp
 
         public Val Clone()
         {
-            return new FuncVal(Params, Body);
+            return new Func(Params, Body);
         }
 
         public Val Apply(List<Expr> args, Scope scope)

@@ -4,20 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Derp
+namespace Derp.Vals
 {
-    public class FloatVal : Val
+    public class Int : Val
     {
-        public float Value { get; set; }
+        public int Value { get; set; }
 
-        public FloatVal(float value)
+        public Int(int value)
         {
             Value = value;
         }
 
         public Val Clone()
         {
-            return new FloatVal(Value);
+            return new Int(Value);
         }
 
         public Val Apply(List<Expr> args, Scope scope)
@@ -27,7 +27,7 @@ namespace Derp
 
         public override bool Equals(object obj)
         {
-            return obj is FloatVal && (obj as FloatVal).Value == Value;
+            return obj is Int && (obj as Int).Value == Value;
         }
 
         public override int GetHashCode()

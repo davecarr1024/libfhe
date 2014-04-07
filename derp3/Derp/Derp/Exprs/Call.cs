@@ -4,15 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Derp
+namespace Derp.Exprs
 {
-    public class CallExpr : Expr
+    public class Call : Expr
     {
         public Expr Func { get; set; }
 
         public List<Expr> Args { get; set; }
 
-        public CallExpr(Expr func, List<Expr> args)
+        public Call(Expr func, List<Expr> args)
         {
             Func = func;
             Args = args;

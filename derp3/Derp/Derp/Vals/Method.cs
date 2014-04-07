@@ -4,15 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Derp
+namespace Derp.Vals
 {
-    public class MethodVal : Val
+    public class Method : Val
     {
-        public ObjectVal Object { get; set; }
+        public Object Object { get; set; }
 
-        public FuncVal Func { get; set; }
+        public Func Func { get; set; }
 
-        public MethodVal(ObjectVal obj, FuncVal func)
+        public Method(Object obj, Func func)
         {
             Object = obj;
             Func = func;
@@ -20,7 +20,7 @@ namespace Derp
 
         public Val Clone()
         {
-            return new MethodVal(Object, Func);
+            return new Method(Object, Func);
         }
 
         public Val Apply(List<Expr> args, Scope scope)
@@ -33,7 +33,7 @@ namespace Derp
             {
                 Scope funcScope = scope.Clone();
                 funcScope.Vals[Func.Params[0]] = Object;
-                List<Expr> funcArgs = new List<Expr>() { new RefExpr(Func.Params[0]) };
+                List<Expr> funcArgs = new List<Expr>() { new Exprs.Ref(Func.Params[0]) };
                 funcArgs.AddRange(args);
                 return Func.Apply(funcArgs, funcScope);
             }

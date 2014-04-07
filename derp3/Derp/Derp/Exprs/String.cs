@@ -4,20 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Derp
+namespace Derp.Exprs
 {
-    public class StringExpr : Expr
+    public class String : Expr
     {
         public string Value { get; set; }
 
-        public StringExpr(string value)
+        public String(string value)
         {
             Value = value;
         }
 
         public Val Eval(Scope scope)
         {
-            return new StringVal(Value);
+            return new Vals.String(Value);
         }
     }
 }
