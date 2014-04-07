@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2012 for Windows Desktop
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Parser", "Parser\Parser.csproj", "{E7987F28-1B3B-4C86-B1EC-187001B7730F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Derp", "Derp\Derp.csproj", "{8019F50A-383A-437C-A26A-28B16DEA74B0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DerpTest", "DerpTest\DerpTest.csproj", "{1550A378-F173-4EF2-880C-FA1E5CEBFAE8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E7987F28-1B3B-4C86-B1EC-187001B7730F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7987F28-1B3B-4C86-B1EC-187001B7730F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7987F28-1B3B-4C86-B1EC-187001B7730F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7987F28-1B3B-4C86-B1EC-187001B7730F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8019F50A-383A-437C-A26A-28B16DEA74B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8019F50A-383A-437C-A26A-28B16DEA74B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8019F50A-383A-437C-A26A-28B16DEA74B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8019F50A-383A-437C-A26A-28B16DEA74B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1550A378-F173-4EF2-880C-FA1E5CEBFAE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1550A378-F173-4EF2-880C-FA1E5CEBFAE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1550A378-F173-4EF2-880C-FA1E5CEBFAE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1550A378-F173-4EF2-880C-FA1E5CEBFAE8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
