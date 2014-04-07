@@ -84,7 +84,7 @@ namespace derp3
                 }
                 else
                 {
-                    throw new Exception("lex error at " + pos);
+                    throw new Exception("lex error at " + pos + " " + input.Substring(pos, Math.Min(25, input.Length - pos)));
                 }
             }
             return results;

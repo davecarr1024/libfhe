@@ -39,12 +39,32 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Derp.cs" />
-    <Compile Include="Lexer.cs" />
-    <Compile Include="Lisp.cs" />
-    <Compile Include="Parser.cs" />
+    <Compile Include="Derp\Derp.cs" />
+    <Compile Include="Derp\Expr.cs" />
+    <Compile Include="Common\Lexer.cs" />
+    <Compile Include="Derp\Exprs\ClassDeclExpr.cs" />
+    <Compile Include="Derp\Exprs\FloatExpr.cs" />
+    <Compile Include="Derp\Exprs\CallExpr.cs" />
+    <Compile Include="Derp\Exprs\FuncDeclExpr.cs" />
+    <Compile Include="Derp\Exprs\IntExpr.cs" />
+    <Compile Include="Derp\Exprs\RefExpr.cs" />
+    <Compile Include="Derp\Exprs\StringExpr.cs" />
+    <Compile Include="Derp\Vals\BoolVal.cs" />
+    <Compile Include="Derp\Vals\BuiltinFuncVal.cs" />
+    <Compile Include="Derp\Vals\ClassVal.cs" />
+    <Compile Include="Derp\Vals\FloatVal.cs" />
+    <Compile Include="Derp\Vals\FuncVal.cs" />
+    <Compile Include="Derp\Vals\IntVal.cs" />
+    <Compile Include="Derp\Vals\MethodVal.cs" />
+    <Compile Include="Derp\Vals\NoneVal.cs" />
+    <Compile Include="Derp\Vals\ObjectVal.cs" />
+    <Compile Include="Derp\Vals\StringVal.cs" />
+    <Compile Include="Common\Parser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Derp\Scope.cs" />
+    <Compile Include="Derp\Val.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
