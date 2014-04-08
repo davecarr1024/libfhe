@@ -18,12 +18,7 @@ namespace Derp.Vals
             Body = body;
         }
 
-        public Val Clone()
-        {
-            return new Func(Params, Body);
-        }
-
-        public Val Apply(List<Expr> args, Scope scope)
+        public override Val Apply(List<Expr> args, Scope scope)
         {
             if (args.Count != Params.Count)
             {
@@ -36,7 +31,7 @@ namespace Derp.Vals
                 {
                     funcScope.Vals[Params[i]] = args[i].Eval(scope);
                 }
-                return Body.Select(child => child.Eval(funcScope)).Last();
+                return Body.Select(body => body.Eval(funcScope)).Last();
             }
         }
     }

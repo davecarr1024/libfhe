@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Derp.Vals
 {
+    [BuiltinClass]
     public class Float : Val
     {
         public float Value { get; set; }
@@ -15,14 +16,9 @@ namespace Derp.Vals
             Value = value;
         }
 
-        public Val Clone()
+        public override Scope Clone()
         {
             return new Float(Value);
-        }
-
-        public Val Apply(List<Expr> args, Scope scope)
-        {
-            throw new NotImplementedException();
         }
 
         public override bool Equals(object obj)

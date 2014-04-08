@@ -6,21 +6,17 @@ using System.Threading.Tasks;
 
 namespace Derp.Vals
 {
-    public class None : Val
+    [BuiltinClass]
+    public class NoneType : Val
     {
-        public Val Clone()
+        public override Scope Clone()
         {
-            return new None();
-        }
-
-        public Val Apply(List<Expr> args, Scope scope)
-        {
-            throw new NotImplementedException();
+            return new NoneType();
         }
 
         public override bool Equals(object obj)
         {
-            return obj is None;
+            return obj is NoneType;
         }
 
         public override int GetHashCode()

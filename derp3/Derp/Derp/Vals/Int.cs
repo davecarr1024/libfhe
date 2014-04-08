@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Derp.Vals
 {
+    [BuiltinClass]
     public class Int : Val
     {
         public int Value { get; set; }
@@ -15,14 +16,9 @@ namespace Derp.Vals
             Value = value;
         }
 
-        public Val Clone()
+        public override Scope Clone()
         {
             return new Int(Value);
-        }
-
-        public Val Apply(List<Expr> args, Scope scope)
-        {
-            throw new NotImplementedException();
         }
 
         public override bool Equals(object obj)
@@ -33,6 +29,19 @@ namespace Derp.Vals
         public override int GetHashCode()
         {
             return base.GetHashCode();
+        }
+
+        [BuiltinFunc]
+        public static Val __add__(List<Val> args)
+        {
+            if (args.Count == 2 && args[0] is Int && args[1] is Int)
+            {
+                return new Int((args[0] as Int).Value + (args[1] as Int).Value);
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

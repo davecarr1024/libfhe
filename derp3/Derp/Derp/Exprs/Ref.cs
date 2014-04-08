@@ -15,42 +15,51 @@ namespace Derp.Exprs
             Ids = ids.ToList();
         }
 
-        public Scope Resolve(Scope parent)
+        public Scope Resolve(Scope scope)
         {
-            Scope scope = parent;
-            for (int i = 0; i < Ids.Count - 1; ++i)
+            Val val = null;
+            foreach (string id in Ids.Take(Ids.Count - 1))
             {
-                Val val;
-                if (scope.Vals.TryGetValue(Ids[i], out val))
+                if (scope.Vals.TryGetValue(id, out val))
                 {
-                    if (val is Vals.Object)
-                    {
-                        scope = (val as Vals.Object).Scope;
-                    }
-                    else
-                    {
-                        throw new Exception("invalid id " + Ids[i]);
-                    }
+                    scope = val;
                 }
                 else
                 {
-                    throw new Exception("unknown id " + Ids[i]);
+                    throw new Exception("unknown id " + id);
                 }
             }
-            return scope;
-        }
-
-        public Val Eval(Scope parent)
-        {
-            Scope scope = Resolve(parent);
-            Val val;
-            if (scope.Vals.TryGetValue(Ids.Last(), out val))
+            if (val != null)
             {
                 return val;
             }
             else
             {
-                throw new Exception("unknown id " + Ids.Last());
+                return scope;
+            }
+        }
+
+        public Val Eval(Scope scope)
+        {
+            Val val = null;
+            foreach (string id in Ids)
+            {
+                if (scope.Vals.TryGetValue(id, out val))
+                {
+                    scope = val;
+                }
+                else
+                {
+                    throw new Exception("unknown id " + id);
+                }
+            }
+            if (val != null)
+            {
+                return val;
+            }
+            else
+            {
+                throw new Exception("invalid ids");
             }
         }
     }
