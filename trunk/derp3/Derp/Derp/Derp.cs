@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
 
 namespace Derp
 {
@@ -15,11 +16,11 @@ namespace Derp
             rparen = '\)';
             semicolon = ';';
             comma = '\,';
-            Add = '\+';
-            Subtract = '\-';
-            Multiply = '\*';
-            Divide = '\/';
-            Assign = '=';
+            add = '\+';
+            subtract = '\-';
+            multiply = '\*';
+            divide = '\/';
+            assign = '=';
             dot = '\.';
             def = 'def';
             class = 'class';
@@ -42,7 +43,7 @@ namespace Derp
             exprListTail => exprListIter*;
             exprListIter => comma expr;
             binaryOperation => operand binaryOperator operand;
-            binaryOperator => Add | Subtract | Multiply | Divide | Assign;
+            binaryOperator => add | subtract | multiply | divide | assign;
             operand => call | callEmpty | parenExpr | literal | ref;
             literal => int | float | string;
             parenExpr => lparen expr rparen;
@@ -53,9 +54,25 @@ namespace Derp
             refIter => dot id;
         ");
 
+        public static Scope DefaultScope()
+        {
+            Scope scope = new Scope();
+            scope.Vals["None"] = new Vals.NoneType();
+            scope.Vals["True"] = new Vals.Bool(true);
+            scope.Vals["False"] = new Vals.Bool(false);
+
+            foreach (Type type in Assembly.GetExecutingAssembly().GetTypes().Where(t => t.GetCustomAttributes().Any(attr => attr is BuiltinClass)))
+            {
+                Val val = scope.Vals[type.Name] = new Val();
+                val.Bind(type);
+            }
+
+            return scope;
+        }
+
         public static Val Eval(string input)
         {
-            return Eval(input, new Scope());
+            return Eval(input, DefaultScope());
         }
 
         public static Val Eval(string input, Scope scope)
@@ -108,9 +125,29 @@ namespace Derp
                         return new Exprs.FuncDecl(name, paramList, body);
                     }
                 case "binaryOperation":
-                    return new Exprs.Call(InitExpr(expr.Children[1]), new List<Expr>() { InitExpr(expr.Children[0]), InitExpr(expr.Children[2]) });
-                case "binaryOperator":
-                    return new Exprs.Ref(expr.Children[0].Rule.Name);
+                    Exprs.BinaryOperation.Operators Operator;
+                    string operatorName = expr.Children[1].Children[0].Rule.Name;
+                    switch (operatorName)
+                    {
+                        case "add":
+                            Operator = Exprs.BinaryOperation.Operators.Add;
+                            break;
+                        case "subtract":
+                            Operator = Exprs.BinaryOperation.Operators.Subtract;
+                            break;
+                        case "multiply":
+                            Operator = Exprs.BinaryOperation.Operators.Multiply;
+                            break;
+                        case "divide":
+                            Operator = Exprs.BinaryOperation.Operators.Divide;
+                            break;
+                        case "assign":
+                            Operator = Exprs.BinaryOperation.Operators.Assign;
+                            break;
+                        default:
+                            throw new Exception("invalid binary operator " + operatorName);
+                    }
+                    return new Exprs.BinaryOperation(Operator, InitExpr(expr.Children[0]), InitExpr(expr.Children[2]));
                 case "classDecl":
                     return new Exprs.ClassDecl(expr.Children[1].Value, expr.Children[3].Children.Select(child => InitExpr(child)).ToList());
                 case "ref":
@@ -121,71 +158,6 @@ namespace Derp
                     }
                 default:
                     throw new Exception("invalid expr type " + expr.Rule.Name);
-            }
-        }
-
-        internal static Val Assign(List<Expr> args, Scope scope)
-        {
-            if (args.Count == 2 && args[0] is Exprs.Ref)
-            {
-                Exprs.Ref refArg = args[0] as Exprs.Ref;
-                return refArg.Resolve(scope).Vals[refArg.Ids.Last()] = args[1].Eval(scope);
-            }
-            else
-            {
-                throw new Exception("invalid Assign args");
-            }
-        }
-
-        internal static Val Add(List<Expr> args, Scope scope)
-        {
-            List<Val> vals = args.Select(arg => arg.Eval(scope)).ToList();
-            if (vals.Count == 2 && vals[0] is Vals.Int && vals[1] is Vals.Int)
-            {
-                return new Vals.Int((vals[0] as Vals.Int).Value + (vals[1] as Vals.Int).Value);
-            }
-            else
-            {
-                throw new Exception("invalid Add args");
-            }
-        }
-
-        internal static Val Subtract(List<Expr> args, Scope scope)
-        {
-            List<Val> vals = args.Select(arg => arg.Eval(scope)).ToList();
-            if (vals.Count == 2 && vals[0] is Vals.Int && vals[1] is Vals.Int)
-            {
-                return new Vals.Int((vals[0] as Vals.Int).Value - (vals[1] as Vals.Int).Value);
-            }
-            else
-            {
-                throw new Exception("invalid Subtract args");
-            }
-        }
-
-        internal static Val Multiply(List<Expr> args, Scope scope)
-        {
-            List<Val> vals = args.Select(arg => arg.Eval(scope)).ToList();
-            if (vals.Count == 2 && vals[0] is Vals.Int && vals[1] is Vals.Int)
-            {
-                return new Vals.Int((vals[0] as Vals.Int).Value * (vals[1] as Vals.Int).Value);
-            }
-            else
-            {
-                throw new Exception("invalid Multiply args");
-            }
-        }
-
-        internal static Val Divide(List<Expr> args, Scope scope)
-        {
-            List<Val> vals = args.Select(arg => arg.Eval(scope)).ToList();
-            if (vals.Count == 2 && vals[0] is Vals.Int && vals[1] is Vals.Int)
-            {
-                return new Vals.Int((vals[0] as Vals.Int).Value / (vals[1] as Vals.Int).Value);
-            }
-            else
-            {
-                throw new Exception("invalid Divide args");
             }
         }
     }

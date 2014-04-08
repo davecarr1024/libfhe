@@ -12,26 +12,21 @@ namespace Derp
 
         public Scope()
         {
-            Vals = new Dictionary<string, Val>()
-            {
-                { "None", new Vals.None() },
-                { "False", new Vals.Bool(false) },
-                { "True", new Vals.Bool(true) },
-                { "Assign", new Vals.BuiltinFunc(Derp.Assign) },
-                { "Add", new Vals.BuiltinFunc(Derp.Add) },
-                { "Subtract", new Vals.BuiltinFunc(Derp.Subtract) },
-                { "Multiply", new Vals.BuiltinFunc(Derp.Multiply) },
-                { "Divide", new Vals.BuiltinFunc(Derp.Divide) },
-            };
+            Vals = new Dictionary<string, Val>();
         }
 
-        public Scope Clone()
+        public void Copy(Scope scope)
+        {
+            foreach (KeyValuePair<string, Val> val in scope.Vals)
+            {
+                Vals[val.Key] = val.Value.Clone() as Val;
+            }
+        }
+
+        public virtual Scope Clone()
         {
             Scope scope = new Scope();
-            foreach (KeyValuePair<string, Val> val in Vals)
-            {
-                scope.Vals[val.Key] = val.Value.Clone();
-            }
+            scope.Copy(this);
             return scope;
         }
     }
