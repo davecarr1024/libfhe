@@ -57,13 +57,13 @@ namespace Derp
         public static Scope DefaultScope()
         {
             Scope scope = new Scope();
-            scope.Vals["None"] = new Vals.NoneType();
-            scope.Vals["True"] = new Vals.Bool(true);
-            scope.Vals["False"] = new Vals.Bool(false);
+            scope["None"] = new Vals.NoneType();
+            scope["True"] = new Vals.Bool(true);
+            scope["False"] = new Vals.Bool(false);
 
             foreach (Type type in Assembly.GetExecutingAssembly().GetTypes().Where(t => t.GetCustomAttributes().Any(attr => attr is BuiltinClass)))
             {
-                Val val = scope.Vals[type.Name] = new Val();
+                Val val = scope[type.Name] = new Val();
                 val.Bind(type);
             }
 

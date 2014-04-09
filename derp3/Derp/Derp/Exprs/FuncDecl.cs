@@ -23,7 +23,7 @@ namespace Derp.Exprs
 
         public Val Eval(Scope scope)
         {
-            return scope.Vals[Name] = new Vals.Func(Params, Body);
+            return scope[Name] = new Vals.Func(Params, Body);
         }
     }
 }

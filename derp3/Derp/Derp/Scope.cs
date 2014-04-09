@@ -8,18 +8,62 @@ namespace Derp
 {
     public class Scope
     {
-        public Dictionary<string, Val> Vals { get; set; }
+        public Scope Parent { get; set; }
+
+        private Dictionary<string, Val> vals = new Dictionary<string, Val>();
 
         public Scope()
         {
-            Vals = new Dictionary<string, Val>();
+        }
+
+        public Scope(Scope parent)
+        {
+            Parent = parent;
+        }
+
+        public Val this[string id]
+        {
+            get
+            {
+                Val val;
+                if (vals.TryGetValue(id, out val))
+                {
+                    return val;
+                }
+                else if (Parent != null)
+                {
+                    return Parent[id];
+                }
+                else
+                {
+                    throw new Exception("invalid id");
+                }
+            }
+            set
+            {
+                vals[id] = value;
+            }
+        }
+
+        public bool ContainsKey(string id)
+        {
+            return vals.ContainsKey(id) || (Parent != null && Parent.ContainsKey(id));
+        }
+
+        public bool TryGetValue(string id, out Val val)
+        {
+            return vals.TryGetValue(id, out val) || (Parent != null && Parent.TryGetValue(id, out val));
         }
 
         public void Copy(Scope scope)
         {
-            foreach (KeyValuePair<string, Val> val in scope.Vals)
+            foreach (KeyValuePair<string, Val> val in scope.vals)
             {
-                Vals[val.Key] = val.Value.Clone() as Val;
+                vals[val.Key] = val.Value.Clone() as Val;
+            }
+            if (scope.Parent != null)
+            {
+                Copy(scope.Parent);
             }
         }
 

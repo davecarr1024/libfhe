@@ -26,10 +26,10 @@ namespace Derp.Vals
             }
             else
             {
-                Scope funcScope = scope.Clone();
+                Scope funcScope = new Scope(scope);
                 for (int i = 0; i < args.Count; ++i)
                 {
-                    funcScope.Vals[Params[i]] = args[i].Eval(scope);
+                    funcScope[Params[i]] = args[i].Eval(scope);
                 }
                 return Body.Select(body => body.Eval(funcScope)).Last();
             }

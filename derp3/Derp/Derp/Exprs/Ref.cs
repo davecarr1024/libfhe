@@ -20,7 +20,7 @@ namespace Derp.Exprs
             Val val = null;
             foreach (string id in Ids.Take(Ids.Count - 1))
             {
-                if (scope.Vals.TryGetValue(id, out val))
+                if (scope.TryGetValue(id, out val))
                 {
                     scope = val;
                 }
@@ -44,7 +44,7 @@ namespace Derp.Exprs
             Val val = null;
             foreach (string id in Ids)
             {
-                if (scope.Vals.TryGetValue(id, out val))
+                if (scope.TryGetValue(id, out val))
                 {
                     scope = val;
                 }

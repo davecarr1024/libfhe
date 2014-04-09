@@ -11,11 +11,11 @@ namespace Derp
         public void TestBind()
         {
             Scope scope = Derp.DefaultScope();
-            Assert.IsTrue(scope.Vals.ContainsKey("Bool"));
-            Val boolClass = scope.Vals["Bool"];
-            Assert.IsTrue(boolClass.Vals.ContainsKey("__str__"));
-            scope.Vals["self"] = new Vals.Bool(true);
-            Assert.AreEqual(new Vals.String("True"), boolClass.Vals["__str__"].Apply(new List<Expr>() { new Exprs.Ref("self") }, scope));
+            Assert.IsTrue(scope.ContainsKey("Bool"));
+            Val boolClass = scope["Bool"];
+            Assert.IsTrue(boolClass.ContainsKey("__str__"));
+            scope["self"] = new Vals.Bool(true);
+            Assert.AreEqual(new Vals.String("True"), boolClass["__str__"].Apply(new List<Expr>() { new Exprs.Ref("self") }, scope));
         }
 
         [TestMethod]
