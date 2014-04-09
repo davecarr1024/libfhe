@@ -24,6 +24,7 @@ namespace Derp
         public void TestLiterals()
         {
             Assert.AreEqual(new Vals.NoneType(), Derp.Eval("None;"));
+            Assert.AreEqual(new Vals.Bool(false), Derp.Eval("False;"));
             Assert.AreEqual(new Vals.Bool(true), Derp.Eval("True;"));
             Assert.AreEqual(new Vals.Int(2), Derp.Eval("2;"));
             Assert.AreEqual(new Vals.Float(2.1f), Derp.Eval("2.1;"));
@@ -33,12 +34,7 @@ namespace Derp
         [TestMethod]
         public void TestFuncs()
         {
-            Assert.AreEqual(new Vals.Int(3), Derp.Eval(@"
-                        def foo(a) { a; } foo(3);
-                    "));
-            Assert.AreEqual(new Vals.Int(7), Derp.Eval(@"
-                        def foo(a,b) { a + b; } foo(3,4);
-                    "));
+            Assert.AreEqual(new Vals.Int(7), Derp.Eval(@"def foo(a,b) { a + b; } foo(3,4);"));
         }
 
         [TestMethod]
@@ -69,6 +65,24 @@ namespace Derp
                         f.init(20);
                         f.bar( 5 );
                     "));
+        }
+
+        [TestMethod]
+        public void TestUnaryOperators()
+        {
+            Assert.AreEqual(new Vals.Int(-1), Derp.Eval(@"-1;"));
+            Assert.AreEqual(new Vals.Bool(false), Derp.Eval(@"!True;"));
+            Assert.AreEqual(new Vals.Int(-3), Derp.Eval(@"-1 * 3;"));
+        }
+
+        [TestMethod]
+        public void TestBuiltinCtors()
+        {
+            Assert.AreEqual(new Vals.NoneType(), Derp.Eval(@"NoneType();"));
+            Assert.AreEqual(new Vals.Bool(true), Derp.Eval(@"Bool(True);"));
+            Assert.AreEqual(new Vals.Int(12), Derp.Eval(@"Int(12);"));
+            Assert.AreEqual(new Vals.Float(2.1f), Derp.Eval(@"Float(2.1);"));
+            Assert.AreEqual(new Vals.String("bar"), Derp.Eval(@"String(""bar"");"));
         }
 
         [TestMethod]

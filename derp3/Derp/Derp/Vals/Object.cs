@@ -42,5 +42,10 @@ namespace Derp.Vals
                 throw new Exception("call on obj with no __call__ method");
             }
         }
+
+        public virtual bool AsBool()
+        {
+            return true;
+        }
     }
 }

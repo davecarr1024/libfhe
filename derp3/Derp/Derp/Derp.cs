@@ -20,12 +20,14 @@ namespace Derp
             subtract = '\-';
             multiply = '\*';
             divide = '\/';
+            equals = '==';
             assign = '=';
+            not = '\!';
             dot = '\.';
             def = 'def';
             class = 'class';
-            float = '-?\d+\.\d+';
-            int = '-?\d+';
+            float = '\d+\.\d+';
+            int = '\d+';
             string = '"".*""';
             id = '[a-zA-Z0-9-_]+';
             ws ~= '\s+';
@@ -36,15 +38,17 @@ namespace Derp
             idListTail => idListIter*;
             idListIter => comma id;
             line => expr semicolon;
-            expr => binaryOperation | call | callEmpty | literal | parenExpr | ref;
+            expr => unaryOperation | binaryOperation | call | callEmpty | literal | ref;
             callEmpty => ref lparen rparen;
             call => ref lparen exprList rparen;
             exprList => expr exprListTail;
             exprListTail => exprListIter*;
             exprListIter => comma expr;
             binaryOperation => operand binaryOperator operand;
-            binaryOperator => add | subtract | multiply | divide | assign;
-            operand => call | callEmpty | parenExpr | literal | ref;
+            binaryOperator => add | subtract | multiply | divide | equals | assign;
+            unaryOperation => unaryOperator operand;
+            unaryOperator => not | subtract;
+            operand => unaryOperation | call | callEmpty | parenExpr | literal | ref;
             literal => int | float | string;
             parenExpr => lparen expr rparen;
             classDecl => class id lbrace classDeclBody rbrace;
@@ -60,10 +64,21 @@ namespace Derp
             scope["None"] = new Vals.NoneType();
             scope["True"] = new Vals.Bool(true);
             scope["False"] = new Vals.Bool(false);
+            scope["Assert"] = new Vals.SystemBuiltin((args, s) =>
+            {
+                foreach (Expr arg in args)
+                {
+                    if (!arg.Eval(s).AsBool())
+                    {
+                        throw new Exception("assertion " + arg + " failed");
+                    }
+                }
+                return new Vals.NoneType();
+            });
 
             foreach (Type type in Assembly.GetExecutingAssembly().GetTypes().Where(t => t.GetCustomAttributes().Any(attr => attr is BuiltinClass)))
             {
-                scope[type.Name] = Vals.Class.GetBuiltinClass(type);
+                scope[type.Name] = Vals.Class.Bind(type);
             }
 
             return scope;
@@ -124,29 +139,51 @@ namespace Derp
                         return new Exprs.FuncDecl(name, paramList, body);
                     }
                 case "binaryOperation":
-                    Exprs.BinaryOperation.Operators Operator;
-                    string operatorName = expr.Children[1].Children[0].Rule.Name;
-                    switch (operatorName)
                     {
-                        case "add":
-                            Operator = Exprs.BinaryOperation.Operators.Add;
-                            break;
-                        case "subtract":
-                            Operator = Exprs.BinaryOperation.Operators.Subtract;
-                            break;
-                        case "multiply":
-                            Operator = Exprs.BinaryOperation.Operators.Multiply;
-                            break;
-                        case "divide":
-                            Operator = Exprs.BinaryOperation.Operators.Divide;
-                            break;
-                        case "assign":
-                            Operator = Exprs.BinaryOperation.Operators.Assign;
-                            break;
-                        default:
-                            throw new Exception("invalid binary operator " + operatorName);
+                        Exprs.BinaryOperation.Operators op;
+                        string operatorName = expr.Children[1].Children[0].Rule.Name;
+                        switch (operatorName)
+                        {
+                            case "add":
+                                op = Exprs.BinaryOperation.Operators.Add;
+                                break;
+                            case "subtract":
+                                op = Exprs.BinaryOperation.Operators.Subtract;
+                                break;
+                            case "multiply":
+                                op = Exprs.BinaryOperation.Operators.Multiply;
+                                break;
+                            case "divide":
+                                op = Exprs.BinaryOperation.Operators.Divide;
+                                break;
+                            case "assign":
+                                op = Exprs.BinaryOperation.Operators.Assign;
+                                break;
+                            case "equals":
+                                op = Exprs.BinaryOperation.Operators.Equals;
+                                break;
+                            default:
+                                throw new Exception("invalid binary operator " + operatorName);
+                        }
+                        return new Exprs.BinaryOperation(op, InitExpr(expr.Children[0]), InitExpr(expr.Children[2]));
                     }
-                    return new Exprs.BinaryOperation(Operator, InitExpr(expr.Children[0]), InitExpr(expr.Children[2]));
+                case "unaryOperation":
+                    {
+                        string operatorName = expr.Children[0].Children[0].Rule.Name;
+                        Exprs.UnaryOperation.Operators op;
+                        switch (operatorName)
+                        {
+                            case "not":
+                                op = Exprs.UnaryOperation.Operators.Not;
+                                break;
+                            case "subtract":
+                                op = Exprs.UnaryOperation.Operators.Negative;
+                                break;
+                            default:
+                                throw new Exception("invalid unary operator " + operatorName);
+                        }
+                        return new Exprs.UnaryOperation(op, InitExpr(expr.Children[1]));
+                    }
                 case "classDecl":
                     return new Exprs.ClassDecl(expr.Children[1].Value, expr.Children[3].Children.Select(child => InitExpr(child)).ToList());
                 case "ref":

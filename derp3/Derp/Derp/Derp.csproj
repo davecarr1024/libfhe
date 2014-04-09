@@ -52,6 +52,7 @@
     <Compile Include="Exprs\Int.cs" />
     <Compile Include="Exprs\Ref.cs" />
     <Compile Include="Exprs\String.cs" />
+    <Compile Include="Exprs\UnaryOperation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scope.cs" />
     <Compile Include="ScopeVal.cs" />
@@ -66,6 +67,7 @@
     <Compile Include="Vals\NoneType.cs" />
     <Compile Include="Vals\Object.cs" />
     <Compile Include="Vals\String.cs" />
+    <Compile Include="Vals\SystemBuiltin.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

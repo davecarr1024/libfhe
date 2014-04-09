@@ -6,28 +6,28 @@ using System.Threading.Tasks;
 
 namespace Derp.Vals
 {
-    public class Builtin : Val
+    public class SystemBuiltin : Val
     {
-        public Func<List<Val>, Val> Func { get; set; }
+        public Func<List<Expr>, Scope, Val> Func { get; set; }
 
-        public Builtin(Func<List<Val>, Val> func)
+        public SystemBuiltin(Func<List<Expr>, Scope, Val> func)
         {
             Func = func;
         }
 
         public Val Clone()
         {
-            return new Builtin(Func);
+            return new SystemBuiltin(Func);
         }
 
         public Val Apply(List<Expr> args, Scope scope)
         {
-            return Func(args.Select(arg => arg.Eval(scope)).ToList());
+            return Func(args, scope);
         }
 
         public bool AsBool()
         {
-            return false;
+            return true;
         }
     }
 }

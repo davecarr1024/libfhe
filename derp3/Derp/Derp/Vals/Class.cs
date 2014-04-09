@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Reflection;
 
 namespace Derp.Vals
@@ -16,11 +14,13 @@ namespace Derp.Vals
 
         private static Dictionary<Type, Class> BuiltinClasses = new Dictionary<Type, Class>();
 
-        public static Class GetBuiltinClass(Type type)
+        private static Dictionary<Class, Type> BuiltinTypes = new Dictionary<Class, Type>();
+
+        public static Class Bind(Type type)
         {
             if (!BuiltinClasses.ContainsKey(type))
             {
-                BuiltinClasses[type] = new Class(type);
+                BuiltinTypes[BuiltinClasses[type] = new Class(type)] = type;
             }
             return BuiltinClasses[type];
         }
@@ -39,18 +39,23 @@ namespace Derp.Vals
         {
             Name = type.Name;
             Scope = new Scope();
-            Bind(type);
-        }
-
-        private void Bind(Type type)
-        {
             if (type.BaseType != null)
             {
-                Bind(type.BaseType);
+                Scope.Parent = Bind(type.BaseType).Scope;
             }
             foreach (MethodInfo method in type.GetMethods().Where(m => m.GetCustomAttributes().Any(attr => attr is BuiltinFunc)))
             {
-                Scope[method.Name] = new Builtin((args) => method.Invoke(args.First(), args.Skip(1).Cast<object>().ToArray()) as Val);
+                Scope[method.Name] = new Builtin((args) =>
+                    {
+                        if (method.IsStatic)
+                        {
+                            return method.Invoke(null, args.Cast<object>().ToArray()) as Val;
+                        }
+                        else
+                        {
+                            return method.Invoke(args.First(), args.Skip(1).Cast<object>().ToArray()) as Val;
+                        }
+                    });
             }
         }
 
@@ -61,7 +66,29 @@ namespace Derp.Vals
 
         public Val Apply(List<Expr> args, Scope scope)
         {
-            return new Object(this);
+            if (Scope.ContainsKey("__new__"))
+            {
+                Object obj = Scope["__new__"].Apply(args, scope) as Object;
+                if (obj == null)
+                {
+                    throw new Exception(Name + ".__new__() must return object");
+                }
+                return obj;
+            }
+            else
+            {
+                Object obj = new Object(this);
+                if (obj.Scope.ContainsKey("__init__"))
+                {
+                    obj.Scope["__init__"].Apply(args, scope);
+                }
+                return obj;
+            }
+        }
+
+        public bool AsBool()
+        {
+            return false;
         }
     }
 }

@@ -29,5 +29,10 @@ namespace Derp.Vals
             funcArgs.AddRange(args);
             return Func.Apply(funcArgs, scope);
         }
+
+        public bool AsBool()
+        {
+            return true;
+        }
     }
 }

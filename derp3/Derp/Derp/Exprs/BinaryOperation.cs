@@ -15,6 +15,7 @@ namespace Derp.Exprs
             Subtract,
             Multiply,
             Divide,
+            Equals,
         }
 
         private static Dictionary<Operators, string> OperatorFuncs = new Dictionary<Operators, string>()
@@ -23,6 +24,17 @@ namespace Derp.Exprs
             { Operators.Subtract, "__sub__" },
             { Operators.Multiply, "__mul__" },
             { Operators.Divide, "__div__" },
+            { Operators.Equals, "__eq__" },
+        };
+
+        private static Dictionary<Operators, string> OperatorSymbols = new Dictionary<Operators, string>()
+        {
+            { Operators.Add, "+" },
+            { Operators.Subtract, "-" },
+            { Operators.Multiply, "*" },
+            { Operators.Divide, "/" },
+            { Operators.Assign, "=" },
+            { Operators.Equals, "==" },
         };
 
         public Operators Operator { get; set; }
@@ -65,6 +77,11 @@ namespace Derp.Exprs
                     throw new Exception("lhs " + arg1 + " doesn't support operator " + Operator + " with func " + OperatorFuncs[Operator]);
                 }
             }
+        }
+
+        public override string ToString()
+        {
+            return Arg1 + " " + OperatorSymbols[Operator] + " " + Arg2;
         }
     }
 }

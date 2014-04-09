@@ -52,5 +52,10 @@ namespace Derp.Exprs
                 throw new Exception("unknown id " + Ids.Last());
             }
         }
+
+        public override string ToString()
+        {
+            return string.Join(".", Ids.ToArray());
+        }
     }
 }
