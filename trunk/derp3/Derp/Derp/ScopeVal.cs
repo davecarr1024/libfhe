@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace Derp
 {
-    public interface Val
+    interface ScopeVal : Val
     {
-        Val Clone();
-
-        Val Apply(List<Expr> args, Scope scope);
+        Scope Scope { get; }
     }
 }

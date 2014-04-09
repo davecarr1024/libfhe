@@ -17,49 +17,39 @@ namespace Derp.Exprs
 
         public Scope Resolve(Scope scope)
         {
-            Val val = null;
             foreach (string id in Ids.Take(Ids.Count - 1))
             {
+                Val val;
                 if (scope.TryGetValue(id, out val))
                 {
-                    scope = val;
+                    if (val is ScopeVal)
+                    {
+                        scope = (val as ScopeVal).Scope;
+                    }
+                    else
+                    {
+                        throw new Exception("invalid scope val " + id);
+                    }
                 }
                 else
                 {
                     throw new Exception("unknown id " + id);
                 }
             }
-            if (val != null)
-            {
-                return val;
-            }
-            else
-            {
-                return scope;
-            }
+            return scope;
         }
 
         public Val Eval(Scope scope)
         {
-            Val val = null;
-            foreach (string id in Ids)
-            {
-                if (scope.TryGetValue(id, out val))
-                {
-                    scope = val;
-                }
-                else
-                {
-                    throw new Exception("unknown id " + id);
-                }
-            }
-            if (val != null)
+            scope = Resolve(scope);
+            Val val;
+            if ( scope.TryGetValue(Ids.Last(),out val))
             {
                 return val;
             }
             else
             {
-                throw new Exception("invalid ids");
+                throw new Exception("unknown id " + Ids.Last());
             }
         }
     }

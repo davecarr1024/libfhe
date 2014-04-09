@@ -54,6 +54,8 @@ namespace Derp
             refIter => dot id;
         ");
 
+        private static Dictionary<Type, Vals.Class> Types = new Dictionary<Type, Vals.Class>();
+
         public static Scope DefaultScope()
         {
             Scope scope = new Scope();
@@ -63,8 +65,7 @@ namespace Derp
 
             foreach (Type type in Assembly.GetExecutingAssembly().GetTypes().Where(t => t.GetCustomAttributes().Any(attr => attr is BuiltinClass)))
             {
-                Val val = scope[type.Name] = new Val();
-                val.Bind(type);
+                scope[type.Name] = new Vals.Class(type, scope);
             }
 
             return scope;

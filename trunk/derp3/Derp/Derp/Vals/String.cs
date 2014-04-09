@@ -16,9 +16,14 @@ namespace Derp.Vals
             Value = value;
         }
 
-        public override Scope Clone()
+        public Val Clone()
         {
             return new String(Value);
+        }
+
+        public Val Apply(List<Expr> args, Scope scope)
+        {
+            throw new NotImplementedException();
         }
 
         public override bool Equals(object obj)
