@@ -14,6 +14,17 @@ namespace Derp.Vals
 
         public Scope Scope { get; set; }
 
+        private static Dictionary<Type, Class> BuiltinClasses = new Dictionary<Type, Class>();
+
+        public static Class GetBuiltinClass(Type type)
+        {
+            if (!BuiltinClasses.ContainsKey(type))
+            {
+                BuiltinClasses[type] = new Class(type);
+            }
+            return BuiltinClasses[type];
+        }
+
         public Class(string name, List<Expr> body, Scope parent)
         {
             Name = name;
@@ -24,10 +35,19 @@ namespace Derp.Vals
             }
         }
 
-        public Class(Type type, Scope parent)
+        private Class(Type type)
         {
             Name = type.Name;
-            Scope = new Scope(parent);
+            Scope = new Scope();
+            Bind(type);
+        }
+
+        private void Bind(Type type)
+        {
+            if (type.BaseType != null)
+            {
+                Bind(type.BaseType);
+            }
             foreach (MethodInfo method in type.GetMethods().Where(m => m.GetCustomAttributes().Any(attr => attr is BuiltinFunc)))
             {
                 Scope[method.Name] = new Builtin((args) => method.Invoke(args.First(), args.Skip(1).Cast<object>().ToArray()) as Val);
@@ -41,7 +61,7 @@ namespace Derp.Vals
 
         public Val Apply(List<Expr> args, Scope scope)
         {
-            throw new NotImplementedException();
+            return new Object(this);
         }
     }
 }

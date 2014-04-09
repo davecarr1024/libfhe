@@ -15,8 +15,9 @@ namespace Derp
             Vals.Class boolClass = scope["Bool"] as Vals.Class;
             Assert.IsTrue(boolClass != null);
             Assert.IsTrue(boolClass.Scope.ContainsKey("__str__"));
-            scope["self"] = new Vals.Bool(true);
-            Assert.AreEqual(new Vals.String("True"), boolClass.Scope["__str__"].Apply(new List<Expr>() { new Exprs.Ref("self") }, scope));
+            Vals.Object b = new Vals.Bool(true);
+            Assert.IsTrue(b.Scope.ContainsKey("__str__"));
+            Assert.AreEqual(new Vals.String("True"), b.Scope["__str__"].Apply(new List<Expr>(), scope));
         }
 
         [TestMethod]
@@ -73,7 +74,7 @@ namespace Derp
         [TestMethod]
         public void TestFile()
         {
-            Assert.AreEqual(new Vals.Int(3), Derp.Eval(System.IO.File.ReadAllText("test.derp")));
+            Derp.Eval(System.IO.File.ReadAllText("test.derp"));
         }
     }
 }
