@@ -10,7 +10,7 @@ namespace Derp.Vals
     public class NoneType : Object
     {
         public NoneType()
-            : base(Class.GetBuiltinClass(typeof(NoneType)))
+            : base(Class.Bind(typeof(NoneType)))
         {
         }
 
@@ -27,6 +27,23 @@ namespace Derp.Vals
         public override int GetHashCode()
         {
             return base.GetHashCode();
+        }
+
+        public override bool AsBool()
+        {
+            return false;
+        }
+
+        [BuiltinFunc]
+        public static NoneType __new__()
+        {
+            return new NoneType();
+        }
+
+        [BuiltinFunc]
+        public Bool __eq__(NoneType rhs)
+        {
+            return new Bool(true);
         }
     }
 }

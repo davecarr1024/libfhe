@@ -12,7 +12,7 @@ namespace Derp.Vals
         public float Value { get; set; }
 
         public Float(float value)
-            : base(Class.GetBuiltinClass(typeof(Float)))
+            : base(Class.Bind(typeof(Float)))
         {
             Value = value;
         }
@@ -30,6 +30,24 @@ namespace Derp.Vals
         public override int GetHashCode()
         {
             return base.GetHashCode();
+        }
+
+        [BuiltinFunc]
+        public static Float __new__(Float value)
+        {
+            return new Float(value.Value);
+        }
+
+        [BuiltinFunc]
+        public Bool __eq__(Float rhs)
+        {
+            return new Bool(Value == rhs.Value);
+        }
+
+        [BuiltinFunc]
+        public Float __neg__()
+        {
+            return new Float(-Value);
         }
     }
 }

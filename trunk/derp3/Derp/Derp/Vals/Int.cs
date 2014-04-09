@@ -12,7 +12,7 @@ namespace Derp.Vals
         public int Value { get; set; }
 
         public Int(int value)
-            : base(Class.GetBuiltinClass(typeof(Int)))
+            : base(Class.Bind(typeof(Int)))
         {
             Value = value;
         }
@@ -30,6 +30,12 @@ namespace Derp.Vals
         public override int GetHashCode()
         {
             return base.GetHashCode();
+        }
+
+        [BuiltinFunc]
+        public static Int __new__(Int value)
+        {
+            return new Int(value.Value);
         }
 
         [BuiltinFunc]
@@ -54,6 +60,18 @@ namespace Derp.Vals
         public Int __div__(Int rhs)
         {
             return new Int(Value / rhs.Value);
+        }
+
+        [BuiltinFunc]
+        public Bool __eq__(Int rhs)
+        {
+            return new Bool(Value == rhs.Value);
+        }
+
+        [BuiltinFunc]
+        public Int __neg__()
+        {
+            return new Int(-Value);
         }
     }
 }

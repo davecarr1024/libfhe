@@ -39,5 +39,10 @@ namespace Derp.Vals
                 return Body.Select(body => body.Eval(funcScope)).Last();
             }
         }
+
+        public bool AsBool()
+        {
+            return false;
+        }
     }
 }

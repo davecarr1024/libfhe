@@ -376,7 +376,7 @@ namespace Derp
             Result result = Root.Apply(tokens, ref tokenPos);
             if (tokenPos != tokens.Count)
             {
-                throw new Exception("parse underflow");
+                throw new Exception("parse error at " + string.Join(" ", tokens.Skip(tokenPos).Take(20).Select(token => token.Value).ToArray()));
             }
             else
             {

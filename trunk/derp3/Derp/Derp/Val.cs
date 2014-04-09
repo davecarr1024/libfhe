@@ -11,5 +11,7 @@ namespace Derp
         Val Clone();
 
         Val Apply(List<Expr> args, Scope scope);
+
+        bool AsBool();
     }
 }

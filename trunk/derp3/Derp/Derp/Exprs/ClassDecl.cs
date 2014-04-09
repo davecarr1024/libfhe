@@ -22,5 +22,10 @@ namespace Derp.Exprs
         {
             return scope[Name] = new Vals.Class(Name, Body, scope);
         }
+
+        public override string ToString()
+        {
+            return "class " + Name + "{" + string.Join("; ", Body.Select(expr => expr.ToString()).ToArray()) + "}";
+        }
     }
 }

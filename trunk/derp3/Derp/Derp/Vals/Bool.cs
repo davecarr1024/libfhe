@@ -12,9 +12,14 @@ namespace Derp.Vals
         public bool Value { get; set; }
 
         public Bool(bool value)
-            : base(Class.GetBuiltinClass(typeof(Bool)))
+            : base(Class.Bind(typeof(Bool)))
         {
             Value = value;
+        }
+
+        public override bool AsBool()
+        {
+            return Value;
         }
 
         public override Val Clone()
@@ -33,9 +38,27 @@ namespace Derp.Vals
         }
 
         [BuiltinFunc]
+        public static Bool __new__(Bool value)
+        {
+            return new Bool(value.Value);
+        }
+
+        [BuiltinFunc]
         public String __str__()
         {
             return new String(Value.ToString());
+        }
+
+        [BuiltinFunc]
+        public Bool __eq__(Bool rhs)
+        {
+            return new Bool(Value == rhs.Value);
+        }
+
+        [BuiltinFunc]
+        public Bool __not__()
+        {
+            return new Bool(!Value);
         }
     }
 }

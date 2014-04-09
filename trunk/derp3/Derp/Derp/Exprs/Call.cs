@@ -22,5 +22,10 @@ namespace Derp.Exprs
         {
             return Func.Eval(scope).Apply(Args, scope);
         }
+
+        public override string ToString()
+        {
+            return Func + "(" + string.Join(", ", Args.Select(arg => arg.ToString()).ToArray()) + ")";
+        }
     }
 }

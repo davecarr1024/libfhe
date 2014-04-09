@@ -19,5 +19,10 @@ namespace Derp.Exprs
         {
             return new Vals.String(Value);
         }
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
     }
 }

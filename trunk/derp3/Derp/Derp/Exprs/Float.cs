@@ -19,5 +19,10 @@ namespace Derp.Exprs
         {
             return new Vals.Float(Value);
         }
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
     }
 }
