@@ -18,7 +18,12 @@ namespace Derp.Vals
             Body = body;
         }
 
-        public override Val Apply(List<Expr> args, Scope scope)
+        public Val Clone()
+        {
+            return new Func(Params, Body);
+        }
+
+        public Val Apply(List<Expr> args, Scope scope)
         {
             if (args.Count != Params.Count)
             {

@@ -16,9 +16,14 @@ namespace Derp.Vals
             Value = value;
         }
 
-        public override Scope Clone()
+        public Val Clone()
         {
             return new Bool(Value);
+        }
+
+        public Val Apply(List<Expr> args, Scope scope)
+        {
+            throw new NotImplementedException();
         }
 
         public override bool Equals(object obj)
@@ -32,16 +37,9 @@ namespace Derp.Vals
         }
 
         [BuiltinFunc]
-        public static Val __str__(List<Val> args)
+        public String __str__()
         {
-            if (args.Count == 1 && args[0] is Bool)
-            {
-                return new String((args[0] as Bool).Value.ToString());
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
+            return new String(Value.ToString());
         }
     }
 }

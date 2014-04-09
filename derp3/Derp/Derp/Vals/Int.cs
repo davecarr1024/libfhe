@@ -16,9 +16,14 @@ namespace Derp.Vals
             Value = value;
         }
 
-        public override Scope Clone()
+        public Val Clone()
         {
             return new Int(Value);
+        }
+
+        public Val Apply(List<Expr> args, Scope scope)
+        {
+            throw new NotImplementedException();
         }
 
         public override bool Equals(object obj)
@@ -32,16 +37,9 @@ namespace Derp.Vals
         }
 
         [BuiltinFunc]
-        public static Val __add__(List<Val> args)
+        public Int __add__(Int rhs)
         {
-            if (args.Count == 2 && args[0] is Int && args[1] is Int)
-            {
-                return new Int((args[0] as Int).Value + (args[1] as Int).Value);
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
+            return new Int(Value + rhs.Value);
         }
     }
 }

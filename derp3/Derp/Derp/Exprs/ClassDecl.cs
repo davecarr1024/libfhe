@@ -20,12 +20,7 @@ namespace Derp.Exprs
 
         public Val Eval(Scope scope)
         {
-            Vals.Class obj = new Vals.Class(Name) { Parent = scope };
-            foreach (Expr expr in Body)
-            {
-                expr.Eval(obj);
-            }
-            return scope[Name] = obj;
+            return scope[Name] = new Vals.Class(Name, Body, scope);
         }
     }
 }

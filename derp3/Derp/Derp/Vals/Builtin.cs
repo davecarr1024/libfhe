@@ -15,12 +15,12 @@ namespace Derp.Vals
             Func = func;
         }
 
-        public override Scope Clone()
+        public Val Clone()
         {
             return new Builtin(Func);
         }
 
-        public override Val Apply(List<Expr> args, Scope scope)
+        public Val Apply(List<Expr> args, Scope scope)
         {
             return Func(args.Select(arg => arg.Eval(scope)).ToList());
         }
