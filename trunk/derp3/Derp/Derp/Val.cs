@@ -29,7 +29,7 @@ namespace Derp
                 {
                     foreach (MethodInfo methodInfo in type.GetMethods().Where(method => method.GetCustomAttributes().Any(attr => attr is BuiltinFunc)))
                     {
-                        Vals[methodInfo.Name] = new Vals.Builtin((args) => methodInfo.Invoke(null, new object[] { args }) as Val);
+                        this[methodInfo.Name] = new Vals.Builtin((args) => methodInfo.Invoke(null, new object[] { args }) as Val);
                     }
                 }
 

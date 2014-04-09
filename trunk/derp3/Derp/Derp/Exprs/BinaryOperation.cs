@@ -45,7 +45,7 @@ namespace Derp.Exprs
                 if (Arg1 is Ref)
                 {
                     Scope funcScope = (Arg1 as Ref).Resolve(scope);
-                    return funcScope.Vals[(Arg1 as Ref).Ids.Last()] = Arg2.Eval(scope);
+                    return funcScope[(Arg1 as Ref).Ids.Last()] = Arg2.Eval(scope);
                 }
                 else
                 {
@@ -56,7 +56,7 @@ namespace Derp.Exprs
             {
                 Val arg1 = Arg1.Eval(scope);
                 Val op;
-                if (arg1.Vals.TryGetValue(OperatorFuncs[Operator], out op))
+                if (arg1.TryGetValue(OperatorFuncs[Operator], out op))
                 {
                     return op.Apply(new List<Expr>() { Arg1, Arg2 }, scope);
                 }
