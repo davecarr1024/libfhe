@@ -46,6 +46,7 @@
     <Compile Include="Exprs\BinaryOperation.cs" />
     <Compile Include="Exprs\Call.cs" />
     <Compile Include="Exprs\ClassDecl.cs" />
+    <Compile Include="Exprs\Direct.cs" />
     <Compile Include="Exprs\Float.cs" />
     <Compile Include="Exprs\FuncDecl.cs" />
     <Compile Include="Exprs\Int.cs" />
@@ -61,6 +62,7 @@
     <Compile Include="Vals\Float.cs" />
     <Compile Include="Vals\Func.cs" />
     <Compile Include="Vals\Int.cs" />
+    <Compile Include="Vals\Method.cs" />
     <Compile Include="Vals\NoneType.cs" />
     <Compile Include="Vals\Object.cs" />
     <Compile Include="Vals\String.cs" />

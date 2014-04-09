@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 namespace Derp.Vals
 {
     [BuiltinClass]
-    public class NoneType : Val
+    public class NoneType : Object
     {
-        public Val Clone()
+        public NoneType()
+            : base(Class.GetBuiltinClass(typeof(NoneType)))
         {
-            return new NoneType();
         }
 
-        public Val Apply(List<Expr> args, Scope scope)
+        public override Val Clone()
         {
-            throw new NotImplementedException();
+            return new NoneType();
         }
 
         public override bool Equals(object obj)

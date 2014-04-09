@@ -7,23 +7,19 @@ using System.Threading.Tasks;
 namespace Derp.Vals
 {
     [BuiltinClass]
-    public class Int : Val
+    public class Int : Object
     {
         public int Value { get; set; }
 
         public Int(int value)
+            : base(Class.GetBuiltinClass(typeof(Int)))
         {
             Value = value;
         }
 
-        public Val Clone()
+        public override Val Clone()
         {
             return new Int(Value);
-        }
-
-        public Val Apply(List<Expr> args, Scope scope)
-        {
-            throw new NotImplementedException();
         }
 
         public override bool Equals(object obj)
@@ -40,6 +36,24 @@ namespace Derp.Vals
         public Int __add__(Int rhs)
         {
             return new Int(Value + rhs.Value);
+        }
+
+        [BuiltinFunc]
+        public Int __sub__(Int rhs)
+        {
+            return new Int(Value - rhs.Value);
+        }
+
+        [BuiltinFunc]
+        public Int __mul__(Int rhs)
+        {
+            return new Int(Value * rhs.Value);
+        }
+
+        [BuiltinFunc]
+        public Int __div__(Int rhs)
+        {
+            return new Int(Value / rhs.Value);
         }
     }
 }

@@ -7,23 +7,19 @@ using System.Threading.Tasks;
 namespace Derp.Vals
 {
     [BuiltinClass]
-    public class Float : Val
+    public class Float : Object
     {
         public float Value { get; set; }
 
         public Float(float value)
+            : base(Class.GetBuiltinClass(typeof(Float)))
         {
             Value = value;
         }
 
-        public Val Clone()
+        public override Val Clone()
         {
             return new Float(Value);
-        }
-
-        public Val Apply(List<Expr> args, Scope scope)
-        {
-            throw new NotImplementedException();
         }
 
         public override bool Equals(object obj)

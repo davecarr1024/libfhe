@@ -16,16 +16,31 @@ namespace Derp.Vals
         {
             Class = parentClass;
             Scope = new Scope(Class.Scope);
+            foreach (string id in Scope.Keys)
+            {
+                if (Scope[id] is Func || Scope[id] is Builtin)
+                {
+                    Scope[id] = new Method(this, Scope[id]);
+                }
+            }
         }
 
-        public Val Clone()
+        public virtual Val Clone()
         {
             return new Object(Class);
         }
 
         public Val Apply(List<Expr> args, Scope scope)
         {
-            throw new NotImplementedException();
+            Val call;
+            if (Scope.TryGetValue("__call__", out call))
+            {
+                return call.Apply(args, scope);
+            }
+            else
+            {
+                throw new Exception("call on obj with no __call__ method");
+            }
         }
     }
 }

@@ -73,5 +73,18 @@ namespace Derp
             scope.Copy(this);
             return scope;
         }
+
+        public List<string> Keys
+        {
+            get
+            {
+                List<string> keys = vals.Keys.ToList();
+                if (Parent != null)
+                {
+                    keys.AddRange(Parent.Keys);
+                }
+                return keys;
+            }
+        }
     }
 }

@@ -58,7 +58,7 @@ namespace Derp.Exprs
                 Val op;
                 if (arg1 is ScopeVal && (arg1 as ScopeVal).Scope.TryGetValue(OperatorFuncs[Operator], out op))
                 {
-                    return op.Apply(new List<Expr>() { Arg1, Arg2 }, scope);
+                    return op.Apply(new List<Expr>() { Arg2 }, scope);
                 }
                 else
                 {
