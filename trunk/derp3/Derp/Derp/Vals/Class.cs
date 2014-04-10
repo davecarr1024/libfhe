@@ -27,11 +27,18 @@ namespace Derp.Vals
             return BuiltinClasses[type];
         }
 
-        public Class(string name, List<Expr> body, Scope parent)
+        public Class(string name, List<Expr> body, Scope scope, Class parent)
         {
             IsReturn = false;
             Name = name;
-            Scope = new Scope(parent);
+            if (parent != null)
+            {
+                Scope = new Scope(parent.Scope);
+            }
+            else
+            {
+                Scope = new Scope(scope);
+            }
             foreach (Expr expr in body)
             {
                 expr.Eval(Scope);
