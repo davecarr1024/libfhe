@@ -12,8 +12,11 @@ namespace Derp.Vals
 
         public Val Func { get; set; }
 
+        public bool IsReturn { get; set; }
+
         public Method(Object obj, Val func)
         {
+            IsReturn = false;
             Object = obj;
             Func = func;
         }

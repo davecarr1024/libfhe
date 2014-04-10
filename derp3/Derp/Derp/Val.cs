@@ -13,5 +13,7 @@ namespace Derp
         Val Apply(List<Expr> args, Scope scope);
 
         bool AsBool();
+
+        bool IsReturn { get; set; }
     }
 }

@@ -6,4 +6,4 @@ Assert(1 == 1);
 Assert(3.14 == 3.14);
 Assert("foo" == "foo");
 
-Assert(-3 == (3 * -1));
+Assert((-3) == (3 * (-1)));

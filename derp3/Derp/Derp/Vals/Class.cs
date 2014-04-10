@@ -12,6 +12,8 @@ namespace Derp.Vals
 
         public Scope Scope { get; set; }
 
+        public bool IsReturn { get; set; }
+
         private static Dictionary<Type, Class> BuiltinClasses = new Dictionary<Type, Class>();
 
         private static Dictionary<Class, Type> BuiltinTypes = new Dictionary<Class, Type>();
@@ -27,6 +29,7 @@ namespace Derp.Vals
 
         public Class(string name, List<Expr> body, Scope parent)
         {
+            IsReturn = false;
             Name = name;
             Scope = new Scope(parent);
             foreach (Expr expr in body)
@@ -37,6 +40,7 @@ namespace Derp.Vals
 
         private Class(Type type)
         {
+            IsReturn = false;
             Name = type.Name;
             Scope = new Scope();
             if (type.BaseType != null)

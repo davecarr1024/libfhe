@@ -73,5 +73,29 @@ namespace Derp.Vals
         {
             return new Int(-Value);
         }
+
+        [BuiltinFunc]
+        public Bool __gte__(Int rhs)
+        {
+            return new Bool(Value >= rhs.Value);
+        }
+
+        [BuiltinFunc]
+        public Bool __gt__(Int rhs)
+        {
+            return new Bool(Value > rhs.Value);
+        }
+
+        [BuiltinFunc]
+        public Bool __lte__(Int rhs)
+        {
+            return new Bool(Value <= rhs.Value);
+        }
+
+        [BuiltinFunc]
+        public Bool __lt__(Int rhs)
+        {
+            return new Bool(Value < rhs.Value);
+        }
     }
 }
