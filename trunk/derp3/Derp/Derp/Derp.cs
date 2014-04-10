@@ -24,20 +24,31 @@ namespace Derp
             assign = '=';
             not = '\!';
             dot = '\.';
+            gte = '>=';
+            gt = '>';
+            lte = '<=';
+            lt = '<';
             def = 'def';
             class = 'class';
+            return = 'return';
+            if = 'if';
+            else = 'else';
+            while = 'while';
+            for = 'for';
             float = '\d+\.\d+';
             int = '\d+';
-            string = '"".*""';
+            string = '"".*?""';
             id = '[a-zA-Z0-9-_]+';
             ws ~= '\s+';
             program => statement+;
-            statement => funcDecl | classDecl | line;
+            statement => funcDecl | classDecl | line | ifElseStatement | ifStatement | whileStatement | forStatement;
             funcDecl => def id lparen idList rparen lbrace program rbrace;
             idList => id idListTail;
             idListTail => idListIter*;
             idListIter => comma id;
-            line => expr semicolon;
+            line => lineExpr semicolon;
+            lineExpr => returnExpr | expr;
+            returnExpr => return expr;
             expr => unaryOperation | binaryOperation | call | callEmpty | literal | ref;
             callEmpty => ref lparen rparen;
             call => ref lparen exprList rparen;
@@ -45,17 +56,22 @@ namespace Derp
             exprListTail => exprListIter*;
             exprListIter => comma expr;
             binaryOperation => operand binaryOperator operand;
-            binaryOperator => add | subtract | multiply | divide | equals | assign;
+            binaryOperator => add | subtract | multiply | divide | equals | assign | gte | gt | lte | lt;
             unaryOperation => unaryOperator operand;
             unaryOperator => not | subtract;
-            operand => unaryOperation | call | callEmpty | parenExpr | literal | ref;
+            operand => call | callEmpty | parenExpr | literal | ref;
             literal => int | float | string;
             parenExpr => lparen expr rparen;
-            classDecl => class id lbrace classDeclBody rbrace;
-            classDeclBody => statement*;
+            classDecl => class id compoundStatement;
+            compoundStatement => lbrace compoundStatementBody rbrace;
+            compoundStatementBody => statement*;
             ref => id refTail;
             refTail => refIter*;
             refIter => dot id;
+            ifStatement => if parenExpr compoundStatement;
+            ifElseStatement => if parenExpr compoundStatement else compoundStatement;
+            whileStatement => while parenExpr compoundStatement;
+            forStatement => for lparen expr semicolon expr semicolon expr rparen compoundStatement;
         ");
 
         public static Scope DefaultScope()
@@ -104,6 +120,7 @@ namespace Derp
                 case "literal":
                 case "operand":
                 case "funcRef":
+                case "lineExpr":
                     return InitExpr(expr.Children[0]);
                 case "parenExpr":
                     return InitExpr(expr.Children[1]);
@@ -162,6 +179,18 @@ namespace Derp
                             case "equals":
                                 op = Exprs.BinaryOperation.Operators.Equals;
                                 break;
+                            case "lte":
+                                op = Exprs.BinaryOperation.Operators.LessThanOrEqual;
+                                break;
+                            case "lt":
+                                op = Exprs.BinaryOperation.Operators.LessThan;
+                                break;
+                            case "gte":
+                                op = Exprs.BinaryOperation.Operators.GreaterThanOrEqual;
+                                break;
+                            case "gt":
+                                op = Exprs.BinaryOperation.Operators.GreaterThan;
+                                break;
                             default:
                                 throw new Exception("invalid binary operator " + operatorName);
                         }
@@ -185,13 +214,50 @@ namespace Derp
                         return new Exprs.UnaryOperation(op, InitExpr(expr.Children[1]));
                     }
                 case "classDecl":
-                    return new Exprs.ClassDecl(expr.Children[1].Value, expr.Children[3].Children.Select(child => InitExpr(child)).ToList());
+                    //classDecl => class id compoundStatement;
+                    //compoundStatement => lbrace compoundStatementBody rbrace;
+                    //compoundStatementBody => statement*;
+                    return new Exprs.ClassDecl(expr.Children[1].Value, expr.Children[2].Children[1].Children.Select(child => InitExpr(child)).ToList());
                 case "ref":
                     {
                         List<string> objectIds = new List<string>() { expr.Children[0].Value };
                         objectIds.AddRange(expr.Children[1].Children.Select(child => child.Children[1].Value));
                         return new Exprs.Ref(objectIds.ToArray());
                     }
+                case "returnExpr":
+                    return new Exprs.ReturnExpr(InitExpr(expr.Children[1]));
+                case "ifStatement":
+                    //ifStatement => if parenExpr compoundStatement;
+                    //parenExpr => lparen expr rparen;
+                    //compoundStatement => lbrace compoundStatementBody rbrace;
+                    //compoundStatementBody => statement*;
+                    return new Exprs.IfStatement(InitExpr(expr.Children[1].Children[1]), expr.Children[2].Children[1].Children.Select(child => InitExpr(child)).ToList(), new List<Expr>());
+                case "ifElseStatement":
+                    //ifElseStatement => if parenExpr compoundStatement else compoundStatement;
+                    //parenExpr => lparen expr rparen;
+                    //compoundStatement => lbrace compoundStatementBody rbrace;
+                    //compoundStatementBody => statement*;
+                    return new Exprs.IfStatement(
+                        InitExpr(expr.Children[1].Children[1]),
+                        expr.Children[2].Children[1].Children.Select(child => InitExpr(child)).ToList(),
+                        expr.Children[4].Children[1].Children.Select(child => InitExpr(child)).ToList());
+                case "whileStatement":
+                    //whileStatement => while parenExpr compoundStatement;
+                    //parenExpr => lparen expr rparen;
+                    //compoundStatement => lbrace compoundStatementBody rbrace;
+                    //compoundStatementBody => statement*;
+                    return new Exprs.WhileStatement(
+                        InitExpr(expr.Children[1].Children[1]),
+                        expr.Children[2].Children[1].Children.Select(child => InitExpr(child)).ToList());
+                case "forStatement":
+                    //forStatement => for lparen expr semicolon expr semicolon expr rparen compoundStatement;
+                    //compoundStatement => lbrace compoundStatementBody rbrace;
+                    //compoundStatementBody => statement*;
+                    return new Exprs.ForStatement(
+                        InitExpr(expr.Children[2]),
+                        InitExpr(expr.Children[4]),
+                        InitExpr(expr.Children[6]),
+                        expr.Children[8].Children[1].Children.Select(child => InitExpr(child)).ToList());
                 default:
                     throw new Exception("invalid expr type " + expr.Rule.Name);
             }

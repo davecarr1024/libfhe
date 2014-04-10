@@ -12,8 +12,11 @@ namespace Derp.Vals
 
         public Scope Scope { get; set; }
 
+        public bool IsReturn { get; set; }
+
         public Object(Class parentClass)
         {
+            IsReturn = false;
             Class = parentClass;
             Scope = new Scope(Class.Scope);
             foreach (string id in Scope.Keys)

@@ -10,9 +10,12 @@ namespace Derp.Vals
     {
         public Func<List<Val>, Val> Func { get; set; }
 
+        public bool IsReturn { get; set; }
+
         public Builtin(Func<List<Val>, Val> func)
         {
             Func = func;
+            IsReturn = false;
         }
 
         public Val Clone()

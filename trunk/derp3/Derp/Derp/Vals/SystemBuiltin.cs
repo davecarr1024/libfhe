@@ -10,8 +10,11 @@ namespace Derp.Vals
     {
         public Func<List<Expr>, Scope, Val> Func { get; set; }
 
+        public bool IsReturn { get; set; }
+
         public SystemBuiltin(Func<List<Expr>, Scope, Val> func)
         {
+            IsReturn = false;
             Func = func;
         }
 

@@ -27,7 +27,15 @@ namespace Derp
                 Match match = Regex.Match(input, Pattern);
                 if (match.Success && match.Index == 0 && match.Length > 0)
                 {
-                    return input.Substring(0, match.Length);
+                    string value = null;
+                    foreach (Group group in match.Groups)
+                    {
+                        if (value == null || group.Value.Length < value.Length)
+                        {
+                            value = group.Value;
+                        }
+                    }
+                    return input.Substring(0, value.Length);
                 }
                 else
                 {
@@ -84,7 +92,7 @@ namespace Derp
                 }
                 else
                 {
-                    throw new Exception("lex error at " + pos + " " + input.Substring(pos, Math.Min(25, input.Length - pos)));
+                    throw new Exception("lex error at " + pos + " " + string.Concat(input.Skip(pos).Take(50)));
                 }
             }
             return results;

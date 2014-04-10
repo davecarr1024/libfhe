@@ -43,5 +43,17 @@ namespace Derp.Vals
         {
             return new Bool(Value == rhs.Value);
         }
+
+        [BuiltinFunc]
+        public String __add__(String rhs)
+        {
+            return new String(Value + rhs.Value);
+        }
+
+        [BuiltinFunc]
+        public String __mul__(Int rhs)
+        {
+            return new String(string.Concat(Enumerable.Repeat(Value, rhs.Value)));
+        }
     }
 }

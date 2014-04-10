@@ -12,8 +12,11 @@ namespace Derp.Vals
 
         public List<Expr> Body { get; set; }
 
+        public bool IsReturn { get; set; }
+
         public Func(List<string> paramList, List<Expr> body)
         {
+            IsReturn = false;
             Params = paramList;
             Body = body;
         }
@@ -36,7 +39,15 @@ namespace Derp.Vals
                 {
                     funcScope[Params[i]] = args[i].Eval(scope);
                 }
-                return Body.Select(body => body.Eval(funcScope)).Last();
+                foreach (Expr expr in Body)
+                {
+                    Val val = expr.Eval(funcScope);
+                    if (val.IsReturn)
+                    {
+                        return val;
+                    }
+                }
+                return new NoneType();
             }
         }
 

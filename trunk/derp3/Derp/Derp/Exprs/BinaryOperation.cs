@@ -16,6 +16,10 @@ namespace Derp.Exprs
             Multiply,
             Divide,
             Equals,
+            LessThanOrEqual,
+            LessThan,
+            GreaterThanOrEqual,
+            GreaterThan,
         }
 
         private static Dictionary<Operators, string> OperatorFuncs = new Dictionary<Operators, string>()
@@ -25,6 +29,10 @@ namespace Derp.Exprs
             { Operators.Multiply, "__mul__" },
             { Operators.Divide, "__div__" },
             { Operators.Equals, "__eq__" },
+            { Operators.LessThanOrEqual, "__lte__" },
+            { Operators.LessThan, "__lt__" },
+            { Operators.GreaterThanOrEqual, "__gte__" },
+            { Operators.GreaterThan, "__gt__" },
         };
 
         private static Dictionary<Operators, string> OperatorSymbols = new Dictionary<Operators, string>()
@@ -35,6 +43,10 @@ namespace Derp.Exprs
             { Operators.Divide, "/" },
             { Operators.Assign, "=" },
             { Operators.Equals, "==" },
+            { Operators.LessThanOrEqual, "<=" },
+            { Operators.LessThan, "<" },
+            { Operators.GreaterThanOrEqual, ">=" },
+            { Operators.GreaterThan, ">" },
         };
 
         public Operators Operator { get; set; }
@@ -50,6 +62,18 @@ namespace Derp.Exprs
             Arg2 = arg2;
         }
 
+        private Scope Resolve(Scope scope, string id)
+        {
+            if (scope.Parent != null && scope.Parent.ContainsKey(id))
+            {
+                return Resolve(scope.Parent, id);
+            }
+            else
+            {
+                return scope;
+            }
+        }
+
         public Val Eval(Scope scope)
         {
             if (Operator == Operators.Assign)
@@ -57,7 +81,8 @@ namespace Derp.Exprs
                 if (Arg1 is Ref)
                 {
                     Scope funcScope = (Arg1 as Ref).Resolve(scope);
-                    return funcScope[(Arg1 as Ref).Ids.Last()] = Arg2.Eval(scope);
+                    string id = (Arg1 as Ref).Ids.Last();
+                    return Resolve(funcScope, id)[id] = Arg2.Eval(scope);
                 }
                 else
                 {

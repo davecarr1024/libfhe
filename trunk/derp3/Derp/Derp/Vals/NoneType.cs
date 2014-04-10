@@ -41,9 +41,9 @@ namespace Derp.Vals
         }
 
         [BuiltinFunc]
-        public Bool __eq__(NoneType rhs)
+        public Bool __eq__(Val rhs)
         {
-            return new Bool(true);
+            return new Bool(rhs is NoneType);
         }
     }
 }
