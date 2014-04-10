@@ -28,6 +28,7 @@ namespace Derp
             gt = '>';
             lte = '<=';
             lt = '<';
+            colon = ':';
             def = 'def';
             class = 'class';
             return = 'return';
@@ -41,7 +42,7 @@ namespace Derp
             id = '[a-zA-Z0-9-_]+';
             ws ~= '\s+';
             program => statement+;
-            statement => funcDecl | classDecl | line | ifElseStatement | ifStatement | whileStatement | forStatement;
+            statement => funcDecl | inheritClassDecl | classDecl | line | ifElseStatement | ifStatement | whileStatement | forStatement;
             funcDecl => def id lparen idList rparen lbrace program rbrace;
             idList => id idListTail;
             idListTail => idListIter*;
@@ -62,6 +63,7 @@ namespace Derp
             operand => call | callEmpty | parenExpr | literal | ref;
             literal => int | float | string;
             parenExpr => lparen expr rparen;
+            inheritClassDecl => class id colon id compoundStatement;
             classDecl => class id compoundStatement;
             compoundStatement => lbrace compoundStatementBody rbrace;
             compoundStatementBody => statement*;
@@ -217,7 +219,12 @@ namespace Derp
                     //classDecl => class id compoundStatement;
                     //compoundStatement => lbrace compoundStatementBody rbrace;
                     //compoundStatementBody => statement*;
-                    return new Exprs.ClassDecl(expr.Children[1].Value, expr.Children[2].Children[1].Children.Select(child => InitExpr(child)).ToList());
+                    return new Exprs.ClassDecl(expr.Children[1].Value, expr.Children[2].Children[1].Children.Select(child => InitExpr(child)).ToList(), null);
+                case "inheritClassDecl":
+                    //inheritClassDecl => class id colon id compoundStatement;
+                    //compoundStatement => lbrace compoundStatementBody rbrace;
+                    //compoundStatementBody => statement*;
+                    return new Exprs.ClassDecl(expr.Children[1].Value, expr.Children[4].Children[1].Children.Select(child => InitExpr(child)).ToList(), new Exprs.Ref(expr.Children[3].Value));
                 case "ref":
                     {
                         List<string> objectIds = new List<string>() { expr.Children[0].Value };

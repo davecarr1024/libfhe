@@ -165,5 +165,36 @@ namespace Derp
                 Assert( foo(2,""bar"") == ""barbar"" );
             ");
         }
+
+        [TestMethod]
+        public void TestInheritance()
+        {
+            Derp.Eval(@"
+                class foo
+                {
+                    def set( self, i )
+                    {
+                        self.i = i;
+                    }
+                    def get( self )
+                    {
+                        return self.i;
+                    }
+                }
+                f = foo();
+                f.set( 3 );
+                Assert( f.get() == 3 );
+                class bar : foo
+                {
+                    def get( self )
+                    {
+                        return foo.get( self ) * 2;
+                    }
+                }
+                b = bar();
+                b.set( 3 );
+                Assert( b.get() == 6 );
+            ");
+        }
     }
 }
