@@ -165,11 +165,5 @@ namespace Derp
                 Assert( foo(2,""bar"") == ""barbar"" );
             ");
         }
-
-        [TestMethod]
-        public void TestFile()
-        {
-            Derp.Eval(System.IO.File.ReadAllText("test.derp"));
-        }
     }
 }
