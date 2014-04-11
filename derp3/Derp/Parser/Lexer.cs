@@ -27,15 +27,7 @@ namespace Derp
                 Match match = Regex.Match(input, Pattern);
                 if (match.Success && match.Index == 0 && match.Length > 0)
                 {
-                    string value = null;
-                    foreach (Group group in match.Groups)
-                    {
-                        if (value == null || group.Value.Length < value.Length)
-                        {
-                            value = group.Value;
-                        }
-                    }
-                    return input.Substring(0, value.Length);
+                    return input.Substring(0, match.Length);
                 }
                 else
                 {
