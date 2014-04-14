@@ -34,5 +34,10 @@ namespace Sherp.Lexer
                 return null;
             }
         }
+
+        public override string ToString()
+        {
+            return string.Format("<Lexer.Rule Name=\"{0}\" Pattern=\"{1}\" Include=\"{2}\"/>", Name, Pattern, Include);
+        }
     }
 }

@@ -26,7 +26,7 @@ namespace Sherp.Parser
 
         private void InitRoot(string rootName, Dictionary<string, RuleExpr> unboundRules)
         {
-            foreach(KeyValuePair<string,RuleExpr> val in unboundRules)
+            foreach (KeyValuePair<string, RuleExpr> val in unboundRules)
             {
                 val.Value.Name = val.Key;
             }
@@ -36,18 +36,8 @@ namespace Sherp.Parser
         public Parser(string input)
         {
             Lexer.Lexer lexer = new Lexer.Lexer(
-                new Lexer.Rule("equals", @"=", true),
-                new Lexer.Rule("semicolon", @";", true),
-                new Lexer.Rule("tilde", @"~", true),
-                new Lexer.Rule("lparen", @"\(", true),
-                new Lexer.Rule("rparen", @"\)", true),
-                new Lexer.Rule("plus", @"\+", true),
-                new Lexer.Rule("star", @"\*", true),
-                new Lexer.Rule("bar", @"\|", true),
-                new Lexer.Rule("question", @"\?", true),
-                new Lexer.Rule("gt", @">", true),
                 new Lexer.Rule("id", @"[a-zA-Z_][a-zA-Z0-9_]*", true),
-                new Lexer.Rule("str", @"'.*'", true),
+                new Lexer.Rule("str", @"'.*?'", true),
                 new Lexer.Rule("ws", @"\s+", false)
             );
 
@@ -71,27 +61,27 @@ namespace Sherp.Parser
                     { "lexerDecl", 
                         new RuleDecl(Rule.Types.And, 
                             new RuleRef("id"), 
-                            new RuleRef("equals"), 
+                            new LexerRule("="),
                             new RuleRef("str"), 
-                            new RuleRef("semicolon")
+                            new LexerRule(";")
                         )
                     },
                     { "negLexerDecl", 
                         new RuleDecl(Rule.Types.And,
                             new RuleRef("id"),
-                            new RuleRef("tilde"), 
-                            new RuleRef("equals"), 
+                            new LexerRule(@"\~"),
+                            new LexerRule("="),
                             new RuleRef("str"), 
-                            new RuleRef("semicolon")
+                            new LexerRule(";")
                         )
                     },
                     { "parserDecl", 
                         new RuleDecl(Rule.Types.And,
                             new RuleRef("id"), 
-                            new RuleRef("equals"), 
-                            new RuleRef("gt"), 
+                            new LexerRule("="),
+                            new LexerRule(">"),
                             new RuleRef("parserRule"), 
-                            new RuleRef("semicolon")
+                            new LexerRule(";")
                         )
                     },
                     { "parserRule", 
@@ -116,7 +106,7 @@ namespace Sherp.Parser
                             new RuleRef("parserOperand"),
                             new RuleDecl(Rule.Types.OneOrMore,
                                 new RuleDecl(Rule.Types.And,
-                                    new RuleRef("bar"),
+                                    new LexerRule(@"\|"),
                                     new RuleRef("parserOperand")
                                 )
                             )
@@ -125,32 +115,33 @@ namespace Sherp.Parser
                     { "oneOrMoreRule",
                         new RuleDecl(Rule.Types.And,
                             new RuleRef("parserOperand"),
-                            new RuleRef("plus")
+                            new LexerRule(@"\+")
                         )
                     },
                     { "zeroOrMoreRule",
                         new RuleDecl(Rule.Types.And,
                             new RuleRef("parserOperand"),
-                            new RuleRef("star")
+                            new LexerRule(@"\*")
                         )
                     },
                     { "zeroOrOneRule",
                         new RuleDecl(Rule.Types.And,
                             new RuleRef("parserOperand"),
-                            new RuleRef("question")
+                            new LexerRule(@"\?")
                         )
                     },
                     { "parserOperand",
                         new RuleDecl(Rule.Types.Or,
                             new RuleRef("parenRule"),
+                            new RuleRef("str"),
                             new RuleRef("id")
                         )
                     },
                     { "parenRule",
                         new RuleDecl(Rule.Types.And,
-                            new RuleRef("lparen"),
+                            new LexerRule(@"\("),
                             new RuleRef("parserRule"),
-                            new RuleRef("rparen")
+                            new LexerRule(@"\)")
                         )
                     },
                 }
@@ -188,7 +179,7 @@ namespace Sherp.Parser
                         {
                             string name = decl.Children[0].Value;
                             unboundRules[name] = InitRuleExpr(decl.Children[3]);
-                            if ( rootName == null)
+                            if (rootName == null)
                             {
                                 rootName = name;
                             }
@@ -248,6 +239,8 @@ namespace Sherp.Parser
                     return new RuleRef(expr.Value);
                 case "parenRule":
                     return InitRuleExpr(expr.Children[1]);
+                case "str":
+                    return new LexerRule(expr.Value.Substring(1, expr.Value.Length - 2));
                 default:
                     throw new Exception("invalid rule expr " + expr.Rule.Name);
             }

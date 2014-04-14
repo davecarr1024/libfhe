@@ -47,6 +47,7 @@
     <Compile Include="Lexer\Lexer.cs" />
     <Compile Include="Lexer\Result.cs" />
     <Compile Include="Lexer\Rule.cs" />
+    <Compile Include="Parser\LexerRule.cs" />
     <Compile Include="Parser\Parser.cs" />
     <Compile Include="Parser\Result.cs" />
     <Compile Include="Parser\Rule.cs" />
