@@ -95,19 +95,19 @@ namespace Sherp.Parser
                     },
                     { "andRule", 
                         new RuleDecl(Rule.Types.And, 
-                            new RuleRef("parserOperand"), 
+                            new RuleRef("andOrOperand"), 
                             new RuleDecl(Rule.Types.OneOrMore,
-                                new RuleRef("parserOperand")
+                                new RuleRef("andOrOperand")
                             )
                         )
                     },
                     { "orRule",
                         new RuleDecl(Rule.Types.And,
-                            new RuleRef("parserOperand"),
+                            new RuleRef("andOrOperand"),
                             new RuleDecl(Rule.Types.OneOrMore,
                                 new RuleDecl(Rule.Types.And,
                                     new LexerRule(@"\|"),
-                                    new RuleRef("parserOperand")
+                                    new RuleRef("andOrOperand")
                                 )
                             )
                         )
@@ -132,6 +132,16 @@ namespace Sherp.Parser
                     },
                     { "parserOperand",
                         new RuleDecl(Rule.Types.Or,
+                            new RuleRef("parenRule"),
+                            new RuleRef("str"),
+                            new RuleRef("id")
+                        )
+                    },
+                    { "andOrOperand",
+                        new RuleDecl(Rule.Types.Or,
+                            new RuleRef("oneOrMoreRule"),
+                            new RuleRef("zeroOrMoreRule"),
+                            new RuleRef("zeroOrOneRule"),
                             new RuleRef("parenRule"),
                             new RuleRef("str"),
                             new RuleRef("id")
@@ -202,20 +212,11 @@ namespace Sherp.Parser
 
         private RuleExpr InitRuleExpr(Result expr)
         {
-            /*
-             * parserRule => andRule | orRule | oneOrMoreRule | zeroOrMoreRule | zeroOrOneRule;
-             * andRule => parserOperand (parserOperand+);
-             * orRule => parserOperand (( "|" parserOperand )+);
-             * oneOrMoreRule => parserOperand "+";
-             * zeroOrMoreRule => parserOperand "*";
-             * zeroOrOneRule => parserOperand "?";
-             * parserOperand => parenRule | id;
-             * parenRule => "(" parserRule ")";
-             */
             switch (expr.Rule.Name)
             {
                 case "parserRule":
                 case "parserOperand":
+                case "andOrOperand":
                     return InitRuleExpr(expr.Children[0]);
                 case "andRule":
                     {

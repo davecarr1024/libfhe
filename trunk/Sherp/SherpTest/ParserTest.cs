@@ -173,7 +173,7 @@ namespace Sherp
                         ws ~= '\s+';
                         program => expr+;
                         expr => parenExpr | int | str | id;
-                        parenExpr => '\(' (expr+) '\)';
+                        parenExpr => '\(' expr+ '\)';
                     ")).Parse(@"(foo ""bar"" 9)")
                 )
             );
