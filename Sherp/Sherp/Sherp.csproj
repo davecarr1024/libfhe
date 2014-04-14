@@ -51,6 +51,8 @@
     <Compile Include="Parser\Result.cs" />
     <Compile Include="Parser\Rule.cs" />
     <Compile Include="Parser\RuleDecl.cs" />
+    <Compile Include="Parser\RuleExpr.cs" />
+    <Compile Include="Parser\RuleRef.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scope.cs" />
     <Compile Include="ScopeVal.cs" />

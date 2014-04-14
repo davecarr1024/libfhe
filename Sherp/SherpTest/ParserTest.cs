@@ -104,7 +104,7 @@ namespace Sherp
         }
 
         [TestMethod]
-        public void TestStrParser()
+        public void TestSimpleParser()
         {
             Assert.AreEqual(
                 new ParserResult("program",
@@ -137,6 +137,45 @@ namespace Sherp
                         program => expr+;
                         expr => parenExpr | int | str | id;
                         parenExpr => lparen program rparen;
+                    ")).Parse(@"(foo ""bar"" 9)")
+                )
+            );
+        }
+
+        [TestMethod]
+        public void TestNestedParser()
+        {
+            Assert.AreEqual(
+                new ParserResult("program",
+                    new ParserResult("expr",
+                        new ParserResult("parenExpr",
+                            new ParserResult("lparen", "("),
+                            new ParserResult(null,
+                                new ParserResult("expr",
+                                    new ParserResult("id", "foo")
+                                ),
+                                new ParserResult("expr",
+                                    new ParserResult("str", "\"bar\"")
+                                ),
+                                new ParserResult("expr",
+                                    new ParserResult("int", "9")
+                                )
+                            ),
+                            new ParserResult("rparen", ")")
+                        )
+                    )
+                ),
+                new ParserResult(
+                    (new Parser.Parser(@"
+                        lparen = '\(';
+                        rparen = '\)';
+                        id = '[a-zA-Z_][a-zA-Z0-9_]*';
+                        int = '\d+';
+                        str = '"".*?""';
+                        ws ~= '\s+';
+                        program => expr+;
+                        expr => parenExpr | int | str | id;
+                        parenExpr => lparen (expr+) rparen;
                     ")).Parse(@"(foo ""bar"" 9)")
                 )
             );
