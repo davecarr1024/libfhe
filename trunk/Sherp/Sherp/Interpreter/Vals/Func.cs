@@ -51,7 +51,25 @@ namespace Sherp.Interpreter.Vals
                     Val val = expr.Eval(funcScope);
                     if (val.IsReturn)
                     {
-                        return val;
+                        if (ReturnType == null)
+                        {
+                            if (val is NoneType)
+                            {
+                                return val;
+                            }
+                            else
+                            {
+                                throw new Exception("func " + Name + " has void return type but tried to return val");
+                            }
+                        }
+                        else if (val.Type != ReturnType)
+                        {
+                            throw new Exception("func " + Name + " unable to cast return val from " + val.Type + " to " + ReturnType);
+                        }
+                        else
+                        {
+                            return val;
+                        }
                     }
                 }
                 return new NoneType();

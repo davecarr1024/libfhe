@@ -49,7 +49,7 @@ namespace Sherp.Interpreter.Exprs
                     paramList.Add(new Vals.Param(paramType, param.Name));
                 }
             }
-            return new Vals.Func(Name, returnType, paramList, Body);
+            return scope[Name] = new Vals.Func(Name, returnType, paramList, Body);
         }
     }
 }
