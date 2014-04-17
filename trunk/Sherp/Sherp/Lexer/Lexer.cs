@@ -21,7 +21,11 @@ namespace Sherp.Lexer
             List<Result> results = new List<Result>();
             while (pos < input.Length)
             {
-                Result result = Rules.Select(rule => rule.Apply(input.Substring(pos))).FirstOrDefault(r => r != null);
+                Result result = Rules
+                    .Select(rule => rule.Apply(input.Substring(pos)))
+                    .Where(r => r != null)
+                    .OrderByDescending(r => r.Value.Length)
+                    .FirstOrDefault();
                 if (result == null)
                 {
                     throw new Exception("lex error at " + string.Concat(input.Skip(pos).Take(50)));

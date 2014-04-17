@@ -9,8 +9,6 @@ namespace Sherp.Interpreter.Vals
     [Attrs.BuiltinClass]
     public class NoneType : Object
     {
-        public bool IsReturn { get; set; }
-
         public NoneType()
             : base(Class.Bind(typeof(NoneType)))
         {
@@ -39,9 +37,15 @@ namespace Sherp.Interpreter.Vals
         }
 
         [Attrs.BuiltinMethod]
-        public static Bool __eq__(NoneType value)
+        public Bool __eq__(Val value)
         {
-            return new Bool(true);
+            return new Bool(value is NoneType);
+        }
+
+        [Attrs.BuiltinMethod]
+        public Bool __neq__(Val value)
+        {
+            return new Bool(!(value is NoneType));
         }
     }
 }

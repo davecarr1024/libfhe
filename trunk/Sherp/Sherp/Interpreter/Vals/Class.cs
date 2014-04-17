@@ -70,6 +70,15 @@ namespace Sherp.Interpreter.Vals
                     }
                 );
             }
+            foreach (MethodInfo method in type.GetMethods().Where(m => m.GetCustomAttributes().Any(a => a is Attrs.SystemMethod)))
+            {
+                Scope[method.Name] = new BuiltinMethod(
+                    (args, scope) =>
+                    {
+                        return method.Invoke(null, new object[] { args, scope }) as Val;
+                    }
+                );
+            }
         }
 
         public bool ToBool()
@@ -98,7 +107,7 @@ namespace Sherp.Interpreter.Vals
 
         public override string ToString()
         {
-            return string.Format("<Class Name=\"{0}\"/>", Name);
+            return Name;
         }
     }
 }
