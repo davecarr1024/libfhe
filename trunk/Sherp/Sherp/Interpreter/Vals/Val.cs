@@ -4,12 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sherp
+namespace Sherp.Interpreter.Vals
 {
     public interface Val
     {
-        bool ToBool(Scope scope);
+        Val Type { get; }
 
         bool IsReturn { get; set; }
+
+        bool ToBool();
     }
 }

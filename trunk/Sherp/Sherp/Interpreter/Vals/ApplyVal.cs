@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sherp
+namespace Sherp.Interpreter.Vals
 {
-    public class BuiltinClass : Attribute
+    public interface ApplyVal : Val
     {
+        Val Apply(List<Exprs.Expr> args, Scope scope);
     }
 }

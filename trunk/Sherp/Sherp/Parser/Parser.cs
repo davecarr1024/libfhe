@@ -18,15 +18,15 @@ namespace Sherp.Parser
             Root = root;
         }
 
-        public Parser(Lexer.Lexer lexer, string rootName, Dictionary<string, RuleExpr> unboundRules)
+        public Parser(Lexer.Lexer lexer, string rootName, Dictionary<string, RuleExprs.RuleExpr> unboundRules)
         {
             Lexer = lexer;
             InitRoot(rootName, unboundRules);
         }
 
-        private void InitRoot(string rootName, Dictionary<string, RuleExpr> unboundRules)
+        private void InitRoot(string rootName, Dictionary<string, RuleExprs.RuleExpr> unboundRules)
         {
-            foreach (KeyValuePair<string, RuleExpr> val in unboundRules)
+            foreach (KeyValuePair<string, RuleExprs.RuleExpr> val in unboundRules)
             {
                 val.Value.Name = val.Key;
             }
@@ -44,114 +44,114 @@ namespace Sherp.Parser
             Parser parser = new Parser(
                 lexer,
                 "grammar",
-                new Dictionary<string, RuleExpr>()
+                new Dictionary<string, RuleExprs.RuleExpr>()
                 {
                     { "grammar", 
-                        new RuleDecl(Rule.Types.OneOrMore,
-                            new RuleRef("decl")
+                        new RuleExprs.ParserRule(Rule.Types.OneOrMore,
+                            new RuleExprs.RuleRef("decl")
                         )
                     },
                     { "decl", 
-                        new RuleDecl(Rule.Types.Or, 
-                            new RuleRef("lexerDecl"),
-                            new RuleRef("negLexerDecl"),
-                            new RuleRef("parserDecl")
+                        new RuleExprs.ParserRule(Rule.Types.Or, 
+                            new RuleExprs.RuleRef("lexerDecl"),
+                            new RuleExprs.RuleRef("negLexerDecl"),
+                            new RuleExprs.RuleRef("parserDecl")
                         )
                     },
                     { "lexerDecl", 
-                        new RuleDecl(Rule.Types.And, 
-                            new RuleRef("id"), 
-                            new LexerRule("="),
-                            new RuleRef("str"), 
-                            new LexerRule(";")
+                        new RuleExprs.ParserRule(Rule.Types.And, 
+                            new RuleExprs.RuleRef("id"), 
+                            new RuleExprs.LexerRule("="),
+                            new RuleExprs.RuleRef("str"), 
+                            new RuleExprs.LexerRule(";")
                         )
                     },
                     { "negLexerDecl", 
-                        new RuleDecl(Rule.Types.And,
-                            new RuleRef("id"),
-                            new LexerRule(@"\~"),
-                            new LexerRule("="),
-                            new RuleRef("str"), 
-                            new LexerRule(";")
+                        new RuleExprs.ParserRule(Rule.Types.And,
+                            new RuleExprs.RuleRef("id"),
+                            new RuleExprs.LexerRule(@"\~"),
+                            new RuleExprs.LexerRule("="),
+                            new RuleExprs.RuleRef("str"), 
+                            new RuleExprs.LexerRule(";")
                         )
                     },
                     { "parserDecl", 
-                        new RuleDecl(Rule.Types.And,
-                            new RuleRef("id"), 
-                            new LexerRule("="),
-                            new LexerRule(">"),
-                            new RuleRef("parserRule"), 
-                            new LexerRule(";")
+                        new RuleExprs.ParserRule(Rule.Types.And,
+                            new RuleExprs.RuleRef("id"), 
+                            new RuleExprs.LexerRule("="),
+                            new RuleExprs.LexerRule(">"),
+                            new RuleExprs.RuleRef("parserRule"), 
+                            new RuleExprs.LexerRule(";")
                         )
                     },
                     { "parserRule", 
-                        new RuleDecl(Rule.Types.Or, 
-                            new RuleRef("andRule"), 
-                            new RuleRef("orRule"), 
-                            new RuleRef("oneOrMoreRule"), 
-                            new RuleRef("zeroOrMoreRule"), 
-                            new RuleRef("zeroOrOneRule")
+                        new RuleExprs.ParserRule(Rule.Types.Or, 
+                            new RuleExprs.RuleRef("andRule"), 
+                            new RuleExprs.RuleRef("orRule"), 
+                            new RuleExprs.RuleRef("oneOrMoreRule"), 
+                            new RuleExprs.RuleRef("zeroOrMoreRule"), 
+                            new RuleExprs.RuleRef("zeroOrOneRule")
                         )
                     },
                     { "andRule", 
-                        new RuleDecl(Rule.Types.And, 
-                            new RuleRef("andOrOperand"), 
-                            new RuleDecl(Rule.Types.OneOrMore,
-                                new RuleRef("andOrOperand")
+                        new RuleExprs.ParserRule(Rule.Types.And, 
+                            new RuleExprs.RuleRef("andOrOperand"), 
+                            new RuleExprs.ParserRule(Rule.Types.OneOrMore,
+                                new RuleExprs.RuleRef("andOrOperand")
                             )
                         )
                     },
                     { "orRule",
-                        new RuleDecl(Rule.Types.And,
-                            new RuleRef("andOrOperand"),
-                            new RuleDecl(Rule.Types.OneOrMore,
-                                new RuleDecl(Rule.Types.And,
-                                    new LexerRule(@"\|"),
-                                    new RuleRef("andOrOperand")
+                        new RuleExprs.ParserRule(Rule.Types.And,
+                            new RuleExprs.RuleRef("andOrOperand"),
+                            new RuleExprs.ParserRule(Rule.Types.OneOrMore,
+                                new RuleExprs.ParserRule(Rule.Types.And,
+                                    new RuleExprs.LexerRule(@"\|"),
+                                    new RuleExprs.RuleRef("andOrOperand")
                                 )
                             )
                         )
                     },
                     { "oneOrMoreRule",
-                        new RuleDecl(Rule.Types.And,
-                            new RuleRef("parserOperand"),
-                            new LexerRule(@"\+")
+                        new RuleExprs.ParserRule(Rule.Types.And,
+                            new RuleExprs.RuleRef("parserOperand"),
+                            new RuleExprs.LexerRule(@"\+")
                         )
                     },
                     { "zeroOrMoreRule",
-                        new RuleDecl(Rule.Types.And,
-                            new RuleRef("parserOperand"),
-                            new LexerRule(@"\*")
+                        new RuleExprs.ParserRule(Rule.Types.And,
+                            new RuleExprs.RuleRef("parserOperand"),
+                            new RuleExprs.LexerRule(@"\*")
                         )
                     },
                     { "zeroOrOneRule",
-                        new RuleDecl(Rule.Types.And,
-                            new RuleRef("parserOperand"),
-                            new LexerRule(@"\?")
+                        new RuleExprs.ParserRule(Rule.Types.And,
+                            new RuleExprs.RuleRef("parserOperand"),
+                            new RuleExprs.LexerRule(@"\?")
                         )
                     },
                     { "parserOperand",
-                        new RuleDecl(Rule.Types.Or,
-                            new RuleRef("parenRule"),
-                            new RuleRef("str"),
-                            new RuleRef("id")
+                        new RuleExprs.ParserRule(Rule.Types.Or,
+                            new RuleExprs.RuleRef("parenRule"),
+                            new RuleExprs.RuleRef("str"),
+                            new RuleExprs.RuleRef("id")
                         )
                     },
                     { "andOrOperand",
-                        new RuleDecl(Rule.Types.Or,
-                            new RuleRef("oneOrMoreRule"),
-                            new RuleRef("zeroOrMoreRule"),
-                            new RuleRef("zeroOrOneRule"),
-                            new RuleRef("parenRule"),
-                            new RuleRef("str"),
-                            new RuleRef("id")
+                        new RuleExprs.ParserRule(Rule.Types.Or,
+                            new RuleExprs.RuleRef("oneOrMoreRule"),
+                            new RuleExprs.RuleRef("zeroOrMoreRule"),
+                            new RuleExprs.RuleRef("zeroOrOneRule"),
+                            new RuleExprs.RuleRef("parenRule"),
+                            new RuleExprs.RuleRef("str"),
+                            new RuleExprs.RuleRef("id")
                         )
                     },
                     { "parenRule",
-                        new RuleDecl(Rule.Types.And,
-                            new LexerRule(@"\("),
-                            new RuleRef("parserRule"),
-                            new LexerRule(@"\)")
+                        new RuleExprs.ParserRule(Rule.Types.And,
+                            new RuleExprs.LexerRule(@"\("),
+                            new RuleExprs.RuleRef("parserRule"),
+                            new RuleExprs.LexerRule(@"\)")
                         )
                     },
                 }
@@ -161,7 +161,7 @@ namespace Sherp.Parser
 
             Lexer = new Lexer.Lexer();
 
-            Dictionary<string, RuleExpr> unboundRules = new Dictionary<string, RuleExpr>();
+            Dictionary<string, RuleExprs.RuleExpr> unboundRules = new Dictionary<string, RuleExprs.RuleExpr>();
             string rootName = null;
 
             foreach (Result declParent in grammar.Children)
@@ -210,7 +210,7 @@ namespace Sherp.Parser
             }
         }
 
-        private RuleExpr InitRuleExpr(Result expr)
+        private RuleExprs.RuleExpr InitRuleExpr(Result expr)
         {
             switch (expr.Rule.Name)
             {
@@ -220,28 +220,28 @@ namespace Sherp.Parser
                     return InitRuleExpr(expr.Children[0]);
                 case "andRule":
                     {
-                        RuleDecl rule = new RuleDecl(Rule.Types.And, InitRuleExpr(expr.Children[0]));
+                        RuleExprs.ParserRule rule = new RuleExprs.ParserRule(Rule.Types.And, InitRuleExpr(expr.Children[0]));
                         rule.Children.AddRange(expr.Children[1].Children.Select(child => InitRuleExpr(child)));
                         return rule;
                     }
                 case "orRule":
                     {
-                        RuleDecl rule = new RuleDecl(Rule.Types.Or, InitRuleExpr(expr.Children[0]));
+                        RuleExprs.ParserRule rule = new RuleExprs.ParserRule(Rule.Types.Or, InitRuleExpr(expr.Children[0]));
                         rule.Children.AddRange(expr.Children[1].Children.Select(child => InitRuleExpr(child.Children[1])));
                         return rule;
                     }
                 case "oneOrMoreRule":
-                    return new RuleDecl(Rule.Types.OneOrMore, InitRuleExpr(expr.Children[0]));
+                    return new RuleExprs.ParserRule(Rule.Types.OneOrMore, InitRuleExpr(expr.Children[0]));
                 case "zeroOrMoreRule":
-                    return new RuleDecl(Rule.Types.ZeroOrMore, InitRuleExpr(expr.Children[0]));
+                    return new RuleExprs.ParserRule(Rule.Types.ZeroOrMore, InitRuleExpr(expr.Children[0]));
                 case "zeroOrOneRule":
-                    return new RuleDecl(Rule.Types.ZeroOrOne, InitRuleExpr(expr.Children[0]));
+                    return new RuleExprs.ParserRule(Rule.Types.ZeroOrOne, InitRuleExpr(expr.Children[0]));
                 case "id":
-                    return new RuleRef(expr.Value);
+                    return new RuleExprs.RuleRef(expr.Value);
                 case "parenRule":
                     return InitRuleExpr(expr.Children[1]);
                 case "str":
-                    return new LexerRule(expr.Value.Substring(1, expr.Value.Length - 2));
+                    return new RuleExprs.LexerRule(expr.Value.Substring(1, expr.Value.Length - 2));
                 default:
                     throw new Exception("invalid rule expr " + expr.Rule.Name);
             }

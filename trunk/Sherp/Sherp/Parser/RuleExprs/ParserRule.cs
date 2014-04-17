@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sherp.Parser
+namespace Sherp.Parser.RuleExprs
 {
-    public class RuleDecl : RuleExpr
+    public class ParserRule : RuleExpr
     {
         public string Name { get; set; }
         
@@ -14,7 +14,7 @@ namespace Sherp.Parser
 
         public List<RuleExpr> Children { get; private set; }
 
-        public RuleDecl(Rule.Types type, params RuleExpr[] children)
+        public ParserRule(Rule.Types type, params RuleExpr[] children)
         {
             Type = type;
             Children = children.ToList();
@@ -36,7 +36,7 @@ namespace Sherp.Parser
 
         public override string ToString()
         {
-            return string.Format("<Parser.RuleDecl Name=\"{0}\" Type=\"{1}\"/>", Name, Type);
+            return string.Format("<Parser.ParserRule Name=\"{0}\" Type=\"{1}\"/>", Name, Type);
         }
     }
 }

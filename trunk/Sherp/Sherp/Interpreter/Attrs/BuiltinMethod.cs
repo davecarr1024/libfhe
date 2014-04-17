@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sherp
+namespace Sherp.Interpreter.Attrs
 {
-    public interface CallVal : Val
+    public class BuiltinMethod : Attribute
     {
-        Val Call(List<Expr> args, Scope scope);
     }
 }
