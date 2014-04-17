@@ -12,12 +12,27 @@ namespace Sherp
             Assert.AreEqual(new Interpreter.Vals.Bool(true), Interpreter.Interpreter.Eval(@"
                 class Test
                 {
-                    void foo( Bool b, Bool c )
+                    Bool Main()
                     {
+                        return True;
                     }
-
+                }
+            "));
+            Assert.AreEqual(new Interpreter.Vals.Bool(false), Interpreter.Interpreter.Eval(@"
+                class Test
+                {
+                    Bool Main()
+                    {
+                        return False;
+                    }
+                }
+            "));
+            Assert.AreEqual(new Interpreter.Vals.NoneType(), Interpreter.Interpreter.Eval(@"
+                class Test
+                {
                     void Main()
                     {
+                        return;
                     }
                 }
             "));

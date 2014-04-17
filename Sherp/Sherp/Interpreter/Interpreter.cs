@@ -34,9 +34,12 @@ namespace Sherp.Interpreter
                 classDecl => 'class' id '{' classBody* '}';
                 classBody => func | classDecl;
                 func => id id '\(' ( id id ( ',' id id )* )? '\)' '{' statement* '}';
-                statement => returnStatement | ( expr ';' );
+                statement => returnStatement | emptyReturnStatement | assignment;
                 returnStatement => 'return' expr ';';
-                expr => id | int | str;
+                emptyReturnStatement => 'return' ';';
+                assignment => id '=' expr ';';
+                expr => ref | int | str;
+                ref => id ( '\.' id )*;
             ");
             Scope scope = new Scope();
             scope["None"] = new Vals.NoneType();
@@ -100,6 +103,8 @@ namespace Sherp.Interpreter
             {
                 case "decl":
                 case "classBody":
+                case "statement":
+                case "expr":
                     return Parse(expr.Children[0]);
                 case "classDecl":
                     //classDecl => 'class' id '{' classBodyExpr* '}';
@@ -115,6 +120,17 @@ namespace Sherp.Interpreter
                         paramList.AddRange(paramsExpr.Children[2].Children.Select(child => new Exprs.Param(child.Children[1].Value, child.Children[2].Value)));
                     }
                     return new Exprs.Func(expr.Children[1].Value, expr.Children[0].Value, paramList, expr.Children[6].Children.Select(child => Parse(child)).ToList());
+                case "returnStatement":
+                    //returnStatement => 'return' expr ';';
+                    return new Exprs.ReturnStatement(Parse(expr.Children[1]));
+                case "emptyReturnStatement":
+                    return new Exprs.ReturnStatement(new Exprs.Direct(new Vals.NoneType()));
+                case "ref":
+                    //ref => id ( '.' id )*;
+                    Exprs.Ref r = new Exprs.Ref(expr.Children[0].Value);
+                    r.Ids.AddRange(expr.Children[1].Children.Select(child => child.Value).ToArray());
+                    return r;
+                //assignment => id '=' expr ';';
                 default:
                     throw new Exception("invalid expr " + expr.Rule.Name);
             }
