@@ -108,7 +108,7 @@ namespace Sherp.Parser
                         }
                     }
                 case Types.ZeroOrMore:
-                    if ( Children.Count != 1)
+                    if (Children.Count != 1)
                     {
                         throw new Exception("ZeroOrMore rules must have one child");
                     }
@@ -141,7 +141,7 @@ namespace Sherp.Parser
                         Result childResult = Children[0].Apply(tokens, ref childTokenPos);
                         if (childResult == null)
                         {
-                            return null;
+                            return new Result(this);
                         }
                         else
                         {

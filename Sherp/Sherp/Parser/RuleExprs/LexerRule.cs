@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sherp.Parser
+namespace Sherp.Parser.RuleExprs
 {
     public class LexerRule : RuleExpr
     {
@@ -26,7 +26,7 @@ namespace Sherp.Parser
             {
                 if (!lexer.Rules.Any(r => r.Name == Name))
                 {
-                    lexer.Rules.Add(new Lexer.Rule(Name, Name, true));
+                    lexer.Rules.Insert(0, new Lexer.Rule(Name, Name, true));
                 }
                 return boundRules[Name] = new Rule(Name, Rule.Types.Terminal);
             }

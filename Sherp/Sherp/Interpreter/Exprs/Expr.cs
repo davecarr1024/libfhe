@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sherp
+namespace Sherp.Interpreter.Exprs
 {
     public interface Expr
     {
-        Val Eval(Scope scope);
+        Vals.Val Eval(Scope scope);
     }
 }

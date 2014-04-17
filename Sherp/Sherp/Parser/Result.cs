@@ -27,5 +27,10 @@ namespace Sherp.Parser
             Value = null;
             Children = children.ToList();
         }
+
+        public override string ToString()
+        {
+            return string.Format("<Parser.Result Rule=\"{0}\" Value=\"{1}\"/>", Rule.Name, Value);
+        }
     }
 }

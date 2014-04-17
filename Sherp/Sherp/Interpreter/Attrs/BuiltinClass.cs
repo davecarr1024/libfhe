@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sherp
+namespace Sherp.Interpreter.Attrs
 {
-    public class BuiltinFunc : Attribute
+    public class BuiltinClass : Attribute
     {
     }
 }

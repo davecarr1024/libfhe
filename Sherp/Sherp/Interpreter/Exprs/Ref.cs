@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sherp.Exprs
+namespace Sherp.Interpreter.Exprs
 {
     public class Ref : Expr
     {
@@ -19,32 +19,27 @@ namespace Sherp.Exprs
         {
             foreach (string id in Ids.Take(Ids.Count - 1))
             {
-                Val val;
-                if (scope.TryGetValue(id, out val))
+                Vals.Val val;
+                if (!scope.TryGetValue(id, out val))
                 {
-                    ScopeVal scopeVal = val as ScopeVal;
-                    if (scopeVal != null)
-                    {
-                        scope = scopeVal.Scope;
-                    }
-                    else
-                    {
-                        throw new Exception("invalid ref " + id);
-                    }
+                    throw new Exception("unknown id " + id);
+                }
+                else if (!(val is Vals.ScopeVal))
+                {
+                    throw new Exception("invalid id " + id);
                 }
                 else
                 {
-                    throw new Exception("unknown id " + id);
+                    scope = (val as Vals.ScopeVal).Scope;
                 }
             }
             return scope;
         }
 
-        public Val Eval(Scope scope)
+        public Vals.Val Eval(Scope scope)
         {
-            scope = Resolve(scope);
-            Val val;
-            if (scope.TryGetValue(Ids.Last(), out val))
+            Vals.Val val;
+            if (Resolve(scope).TryGetValue(Ids.Last(), out val))
             {
                 return val;
             }

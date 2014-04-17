@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sherp.Parser
+namespace Sherp.Parser.RuleExprs
 {
     public interface RuleExpr
     {
