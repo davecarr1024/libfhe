@@ -10,16 +10,6 @@ namespace Sherp.Interpreter
     public static class Interpreter
     {
         private static Parser.Parser parser;
-        //        private static Parser.Parser parser = new Parser.Parser(@"
-        //            id = '[a-zA-Z_][a-zA-Z0-9_-]*';
-        //            int = '\d+';
-        //            str = '"".*?""';
-        //            ws ~= '\s+';
-        //            program => ( namespace | class )*;
-        //            namespace => 'namespace' id '{' ( namespace | class )* '}';
-        //            class => 'class' id '{' ( namespace | class | func )* '}';
-        //            func => id id '(' params ')' '{' statement* '}';
-        //        ");
 
         public static Scope DefaultScope()
         {
@@ -34,12 +24,19 @@ namespace Sherp.Interpreter
                 classDecl => 'class' id '{' classBody* '}';
                 classBody => func | classDecl;
                 func => id id '\(' ( id id ( ',' id id )* )? '\)' '{' statement* '}';
-                statement => returnStatement | emptyReturnStatement | assignment;
+                statement => returnStatement | emptyReturnStatement | callStatement | assignmentStatement | declStatement;
                 returnStatement => 'return' expr ';';
                 emptyReturnStatement => 'return' ';';
-                assignment => id '=' expr ';';
-                expr => ref | int | str;
+                expr => binaryOperation | call | ref | int | str;
                 ref => id ( '\.' id )*;
+                callStatement => call ';';
+                call => ref '\(' ( expr ( ',' expr )* )? '\)';
+                assignmentStatement => ref '=' expr ';';
+                declStatement => ref id '=' expr ';';
+                binaryOperation => operand binaryOperator operand;
+                binaryOperator => '==' | '!=' | '\+' | '-' | '\*' | '/' | '<' | '<=' | '>' | '>=';
+                operand => call | ref | int | str | parenExpr;
+                parenExpr => '\(' expr '\)';
             ");
             Scope scope = new Scope();
             scope["None"] = new Vals.NoneType();
@@ -105,6 +102,8 @@ namespace Sherp.Interpreter
                 case "classBody":
                 case "statement":
                 case "expr":
+                case "callStatement":
+                case "operand":
                     return Parse(expr.Children[0]);
                 case "classDecl":
                     //classDecl => 'class' id '{' classBodyExpr* '}';
@@ -128,9 +127,31 @@ namespace Sherp.Interpreter
                 case "ref":
                     //ref => id ( '.' id )*;
                     Exprs.Ref r = new Exprs.Ref(expr.Children[0].Value);
-                    r.Ids.AddRange(expr.Children[1].Children.Select(child => child.Value).ToArray());
+                    r.Ids.AddRange(expr.Children[1].Children.Select(child => child.Children[1].Value).ToArray());
                     return r;
-                //assignment => id '=' expr ';';
+                case "call":
+                    //call => ref '\(' ( expr ( ',' expr )* )? '\)';
+                    Exprs.Call call = new Exprs.Call(Parse(expr.Children[0]), new List<Exprs.Expr>());
+                    Parser.Result argsExpr = expr.Children[2].Children.FirstOrDefault();
+                    if (argsExpr != null)
+                    {
+                        call.Args.Add(Parse(argsExpr.Children[0]));
+                        call.Args.AddRange(argsExpr.Children[1].Children.Select(child => Parse(child.Children[1])));
+                    }
+                    return call;
+                case "assignmentStatement":
+                    //assignmentStatement => ref '=' expr ';';
+                    return new Exprs.BinaryOperation(Exprs.BinaryOperation.Operators.Assign, Parse(expr.Children[0]), Parse(expr.Children[2]));
+                case "declStatement":
+                    //declStatement => ref id '=' expr ';';
+                    return new Exprs.Declaration(Parse(expr.Children[0]), expr.Children[1].Value, Parse(expr.Children[3]));
+                case "binaryOperation":
+                    //binaryOperation => operand binaryOperator operand;
+                    return new Exprs.BinaryOperation(Exprs.BinaryOperation.ParseOperator(expr.Children[1].Children[0].Value), Parse(expr.Children[0]), Parse(expr.Children[2]));
+                case "int":
+                    return new Exprs.Int(int.Parse(expr.Value));
+                case "parenExpr":
+                    return Parse(expr.Children[1]);
                 default:
                     throw new Exception("invalid expr " + expr.Rule.Name);
             }

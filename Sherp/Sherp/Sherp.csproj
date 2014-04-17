@@ -41,9 +41,14 @@
   <ItemGroup>
     <Compile Include="Interpreter\Attrs\BuiltinClass.cs" />
     <Compile Include="Interpreter\Attrs\BuiltinMethod.cs" />
+    <Compile Include="Interpreter\Attrs\SystemMethod.cs" />
+    <Compile Include="Interpreter\Exprs\BinaryOperation.cs" />
+    <Compile Include="Interpreter\Exprs\Call.cs" />
     <Compile Include="Interpreter\Exprs\Class.cs" />
+    <Compile Include="Interpreter\Exprs\Declaration.cs" />
     <Compile Include="Interpreter\Exprs\Direct.cs" />
     <Compile Include="Interpreter\Exprs\Func.cs" />
+    <Compile Include="Interpreter\Exprs\Int.cs" />
     <Compile Include="Interpreter\Exprs\Namespace.cs" />
     <Compile Include="Interpreter\Exprs\Param.cs" />
     <Compile Include="Interpreter\Exprs\Ref.cs" />
@@ -55,11 +60,13 @@
     <Compile Include="Interpreter\Vals\BuiltinMethod.cs" />
     <Compile Include="Interpreter\Vals\Class.cs" />
     <Compile Include="Interpreter\Vals\Func.cs" />
+    <Compile Include="Interpreter\Vals\Int.cs" />
     <Compile Include="Interpreter\Vals\Method.cs" />
     <Compile Include="Interpreter\Vals\Namespace.cs" />
     <Compile Include="Interpreter\Vals\NoneType.cs" />
     <Compile Include="Interpreter\Vals\Object.cs" />
     <Compile Include="Interpreter\Vals\Param.cs" />
+    <Compile Include="Interpreter\Vals\System.cs" />
     <Compile Include="Lexer\Lexer.cs" />
     <Compile Include="Lexer\Result.cs" />
     <Compile Include="Lexer\Rule.cs" />

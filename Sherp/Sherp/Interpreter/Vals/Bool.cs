@@ -9,8 +9,6 @@ namespace Sherp.Interpreter.Vals
     [Attrs.BuiltinClass]
     public class Bool : Object
     {
-        public bool IsReturn { get; set; }
-
         public bool Value { get; private set; }
 
         public Bool(bool value)
@@ -50,6 +48,18 @@ namespace Sherp.Interpreter.Vals
         public static Bool __new__()
         {
             return new Bool(false);
+        }
+
+        [Attrs.BuiltinMethod]
+        public Bool __eq__(Bool value)
+        {
+            return new Bool(Value == value.Value);
+        }
+
+        [Attrs.BuiltinMethod]
+        public Bool __neq__(Bool value)
+        {
+            return new Bool(Value != value.Value);
         }
     }
 }
