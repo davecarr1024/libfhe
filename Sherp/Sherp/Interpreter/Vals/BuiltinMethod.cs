@@ -14,15 +14,28 @@ namespace Sherp.Interpreter.Vals
 
         public Func<List<Exprs.Expr>, Scope, Val> Func { get; private set; }
 
-        public BuiltinMethod(Func<List<Exprs.Expr>, Scope, Val> func)
+        public List<Param> Params { get; private set; }
+
+        public List<List<Param>> ParamsList { get { return new List<List<Param>>() { Params }; } }
+
+        public BuiltinMethod(Func<List<Exprs.Expr>, Scope, Val> func, List<Param> paramList)
         {
             IsReturn = false;
             Func = func;
+            Params = paramList;
         }
 
         public Val Apply(List<Exprs.Expr> args, Scope scope)
         {
-            return Func(args, scope);
+            List<Val> vals = args.Select(arg => arg.Eval(scope)).ToList();
+            if (vals.Count != Params.Count || Enumerable.Range(0, vals.Count).Any(i => vals[i].Type != Params[i].Type))
+            {
+                throw new Exception("invalid args");
+            }
+            else
+            {
+                return Func(args, scope);
+            }
         }
 
         public bool ToBool()

@@ -16,6 +16,14 @@ namespace Sherp.Interpreter.Vals
 
         public ApplyVal Func { get; private set; }
 
+        public List<List<Param>> ParamsList
+        {
+            get
+            {
+                return Func.ParamsList.Select(paramList => paramList.Skip(1).ToList()).ToList();
+            }
+        }
+
         public Method(Val obj, ApplyVal func)
         {
             IsReturn = false;

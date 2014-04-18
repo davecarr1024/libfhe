@@ -14,6 +14,22 @@ namespace Sherp.Interpreter.Vals
 
         public Scope Scope { get; private set; }
 
+        public List<List<Param>> ParamsList
+        {
+            get
+            {
+                Val func;
+                if (Scope.TryGetValue("__init__", out func) && func is ApplyVal)
+                {
+                    return (func as ApplyVal).ParamsList;
+                }
+                else
+                {
+                    return new List<List<Param>>();
+                }
+            }
+        }
+
         public Object(Class parent)
         {
             IsReturn = false;

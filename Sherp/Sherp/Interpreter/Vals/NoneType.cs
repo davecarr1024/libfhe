@@ -20,6 +20,11 @@ namespace Sherp.Interpreter.Vals
             return obj is NoneType;
         }
 
+        public override bool ToBool()
+        {
+            return false;
+        }
+
         public override int GetHashCode()
         {
             return base.GetHashCode();

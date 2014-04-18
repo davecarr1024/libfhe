@@ -61,5 +61,11 @@ namespace Sherp.Interpreter.Vals
         {
             return new Bool(Value != value.Value);
         }
+
+        [Attrs.BuiltinMethod]
+        public Bool __not__()
+        {
+            return new Bool(!Value);
+        }
     }
 }

@@ -8,5 +8,11 @@ namespace Sherp.Interpreter.Attrs
 {
     public class SystemMethod : Attribute
     {
+        public List<Type> ArgTypes { get; private set; }
+
+        public SystemMethod(Type[] types)
+        {
+            ArgTypes = types.ToList();
+        }
     }
 }

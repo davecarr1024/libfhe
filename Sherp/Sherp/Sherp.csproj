@@ -53,6 +53,7 @@
     <Compile Include="Interpreter\Exprs\Param.cs" />
     <Compile Include="Interpreter\Exprs\Ref.cs" />
     <Compile Include="Interpreter\Exprs\ReturnStatement.cs" />
+    <Compile Include="Interpreter\Exprs\UnaryOperation.cs" />
     <Compile Include="Interpreter\Vals\ApplyVal.cs" />
     <Compile Include="Interpreter\Exprs\Expr.cs" />
     <Compile Include="Interpreter\Interpreter.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="Interpreter\Vals\Namespace.cs" />
     <Compile Include="Interpreter\Vals\NoneType.cs" />
     <Compile Include="Interpreter\Vals\Object.cs" />
+    <Compile Include="Interpreter\Vals\Overload.cs" />
     <Compile Include="Interpreter\Vals\Param.cs" />
     <Compile Include="Interpreter\Vals\System.cs" />
     <Compile Include="Lexer\Lexer.cs" />

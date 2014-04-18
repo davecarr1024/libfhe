@@ -17,5 +17,10 @@ namespace Sherp.Interpreter.Vals
             Type = type;
             Name = name;
         }
+
+        public override string ToString()
+        {
+            return "<Param Type=\"" + Type + "\" Name=\"" + Name + "\"/>";
+        }
     }
 }

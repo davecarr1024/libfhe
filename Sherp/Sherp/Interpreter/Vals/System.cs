@@ -14,17 +14,18 @@ namespace Sherp.Interpreter.Vals
         {
         }
 
-        [Attrs.SystemMethod]
+        [Attrs.SystemMethod(new Type[] { typeof(Bool) })]
         public static Val Assert(List<Exprs.Expr> args, Scope scope)
         {
-            foreach (Exprs.Expr arg in args)
+            Val val = args[0].Eval(scope);
+            if (!val.ToBool())
             {
-                if (!arg.Eval(scope).ToBool())
-                {
-                    throw new Exception("Assertion failed: " + arg);
-                }
+                throw new Exception("Assertion failed: expr " + args[0] + " val " + val);
             }
-            return new NoneType();
+            else
+            {
+                return new NoneType();
+            }
         }
     }
 }

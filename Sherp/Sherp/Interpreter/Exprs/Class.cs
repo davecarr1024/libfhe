@@ -20,7 +20,7 @@ namespace Sherp.Interpreter.Exprs
 
         public Vals.Val Eval(Scope scope)
         {
-            return scope[Name] = new Vals.Class(Name, Body, scope);
+            return scope[Name] = new Vals.Class(Name, Body, scope, null);
         }
     }
 }
