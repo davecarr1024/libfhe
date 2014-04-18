@@ -30,5 +30,10 @@ namespace Sherp.Interpreter.Exprs
                 throw new Exception("unable to call uncallable func " + func);
             }
         }
+
+        public override string ToString()
+        {
+            return Func + "(" + string.Join(", ", Args.Select(arg => arg.ToString()).ToArray()) + ")";
+        }
     }
 }

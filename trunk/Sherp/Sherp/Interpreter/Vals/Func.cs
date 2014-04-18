@@ -20,6 +20,8 @@ namespace Sherp.Interpreter.Vals
 
         public List<Exprs.Expr> Body { get; private set; }
 
+        public List<List<Param>> ParamsList { get { return new List<List<Param>>() { Params }; } }
+
         public Func(string name, Val returnType, List<Param> paramList, List<Exprs.Expr> body)
         {
             IsReturn = false;

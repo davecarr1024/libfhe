@@ -27,7 +27,7 @@ namespace Sherp.Interpreter
                 statement => returnStatement | emptyReturnStatement | callStatement | assignmentStatement | declStatement;
                 returnStatement => 'return' expr ';';
                 emptyReturnStatement => 'return' ';';
-                expr => binaryOperation | call | ref | int | str;
+                expr => unaryOperation | binaryOperation | call | ref | int | str;
                 ref => id ( '\.' id )*;
                 callStatement => call ';';
                 call => ref '\(' ( expr ( ',' expr )* )? '\)';
@@ -37,6 +37,8 @@ namespace Sherp.Interpreter
                 binaryOperator => '==' | '!=' | '\+' | '-' | '\*' | '/' | '<' | '<=' | '>' | '>=';
                 operand => call | ref | int | str | parenExpr;
                 parenExpr => '\(' expr '\)';
+                unaryOperation => unaryOperator expr;
+                unaryOperator => '-' | '!';
             ");
             Scope scope = new Scope();
             scope["None"] = new Vals.NoneType();
@@ -152,6 +154,9 @@ namespace Sherp.Interpreter
                     return new Exprs.Int(int.Parse(expr.Value));
                 case "parenExpr":
                     return Parse(expr.Children[1]);
+                case "unaryOperation":
+                    //unaryOperation => unaryOperator expr;
+                    return new Exprs.UnaryOperation(Exprs.UnaryOperation.ParseOperator(expr.Children[0].Children[0].Value), Parse(expr.Children[1]));
                 default:
                     throw new Exception("invalid expr " + expr.Rule.Name);
             }

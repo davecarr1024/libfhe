@@ -16,7 +16,17 @@ namespace Sherp.Interpreter.Vals
             Class c;
             if (!builtinClasses.TryGetValue(type, out c))
             {
-                c = builtinClasses[type] = new Class(type);
+                Class parent;
+                if (type.BaseType != null)
+                {
+                    parent = Bind(type.BaseType);
+                }
+                else
+                {
+                    parent = null;
+                }
+                c = builtinClasses[type] = new Class(type.Name, parent);
+                c.Init(type);
             }
             return c;
         }
@@ -25,35 +35,61 @@ namespace Sherp.Interpreter.Vals
 
         public bool IsReturn { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; private set; }
 
-        public Scope Scope { get; set; }
+        public Scope Scope { get; private set; }
 
-        public Class(string name, List<Exprs.Expr> body, Scope scope)
+        public Class Parent { get; private set; }
+
+        public List<List<Param>> ParamsList
+        {
+            get
+            {
+                Val func;
+                if (Scope.TryGetValue("__new__", out func) && func is ApplyVal)
+                {
+                    return (func as ApplyVal).ParamsList;
+                }
+                else if (Scope.TryGetValue("__init__", out func) && func is ApplyVal)
+                {
+                    return (func as ApplyVal).ParamsList;
+                }
+                else
+                {
+                    return new List<List<Param>>() { new List<Param>() };
+                }
+            }
+        }
+
+        public Class(string name, List<Exprs.Expr> body, Scope scope, Class parent)
         {
             IsReturn = false;
             Name = name;
-            Scope = new Scope();
+            Parent = parent ?? Bind(typeof(Object));
+            Scope = new Scope(Parent.Scope);
             foreach (Exprs.Expr expr in body)
             {
                 expr.Eval(scope);
             }
         }
 
-        private Class(Type type)
+        private Class(string name, Class parent)
         {
             IsReturn = false;
-            Name = type.Name;
-            Scope = new Scope();
-            Init(type);
+            Name = name;
+            Parent = parent;
+            if (Parent != null)
+            {
+                Scope = new Scope(Parent.Scope);
+            }
+            else
+            {
+                Scope = new Scope();
+            }
         }
 
         private void Init(Type type)
         {
-            if (type.BaseType != null)
-            {
-                Init(type.BaseType);
-            }
             foreach (MethodInfo method in type.GetMethods().Where(m => m.GetCustomAttributes().Any(a => a is Attrs.BuiltinMethod)))
             {
                 Scope[method.Name] = new BuiltinMethod(
@@ -67,18 +103,30 @@ namespace Sherp.Interpreter.Vals
                         {
                             return method.Invoke(args.First().Eval(scope), args.Skip(1).Select(arg => arg.Eval(scope)).Cast<object>().ToArray()) as Val;
                         }
-                    }
+                    },
+                    GetParams(method)
                 );
             }
-            foreach (MethodInfo method in type.GetMethods().Where(m => m.GetCustomAttributes().Any(a => a is Attrs.SystemMethod)))
+            foreach (MethodInfo method in type.GetMethods())
             {
-                Scope[method.Name] = new BuiltinMethod(
-                    (args, scope) =>
-                    {
-                        return method.Invoke(null, new object[] { args, scope }) as Val;
-                    }
-                );
+                Attrs.SystemMethod attr = method.GetCustomAttribute<Attrs.SystemMethod>();
+                if (attr != null)
+                {
+                    Scope[method.Name] = new BuiltinMethod(
+                        (args, scope) =>
+                        {
+                            return method.Invoke(null, new object[] { args, scope }) as Val;
+                        },
+                        attr.ArgTypes.Select(argType => new Param(Class.Bind(argType), "arg")).ToList()
+                    );
+                }
             }
+        }
+
+        private List<Param> GetParams(MethodInfo method)
+        {
+            List<Param> paramList = method.GetParameters().Select(param => new Param(Class.Bind(param.ParameterType), param.Name)).ToList();
+            return paramList;
         }
 
         public bool ToBool()

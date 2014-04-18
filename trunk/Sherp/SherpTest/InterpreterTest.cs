@@ -82,5 +82,22 @@ namespace Sherp
                 }
             ");
         }
+
+        [TestMethod]
+        public void TestBuiltinConstructors()
+        {
+            Interpreter.Interpreter.Eval(@"
+                class Test
+                {
+                    void Main()
+                    {
+                        System.Assert( !Bool() );
+                        System.Assert( Bool( True ) );
+                        System.Assert( !Bool( False ) );
+                        System.Assert( Int(3) == 3 );
+                    }
+                }
+            ");
+        }
     }
 }

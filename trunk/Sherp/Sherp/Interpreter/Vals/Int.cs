@@ -18,9 +18,9 @@ namespace Sherp.Interpreter.Vals
         }
 
         [Attrs.BuiltinMethod]
-        public static Int __new__(int value)
+        public static Int __new__(Int value)
         {
-            return new Int(value);
+            return new Int(value.Value);
         }
 
         [Attrs.BuiltinMethod]
@@ -81,6 +81,12 @@ namespace Sherp.Interpreter.Vals
         public Bool __gte__(Int value)
         {
             return new Bool(Value >= value.Value);
+        }
+
+        [Attrs.BuiltinMethod]
+        public Int __neg__()
+        {
+            return new Int(-Value);
         }
     }
 }
