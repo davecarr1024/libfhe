@@ -628,6 +628,13 @@ class Lisp:
         assert Lisp.Vals.Int( 3 ) == Lisp.eval( '(define foo 2) (+ foo 1)' )
         assert Lisp.Vals.Int( 20 ) == Lisp.eval( '( define foo ( x ) ( * x 2 ) ) ( foo 10 )' )
 
+class Builtin:
+    def __init__( self, value ):
+        self.value = value
+        
+    def __call__( self, *args, **kwargs ):
+        return self.value( *args, **kwargs )
+        
 class Python:
     class Exprs:
         class Expr:
@@ -648,9 +655,9 @@ class Python:
                 elif result.rule.name == 'call':
                     #call => ref '\(' ( expr ( ',' expr )* )? '\)';
                     if result.children[2].children:
-                        args = result.children[2].children[0]
-                        children = [ Python.Exprs.Expr.parse( args.children[0] ) ] + \
-                            [ Python.Exprs.Expr.parse( child.children[1] ) for child in args.children[1].children ]
+                        argExpr = result.children[2].children[0]
+                        args = [ Python.Exprs.Expr.parse( argExpr.children[0] ) ] + \
+                            [ Python.Exprs.Expr.parse( child.children[1] ) for child in argExpr.children[1].children ]
                     else:
                         args = []
                     return Python.Exprs.Call( Python.Exprs.Expr.parse( result.children[0] ), args )
@@ -706,11 +713,14 @@ class Python:
                 assert func.canApply(), 'trying to call noncallable %s' % func
                 return func.apply( self.args, scope )
                 
+        class Val( Expr ):
+            def __init__( self, value ):
+                self.value = value
+                
+            def eval( self, scope ):
+                return self.value
+                
     class Vals:
-        def builtin( c ):
-            c.isBuiltin = True
-            return c
-            
         class Val:
             def __init__( self ):
                 self.isReturn = False
@@ -739,12 +749,15 @@ class Python:
                         scope = Python.Scope( Python.Vals.Type.bind( type.__bases__[0] ).getScope() )
                     else:
                         scope = Python.Scope( None )
-                    scope[ '__new__' ] = Python.Vals.Builtin( lambda args, scope: type() )
-                    for name, func in filter( lambda ( name, func ): callable( func ), type.__dict__.iteritems() ):
-                        if isinstance( func, staticmethod ):
-                            scope[ name ] = Python.Vals.Builtin( lambda args, scope: func( *[ arg.eval( scope ) for arg in args ] ) )
-                        else:
-                            scope[ name ] = Python.Vals.Builtin( lambda args, scope: func( args[0].eval( scope ), *[ arg.eval( scope ) for arg in args ] ) )
+                    for name, func in filter(
+                        lambda ( name, func ): isinstance( func, Builtin ),
+                        [ ( name, getattr( type, name ) ) for name in dir( type ) ] ):
+                        def bind( type, name, func ):
+                            def call( args, scope ):
+                                vals = [ arg.eval( scope ) for arg in args ]
+                                return func( *vals )
+                            return call
+                        scope[ name ] = Python.Vals.BuiltinFunc( bind( type, name, func.value ) )
                     Python.Vals.Type.builtinTypes[type] = Python.Vals.Type( type.__name__, scope )
                 return Python.Vals.Type.builtinTypes[type]
                 
@@ -756,12 +769,12 @@ class Python:
                 
             def apply( self, args, scope ):
                 if '__new__' in self.scope:
-                    obj = self.scope['__new__'].apply( [], scope )
+                    return self.scope['__new__'].apply( args, scope )
                 else:
                     obj = Python.Vals.Object( self )
-                if '__init__' in obj.getScope():
-                    obj.getScope()['__init__'].apply( args, scope )
-                return obj
+                    if '__init__' in obj.getScope():
+                        obj.getScope()['__init__'].apply( args, scope )
+                    return obj
                 
             def getScope( self ):
                 return self.scope
@@ -769,7 +782,14 @@ class Python:
         class Object( Val ):
             def __init__( self, type ):
                 Python.Vals.Val.__init__( self )
+                self.type = type
                 self.scope = Python.Scope( type.getScope() )
+                for name, val in self.scope.getVals().iteritems():
+                    if val.canApply():
+                        self.scope[name] = Python.Vals.Method( self, val )
+                
+            def __repr__( self ):
+                return 'Object(%s)' % self.type
                 
             def getScope( self ):
                 return self.scope
@@ -778,34 +798,62 @@ class Python:
             def __init__( self ):
                 Python.Vals.Object.__init__( self, Python.Vals.Type.bind( Python.Vals.NoneType ) )
                 
+            @Builtin
+            def __new__():
+                return Python.Vals.NoneType()
+                
             def __eq__( self, rhs ):
                 return isinstance( rhs, Python.Vals.NoneType )
                 
         class Bool( Object ):
-            def __init__( self, value = False ):
+            def __init__( self, value ):
                 Python.Vals.Object.__init__( self, Python.Vals.Type.bind( Python.Vals.Bool ) )
                 self.value = value
                 
+            @Builtin
+            def __new__( value ):
+                assert isinstance( value, Python.Vals.Bool )
+                return Python.Vals.Bool( value.value )
+        
             def __eq__( self, rhs ):
                 return isinstance( rhs, Python.Vals.Bool ) and self.value == rhs.value
                 
+            def __repr__( self ):
+                return str( self.value )
+                
         class Int( Object ):
-            def __init__( self, value = 0 ):
+            def __init__( self, value ):
                 Python.Vals.Object.__init__( self, Python.Vals.Type.bind( Python.Vals.Int ) )
                 self.value = value
                 
+            @Builtin
+            def __new__( value ):
+                assert isinstance( value, Python.Vals.Int )
+                return Python.Vals.Int( value.value )
+                
             def __eq__( self, rhs ):
                 return isinstance( rhs, Python.Vals.Int ) and self.value == rhs.value
+                
+            def __repr__( self ):
+                return str( self.value )
                 
         class Str( Object ):
             def __init__( self, value = '' ):
                 Python.Vals.Object.__init__( self, Python.Vals.Type.bind( Python.Vals.Int ) )
                 self.value = value
                 
+            @Builtin
+            def __new__( value ):
+                assert isinstance( value, Python.Vals.Str )
+                return Python.Vals.Str( value.value )
+                
             def __eq__( self, rhs ):
                 return isinstance( rhs, Python.Vals.Str ) and self.value == rhs.value
                 
-        class Builtin( Val ):
+            def __repr__( self ):
+                return '"%s"' % self.value
+                
+        class BuiltinFunc( Val ):
             def __init__( self, func ):
                 Python.Vals.Val.__init__( self )
                 self.func = func
@@ -815,7 +863,18 @@ class Python:
                 
             def apply( self, args, scope ):
                 return self.func( args, scope )
-
+                
+        class Method( Val ):
+            def __init__( self, obj, func ):
+                self.obj = obj
+                self.func = func
+                
+            def canApply( self ):
+                return True
+                
+            def apply( self, args, scope ):
+                return self.func.apply( [ Python.Exprs.Val( self.obj ) ] + args, scope )
+                
     class Scope:
         def __init__( self, parent ):
             self.vals = dict()
@@ -830,13 +889,21 @@ class Python:
                 raise RuntimeError( 'unknown id %s' % id )
                 
         def __setitem__( self, id, val ):
-            if self.parent and id in self.parent:
-                self.parent[id] = val
-            else:
-                self.vals[id] = val
+            self.vals[id] = val
             
         def __contains__( self, id ):
             return id in self.vals or ( self.parent and id in self.parent )
+            
+        def __repr__( self ):
+            return str( self.getVals() )
+            
+        def getVals( self ):
+            if self.parent:
+                vals = self.parent.getVals()
+            else:
+                vals = {}
+            vals.update( self.vals )
+            return vals
                 
     parser = Parser.build( """
         int = '[-]?\d+';
@@ -852,15 +919,19 @@ class Python:
         funcDecl => 'def' id '\(' ( id ( ',' id )* )? '\)' '{' statement* '}';
     """ )
     
+    scope = None
+    
     @staticmethod
     def defaultScope():
-        scope = Python.Scope( None )
-        scope['None'] = Python.Vals.NoneType()
-        scope['False'] = Python.Vals.Bool( False )
-        scope['True'] = Python.Vals.Bool( True )
-        for name, type in filter( lambda ( name, type ): not name.startswith( "_" ) and isinstance( type, types.ClassType ), Python.Vals.__dict__.iteritems() ):
-            scope[ name ] = Python.Vals.Type.bind( type )
-        return scope
+        if not Python.scope:
+            Python.scope = Python.Scope( None )
+            Python.scope['None'] = Python.Vals.NoneType()
+            Python.scope['False'] = Python.Vals.Bool( False )
+            Python.scope['True'] = Python.Vals.Bool( True )
+            for name, type in filter( lambda ( name, type ): not name.startswith( "_" ) and isinstance( type, types.ClassType ), Python.Vals.__dict__.iteritems() ):
+                cl = Python.Vals.Type.bind( type )
+                Python.scope[ name ] = cl
+        return Python.scope
             
     @staticmethod
     def eval( input, scope = None ):
