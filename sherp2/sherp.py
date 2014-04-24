@@ -603,11 +603,11 @@ class Lisp:
         scope = {
             'true': Lisp.Vals.Bool( True ),
             'false': Lisp.Vals.Bool( False ),
-            '+': Lisp.Vals.Builtin( Lisp.Bulitins.add ),
-            '-': Lisp.Vals.Builtin( Lisp.Bulitins.sub ),
-            '*': Lisp.Vals.Builtin( Lisp.Bulitins.mul ),
-            '/': Lisp.Vals.Builtin( Lisp.Bulitins.div ),
-            'define': Lisp.Vals.Builtin( Lisp.define ),
+            '+': Lisp.Vals.Builtin( Lisp.Builtins.add ),
+            '-': Lisp.Vals.Builtin( Lisp.Builtins.sub ),
+            '*': Lisp.Vals.Builtin( Lisp.Builtins.mul ),
+            '/': Lisp.Vals.Builtin( Lisp.Builtins.div ),
+            'define': Lisp.Vals.Builtin( Lisp.Builtins.define ),
         }
         return [ Lisp.Exprs.Expr.parse( result ).eval( scope ) for result in Lisp.parser.parse( input ).children ][-1]
         
