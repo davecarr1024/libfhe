@@ -1,4 +1,5 @@
 import re
+import types
 
 class Lexer:
     class Result:
@@ -644,6 +645,15 @@ class Python:
                     return Python.Exprs.Int( int( result.value ) )
                 elif result.rule.name == 'str':
                     return Python.Exprs.Str( result.value[1:-1] )
+                elif result.rule.name == 'call':
+                    #call => ref '\(' ( expr ( ',' expr )* )? '\)';
+                    if result.children[2].children:
+                        args = result.children[2].children[0]
+                        children = [ Python.Exprs.Expr.parse( args.children[0] ) ] + \
+                            [ Python.Exprs.Expr.parse( child.children[1] ) for child in args.children[1].children ]
+                    else:
+                        args = []
+                    return Python.Exprs.Call( Python.Exprs.Expr.parse( result.children[0] ), args )
                 else:
                     raise NotImplementedError( result )
                     
@@ -682,6 +692,19 @@ class Python:
                 
             def eval( self, scope ):
                 return Python.Vals.Str( self.value )
+                
+        class Call( Expr ):
+            def __init__( self, func, args ):
+                self.func = func
+                self.args = args
+                
+            def __repr__( self ):
+                return '%s( %s )' % ( self.func, ', '.join( map( str, self.args ) ) )
+                
+            def eval( self, scope ):
+                func = self.func.eval( scope )
+                assert func.canApply(), 'trying to call noncallable %s' % func
+                return func.apply( self.args, scope )
                 
     class Vals:
         def builtin( c ):
@@ -732,7 +755,13 @@ class Python:
                 return True
                 
             def apply( self, args, scope ):
-                raise NotImplementedError()
+                if '__new__' in self.scope:
+                    obj = self.scope['__new__'].apply( [], scope )
+                else:
+                    obj = Python.Vals.Object( self )
+                if '__init__' in obj.getScope():
+                    obj.getScope()['__init__'].apply( args, scope )
+                return obj
                 
             def getScope( self ):
                 return self.scope
@@ -817,7 +846,7 @@ class Python:
         program => statement+;
         statement => exprStatement | funcDecl;
         exprStatement => expr ';';
-        expr => int | str | ref | call;
+        expr => int | str | call | ref;
         ref => id ( '\.' id )*;
         call => ref '\(' ( expr ( ',' expr )* )? '\)';
         funcDecl => 'def' id '\(' ( id ( ',' id )* )? '\)' '{' statement* '}';
@@ -829,6 +858,8 @@ class Python:
         scope['None'] = Python.Vals.NoneType()
         scope['False'] = Python.Vals.Bool( False )
         scope['True'] = Python.Vals.Bool( True )
+        for name, type in filter( lambda ( name, type ): not name.startswith( "_" ) and isinstance( type, types.ClassType ), Python.Vals.__dict__.iteritems() ):
+            scope[ name ] = Python.Vals.Type.bind( type )
         return scope
             
     @staticmethod
@@ -843,6 +874,11 @@ class Python:
         assert Python.Vals.Bool( True ) == Python.eval( 'True;' )
         assert Python.Vals.Int( -3 ) == Python.eval( '-3;' )
         assert Python.Vals.Str( 'herro' ) == Python.eval( '"herro";' )
+        assert Python.Vals.NoneType() == Python.eval( 'NoneType();' )
+        assert Python.Vals.Bool( False ) == Python.eval( 'Bool( False );' )
+        assert Python.Vals.Bool( True ) == Python.eval( 'Bool( True );' )
+        assert Python.Vals.Int( -3 ) == Python.eval( 'Int( -3 );' )
+        assert Python.Vals.Str( 'herro' ) == Python.eval( 'Str( "herro" );' )
         
 if __name__ == '__main__':
     Lexer.test()
