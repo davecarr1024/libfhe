@@ -431,7 +431,200 @@ class Parser:
                     ),
                 ),
             )
+
+class Lisp:
+    class Exprs:
+        class Expr:
+            def eval( self, scope ):
+                raise NotImplementedError()
+                
+            @staticmethod
+            def parse( result ):
+                if result.rule.name == 'expr':
+                    return Lisp.Exprs.Expr.parse( result.children[0] )
+                elif result.rule.name in ( 'id', 'operator' ):
+                    return Lisp.Exprs.Ref( result.value )
+                elif result.rule.name == 'num':
+                    return Lisp.Exprs.Int( int( result.value ) )
+                elif result.rule.name == 'str':
+                    return Lisp.Exprs.Str( result.value[1:-1] )
+                elif result.rule.name == 'compoundExpr':
+                    return Lisp.Exprs.Compound( 
+                        [ Lisp.Exprs.Expr.parse( child ) for child in result.children[1].children ] )
+                else:
+                    raise NotImplementedError( result )
+                    
+        class Ref( Expr ):
+            def __init__( self, id ):
+                self.id = id
+                
+            def __repr__( self ):
+                return self.id
+                
+            def eval( self, scope ):
+                assert self.id in scope, 'unknown ref %s' % self.id
+                return scope[self.id]
+                
+        class Int( Expr ):
+            def __init__( self, value ):
+                self.value = value
+                
+            def __repr__( self ):
+                return str( self.value )
+                
+            def eval( self, scope ):
+                return Lisp.Vals.Int( self.value )
+                
+        class Str( Expr ):
+            def __init__( self, value ):
+                self.value = value
+                
+            def __repr__( self ):
+                return '"%s"' % self.value
+                
+            def eval( self, scope ):
+                return Lisp.Vals.Str( self.value )
+                
+        class Compound( Expr ):
+            def __init__( self, children ):
+                self.children = children
+                
+            def __repr__( self ):
+                return '( %s )' % ' '.join( map( str, self.children ) )
+                
+            def eval( self, scope ):
+                assert len( self.children ) >= 1
+                return self.children[0].eval( scope ).apply( self.children[1:], scope )
+                
+    class Vals:
+        class Val:
+            def apply( self, args, scope ):
+                raise NotImplementedError()
+                
+        class Bool( Val ):
+            def __init__( self, value ):
+                self.value = value
+                
+            def __eq__( self, rhs ):
+                return self.value == rhs.value
+                
+        class Int( Val ):
+            def __init__( self, value ):
+                self.value = value
+                
+            def __eq__( self, rhs ):
+                return self.value == rhs.value
+                
+        class Str( Val ):
+            def __init__( self, value ):
+                self.value = value
+                
+            def __eq__( self, rhs ):
+                return self.value == rhs.value
+                
+        class Builtin( Val ):
+            def __init__( self, func ):
+                self.func = func
+                
+            def apply( self, args, scope ):
+                return self.func( args, scope )
+                
+        class Func( Val ):
+            def __init__( self, params, body ):
+                self.params = params
+                self.body = body
+                
+            def apply( self, args, scope ):
+                assert len( args ) == len( self.params )
+                funcScope = dict( [ ( key, val ) for key, val in scope.iteritems() ] )
+                for arg, param in zip( args, self.params ):
+                    funcScope[param] = arg.eval( scope )
+                return [ expr.eval( funcScope ) for expr in self.body ][-1]
+                
+    parser = Parser.build( """
+        num = '[-]?\d+';
+        id = '[a-zA-Z_][a-zA-Z0-9_]*';
+        operator = '[\+\-\*\/]';
+        str = '\".*?\"';
+        ws ~= '\s+';
+        program => expr+;
+        expr => num | id | operator | str | compoundExpr;
+        compoundExpr => '\(' expr* '\)';
+    """ )
+                
+    @staticmethod
+    def eval( input ):
+        scope = {
+            'true': Lisp.Vals.Bool( True ),
+            'false': Lisp.Vals.Bool( False ),
+            '+': Lisp.Vals.Builtin( Lisp.add ),
+            '-': Lisp.Vals.Builtin( Lisp.sub ),
+            '*': Lisp.Vals.Builtin( Lisp.mul ),
+            '/': Lisp.Vals.Builtin( Lisp.div ),
+            'define': Lisp.Vals.Builtin( Lisp.define ),
+        }
+        return [ Lisp.Exprs.Expr.parse( result ).eval( scope ) for result in Lisp.parser.parse( input ).children ][-1]
         
+    @staticmethod
+    def add( args, scope ):
+        vals = [ arg.eval( scope ) for arg in args ]
+        if len( vals ) == 2 and isinstance( vals[0], Lisp.Vals.Int ) and isinstance( vals[1], Lisp.Vals.Int ):
+            return Lisp.Vals.Int( vals[0].value + vals[1].value )
+        else:
+            raise NotImplementedError( vals )
+            
+    @staticmethod
+    def sub( args, scope ):
+        vals = [ arg.eval( scope ) for arg in args ]
+        if len( vals ) == 2 and isinstance( vals[0], Lisp.Vals.Int ) and isinstance( vals[1], Lisp.Vals.Int ):
+            return Lisp.Vals.Int( vals[0].value - vals[1].value )
+        else:
+            raise NotImplementedError( vals )
+        
+    @staticmethod
+    def mul( args, scope ):
+        vals = [ arg.eval( scope ) for arg in args ]
+        if len( vals ) == 2 and isinstance( vals[0], Lisp.Vals.Int ) and isinstance( vals[1], Lisp.Vals.Int ):
+            return Lisp.Vals.Int( vals[0].value * vals[1].value )
+        else:
+            raise NotImplementedError( vals )
+        
+    @staticmethod
+    def div( args, scope ):
+        vals = [ arg.eval( scope ) for arg in args ]
+        if len( vals ) == 2 and isinstance( vals[0], Lisp.Vals.Int ) and isinstance( vals[1], Lisp.Vals.Int ):
+            return Lisp.Vals.Int( vals[0].value / vals[1].value )
+        else:
+            raise NotImplementedError( vals )
+            
+    @staticmethod
+    def define( args, scope ):
+        assert isinstance( args[0], Lisp.Exprs.Ref )
+        if len( args ) == 2:
+            val = scope[args[0].id] = args[1].eval( scope )
+            return val
+        elif len( args ) >= 3 and isinstance( args[1], Lisp.Exprs.Compound ) \
+            and all( [ isinstance( arg, Lisp.Exprs.Ref ) for arg in args[1].children ] ):
+            val = scope[args[0].id] = Lisp.Vals.Func( [ arg.id for arg in args[1].children ], args[2:] )
+            return val
+        else:
+            raise NotImplementedError( args )
+        
+    @staticmethod
+    def test():
+        assert Lisp.Vals.Bool( True ) == Lisp.eval( 'true' )
+        assert Lisp.Vals.Bool( False ) == Lisp.eval( 'false' )
+        assert Lisp.Vals.Int( 3 ) == Lisp.eval( '3' )
+        assert Lisp.Vals.Int( -12 ) == Lisp.eval( '-12' )
+        assert Lisp.Vals.Int( 'foobar' ) == Lisp.eval( '"foobar"' )
+        assert Lisp.Vals.Int( 7 ) == Lisp.eval( '(+ 3 4)' )
+        assert Lisp.Vals.Int( 1 ) == Lisp.eval( '(- 3 2)' )
+        assert Lisp.Vals.Int( 6 ) == Lisp.eval( '(* 3 2)' )
+        assert Lisp.Vals.Int( 5 ) == Lisp.eval( '(/ 10 2)' )
+        assert Lisp.Vals.Int( 3 ) == Lisp.eval( '(define foo 2) (+ foo 1)' )
+        assert Lisp.Vals.Int( 20 ) == Lisp.eval( '( define foo ( x ) ( * x 2 ) ) ( foo 10 )' )
+    
 if __name__ == '__main__':
     Lexer.test()
     Parser.test()
+    Lisp.test()
