@@ -541,6 +541,52 @@ class Lisp:
                     funcScope[param] = arg.eval( scope )
                 return [ expr.eval( funcScope ) for expr in self.body ][-1]
                 
+    class Builtins:
+        @staticmethod
+        def add( args, scope ):
+            vals = [ arg.eval( scope ) for arg in args ]
+            if len( vals ) == 2 and isinstance( vals[0], Lisp.Vals.Int ) and isinstance( vals[1], Lisp.Vals.Int ):
+                return Lisp.Vals.Int( vals[0].value + vals[1].value )
+            else:
+                raise NotImplementedError( vals )
+                
+        @staticmethod
+        def sub( args, scope ):
+            vals = [ arg.eval( scope ) for arg in args ]
+            if len( vals ) == 2 and isinstance( vals[0], Lisp.Vals.Int ) and isinstance( vals[1], Lisp.Vals.Int ):
+                return Lisp.Vals.Int( vals[0].value - vals[1].value )
+            else:
+                raise NotImplementedError( vals )
+            
+        @staticmethod
+        def mul( args, scope ):
+            vals = [ arg.eval( scope ) for arg in args ]
+            if len( vals ) == 2 and isinstance( vals[0], Lisp.Vals.Int ) and isinstance( vals[1], Lisp.Vals.Int ):
+                return Lisp.Vals.Int( vals[0].value * vals[1].value )
+            else:
+                raise NotImplementedError( vals )
+            
+        @staticmethod
+        def div( args, scope ):
+            vals = [ arg.eval( scope ) for arg in args ]
+            if len( vals ) == 2 and isinstance( vals[0], Lisp.Vals.Int ) and isinstance( vals[1], Lisp.Vals.Int ):
+                return Lisp.Vals.Int( vals[0].value / vals[1].value )
+            else:
+                raise NotImplementedError( vals )
+                
+        @staticmethod
+        def define( args, scope ):
+            assert isinstance( args[0], Lisp.Exprs.Ref )
+            if len( args ) == 2:
+                val = scope[args[0].id] = args[1].eval( scope )
+                return val
+            elif len( args ) >= 3 and isinstance( args[1], Lisp.Exprs.Compound ) \
+                and all( [ isinstance( arg, Lisp.Exprs.Ref ) for arg in args[1].children ] ):
+                val = scope[args[0].id] = Lisp.Vals.Func( [ arg.id for arg in args[1].children ], args[2:] )
+                return val
+            else:
+                raise NotImplementedError( args )
+                        
     parser = Parser.build( """
         num = '[-]?\d+';
         id = '[a-zA-Z_][a-zA-Z0-9_]*';
@@ -557,58 +603,13 @@ class Lisp:
         scope = {
             'true': Lisp.Vals.Bool( True ),
             'false': Lisp.Vals.Bool( False ),
-            '+': Lisp.Vals.Builtin( Lisp.add ),
-            '-': Lisp.Vals.Builtin( Lisp.sub ),
-            '*': Lisp.Vals.Builtin( Lisp.mul ),
-            '/': Lisp.Vals.Builtin( Lisp.div ),
+            '+': Lisp.Vals.Builtin( Lisp.Bulitins.add ),
+            '-': Lisp.Vals.Builtin( Lisp.Bulitins.sub ),
+            '*': Lisp.Vals.Builtin( Lisp.Bulitins.mul ),
+            '/': Lisp.Vals.Builtin( Lisp.Bulitins.div ),
             'define': Lisp.Vals.Builtin( Lisp.define ),
         }
         return [ Lisp.Exprs.Expr.parse( result ).eval( scope ) for result in Lisp.parser.parse( input ).children ][-1]
-        
-    @staticmethod
-    def add( args, scope ):
-        vals = [ arg.eval( scope ) for arg in args ]
-        if len( vals ) == 2 and isinstance( vals[0], Lisp.Vals.Int ) and isinstance( vals[1], Lisp.Vals.Int ):
-            return Lisp.Vals.Int( vals[0].value + vals[1].value )
-        else:
-            raise NotImplementedError( vals )
-            
-    @staticmethod
-    def sub( args, scope ):
-        vals = [ arg.eval( scope ) for arg in args ]
-        if len( vals ) == 2 and isinstance( vals[0], Lisp.Vals.Int ) and isinstance( vals[1], Lisp.Vals.Int ):
-            return Lisp.Vals.Int( vals[0].value - vals[1].value )
-        else:
-            raise NotImplementedError( vals )
-        
-    @staticmethod
-    def mul( args, scope ):
-        vals = [ arg.eval( scope ) for arg in args ]
-        if len( vals ) == 2 and isinstance( vals[0], Lisp.Vals.Int ) and isinstance( vals[1], Lisp.Vals.Int ):
-            return Lisp.Vals.Int( vals[0].value * vals[1].value )
-        else:
-            raise NotImplementedError( vals )
-        
-    @staticmethod
-    def div( args, scope ):
-        vals = [ arg.eval( scope ) for arg in args ]
-        if len( vals ) == 2 and isinstance( vals[0], Lisp.Vals.Int ) and isinstance( vals[1], Lisp.Vals.Int ):
-            return Lisp.Vals.Int( vals[0].value / vals[1].value )
-        else:
-            raise NotImplementedError( vals )
-            
-    @staticmethod
-    def define( args, scope ):
-        assert isinstance( args[0], Lisp.Exprs.Ref )
-        if len( args ) == 2:
-            val = scope[args[0].id] = args[1].eval( scope )
-            return val
-        elif len( args ) >= 3 and isinstance( args[1], Lisp.Exprs.Compound ) \
-            and all( [ isinstance( arg, Lisp.Exprs.Ref ) for arg in args[1].children ] ):
-            val = scope[args[0].id] = Lisp.Vals.Func( [ arg.id for arg in args[1].children ], args[2:] )
-            return val
-        else:
-            raise NotImplementedError( args )
         
     @staticmethod
     def test():
