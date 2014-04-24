@@ -640,6 +640,10 @@ class Python:
                 elif result.rule.name == 'ref':
                     #ref => id ( '\.' id )*;
                     return Python.Exprs.Ref( result.children[0].value, *[ child.children[1].value for child in result.children[1].children ] )
+                elif result.rule.name == 'int':
+                    return Python.Exprs.Int( int( result.value ) )
+                elif result.rule.name == 'str':
+                    return Python.Exprs.Str( result.value[1:-1] )
                 else:
                     raise NotImplementedError( result )
                     
@@ -658,6 +662,26 @@ class Python:
                 
             def eval( self, scope ):
                 return self.resolve( scope )[self.ids[-1]]
+                
+        class Int( Expr ):
+            def __init__( self, value ):
+                self.value = value
+                
+            def __repr__( self ):
+                return str( self.value )
+                
+            def eval( self, scope ):
+                return Python.Vals.Int( self.value )
+                
+        class Str( Expr ):
+            def __init__( self, value ):
+                self.value = value
+                
+            def __repr__( self ):
+                return '"%s"' % self.value
+                
+            def eval( self, scope ):
+                return Python.Vals.Str( self.value )
                 
     class Vals:
         def builtin( c ):
@@ -693,7 +717,7 @@ class Python:
                     else:
                         scope = Python.Scope( None )
                     scope[ '__new__' ] = Python.Vals.Builtin( lambda args, scope: type() )
-                    for name, func in [ ( name, type.__dict__[name] ) for name in dir( type ) ]:
+                    for name, func in filter( lambda ( name, func ): callable( func ), type.__dict__.iteritems() ):
                         if isinstance( func, staticmethod ):
                             scope[ name ] = Python.Vals.Builtin( lambda args, scope: func( *[ arg.eval( scope ) for arg in args ] ) )
                         else:
@@ -743,6 +767,14 @@ class Python:
                 
             def __eq__( self, rhs ):
                 return isinstance( rhs, Python.Vals.Int ) and self.value == rhs.value
+                
+        class Str( Object ):
+            def __init__( self, value = '' ):
+                Python.Vals.Object.__init__( self, Python.Vals.Type.bind( Python.Vals.Int ) )
+                self.value = value
+                
+            def __eq__( self, rhs ):
+                return isinstance( rhs, Python.Vals.Str ) and self.value == rhs.value
                 
         class Builtin( Val ):
             def __init__( self, func ):
