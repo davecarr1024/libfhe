@@ -162,8 +162,10 @@ class Parser:
 
             @staticmethod
             def parse( result ):
-                if result.rule.name in ( 'orMoreArg', 'andOrArg' ):
+                if result.rule.name in ( 'orMoreArg', 'andOrArg', 'parserRuleExpr' ):
                     return Parser.Exprs.Expr.parse( result.children[0] )
+                elif result.rule.name == 'parenRule':
+                    return Parser.Exprs.Expr.parse( result.children[1] )
                 elif result.rule.name == 'id':
                     return Parser.Exprs.Ref( result.value )
                 elif result.rule.name == 'str':
@@ -624,8 +626,194 @@ class Lisp:
         assert Lisp.Vals.Int( 5 ) == Lisp.eval( '(/ 10 2)' )
         assert Lisp.Vals.Int( 3 ) == Lisp.eval( '(define foo 2) (+ foo 1)' )
         assert Lisp.Vals.Int( 20 ) == Lisp.eval( '( define foo ( x ) ( * x 2 ) ) ( foo 10 )' )
+
+class Python:
+    class Exprs:
+        class Expr:
+            def eval( self, scope ):
+                raise NotImplementedError()
+                
+            @staticmethod
+            def parse( result ):
+                if result.rule.name in ( 'statement', 'exprStatement', 'expr' ):
+                    return Python.Exprs.Expr.parse( result.children[0] )
+                elif result.rule.name == 'ref':
+                    #ref => id ( '\.' id )*;
+                    return Python.Exprs.Ref( result.children[0].value, *[ child.children[1].value for child in result.children[1].children ] )
+                else:
+                    raise NotImplementedError( result )
+                    
+        class Ref( Expr ):
+            def __init__( self, id, *ids ):
+                self.ids = [ id ] + list( ids )
+                
+            def __repr__( self ):
+                return '.'.join( self.ids )
+                
+            def resolve( self, scope ):
+                for id in self.ids[:-1]:
+                    scope = scope[id].getScope()
+                    assert scope, 'trying to get member from non-scope id %s in ref %s' % ( id, self )
+                return scope
+                
+            def eval( self, scope ):
+                return self.resolve( scope )[self.ids[-1]]
+                
+    class Vals:
+        def builtin( c ):
+            c.isBuiltin = True
+            return c
+            
+        class Val:
+            def __init__( self ):
+                self.isReturn = False
+        
+            def canApply( self ):
+                return False
+        
+            def apply( self, args, scope ):
+                raise NotImplementedError()
+                
+            def getScope( self ):
+                return None
+                
+        class Type( Val ):
+            builtinTypes = {}
+
+            def __init__( self, name, scope ):
+                Python.Vals.Val.__init__( self )
+                self.name = name
+                self.scope = scope
+                
+            @staticmethod
+            def bind( type ):
+                if type not in Python.Vals.Type.builtinTypes:
+                    if type.__bases__:
+                        scope = Python.Scope( Python.Vals.Type.bind( type.__bases__[0] ).getScope() )
+                    else:
+                        scope = Python.Scope( None )
+                    scope[ '__new__' ] = Python.Vals.Builtin( lambda args, scope: type() )
+                    for name, func in [ ( name, type.__dict__[name] ) for name in dir( type ) ]:
+                        if isinstance( func, staticmethod ):
+                            scope[ name ] = Python.Vals.Builtin( lambda args, scope: func( *[ arg.eval( scope ) for arg in args ] ) )
+                        else:
+                            scope[ name ] = Python.Vals.Builtin( lambda args, scope: func( args[0].eval( scope ), *[ arg.eval( scope ) for arg in args ] ) )
+                    Python.Vals.Type.builtinTypes[type] = Python.Vals.Type( type.__name__, scope )
+                return Python.Vals.Type.builtinTypes[type]
+                
+            def __repr__( self ):
+                return self.name
+                
+            def canApply( self ):
+                return True
+                
+            def apply( self, args, scope ):
+                raise NotImplementedError()
+                
+            def getScope( self ):
+                return self.scope
+                
+        class Object( Val ):
+            def __init__( self, type ):
+                Python.Vals.Val.__init__( self )
+                self.scope = Python.Scope( type.getScope() )
+                
+            def getScope( self ):
+                return self.scope
+                
+        class NoneType( Object ):
+            def __init__( self ):
+                Python.Vals.Object.__init__( self, Python.Vals.Type.bind( Python.Vals.NoneType ) )
+                
+            def __eq__( self, rhs ):
+                return isinstance( rhs, Python.Vals.NoneType )
+                
+        class Bool( Object ):
+            def __init__( self, value = False ):
+                Python.Vals.Object.__init__( self, Python.Vals.Type.bind( Python.Vals.Bool ) )
+                self.value = value
+                
+            def __eq__( self, rhs ):
+                return isinstance( rhs, Python.Vals.Bool ) and self.value == rhs.value
+                
+        class Int( Object ):
+            def __init__( self, value = 0 ):
+                Python.Vals.Object.__init__( self, Python.Vals.Type.bind( Python.Vals.Int ) )
+                self.value = value
+                
+            def __eq__( self, rhs ):
+                return isinstance( rhs, Python.Vals.Int ) and self.value == rhs.value
+                
+        class Builtin( Val ):
+            def __init__( self, func ):
+                Python.Vals.Val.__init__( self )
+                self.func = func
+                
+            def canApply( self ):
+                return True
+                
+            def apply( self, args, scope ):
+                return self.func( args, scope )
+
+    class Scope:
+        def __init__( self, parent ):
+            self.vals = dict()
+            self.parent = parent
+            
+        def __getitem__( self, id ):
+            if id in self.vals:
+                return self.vals[id]
+            elif self.parent:
+                return self.parent[ id ]
+            else:
+                raise RuntimeError( 'unknown id %s' % id )
+                
+        def __setitem__( self, id, val ):
+            if self.parent and id in self.parent:
+                self.parent[id] = val
+            else:
+                self.vals[id] = val
+            
+        def __contains__( self, id ):
+            return id in self.vals or ( self.parent and id in self.parent )
+                
+    parser = Parser.build( """
+        int = '[-]?\d+';
+        str = '".*?"';
+        id = '[a-zA-Z_][a-zA-Z0-9_]*';
+        ws ~= '\s+';
+        program => statement+;
+        statement => exprStatement | funcDecl;
+        exprStatement => expr ';';
+        expr => int | str | ref | call;
+        ref => id ( '\.' id )*;
+        call => ref '\(' ( expr ( ',' expr )* )? '\)';
+        funcDecl => 'def' id '\(' ( id ( ',' id )* )? '\)' '{' statement* '}';
+    """ )
     
+    @staticmethod
+    def defaultScope():
+        scope = Python.Scope( None )
+        scope['None'] = Python.Vals.NoneType()
+        scope['False'] = Python.Vals.Bool( False )
+        scope['True'] = Python.Vals.Bool( True )
+        return scope
+            
+    @staticmethod
+    def eval( input, scope = None ):
+        scope = scope or Python.defaultScope()
+        return [ Python.Exprs.Expr.parse( child ).eval( scope ) for child in Python.parser.parse( input ).children ][-1]
+
+    @staticmethod
+    def test():
+        assert Python.Vals.NoneType() == Python.eval( 'None;' )
+        assert Python.Vals.Bool( False ) == Python.eval( 'False;' )
+        assert Python.Vals.Bool( True ) == Python.eval( 'True;' )
+        assert Python.Vals.Int( -3 ) == Python.eval( '-3;' )
+        assert Python.Vals.Str( 'herro' ) == Python.eval( '"herro";' )
+        
 if __name__ == '__main__':
     Lexer.test()
     Parser.test()
     Lisp.test()
+    Python.test()
