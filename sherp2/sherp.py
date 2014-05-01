@@ -263,7 +263,7 @@ class Parser:
             pos, result = posResult
             if pos < len( tokens ):
                 raise RuntimeError( 'parse error at %s' % 
-                    ' '.join( [ token.value for token in tokens[pos:pos+10] ] ) )
+                    ' '.join( [ token.value for token in tokens[pos:pos+25] ] ) )
             else:
                 return result
         
@@ -636,7 +636,7 @@ class Sharpy:
                 
             @staticmethod
             def parse( result ):
-                if result.rule.name in ( 'statement', 'exprStatement', 'expr', 'binaryOperand' ):
+                if result.rule.name in ( 'statement', 'exprStatement', 'expr', 'operand' ):
                     return Sharpy.Exprs.Expr.parse( result.children[0] )
                 elif result.rule.name == 'ref':
                     #ref => id ( '\.' id )*;
@@ -655,11 +655,17 @@ class Sharpy:
                         args = []
                     return Sharpy.Exprs.Call( Sharpy.Exprs.Expr.parse( result.children[0] ), args )
                 elif result.rule.name == 'binaryOperation':
-                    #binaryOperation => binaryOperand binaryOperator binaryOperand;
+                    #binaryOperation => operand binaryOperator operand;
                     return Sharpy.Exprs.BinaryOperation( 
                         result.children[1].children[0].value, 
                         Sharpy.Exprs.Expr.parse( result.children[0] ),
                         Sharpy.Exprs.Expr.parse( result.children[2] ) 
+                    )
+                elif result.rule.name == 'unaryOperation':
+                    #unaryOperation => unaryOperator operand;
+                    return Sharpy.Exprs.UnaryOperation(
+                        result.children[0].children[0].value,
+                        Sharpy.Exprs.Expr.parse( result.children[1] )
                     )
                 elif result.rule.name == 'funcDecl':
                     #funcDecl => 'def' id '\(' ( id ( ',' id )* )? '\)' '{' statement* '}';
@@ -680,6 +686,34 @@ class Sharpy:
                     #classDecl => 'class' id '{' statement* '}';
                     return Sharpy.Exprs.Class( result.children[1].value,
                         map( Sharpy.Exprs.Expr.parse, result.children[3].children ) )
+                elif result.rule.name == 'ifStatement':
+                    #ifStatement => 'if' '\(' expr '\)' '{' statement* '}';
+                    return Sharpy.Exprs.IfStatement( 
+                        Sharpy.Exprs.Expr.parse( result.children[2] ),
+                        map( Sharpy.Exprs.Expr.parse, result.children[5].children ),
+                        None 
+                    )
+                elif result.rule.name == 'ifElseStatement':
+                    #ifElseStatement => 'if' '\(' expr '\)' '{' statement* '}' 'else' '{' statement* '}';
+                    return Sharpy.Exprs.IfStatement(
+                        Sharpy.Exprs.Expr.parse( result.children[2] ),
+                        map( Sharpy.Exprs.Expr.parse, result.children[5].children ),
+                        map( Sharpy.Exprs.Expr.parse, result.children[9].children )
+                    )
+                elif result.rule.name == 'whileStatement':
+                    #whileStatement => 'while' '\(' expr '\)' '{' statement* '}';
+                    return Sharpy.Exprs.WhileStatement(
+                        Sharpy.Exprs.Expr.parse( result.children[2] ),
+                        map( Sharpy.Exprs.Expr.parse, result.children[5].children )
+                    )
+                elif result.rule.name == 'forStatement':
+                    #forStatement => 'for' '\(' expr ';' expr ';' expr '\)' '{' statement* '}';
+                    return Sharpy.Exprs.ForStatement(
+                        Sharpy.Exprs.Expr.parse( result.children[2] ),
+                        Sharpy.Exprs.Expr.parse( result.children[4] ),
+                        Sharpy.Exprs.Expr.parse( result.children[6] ),
+                        map( Sharpy.Exprs.Expr.parse, result.children[9].children )
+                    )
                 else:
                     raise NotImplementedError( result )
                     
@@ -739,6 +773,33 @@ class Sharpy:
             def eval( self, scope ):
                 return self.value
                 
+        class UnaryOperation( Expr ):
+            NOT = 'NOT'
+            INC = 'INC'
+            DEC = 'DEC'
+            STR_TO_OP = { '!': NOT, '++': INC, '--': DEC, }
+            OP_TO_STR = { NOT: '!', INC: '++', DEC: '--', }
+            OP_TO_FUNC = { NOT: '__not__', INC: '__inc__', DEC: '__dec__', }
+            
+            def __init__( self, op, rhs ):
+                assert op in Sharpy.Exprs.UnaryOperation.STR_TO_OP, op
+                self.op = Sharpy.Exprs.UnaryOperation.STR_TO_OP[ op ]
+                self.rhs = rhs
+                
+            def __repr__( self ):
+                return '%s %s' % ( Sharpy.Exprs.UnaryOperation.OP_TO_STR[ self.op ], self.rhs )
+                
+            def eval( self, scope ):
+                rhs = self.rhs.eval( scope )
+                rhsScope = rhs.getScope()
+                assert rhsScope
+                funcName = Sharpy.Exprs.UnaryOperation.OP_TO_FUNC[ self.op ]
+                assert funcName in rhsScope, "obj %s doesn't implement op %s with func %s" % \
+                    ( rhs, Sharpy.Exprs.UnaryOperation.OP_TO_STR[ self.op ], funcName )
+                func = rhsScope[ funcName ]
+                assert func.canApply()
+                return func.apply( [], scope )
+                
         class BinaryOperation( Expr ):
             ASSIGN = 'ASSIGN'
             EQUALS = 'EQUALS'
@@ -750,9 +811,13 @@ class Sharpy:
             LTE = 'LTE'
             GT = 'GT'
             GTE = 'GTE'
-            STR_TO_OP = { '=': ASSIGN, '==': EQUALS, '+': ADD, '-': SUB, '*': MUL, '/': DIV, '<': LT, '<=': LTE, '>': GT, '>=': GTE, }
-            OP_TO_STR = { ASSIGN: '=', EQUALS: '==', ADD: '+', SUB: '-', MUL: '*', DIV: '/', LT: '<', LTE: '<=', GT: '>', GTE: '>=', }
-            OP_TO_FUNC = { EQUALS: '__eq__', ADD: '__add__', SUB: '__sub__', MUL: '__mul__', DIV: '__div__', LT: '__lt__', LTE: '__lte__', GT: '__gt__', GTE: '__gte__', }
+            IADD = 'IADD'
+            ISUB = 'ISUB'
+            IMUL = 'IMUL'
+            IDIV = 'IDIV'
+            STR_TO_OP = { '=': ASSIGN, '==': EQUALS, '+': ADD, '-': SUB, '*': MUL, '/': DIV, '<': LT, '<=': LTE, '>': GT, '>=': GTE, '+=': IADD, '-=': ISUB, '*=': IMUL, '/=': IDIV, }
+            OP_TO_STR = { ASSIGN: '=', EQUALS: '==', ADD: '+', SUB: '-', MUL: '*', DIV: '/', LT: '<', LTE: '<=', GT: '>', GTE: '>=', IADD: '+=', ISUB: '-=', IMUL: '*=', IDIV: '/=', }
+            OP_TO_FUNC = { EQUALS: '__eq__', ADD: '__add__', SUB: '__sub__', MUL: '__mul__', DIV: '__div__', LT: '__lt__', LTE: '__lte__', GT: '__gt__', GTE: '__gte__', IADD: '__iadd__', ISUB: '__isub__', IMUL: '__imul__', IDIV: '__idiv__', }
             
             def __init__( self, op, lhs, rhs ):
                 assert op in Sharpy.Exprs.BinaryOperation.STR_TO_OP, op
@@ -813,6 +878,68 @@ class Sharpy:
                     expr.eval( classScope )
                 c = scope[self.name] = Sharpy.Vals.Class( self.name, classScope )
                 return c
+                
+        class IfStatement( Expr ):
+            def __init__( self, cond, posBody, negBody ):
+                self.cond = cond
+                self.posBody = posBody
+                self.negBody = negBody
+                
+            def __repr__( self ):
+                if self.negBody:
+                    return 'if ( %s ) { %s } else { %s }' % \
+                        ( self.cond, '; '.join( map( str, self.posBody ) ), '; '.join( map( str, self.negBody ) ) )
+                else:
+                    return 'if ( %s ) { %s }' % ( self.cond, '; '.join( self.posBody ) )
+                    
+            def eval( self, scope ):
+                if Sharpy.Vals.Bool( self.cond.eval( scope ) ):
+                    body = self.posBody
+                else:
+                    body = self.negBody
+                if body:
+                    for expr in body:
+                        val = expr.eval( scope )
+                        if val.isReturn:
+                            return val
+                return Sharpy.Vals.NoneType()
+                
+        class WhileStatement( Expr ):
+            def __init__( self, cond, body ):
+                self.cond = cond
+                self.body = body
+                
+            def __repr__( self ):
+                return 'while ( %s ) { %s }' % ( self.cond, '; '.join( map( str, self.body ) ) )
+                
+            def eval( self, scope ):
+                while Sharpy.Vals.Bool( self.cond.eval( scope ) ).value:
+                    for expr in self.body:
+                        val = expr.eval( scope )
+                        if val.isReturn:
+                            return val
+                return Sharpy.Vals.NoneType()
+                
+        class ForStatement( Expr ):
+            def __init__( self, init, cond, iter, body ):
+                self.init = init
+                self.cond = cond
+                self.iter = iter
+                self.body = body
+                
+            def __repr__( self ):
+                return 'for ( %s; %s; %s ) { %s }' % \
+                    ( self.init, self.cond, self.iter, '; '.join( map( str, self.body ) ) )
+                    
+            def eval( self, scope ):
+                self.init.eval( scope )
+                while Sharpy.Vals.Bool( self.cond.eval( scope ) ).value:
+                    for expr in self.body:
+                        val = expr.eval( scope )
+                        if val.isReturn:
+                            return val
+                    self.iter.eval( scope )
+                return Sharpy.Vals.NoneType()
                     
     class Vals:
         class Val:
@@ -887,20 +1014,37 @@ class Sharpy:
                 return self.func( args, scope )
                 
         class BuiltinClass( Val ):
-            builtinClasses = {}
+            BUILTINS = {}
+            SYSPREFIX = 'sys_'
         
             def __init__( self, type ):
                 Sharpy.Vals.Val.__init__( self )
                 self.type = type
                 self.scope = Sharpy.Scope( None )
                 for name, val in [ ( name, getattr( type, name ) ) for name in dir( type ) ]:
-                    def bind( type, name, func ):
-                        def call( args, scope ):
-                            vals = [ arg.eval( scope ) for arg in args ]
-                            return func( *vals )
-                        return call
                     if callable( val ):
-                        self.scope[ name ] = Sharpy.Vals.BuiltinFunc( bind( self.type, name, val ) )
+                        prefix = Sharpy.Vals.BuiltinClass.SYSPREFIX
+                        if name.startswith( prefix ):
+                            def bind( type, name, func ):
+                                def call( args, scope ):
+                                    val = func( args, scope )
+                                    if val == None:
+                                        return Sharpy.Vals.NoneType()
+                                    else:
+                                        return val
+                                return call
+                            self.scope[ name[ len(prefix): ] ] = Sharpy.Vals.BuiltinFunc( bind( self.type, name, val ) )
+                        else:
+                            def bind( type, name, func ):
+                                def call( args, scope ):
+                                    vals = [ arg.eval( scope ) for arg in args ]
+                                    val = func( *vals )
+                                    if val == None:
+                                        return Sharpy.Vals.NoneType()
+                                    else:
+                                        return val
+                                return call
+                            self.scope[ name ] = Sharpy.Vals.BuiltinFunc( bind( self.type, name, val ) )
                     
             def __repr__( self ):
                 return self.type.__name__
@@ -916,13 +1060,14 @@ class Sharpy:
                 
             @staticmethod
             def bind( type ):
-                if type not in Sharpy.Vals.BuiltinClass.builtinClasses:
-                    Sharpy.Vals.BuiltinClass.builtinClasses[ type ] = Sharpy.Vals.BuiltinClass( type )
-                return Sharpy.Vals.BuiltinClass.builtinClasses[ type ]
+                if type not in Sharpy.Vals.BuiltinClass.BUILTINS:
+                    Sharpy.Vals.BuiltinClass.BUILTINS[ type ] = Sharpy.Vals.BuiltinClass( type )
+                return Sharpy.Vals.BuiltinClass.BUILTINS[ type ]
                 
         class NoneType( Object ):
             def __init__( self ):
                 Sharpy.Vals.Object.__init__( self,  Sharpy.Vals.BuiltinClass.bind( Sharpy.Vals.NoneType ) )
+                assert not self.isReturn
                 
             def __eq__( self, rhs ):
                 return isinstance( rhs, Sharpy.Vals.NoneType )
@@ -945,6 +1090,9 @@ class Sharpy:
                 
             def __repr__( self ):
                 return str( self.value )
+                
+            def __not__( self ):
+                return Sharpy.Vals.Bool( not self.value )
                 
         class Int( Object ):
             def __init__( self, value ):
@@ -985,6 +1133,62 @@ class Sharpy:
                     return Sharpy.Vals.Int( self.value / rhs.value )
                 else:
                     raise NotImplementedError( type( rhs ) )
+                    
+            def __inc__( self ):
+                self.value += 1
+                return Sharpy.Vals.Int( self )
+                
+            def __dec__( self ):
+                self.value -= 1
+                return Sharpy.Vals.Int( self.value )
+                
+            def __iadd__( self, rhs ):
+                if isinstance( rhs, Sharpy.Vals.Int ):
+                    self.value += rhs.value
+                else:
+                    raise NotImplementedError( type( rhs ) )
+                
+            def __isub__( self, rhs ):
+                if isinstance( rhs, Sharpy.Vals.Int ):
+                    self.value -= rhs.value
+                else:
+                    raise NotImplementedError( type( rhs ) )
+                
+            def __imul__( self, rhs ):
+                if isinstance( rhs, Sharpy.Vals.Int ):
+                    self.value *= rhs.value
+                else:
+                    raise NotImplementedError( type( rhs ) )
+                
+            def __idiv__( self, rhs ):
+                if isinstance( rhs, Sharpy.Vals.Int ):
+                    self.value /= rhs.value
+                else:
+                    raise NotImplementedError( type( rhs ) )
+                    
+            def __lt__( self, rhs ):
+                if isinstance( rhs, Sharpy.Vals.Int ):
+                    return Sharpy.Vals.Bool( self.value < rhs.value )
+                else:
+                    raise NotImplementedError( type( rhs ) )
+                
+            def __lte__( self, rhs ):
+                if isinstance( rhs, Sharpy.Vals.Int ):
+                    return Sharpy.Vals.Bool( self.value <= rhs.value )
+                else:
+                    raise NotImplementedError( type( rhs ) )
+                
+            def __gt__( self, rhs ):
+                if isinstance( rhs, Sharpy.Vals.Int ):
+                    return Sharpy.Vals.Bool( self.value > rhs.value )
+                else:
+                    raise NotImplementedError( type( rhs ) )
+                
+            def __gte__( self, rhs ):
+                if isinstance( rhs, Sharpy.Vals.Int ):
+                    return Sharpy.Vals.Bool( self.value >= rhs.value )
+                else:
+                    raise NotImplementedError( type( rhs ) )
                 
         class Str( Object ):
             def __init__( self, value ):
@@ -1004,11 +1208,17 @@ class Sharpy:
                 
         class System( Object ):
             def __init__( self ):
-                Sherpy.Vals.Object.__init__( self, Sharpy.Vals.BuiltinClass.bind( Sharpy.Vals.System ) )
+                Sharpy.Vals.Object.__init__( self, Sharpy.Vals.BuiltinClass.bind( Sharpy.Vals.System ) )
                 
             @staticmethod
-            def Assert( val ):
-                assert val
+            def sys_Assert( args, scope ):
+                for arg in args:
+                    assert Sharpy.Vals.Bool( arg.eval( scope ) ), 'assertion %s failed' % arg
+                    
+            @staticmethod
+            def Print( *vals ):
+                print ' '.join( map( str, vals ) )
+                return Sharpy.Vals.NoneType()
                 
         class Func( Val ):
             def __init__( self, name, params, body, scope ):
@@ -1030,7 +1240,6 @@ class Sharpy:
                     val = expr.eval( funcScope )
                     if val.isReturn:
                         return val
-                return Sharpy.Vals.NoneType()
                 
     class Builtins:
         class NoneType:
@@ -1073,18 +1282,24 @@ class Sharpy:
         id = '[a-zA-Z_][a-zA-Z0-9_]*';
         ws ~= '\s+';
         program => statement+;
-        statement => exprStatement | returnStatement | funcDecl | classDecl;
+        statement => exprStatement | returnStatement | funcDecl | classDecl | ifElseStatement | ifStatement | whileStatement | forStatement;
         exprStatement => expr ';';
         returnStatement => 'return' expr ';';
-        expr => binaryOperation | call | ref | str | int;
+        expr => unaryOperation | binaryOperation | parenExpr | call | ref | str | int;
         ref => id ( '\.' id )*;
         call => ref '\(' ( expr ( ',' expr )* )? '\)';
         funcDecl => 'def' id '\(' ( id ( ',' id )* )? '\)' '{' statement* '}';
-        binaryOperation => binaryOperand binaryOperator binaryOperand;
-        binaryOperator => '=' | '==' | '\+' | '\-' | '\*' | '\/' | '<' | '<=' | '>' | '>=';
-        binaryOperand => call | ref | parenExpr | str | int;
+        binaryOperation => operand binaryOperator operand;
+        binaryOperator => '=' | '==' | '\+' | '\-' | '\*' | '\/' | '<' | '<=' | '>' | '>=' | '\+=' | '\-=' | '\*=' | '\/=';
+        operand => call | ref | parenExpr | str | int;
+        unaryOperation => unaryOperator operand;
+        unaryOperator => '!' | '\+\+' | '--';
         parenExpr => '\(' expr '\)';
         classDecl => 'class' id '{' statement* '}';
+        ifStatement => 'if' '\(' expr '\)' '{' statement* '}';
+        ifElseStatement => 'if' '\(' expr '\)' '{' statement* '}' 'else' '{' statement* '}';
+        whileStatement => 'while' '\(' expr '\)' '{' statement* '}';
+        forStatement => 'for' '\(' expr ';' expr ';' expr '\)' '{' statement* '}';
     """ )
     
     scope = None
@@ -1117,14 +1332,37 @@ class Sharpy:
             a = 3;
             System.Assert( a == 3 );
             
-            def foo( a, b )
+            System.Assert( ( 3 + 2 ) == 5 );
+            System.Assert( ( 13 - 2 ) == 11 );
+            System.Assert( ( 5 * 3 ) == 15 );
+            System.Assert( ( 25 / 5 ) == 5 );
+            
+            a = 0;
+            ++a;
+            System.Assert( a == 1 );
+            --a;
+            System.Assert( a == 0 );
+            
+            System.Assert( !False );
+            
+            a = 3;
+            a += 1;
+            System.Assert( a == 4 );
+            a -= 2;
+            System.Assert( a == 2 );
+            a *= 5;
+            System.Assert( a == 10 );
+            a /= 2;
+            System.Assert( a == 5 );
+            
+            def testAssign( a, b )
             {
                 c = ( a * 2 );
                 return c + b;
             }
-            System.Assert( 11 == foo( 3, 5 ) );
+            System.Assert( 11 == testAssign( 3, 5 ) );
 
-            class foo
+            class testClass
             {
                 def __init__( self, a )
                 {
@@ -1135,8 +1373,56 @@ class Sharpy:
                     return self.a * b;
                 }
             }
-            f = foo( 15 );
+            f = testClass( 15 );
             System.Assert( 30 == f.bar( 2 ) );
+            
+            def testIf( a, b )
+            {
+                if ( a == "foo" )
+                {
+                    return b * 2;
+                }
+                return b;
+            }
+            System.Assert( testIf( "foo", 10 ) == 20 );
+            System.Assert( testIf( "bar", 10 ) == 10 );
+            
+            def testIfElse( a )
+            {
+                if ( a == 3 )
+                {
+                    return "foo";
+                }
+                else
+                {
+                    return "bar";
+                }
+            }
+            System.Assert( testIfElse( 3 ) == "foo" );
+            System.Assert( testIfElse( 4 ) == "bar" );
+            
+            def testWhile( a, b )
+            {
+                p = 1;
+                i = 0;
+                while ( i < a )
+                {
+                    i += 1;
+                    p *= b;
+                }
+                return b;
+            }
+            System.Assert( testWhile( 3, 2 ) == 8 );
+            
+            def testFor( n, s )
+            {
+                for ( i = 0; i < n; ++i )
+                {
+                    s += s;
+                }
+                return s;
+            }
+            System.Assert( testFor( 3, 2 ) == 6 );
         """ )
         
 if __name__ == '__main__':
