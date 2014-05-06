@@ -1241,11 +1241,6 @@ class Sharpy:
                     if val.isReturn:
                         return val
                 
-    class Builtins:
-        class NoneType:
-            def __eq__( self, rhs ):
-                return rhs.type == Sharpy.Vals.BuiltinClass.bind( Sharpy.Builtins.NoneType )
-                
     class Scope:
         def __init__( self, parent ):
             self.vals = dict()
@@ -1425,8 +1420,203 @@ class Sharpy:
             System.Assert( testFor( 3, 2 ) == 6 );
         """ )
         
+class SharpBuiltin:
+    def __init__( self, static, retType, *argTypes ):
+        self.static = static
+        bin = Sharp.Vals.BuiltinClass.bind
+        self.retType = bind( retType )
+        self.argTypes = map( bind, argTypes )
+        
+    def __call__( self, func ):
+        self.func = func
+        
+class Sharp:
+    class Exprs:
+        class Expr:
+            def eval( self, scope ):
+                raise NotImplementedError()
+                
+            @staticmethod
+            def parse( result ):
+                parse = Sharp.Exprs.Expr.parse
+                if result.rule.name in ( 'statement', 'exprStatement', 'expr' ):
+                    return parse( result.children[0] )
+                elif result.rule.name == 'ref':
+                    #ref => id ( '\.' id )*;
+                    return Sharp.Exprs.Ref( [ result.children[0].value ] + \
+                        [ child.children[1].value for child in result.children[1].children ] )
+                else:
+                    raise NotImplementedError( result )
+                
+        class Ref:
+            def __init__( self, ids ):
+                self.ids = ids
+                
+            def __repr__( self ):
+                return '.'.join( self.ids )
+                
+            def eval( self, scope ):
+                for id in self.ids[:-1]:
+                    scope = scope.get( id ).val.scope
+                    assert scope, id
+                return scope.get( self.ids[-1] ).val
+                
+    class Vals:
+        class Val:
+            def __init__( self ):
+                self.isReturn = False
+                
+            def getScope( self ):
+                return None
+                
+            def canApply( self, args ):
+                return False
+                
+            def apply( self, args ):
+                raise NotImplementedError()
+                
+        class BuiltinClass( Val ):
+            builtins = {}
+        
+            def __init__( self, type ):
+                Sharp.Vals.Val.__init__( self )
+                self.type = type
+                self.scope = Sharp.Scope( None )
+                
+            def getScope( self ):
+                return self.scope
+                
+            def canApply( self, args ):
+                return self.scope.canApply( '__init__', args )
+                
+            def apply( self, args ):
+                assert 0
+                
+            @staticmethod
+            def bind( type ):
+                if not type in Sharp.Vals.BuiltinClass.builtins:
+                    Sharp.Vals.BuiltinClass.builtins[ type ] = Sharp.Vals.BuiltinClass( type )
+                return Sharp.Vals.BuiltinClass.builtins[ type ]
+                
+        class Object( Val ):
+            def __init__( self, type ):
+                Sharp.Vals.Val.__init__( self )
+                self.type = type
+                self.scope = Sharp.Scope( self.type.getScope() )
+                for expr in self.type.dynamicBody:
+                    expr.eval( self.scope )
+                    
+            def getScope( self ):
+                return self.scope
+                
+            def canApply( self, args ):
+                return self.scope.canApply( '__call__', args )
+                
+            def apply( self, args ):
+                return self.scope.apply( '__call__', args )
+                
+    class Builtins:
+        pass
+                
+    class Var:
+        def __init__( self, type, name, val ):
+            self.type = type
+            self.name = name
+            self.val = val
+            
+    class Scope:
+        def __init__( self, parent ):
+            self.parent = parent
+            self.vars = []
+            
+        def getAll( self, id ):
+            return filter( lambda var: var.name == id, self.vars )
+            
+        def get( self, id ):
+            vars = self.getAll( id )
+            if len( vars ):
+                raise RuntimeError( 'ambiguous id %s' % id )
+            elif len( vars ) == 1:
+                return vars[0]
+            elif self.parent:
+                return self.parent.get( id )
+            else:
+                raise RuntimeError( 'unknown id %s' % id )
+            
+        def add( self, type, name, val ):
+            self.vars.append( Sharp.Var( type, name, val ) )
+            
+        def set( self, name, val ):
+            var = self.getLocal( name )
+            if Sharp.canConvert( val.type, var.type ):
+                var.val = val
+            else:
+                raise RuntimeError( 'trying to set var %s of type %s with unconvertable val %s' % ( name, var.type, val ) )
+                
+        def has( self, name ):
+            return any( [ var.name == name for var in self.vars ] ) or ( self.parent and self.parent.has( name ) )
+                
+        def canApply( self, name, args ):
+            return any( [ var.val.canApply( args ) for var in self.getAll( name ) ] )
+            
+        def apply( self, name, args ):
+            funcs = filter( lambda var: var.val.canApply( args ), self.getAll( name ) )
+            if len( funcs ) > 1:
+                raise RuntimeError( 'ambigous call %s' % name )
+            elif len( funcs ) == 1:
+                return funcs[0].apply( args )
+            elif self.parent:
+                return self.parent.apply( name, args )
+            else:
+                raise RuntimeError( 'unknown call %s' % name )
+            
+    @staticmethod
+    def canConvert( fromType, toType ):
+        return fromType == toType
+            
+    @staticmethod
+    def defaultScope():
+        scope = Sharp.Scope( None )
+        for name, type in [ ( name, getattr( Sharp.Builtins, name ) ) for name in dir( Sharp.Builtins ) ]:
+            scope.add( 
+                Sharp.Vals.BuiltinClass.bind( Sharp.Vals.BuiltinClass ),
+                name,
+                Sharp.Vals.BuiltinClass.bind( type )
+            )
+        return scope
+        
+    parser = Parser.build( """
+        int = '[-]?\d+';
+        str = '".*?"';
+        id = '[a-zA-Z_][a-zA-Z0-9_]*';
+        ws ~= '\s+';
+        program => statement*;
+        statement => exprStatement | decl;
+        exprStatement => expr ';';
+        expr => ref | int | str;
+        ref => id ( '\.' id )*;
+        decl => ref id ( '=' expr )? ';';
+    """ )
+    
+    @staticmethod
+    def eval( input ):
+        scope = Sharp.defaultScope()
+        return [ Sharp.Exprs.Expr.parse( child ).eval( scope ) for child in Sharp.parser.parse( input ).children ][-1]
+    
+    @staticmethod
+    def test():
+        Sharp.eval( """
+            False;
+            3;
+            "foo";
+            Bool b = True;
+            Int i = 3;
+            Str s = "hello";
+        """ )
+        
 if __name__ == '__main__':
     Lexer.test()
     Parser.test()
     Lisp.test()
     Sharpy.test()
+    Sharp.test()
