@@ -37,5 +37,10 @@ namespace Sharpy.Interpreter.Exprs
         {
             return Resolve(scope).Get(Ids.Last());
         }
+
+        public override string ToString()
+        {
+            return string.Join(".", Ids.ToArray());
+        }
     }
 }

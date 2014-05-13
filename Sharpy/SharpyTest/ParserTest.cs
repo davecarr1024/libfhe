@@ -50,7 +50,7 @@ namespace Sharpy
         }
 
         [TestMethod]
-        public void TestDirectParse()
+        public void DirectParse()
         {
             Assert.AreEqual(
                 new ParseResult("program",
@@ -97,7 +97,7 @@ namespace Sharpy
         }
 
         [TestMethod]
-        public void TestExprParse()
+        public void ExprParse()
         {
             Assert.AreEqual(
                 new ParseResult("program",
@@ -149,7 +149,7 @@ namespace Sharpy
         }
 
         [TestMethod]
-        public void TestBootstrapParse()
+        public void BootstrapParse()
         {
             Assert.AreEqual(
                 new ParseResult("program",

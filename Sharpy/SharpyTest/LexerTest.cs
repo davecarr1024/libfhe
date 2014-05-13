@@ -44,7 +44,7 @@ namespace Sharpy
         }
 
         [TestMethod]
-        public void TestLex()
+        public void Lex()
         {
             Assert.IsTrue(new List<LexResult>()
             {
