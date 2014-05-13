@@ -197,6 +197,8 @@ namespace Sharpy.Parser
                 case "repArg":
                 case "andOrArg":
                     return Parse(result.Children[0]);
+                case "parenRule":
+                    return Parse(result.Children[1]);
                 case "andRule":
                     {
                         //andRule => andOrArg andOrArg+

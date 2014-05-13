@@ -11,22 +11,26 @@ namespace Sharpy.Interpreter.Vals
     {
         public MethodInfo Method { get; private set; }
 
-        public object Obj { get; set; }
+        public Val Obj { get; private set; }
 
-        public BuiltinFunc(MethodInfo method)
-        {
-            Method = method;
-            Obj = null;
-        }
+        public List<Exprs.Expr> Body { get { return null; } }
 
         public Val Type { get { return BuiltinClass.Bind(GetType()); } }
 
         public Scope Scope { get { return null; } }
 
+        public bool IsReturn { get; set; }
+
+        public BuiltinFunc(MethodInfo method, Val obj)
+        {
+            IsReturn = false;
+            Method = method;
+            Obj = obj;
+        }
+
         public bool CanApply(List<Val> args)
         {
-            return Method.GetParameters().Length == args.Count &&
-                Enumerable.Range(0, args.Count).All(i => Method.GetParameters()[i].ParameterType.IsAssignableFrom(args[i].GetType()));
+            return CanMethodApply(Method, args);
         }
 
         public Val Apply(List<Val> args)
@@ -38,9 +42,19 @@ namespace Sharpy.Interpreter.Vals
             }
             else
             {
-                //return new NoneType();
-                throw new NotImplementedException();
+                return new NoneType();
             }
+        }
+
+        public static bool CanMethodApply(MethodBase method, List<Val> args)
+        {
+            return method.GetParameters().Length == args.Count &&
+                Enumerable.Range(0, args.Count).All(i => method.GetParameters()[i].ParameterType.IsAssignableFrom(args[i].GetType()));
+        }
+
+        public override string ToString()
+        {
+            return Method.Name;
         }
     }
 }

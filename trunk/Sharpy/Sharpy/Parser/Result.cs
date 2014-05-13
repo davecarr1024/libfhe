@@ -14,6 +14,8 @@ namespace Sharpy.Parser
 
         public List<Result> Children { get; private set; }
 
+        public string Type { get { return Rule.Name; } }
+
         public Result(Rule rule, string value)
         {
             Rule = rule;
@@ -32,5 +34,7 @@ namespace Sharpy.Parser
         {
             return string.Format("Parser.Result({0},{1})", Rule.Name, Value);
         }
+
+        public Result this[int i] { get { return Children[i]; } }
     }
 }

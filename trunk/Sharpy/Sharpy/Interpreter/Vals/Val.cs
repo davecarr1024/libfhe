@@ -14,8 +14,10 @@ namespace Sharpy.Interpreter.Vals
 
         List<Exprs.Expr> Body { get; }
 
-        bool CanApply(List<Val> args);
+        bool IsReturn { get; set; }
 
-        Val Apply(List<Val> args);
+        bool CanApply(List<Exprs.Expr> exprs, List<Val> args);
+
+        Val Apply(List<Exprs.Expr> exprs, List<Val> args);
     }
 }

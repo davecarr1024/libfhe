@@ -25,14 +25,14 @@ namespace Sharpy.Interpreter
 
         public Vals.Val Get(string name)
         {
-            IEnumerable<Var> vars = GetAll(name);
-            if (vars.Count() > 1)
+            List<Var> vars = GetAll(name).ToList();
+            if (vars.Count > 1)
             {
                 throw new Exception("ambiguous ref " + name);
             }
-            else if (vars.Count() < 1)
+            else if (vars.Count == 1)
             {
-                throw new Exception("unknown ref " + name);
+                return vars.First().Val;
             }
             else if (Parent != null)
             {
@@ -40,20 +40,20 @@ namespace Sharpy.Interpreter
             }
             else
             {
-                return vars.First().Val;
+                throw new Exception("unknown ref " + name);
             }
         }
 
         public void Set(string name, Vals.Val val)
         {
-            IEnumerable<Var> vars = GetAll(name).Where(var => Interpreter.CanConvert(val.Type, var.Type));
-            if (vars.Count() > 1)
+            List<Var> vars = GetAll(name).Where(var => Interpreter.CanConvert(val.Type, var.Type)).ToList();
+            if (vars.Count > 1)
             {
                 throw new Exception("ambiguous ref " + name);
             }
-            else if (vars.Count() < 1)
+            else if (vars.Count == 1)
             {
-                throw new Exception("unknown ref " + name);
+                vars.First().Val = val;
             }
             else if (Parent != null)
             {
@@ -61,7 +61,7 @@ namespace Sharpy.Interpreter
             }
             else
             {
-                vars.First().Val = val;
+                throw new Exception("unknown ref " + name);
             }
         }
 
@@ -73,6 +73,32 @@ namespace Sharpy.Interpreter
         public void Add(Vals.Val type, string name, Vals.Val val)
         {
             Vars.Add(new Var(type, name, val));
+        }
+
+        public bool CanApply(string name, List<Vals.Val> args)
+        {
+            return GetAll(name).Where(var => var.Val.CanApply(args)).Count() == 1;
+        }
+
+        public Vals.Val Apply(string name, List<Vals.Val> args)
+        {
+            List<Var> vars = GetAll(name).Where(var => var.Val.CanApply(args)).ToList();
+            if (vars.Count > 1)
+            {
+                throw new Exception("ambiguous call to " + name + " with args [" + string.Join(", ", args.Select(arg => arg.ToString()).ToArray()));
+            }
+            else if (vars.Count == 1)
+            {
+                return vars.First().Val.Apply(args);
+            }
+            else if (Parent != null)
+            {
+                return Parent.Apply(name, args);
+            }
+            else
+            {
+                throw new Exception("unknown call to " + name + " with args [" + string.Join(", ", args.Select(arg => arg.ToString()).ToArray()) + "]");
+            }
         }
     }
 }

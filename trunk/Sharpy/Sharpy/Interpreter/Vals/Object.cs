@@ -10,19 +10,40 @@ namespace Sharpy.Interpreter.Vals
     {
         public Val Type { get; private set; }
 
-        public Scope Scope
+        public Scope Scope { get; private set; }
+
+        public List<Exprs.Expr> Body { get { return null; } }
+
+        public bool IsReturn { get; set; }
+
+        public Object(Val type)
         {
-            get { throw new NotImplementedException(); }
+            IsReturn = false;
+            Type = type;
+            Scope = new Scope(Type.Scope);
+            Scope.Add("this", this);
+            if (Type.Body != null)
+            {
+                foreach (Exprs.Expr expr in Type.Body)
+                {
+                    expr.Eval(Scope);
+                }
+            }
         }
 
-        public bool CanApply(List<Val> args)
+        public bool CanApply(List<Exprs.Expr> exprs, List<Val> args)
         {
-            throw new NotImplementedException();
+            return Scope.CanApply("__call__", args);
         }
 
-        public Val Apply(List<Val> args)
+        public Val Apply(List<Exprs.Expr> exprs, List<Val> args)
         {
-            throw new NotImplementedException();
+            return Scope.Apply("__call__", args);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("Object({0})", Type);
         }
     }
 }

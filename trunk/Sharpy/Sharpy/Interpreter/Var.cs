@@ -20,5 +20,10 @@ namespace Sharpy.Interpreter
             Name = name;
             Val = val;
         }
+
+        public override string ToString()
+        {
+            return string.Format("Var({0},{1},{2})", Type, Name, Val);
+        }
     }
 }
