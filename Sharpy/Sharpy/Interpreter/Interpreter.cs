@@ -29,9 +29,9 @@ namespace Sharpy.Interpreter
                 expr => binaryOperation | unaryOperation | parenExpr | call | ref | int | str;
                 call => ref '\(' ( expr ( ',' expr )* )? '\)';
                 ref => id ( '\.' id )*;
-                unaryOperation => ( '!' | '\-' | '\+\+' | '\-\-' ) expr;
-                binaryOperation => binaryOperand ( '\+' | '\-' | '\*' | '\/' | '=' | '==' | '!=' | '<' | '<=' | '>' | '>=' | '\+=' | '\-=' | '\*=' | '\/=' ) binaryOperand;
-                binaryOperand => parenExpr | unaryOperation | call | ref | int | str;
+                unaryOperation => ( '!' | '\-' | '\+\+' | '\-\-' ) operand;
+                binaryOperation => operand ( '\+' | '\-' | '\*' | '\/' | '=' | '==' | '!=' | '<' | '<=' | '>' | '>=' | '\+=' | '\-=' | '\*=' | '\/=' ) operand;
+                operand => parenExpr | unaryOperation | call | ref | int | str;
                 parenExpr => '\(' expr '\)';
             ");
 
