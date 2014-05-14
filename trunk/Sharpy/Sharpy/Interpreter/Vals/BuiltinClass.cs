@@ -32,7 +32,7 @@ namespace Sharpy.Interpreter.Vals
 
         public bool IsReturn { get; set; }
 
-        private List<ConstructorInfo> ctors;
+        public Type BuiltinType { get; private set; }
 
         public BuiltinClass()
         {
@@ -41,10 +41,11 @@ namespace Sharpy.Interpreter.Vals
 
         private void Init(Type type)
         {
+            BuiltinType = type;
             Name = type.Name;
             Scope = new Scope(null);
             Body = new List<Exprs.Expr>();
-            foreach (MethodInfo method in type.GetMethods().Where(m => m.GetCustomAttributes().OfType<Attrs.BuiltinFunc>().Any()))
+            foreach (MethodInfo method in BuiltinType.GetMethods().Where(m => m.GetCustomAttributes().OfType<Attrs.BuiltinFunc>().Any()))
             {
                 if (method.IsStatic)
                 {
@@ -52,31 +53,30 @@ namespace Sharpy.Interpreter.Vals
                 }
                 else
                 {
-                    Body.Add(new Exprs.UnboundBuiltinFunc(method));
+                    Body.Add(new Exprs.BuiltinFunc(method));
                 }
             }
-            ctors = type.GetConstructors().Where(ctor => ctor.GetCustomAttributes().OfType<Attrs.BuiltinFunc>().Any()).ToList();
         }
 
-        public bool CanApply(List<Val> args)
+        public bool CanApply(List<Val> argTypes)
         {
-            return ctors.Any(ctor => BuiltinFunc.CanMethodApply(ctor, args));
+            return BuiltinType.GetConstructors().Any(ctor => BuiltinFunc.CanMethodApply(ctor, argTypes));
         }
 
         public Val Apply(List<Val> args)
         {
-            IEnumerable<ConstructorInfo> ctors = this.ctors.Where(ctor => BuiltinFunc.CanMethodApply(ctor, args));
-            if (ctors.Count() > 1)
+            List<ConstructorInfo> ctors = BuiltinType.GetConstructors().Where(ctor => BuiltinFunc.CanMethodApply(ctor, args.Select(arg => arg.Type).ToList())).ToList();
+            if (ctors.Count > 1)
             {
                 throw new Exception("ambiguous ctor for type " + Name + " with args [" + string.Join(", ", args.Select(arg => arg.ToString()).ToArray()) + "]");
             }
-            else if (ctors.Count() < 1)
+            else if (ctors.Count < 1)
             {
                 throw new Exception("unknown ctor for type " + Name + " with args [" + string.Join(", ", args.Select(arg => arg.ToString()).ToArray()) + "]");
             }
             else
             {
-                Val val = ctors.First().Invoke(args.Cast<object>().ToArray()) as Val;
+                Val val = ctors.First().Invoke(args.ToArray()) as Val;
                 if (val == null)
                 {
                     throw new Exception("non-val builtinClass");
@@ -91,6 +91,16 @@ namespace Sharpy.Interpreter.Vals
         public override string ToString()
         {
             return Name;
+        }
+
+        public bool CanSystemApply()
+        {
+            return false;
+        }
+
+        public Val SystemApply(List<Exprs.Expr> exprs, Scope scope)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -82,7 +82,8 @@ namespace Sharpy.Interpreter
 
         public Vals.Val Apply(string name, List<Vals.Val> args)
         {
-            List<Var> vars = GetAll(name).Where(var => var.Val.CanApply(args)).ToList();
+            List<Vals.Val> argTypes = args.Select(arg => arg.Type).ToList();
+            List<Var> vars = GetAll(name).Where(var => var.Val.CanApply(argTypes)).ToList();
             if (vars.Count > 1)
             {
                 throw new Exception("ambiguous call to " + name + " with args [" + string.Join(", ", args.Select(arg => arg.ToString()).ToArray()));
@@ -98,6 +99,60 @@ namespace Sharpy.Interpreter
             else
             {
                 throw new Exception("unknown call to " + name + " with args [" + string.Join(", ", args.Select(arg => arg.ToString()).ToArray()) + "]");
+            }
+        }
+
+        public bool CanSystemApply(string name)
+        {
+            return GetAll(name).Where(var => var.Val.CanSystemApply()).Count() == 1;
+        }
+
+        public Vals.Val SystemApply(string name, List<Exprs.Expr> exprs, Scope scope)
+        {
+            Vals.Val ret;
+            if (TrySystemApply(name, exprs, scope, out ret))
+            {
+                return ret;
+            }
+            else
+            {
+                throw new Exception("failed system apply " + name);
+            }
+        }
+
+        private bool TrySystemApply(string name, List<Exprs.Expr> exprs, Scope scope, out Vals.Val ret)
+        {
+            List<Var> vars = GetAll(name).Where(var => var.Val.CanSystemApply()).ToList();
+            if ( vars.Count > 1 )
+            {
+                throw new Exception("ambiguous system call " + name);
+            }
+            else if ( vars.Count == 1 )
+            {
+                ret = vars.First().Val.SystemApply(exprs,scope);
+                return true;
+            }
+            else if ( Parent != null )
+            {
+                return Parent.TrySystemApply(name,exprs,scope,out ret);
+            }
+            else
+            {
+                ret = null;
+                return false;
+            }
+        }
+
+        public Vals.Val Apply(string name, List<Exprs.Expr> exprs, Scope scope)
+        {
+            Vals.Val ret;
+            if (TrySystemApply(name, exprs, scope, out ret))
+            {
+                return ret;
+            }
+            else
+            {
+                return Apply(name, exprs.Select(expr => expr.Eval(scope)).ToList());
             }
         }
     }

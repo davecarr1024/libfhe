@@ -8,5 +8,16 @@ namespace Sharpy.Interpreter.Attrs
 {
     public class BuiltinFunc : Attribute
     {
+        public bool IsSystem { get; private set; }
+
+        public BuiltinFunc(bool isSystem)
+        {
+            IsSystem = isSystem;
+        }
+
+        public BuiltinFunc()
+            : this(false)
+        {
+        }
     }
 }

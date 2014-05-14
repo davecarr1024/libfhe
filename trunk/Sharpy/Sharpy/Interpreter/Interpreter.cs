@@ -26,10 +26,13 @@ namespace Sharpy.Interpreter
                 varCtorDecl => id id '\(' ( expr ( ',' expr )* )? '\)' ';';
                 varDecl => id id ( '=' expr )? ';';
                 exprStatement => expr ';';
-                expr => unaryOperation | call | ref | int | str;
+                expr => binaryOperation | unaryOperation | parenExpr | call | ref | int | str;
                 call => ref '\(' ( expr ( ',' expr )* )? '\)';
                 ref => id ( '\.' id )*;
                 unaryOperation => ( '!' | '\-' | '\+\+' | '\-\-' ) expr;
+                binaryOperation => binaryOperand ( '\+' | '\-' | '\*' | '\/' | '=' | '==' | '!=' | '<' | '<=' | '>' | '>=' | '\+=' | '\-=' | '\*=' | '\/=' ) binaryOperand;
+                binaryOperand => parenExpr | unaryOperation | call | ref | int | str;
+                parenExpr => '\(' expr '\)';
             ");
 
             Scope scope = new Scope(null);

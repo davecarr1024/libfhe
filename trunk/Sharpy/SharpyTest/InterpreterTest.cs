@@ -77,6 +77,32 @@ namespace Sharpy
             Assert.AreEqual(new Interpreter.Vals.Int(1), Interpreter.Interpreter.Eval("Int a = 0; ++a; a;"));
             Assert.AreEqual(new Interpreter.Vals.Int(-1), Interpreter.Interpreter.Eval("Int a = 0; --a; a;"));
         }
+
+        [TestMethod]
+        public void Assertion()
+        {
+            try
+            {
+                Interpreter.Interpreter.Eval("System.Assert(False);");
+                Assert.Fail();
+            }
+            catch (Interpreter.Exceptions.AssertException)
+            {
+            }
+            Interpreter.Interpreter.Eval("System.Assert(True);");
+        }
+
+        [TestMethod]
+        public void BinaryOperators()
+        {
+            Interpreter.Interpreter.Eval(@"
+                System.Assert( None == NoneType() );
+                System.Assert( False != True );
+                System.Assert( ( 1 + 2 ) == 3 );
+                System.Assert( ( 1 - 2 ) == -1 );
+                System.Assert( ( 1 * 2 ) == 2 );
+                System.Assert( ( 10 / 2 ) == 5 );
+            ");
+        }
     }
 }
-

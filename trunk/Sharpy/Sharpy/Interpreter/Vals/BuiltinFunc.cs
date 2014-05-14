@@ -21,40 +21,66 @@ namespace Sharpy.Interpreter.Vals
 
         public bool IsReturn { get; set; }
 
+        private Attrs.BuiltinFunc attr;
+
         public BuiltinFunc(MethodInfo method, Val obj)
         {
             IsReturn = false;
             Method = method;
             Obj = obj;
+            attr = Method.GetCustomAttributes().OfType<Attrs.BuiltinFunc>().FirstOrDefault();
         }
 
-        public bool CanApply(List<Val> args)
+        public bool CanApply(List<Val> argTypes)
         {
-            return CanMethodApply(Method, args);
+            return CanMethodApply(Method, argTypes);
         }
 
         public Val Apply(List<Val> args)
         {
-            object ret = Method.Invoke(Obj, args.Cast<object>().ToArray());
-            if (ret is Val)
+            try
             {
-                return ret as Val;
+                return ConvertRet(Method.Invoke(Obj, args.ToArray()));
             }
-            else
+            catch (TargetInvocationException ex)
             {
-                return new NoneType();
+                throw ex.InnerException;
             }
         }
 
-        public static bool CanMethodApply(MethodBase method, List<Val> args)
+        public static bool CanMethodApply(MethodBase method, List<Val> argTypes)
         {
-            return method.GetParameters().Length == args.Count &&
-                Enumerable.Range(0, args.Count).All(i => method.GetParameters()[i].ParameterType.IsAssignableFrom(args[i].GetType()));
+            return
+                argTypes.All(argType => argType is BuiltinClass) &&
+                method.GetParameters().Length == argTypes.Count &&
+                Enumerable.Range(0, argTypes.Count).All(i => method.GetParameters()[i].ParameterType.IsAssignableFrom((argTypes[i] as BuiltinClass).BuiltinType));
         }
 
         public override string ToString()
         {
             return Method.Name;
+        }
+
+        public bool CanSystemApply()
+        {
+            return attr != null && attr.IsSystem;
+        }
+
+        public Val SystemApply(List<Exprs.Expr> exprs, Scope scope)
+        {
+            try
+            {
+                return ConvertRet(Method.Invoke(Obj, new object[] { exprs, scope }));
+            }
+            catch (TargetInvocationException ex)
+            {
+                throw ex.InnerException;
+            }
+        }
+
+        private Val ConvertRet(object ret)
+        {
+            return ret is Val ? ret as Val : new NoneType();
         }
     }
 }

@@ -7,11 +7,11 @@ using System.Reflection;
 
 namespace Sharpy.Interpreter.Exprs
 {
-    public class UnboundBuiltinFunc : Expr
+    public class BuiltinFunc : Expr
     {
         public MethodInfo Method { get; private set; }
 
-        public UnboundBuiltinFunc(MethodInfo method)
+        public BuiltinFunc(MethodInfo method)
         {
             Method = method;
         }

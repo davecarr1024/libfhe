@@ -68,7 +68,7 @@ namespace Sharpy.Interpreter.Exprs
             }
             else
             {
-                return arg.Scope.Apply(func, new List<Vals.Val>());
+                return arg.Scope.Apply(func, new List<Exprs.Expr>(), scope);
             }
         }
 
