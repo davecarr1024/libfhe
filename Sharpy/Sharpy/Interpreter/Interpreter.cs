@@ -12,34 +12,49 @@ namespace Sharpy.Interpreter
         public static Vals.Val Eval(string input)
         {
             Parser.Parser parser = new Parser.Parser(@"
-                id = '[a-zA-Z][a-zA-Z0-9_-]*';
+                id = '[a-zA-Z_][a-zA-Z0-9_-]*';
                 int = '\d+';
                 str = '"".*?""';
                 ws ~= '\s+';
                 program => statement+;
-                statement => funcDecl | returnStatement | varCtorDecl | varDecl | exprStatement;
-                varCtorDecl => id id '\(' ( expr ( ',' expr )* )? '\)' ';';
-                varDecl => id id ( '=' expr )? ';';
+                statement => ctor | classDecl | funcDecl | returnStatement | varCtorDecl | varDecl | exprStatement;
+                varCtorDecl => mods ref id argList ';';
+                varDecl => mods ref id ( '=' expr )? ';';
                 exprStatement => expr ';';
-                expr => binaryOperation | unaryOperation | parenExpr | call | ref | int | str;
-                call => ref '\(' ( expr ( ',' expr )* )? '\)';
+                expr => binaryOperation | operand;
+                call => ref argList;
                 ref => id ( '\.' id )*;
                 unaryOperation => ( '!' | '\-' | '\+\+' | '\-\-' ) operand;
                 binaryOperation => operand ( '\+' | '\-' | '\*' | '\/' | '=' | '==' | '!=' | '<' | '<=' | '>' | '>=' | '\+=' | '\-=' | '\*=' | '\/=' | '\|\|' | '&&' ) operand;
                 operand => parenExpr | unaryOperation | call | ref | int | str;
                 parenExpr => '\(' expr '\)';
-                funcDecl => ref id '\(' ( ref id ( ',' ref id )* )? '\)' '{' statement* '}';
+                funcDecl => mods retType id paramList body;
                 returnStatement => 'return' expr? ';';
+                mods => ( 'static' | 'private' | 'public' )*;
+                classDecl => mods 'class' id body;
+                ctor => mods id paramList body;
+                paramList => '\(' ( ref id ( ',' ref id )* )? '\)';
+                argList => '\(' ( expr ( ',' expr )* )? '\)';
+                body => '{' statement* '}';
+                retType => 'void' | ref;
             ");
 
             Scope scope = new Scope(null);
-            scope.Add("None", new Vals.NoneType());
-            scope.Add("True", new Vals.Bool(true));
-            scope.Add("False", new Vals.Bool(false));
+            scope.Add("none", new Vals.NoneType());
+            scope.Add("true", new Vals.Bool(true));
+            scope.Add("false", new Vals.Bool(false));
 
             foreach (Type type in Assembly.GetExecutingAssembly().GetTypes().Where(t => t.GetCustomAttributes().OfType<Attrs.BuiltinClass>().Any()))
             {
-                scope.Add(type.Name, Vals.BuiltinClass.Bind(type));
+                Vals.BuiltinClass c = Vals.BuiltinClass.Bind(type);
+                scope.Add(type.Name, c);
+                foreach (Attrs.BuiltinClass attr in type.GetCustomAttributes().OfType<Attrs.BuiltinClass>())
+                {
+                    foreach (string name in attr.Names)
+                    {
+                        scope.Add(name, c);
+                    }
+                }
             }
 
             return Eval(scope, parser.Apply(input).Children.Select(child => Parse(child)).ToArray());
@@ -58,9 +73,9 @@ namespace Sharpy.Interpreter
             return new Vals.NoneType();
         }
 
-        public static bool CanApply(Vals.Val obj, string func, params Vals.Val[] args)
+        public static bool CanApply(Vals.Val obj, string func, params Vals.Val[] argTypes)
         {
-            return obj.Scope != null && obj.Scope.CanApply(func, args);
+            return obj.Scope != null && obj.Scope.CanApply(func, argTypes);
         }
 
         public static Vals.Val Apply(Vals.Val obj, string func, params Vals.Val[] args)
@@ -69,7 +84,7 @@ namespace Sharpy.Interpreter
             {
                 throw new Exception("obj " + obj + " of type " + obj.Type + " can't apply func " + func + ": no scope");
             }
-            else if (!obj.Scope.CanApply(func, args))
+            else if (!obj.Scope.CanApply(func, args.Select(arg => arg.Type).ToArray()))
             {
                 throw new Exception("obj " + obj + " of type " + obj.Type + " can't apply func " + func + " with args [" + string.Join(", ", args.Select(arg => arg.ToString()).ToArray()) + "]");
             }
@@ -98,70 +113,96 @@ namespace Sharpy.Interpreter
                 case "str":
                     return new Exprs.Str(result.Value.Substring(1, result.Value.Length - 2));
                 case "call":
-                    {
-                        //call => ref '\(' ( expr ( ',' expr )* )? '\)';
-                        List<Exprs.Expr> args = new List<Exprs.Expr>();
-                        if (result[2].Children.Any())
-                        {
-                            Parser.Result argResult = result[2][0];
-                            args.Add(Parse(argResult[0]));
-                            args.AddRange(argResult[1].Children.Select(child => Parse(child[1])));
-                        }
-                        return new Exprs.Call(Parse(result[0]) as Exprs.Ref, args);
-                    }
+                    //call => expr argList;
+                    return new Exprs.Call(Parse(result[0]), ParseArgs(result[1]));
                 case "unaryOperation":
                     //unaryOperation => ( '\!' | '\-' ) expr;
                     return new Exprs.UnaryOperation(result[0][0].Value, Parse(result[1]));
                 case "varDecl":
-                    //varDecl => id id ( '=' expr )? ';';
-                    if (result[2].Children.Any())
-                    {
-                        return new Exprs.Decl(result[0].Value, result[1].Value, Parse(result[2][0][1]), null);
-                    }
-                    else
-                    {
-                        return new Exprs.Decl(result[0].Value, result[1].Value, null, null);
-                    }
+                    //varDecl => mods id id ( '=' expr )? ';';
+                    return new Exprs.Decl(ParseMods(result[0]), Parse(result[1]), result[2].Value, result[3].Children.Any() ? Parse(result[3][0][1]) : null, null);
                 case "varCtorDecl":
-                    //varCtorDecl => id id '\(' ( expr ( ',' expr )* )? '\)' ';';
-                    {
-                        List<Exprs.Expr> args = new List<Exprs.Expr>();
-                        if (result[3].Children.Any())
-                        {
-                            Parser.Result argResult = result[3][0];
-                            args.Add(Parse(argResult[0]));
-                            args.AddRange(argResult[1].Children.Select(child => Parse(child[1])));
-                        }
-                        return new Exprs.Decl(result[0].Value, result[1].Value, null, args);
-                    }
+                    //varCtorDecl => mods ref id argList ';';
+                    return new Exprs.Decl(ParseMods(result[0]), Parse(result[1]), result[2].Value, null, ParseArgs(result[3]));
                 case "binaryOperation":
                     //binaryOperation => operand ( '\+' | '\-' | '\*' | '\/' | '=' | '==' | '!=' | '<' | '<=' | '>' | '>=' | '\+=' | '\-=' | '\*=' | '\/=' ) operand;
                     return new Exprs.BinaryOperation(Parse(result[0]), result[1][0].Value, Parse(result[2]));
                 case "returnStatement":
                     //returnStatement => 'return' expr? ';';
-                    if (result[1].Children.Any())
-                    {
-                        return new Exprs.ReturnStatement(Parse(result[1][0]));
-                    }
-                    else
-                    {
-                        return new Exprs.ReturnStatement(null);
-                    }
+                    return new Exprs.ReturnStatement(result[1].Children.Any() ? Parse(result[1][0]) : null);
                 case "funcDecl":
-                    //funcDecl => ref id '\(' ( ref id ( ',' ref id )* )? '\)' '{' statement* '}';
-                    {
-                        List<Exprs.Param> paramList = new List<Exprs.Param>();
-                        if (result[3].Children.Any())
-                        {
-                            Parser.Result paramResult = result[3][0];
-                            paramList.Add(new Exprs.Param(Parse(paramResult[0]), paramResult[1].Value));
-                            paramList.AddRange(paramResult[2].Children.Select(child => new Exprs.Param(Parse(child[1]), child[2].Value)));
-                        }
-                        return new Exprs.Func(result[1].Value, paramList, Parse(result[0]), result[6].Children.Select(child => Parse(child)).ToList());
-                    }
+                    //funcDecl => mods retType id paramList body;
+                    return new Exprs.Func(ParseMods(result[0]), result[2].Value, ParseParams(result[3]), ParseRetType(result[1]), ParseBody(result[4]));
+                case "classDecl":
+                    //classDecl => mods 'class' id body;
+                    return new Exprs.Class(ParseMods(result[0]), result[2].Value, ParseBody(result[3]));
+                case "ctor":
+                    //ctor => mods id paramList body;
+                    return new Exprs.Ctor(ParseMods(result[0]), result[1].Value, ParseParams(result[2]), ParseBody(result[3]));
                 default:
                     throw new NotImplementedException(result.Type);
             }
+        }
+
+        private static Exprs.Mods ParseMods(Parser.Result result)
+        {
+            //mods => ( 'static' | 'private' | 'public' )*;
+            Exprs.Mods.Perms perm = Exprs.Mods.Perms.Private;
+            bool stat = false;
+            foreach (string val in result.Children.Select(child => child[0].Value))
+            {
+                switch (val)
+                {
+                    case "static":
+                        stat = true;
+                        break;
+                    case "private":
+                        perm = Exprs.Mods.Perms.Private;
+                        break;
+                    case "public":
+                        perm = Exprs.Mods.Perms.Public;
+                        break;
+                }
+            }
+            return new Exprs.Mods(perm, stat);
+        }
+
+        private static List<Exprs.Expr> ParseArgs(Parser.Result result)
+        {
+            //argList => '\(' ( expr ( ',' expr )* )? '\)';
+            List<Exprs.Expr> args = new List<Exprs.Expr>();
+            if (result[1].Children.Any())
+            {
+                Parser.Result argResult = result[1][0];
+                args.Add(Parse(argResult[0]));
+                args.AddRange(argResult[1].Children.Select(child => Parse(child[1])));
+            }
+            return args;
+        }
+
+        private static List<Exprs.Param> ParseParams(Parser.Result result)
+        {
+            //paramList => '\(' ( ref id ( ',' ref id )* )? '\)';
+            List<Exprs.Param> paramList = new List<Exprs.Param>();
+            if (result[1].Children.Any())
+            {
+                Parser.Result paramResult = result[1][0];
+                paramList.Add(new Exprs.Param(Parse(paramResult[0]), paramResult[1].Value));
+                paramList.AddRange(paramResult[2].Children.Select(child => new Exprs.Param(Parse(child[1]), child[2].Value)));
+            }
+            return paramList;
+        }
+
+        private static Exprs.Expr ParseRetType(Parser.Result result)
+        {
+            //retType => 'void' | ref
+            return result[0].Value == "void" ? new Exprs.Ref("NoneType") : Parse(result[0]);
+        }
+
+        private static List<Exprs.Expr> ParseBody(Parser.Result result)
+        {
+            //body => '{' statement* '}';
+            return result[1].Children.Select(child => Parse(child)).ToList();
         }
 
         public static bool CanConvert(Vals.Val fromType, Vals.Val toType)

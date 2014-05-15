@@ -20,45 +20,48 @@ namespace Sharpy.Interpreter
 
         public List<Var> GetAll(string name)
         {
-            List<Var> vars = Vars.Where(var => var.Name == name).ToList();
-            if (Parent != null)
-            {
-                vars.AddRange(Parent.GetAll(name));
-            }
-            return vars;
+            return Vars.Where(var => var.Name == name).ToList();
         }
 
         public Vals.Val Get(string name)
         {
             List<Var> vars = GetAll(name);
-            if (vars.Count > 1)
+            if (vars.Count == 1)
+            {
+                return vars.First().Val;
+            }
+            else if (vars.Count > 1)
             {
                 throw new Exception("ambiguous ref " + name);
             }
-            else if (vars.Count < 1)
+            else if (Parent != null)
             {
-                throw new Exception("unknown ref " + name);
+                return Parent.Get(name);
             }
             else
             {
-                return vars.First().Val;
+                throw new Exception("unknown ref " + name);
             }
         }
 
         public void Set(string name, Vals.Val val)
         {
             List<Var> vars = GetAll(name).Where(var => Interpreter.CanConvert(val.Type, var.Type)).ToList();
-            if (vars.Count > 1)
+            if (vars.Count == 1)
+            {
+                vars.First().Val = Interpreter.Convert(val, vars.First().Type);
+            }
+            else if (vars.Count > 1)
             {
                 throw new Exception("ambiguous ref " + name);
             }
-            else if (vars.Count < 1)
+            else if (Parent != null)
             {
-                throw new Exception("unknown ref " + name);
+                Parent.Set(name, val);
             }
             else
             {
-                vars.First().Val = Interpreter.Convert(val, vars.First().Type);
+                throw new Exception("unknown ref " + name);
             }
         }
 
@@ -72,25 +75,34 @@ namespace Sharpy.Interpreter
             Vars.Add(new Var(type, name, val));
         }
 
-        public bool CanApply(string name, params Vals.Val[] args)
+        public bool CanApply(string name, params Vals.Val[] argTypes)
         {
-            return GetAll(name).Where(var => var.Val.CanApply(args.Select(arg => arg.Type).ToArray())).Count() == 1;
+            return GetAll(name).Where(var => var.Val.CanApply(argTypes)).Count() == 1 || (Parent != null && Parent.CanApply(name, argTypes));
         }
 
         public Vals.Val Apply(string name, params Vals.Val[] args)
         {
-            List<Var> vars = GetAll(name).Where(var => var.Val.CanApply(args.Select(arg => arg.Type).ToArray())).ToList();
-            if (vars.Count > 1)
+            List<Var> vars = GetAll(name);
+            if (vars.Count == 0)
+            {
+                throw new Exception("unknown ref " + name);
+            }
+            vars = GetAll(name).Where(var => var.Val.CanApply(args.Select(arg => arg.Type).ToArray())).ToList();
+            if (vars.Count == 1)
+            {
+                return vars.First().Val.Apply(args);
+            }
+            else if (vars.Count > 1)
             {
                 throw new Exception("ambiguous call to " + name + " with args [" + string.Join(", ", args.Select(arg => arg.ToString()).ToArray()));
             }
-            else if (vars.Count < 1)
+            else if (Parent != null)
             {
-                throw new Exception("unknown call to " + name + " with args [" + string.Join(", ", args.Select(arg => arg.ToString()).ToArray()) + "]");
+                return Parent.Apply(name, args);
             }
             else
             {
-                return vars.First().Val.Apply(args);
+                throw new Exception("unknown call to " + name + " with args [" + string.Join(", ", args.Select(arg => arg.ToString()).ToArray()) + "]");
             }
         }
     }

@@ -44,10 +44,13 @@
     <Compile Include="Interpreter\Exceptions\AssertException.cs" />
     <Compile Include="Interpreter\Exprs\BinaryOperation.cs" />
     <Compile Include="Interpreter\Exprs\Call.cs" />
+    <Compile Include="Interpreter\Exprs\Class.cs" />
+    <Compile Include="Interpreter\Exprs\Ctor.cs" />
     <Compile Include="Interpreter\Exprs\Decl.cs" />
     <Compile Include="Interpreter\Exprs\Expr.cs" />
     <Compile Include="Interpreter\Exprs\Func.cs" />
     <Compile Include="Interpreter\Exprs\Int.cs" />
+    <Compile Include="Interpreter\Exprs\Mods.cs" />
     <Compile Include="Interpreter\Exprs\Param.cs" />
     <Compile Include="Interpreter\Exprs\Ref.cs" />
     <Compile Include="Interpreter\Exprs\ReturnStatement.cs" />
@@ -59,6 +62,7 @@
     <Compile Include="Interpreter\Vals\Bool.cs" />
     <Compile Include="Interpreter\Vals\BuiltinClass.cs" />
     <Compile Include="Interpreter\Vals\BuiltinFunc.cs" />
+    <Compile Include="Interpreter\Vals\Class.cs" />
     <Compile Include="Interpreter\Vals\Func.cs" />
     <Compile Include="Interpreter\Vals\Int.cs" />
     <Compile Include="Interpreter\Vals\NoneType.cs" />

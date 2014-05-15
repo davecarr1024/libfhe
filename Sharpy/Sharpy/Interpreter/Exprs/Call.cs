@@ -8,11 +8,13 @@ namespace Sharpy.Interpreter.Exprs
 {
     public class Call : Expr
     {
-        public Ref Obj { get; private set; }
+        public Mods Mods { get { return new Mods(); } }
+
+        public Expr Obj { get; private set; }
 
         public List<Expr> Args { get; private set; }
 
-        public Call(Ref obj, List<Expr> args)
+        public Call(Expr obj, List<Expr> args)
         {
             Obj = obj;
             Args = args;
@@ -20,7 +22,14 @@ namespace Sharpy.Interpreter.Exprs
 
         public Vals.Val Eval(Scope scope)
         {
-            return Obj.Resolve(scope).Apply(Obj.Ids.Last(), Args.Select(arg => arg.Eval(scope)).ToArray());
+            if (Obj is Ref)
+            {
+                return (Obj as Ref).Resolve(scope).Apply((Obj as Ref).Ids.Last(), Args.Select(arg => arg.Eval(scope)).ToArray());
+            }
+            else
+            {
+                return Obj.Eval(scope).Apply(Args.Select(arg => arg.Eval(scope)).ToArray());
+            }
         }
 
         public override string ToString()

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Sharpy.Interpreter.Vals
 {
-    [Attrs.BuiltinClass]
+    [Attrs.BuiltinClass("str")]
     public class Str : Object
     {
         public string Value { get; private set; }

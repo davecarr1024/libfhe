@@ -8,6 +8,8 @@ namespace Sharpy.Interpreter.Exprs
 {
     public class Str : Expr
     {
+        public Mods Mods { get { return new Mods(); } }
+
         public string Value { get; private set; }
 
         public Str(string value)

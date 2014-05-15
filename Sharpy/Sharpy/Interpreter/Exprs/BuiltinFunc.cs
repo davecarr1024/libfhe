@@ -9,6 +9,8 @@ namespace Sharpy.Interpreter.Exprs
 {
     public class BuiltinFunc : Expr
     {
+        public Mods Mods { get { return new Mods(); } }
+
         public MethodInfo Method { get; private set; }
 
         public BuiltinFunc(MethodInfo method)

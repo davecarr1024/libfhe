@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Sharpy.Interpreter.Vals
 {
-    [Attrs.BuiltinClass]
+    [Attrs.BuiltinClass("int")]
     public class Int : Object
     {
         public int Value { get; private set; }
@@ -104,6 +104,30 @@ namespace Sharpy.Interpreter.Vals
         public Bool __gt__(Int rhs)
         {
             return new Bool(Value > rhs.Value);
+        }
+
+        [Attrs.BuiltinFunc]
+        public void __iadd__(Int rhs)
+        {
+            Value += rhs.Value;
+        }
+
+        [Attrs.BuiltinFunc]
+        public void __isub__(Int rhs)
+        {
+            Value -= rhs.Value;
+        }
+
+        [Attrs.BuiltinFunc]
+        public void __imul__(Int rhs)
+        {
+            Value *= rhs.Value;
+        }
+
+        [Attrs.BuiltinFunc]
+        public void __idiv__(Int rhs)
+        {
+            Value /= rhs.Value;
         }
     }
 }

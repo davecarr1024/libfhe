@@ -9,5 +9,7 @@ namespace Sharpy.Interpreter.Exprs
     public interface Expr
     {
         Vals.Val Eval(Scope scope);
+
+        Mods Mods { get; }
     }
 }

@@ -8,6 +8,8 @@ namespace Sharpy.Interpreter.Exprs
 {
     public class ReturnStatement : Expr
     {
+        public Mods Mods { get { return new Mods(); } }
+
         public Expr Value { get; private set; }
 
         public ReturnStatement(Expr value)
