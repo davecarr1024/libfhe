@@ -13,19 +13,19 @@ namespace Sharpy
         {
             Assert.AreEqual(
                 new Interpreter.Vals.NoneType(),
-                Interpreter.Vals.BuiltinClass.Bind(typeof(Interpreter.Vals.NoneType)).Apply(new List<Interpreter.Vals.Val>())
+                Interpreter.Vals.BuiltinClass.Bind(typeof(Interpreter.Vals.NoneType)).Apply()
             );
             Assert.AreEqual(
                 new Interpreter.Vals.Bool(true),
-                Interpreter.Vals.BuiltinClass.Bind(typeof(Interpreter.Vals.Bool)).Apply(new List<Interpreter.Vals.Val>() { new Interpreter.Vals.Bool(true) })
+                Interpreter.Vals.BuiltinClass.Bind(typeof(Interpreter.Vals.Bool)).Apply(new Interpreter.Vals.Bool(true))
             );
             Assert.AreEqual(
                 new Interpreter.Vals.Int(12),
-                Interpreter.Vals.BuiltinClass.Bind(typeof(Interpreter.Vals.Int)).Apply(new List<Interpreter.Vals.Val>() { new Interpreter.Vals.Int(12) })
+                Interpreter.Vals.BuiltinClass.Bind(typeof(Interpreter.Vals.Int)).Apply(new Interpreter.Vals.Int(12))
             );
             Assert.AreEqual(
                 new Interpreter.Vals.Str("foo"),
-                Interpreter.Vals.BuiltinClass.Bind(typeof(Interpreter.Vals.Str)).Apply(new List<Interpreter.Vals.Val>() { new Interpreter.Vals.Str("foo") })
+                Interpreter.Vals.BuiltinClass.Bind(typeof(Interpreter.Vals.Str)).Apply(new Interpreter.Vals.Str("foo"))
             );
         }
 
@@ -97,11 +97,27 @@ namespace Sharpy
         {
             Interpreter.Interpreter.Eval(@"
                 System.Assert( None == NoneType() );
+                System.Assert( False == False );
                 System.Assert( False != True );
+                System.Assert( False == !True );
+                System.Assert( True || False );
+                System.Assert( False || True );
+                System.Assert( !( False || False ) );
+                System.Assert( True || True );
+                System.Assert( !( False && False ) );
+                System.Assert( !( True && False ) );
+                System.Assert( !( False && True ) );
+                System.Assert( True && True );
+                System.Assert( 1 == 1 );
+                System.Assert( 1 != 2 );
                 System.Assert( ( 1 + 2 ) == 3 );
                 System.Assert( ( 1 - 2 ) == -1 );
-                System.Assert( ( 1 * 2 ) == 2 );
+                System.Assert( ( 1 * -2 ) == -2 );
                 System.Assert( ( 10 / 2 ) == 5 );
+                System.Assert( 1 < 2 );
+                System.Assert( 2 <= 2 );
+                System.Assert( 2 > 1 );
+                System.Assert( 2 >= 2 );
             ");
         }
     }

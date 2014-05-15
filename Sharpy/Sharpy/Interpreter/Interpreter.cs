@@ -30,7 +30,7 @@ namespace Sharpy.Interpreter
                 call => ref '\(' ( expr ( ',' expr )* )? '\)';
                 ref => id ( '\.' id )*;
                 unaryOperation => ( '!' | '\-' | '\+\+' | '\-\-' ) operand;
-                binaryOperation => operand ( '\+' | '\-' | '\*' | '\/' | '=' | '==' | '!=' | '<' | '<=' | '>' | '>=' | '\+=' | '\-=' | '\*=' | '\/=' ) operand;
+                binaryOperation => operand ( '\+' | '\-' | '\*' | '\/' | '=' | '==' | '!=' | '<' | '<=' | '>' | '>=' | '\+=' | '\-=' | '\*=' | '\/=' | '\|\|' | '&&' ) operand;
                 operand => parenExpr | unaryOperation | call | ref | int | str;
                 parenExpr => '\(' expr '\)';
             ");
@@ -48,6 +48,27 @@ namespace Sharpy.Interpreter
             return parser.Apply(input).Children.Select(child => Parse(child).Eval(scope)).Last();
         }
 
+        public static bool CanApply(Vals.Val obj, string func, params Vals.Val[] args)
+        {
+            return obj.Scope != null && obj.Scope.CanApply(func, args);
+        }
+
+        public static Vals.Val Apply(Vals.Val obj, string func, params Vals.Val[] args)
+        {
+            if (obj.Scope == null)
+            {
+                throw new Exception("obj " + obj + " of type " + obj.Type + " can't apply func " + func + ": no scope");
+            }
+            else if (!obj.Scope.CanApply(func, args))
+            {
+                throw new Exception("obj " + obj + " of type " + obj.Type + " can't apply func " + func + " with args [" + string.Join(", ", args.Select(arg => arg.ToString()).ToArray()) + "]");
+            }
+            else
+            {
+                return obj.Scope.Apply(func, args);
+            }
+        }
+
         private static Exprs.Expr Parse(Parser.Result result)
         {
             switch (result.Type)
@@ -55,7 +76,10 @@ namespace Sharpy.Interpreter
                 case "statement":
                 case "exprStatement":
                 case "expr":
+                case "operand":
                     return Parse(result[0]);
+                case "parenExpr":
+                    return Parse(result[1]);
                 case "ref":
                     //ref => id ( '\.' id )*;
                     return new Exprs.Ref(result[0].Value, result[1].Children.Select(child => child[1].Value).ToArray());
@@ -100,6 +124,9 @@ namespace Sharpy.Interpreter
                         }
                         return new Exprs.Decl(result[0].Value, result[1].Value, null, args);
                     }
+                case "binaryOperation":
+                    //binaryOperation => operand ( '\+' | '\-' | '\*' | '\/' | '=' | '==' | '!=' | '<' | '<=' | '>' | '>=' | '\+=' | '\-=' | '\*=' | '\/=' ) operand;
+                    return new Exprs.BinaryOperation(Parse(result[0]), result[1][0].Value, Parse(result[2]));
                 default:
                     throw new NotImplementedException(result.Type);
             }

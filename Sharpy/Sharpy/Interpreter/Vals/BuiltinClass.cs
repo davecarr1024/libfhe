@@ -58,14 +58,14 @@ namespace Sharpy.Interpreter.Vals
             }
         }
 
-        public bool CanApply(List<Val> argTypes)
+        public bool CanApply(params Val[] argTypes)
         {
             return BuiltinType.GetConstructors().Any(ctor => BuiltinFunc.CanMethodApply(ctor, argTypes));
         }
 
-        public Val Apply(List<Val> args)
+        public Val Apply(params Val[] args)
         {
-            List<ConstructorInfo> ctors = BuiltinType.GetConstructors().Where(ctor => BuiltinFunc.CanMethodApply(ctor, args.Select(arg => arg.Type).ToList())).ToList();
+            List<ConstructorInfo> ctors = BuiltinType.GetConstructors().Where(ctor => BuiltinFunc.CanMethodApply(ctor, args.Select(arg => arg.Type).ToArray())).ToList();
             if (ctors.Count > 1)
             {
                 throw new Exception("ambiguous ctor for type " + Name + " with args [" + string.Join(", ", args.Select(arg => arg.ToString()).ToArray()) + "]");
@@ -91,16 +91,6 @@ namespace Sharpy.Interpreter.Vals
         public override string ToString()
         {
             return Name;
-        }
-
-        public bool CanSystemApply()
-        {
-            return false;
-        }
-
-        public Val SystemApply(List<Exprs.Expr> exprs, Scope scope)
-        {
-            throw new NotImplementedException();
         }
     }
 }

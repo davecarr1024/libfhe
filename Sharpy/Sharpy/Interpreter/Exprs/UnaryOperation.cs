@@ -62,13 +62,13 @@ namespace Sharpy.Interpreter.Exprs
         {
             Vals.Val arg = Arg.Eval(scope);
             string func = OpToFunc[Operator];
-            if (arg.Scope == null || !arg.Scope.CanApply(func, new List<Vals.Val>()))
+            if (arg.Scope == null || !arg.Scope.CanApply(func))
             {
                 throw new Exception("unable to use operator " + OpToStr[Operator] + " on arg of type " + arg.Type + " with func " + func);
             }
             else
             {
-                return arg.Scope.Apply(func, new List<Exprs.Expr>(), scope);
+                return arg.Scope.Apply(func);
             }
         }
 

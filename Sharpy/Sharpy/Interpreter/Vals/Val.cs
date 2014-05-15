@@ -16,12 +16,8 @@ namespace Sharpy.Interpreter.Vals
 
         bool IsReturn { get; set; }
 
-        bool CanApply(List<Val> argTypes);
+        bool CanApply(params Val[] argTypes);
 
-        Val Apply(List<Val> args);
-
-        bool CanSystemApply();
-
-        Val SystemApply(List<Exprs.Expr> exprs, Scope scope);
+        Val Apply(params Val[] args);
     }
 }

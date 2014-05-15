@@ -31,16 +31,16 @@ namespace Sharpy.Interpreter.Vals
             attr = Method.GetCustomAttributes().OfType<Attrs.BuiltinFunc>().FirstOrDefault();
         }
 
-        public bool CanApply(List<Val> argTypes)
+        public bool CanApply(params Val[] argTypes)
         {
             return CanMethodApply(Method, argTypes);
         }
 
-        public Val Apply(List<Val> args)
+        public Val Apply(params Val[] argTypes)
         {
             try
             {
-                return ConvertRet(Method.Invoke(Obj, args.ToArray()));
+                return ConvertRet(Method.Invoke(Obj, argTypes));
             }
             catch (TargetInvocationException ex)
             {
@@ -48,34 +48,17 @@ namespace Sharpy.Interpreter.Vals
             }
         }
 
-        public static bool CanMethodApply(MethodBase method, List<Val> argTypes)
+        public static bool CanMethodApply(MethodBase method, params Val[] argTypes)
         {
             return
                 argTypes.All(argType => argType is BuiltinClass) &&
-                method.GetParameters().Length == argTypes.Count &&
-                Enumerable.Range(0, argTypes.Count).All(i => method.GetParameters()[i].ParameterType.IsAssignableFrom((argTypes[i] as BuiltinClass).BuiltinType));
+                method.GetParameters().Length == argTypes.Length &&
+                Enumerable.Range(0, argTypes.Length).All(i => method.GetParameters()[i].ParameterType.IsAssignableFrom((argTypes[i] as BuiltinClass).BuiltinType));
         }
 
         public override string ToString()
         {
             return Method.Name;
-        }
-
-        public bool CanSystemApply()
-        {
-            return attr != null && attr.IsSystem;
-        }
-
-        public Val SystemApply(List<Exprs.Expr> exprs, Scope scope)
-        {
-            try
-            {
-                return ConvertRet(Method.Invoke(Obj, new object[] { exprs, scope }));
-            }
-            catch (TargetInvocationException ex)
-            {
-                throw ex.InnerException;
-            }
         }
 
         private Val ConvertRet(object ret)

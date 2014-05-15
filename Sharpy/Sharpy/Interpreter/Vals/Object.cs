@@ -31,12 +31,12 @@ namespace Sharpy.Interpreter.Vals
             }
         }
 
-        public bool CanApply(List<Val> argTypes)
+        public bool CanApply(params Val[] argTypes)
         {
             return Scope.CanApply("__call__", argTypes);
         }
 
-        public Val Apply(List<Val> args)
+        public Val Apply(params Val[] args)
         {
             return Scope.Apply("__call__", args);
         }
@@ -44,16 +44,6 @@ namespace Sharpy.Interpreter.Vals
         public override string ToString()
         {
             return string.Format("Object({0})", Type);
-        }
-
-        public bool CanSystemApply()
-        {
-            return Scope.CanSystemApply("__call__");
-        }
-
-        public Val SystemApply(List<Exprs.Expr> exprs, Scope scope)
-        {
-            return Scope.SystemApply("__call__", exprs, scope);
         }
     }
 }

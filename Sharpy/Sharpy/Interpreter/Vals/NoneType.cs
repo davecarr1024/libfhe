@@ -9,12 +9,6 @@ namespace Sharpy.Interpreter.Vals
     [Attrs.BuiltinClass]
     public class NoneType : Object
     {
-        [Attrs.BuiltinFunc]
-        public NoneType()
-            : base(BuiltinClass.Bind(typeof(NoneType)))
-        {
-        }
-
         public override string ToString()
         {
             return "None";
@@ -28,6 +22,18 @@ namespace Sharpy.Interpreter.Vals
         public override int GetHashCode()
         {
             return base.GetHashCode();
+        }
+
+        [Attrs.BuiltinFunc]
+        public NoneType()
+            : base(BuiltinClass.Bind(typeof(NoneType)))
+        {
+        }
+
+        [Attrs.BuiltinFunc]
+        public Bool __eq__(NoneType rhs)
+        {
+            return new Bool(true);
         }
     }
 }

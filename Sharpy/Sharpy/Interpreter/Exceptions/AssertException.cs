@@ -12,5 +12,10 @@ namespace Sharpy.Interpreter.Exceptions
             : base(msg)
         {
         }
+
+        public AssertException()
+            : this("")
+        {
+        }
     }
 }
