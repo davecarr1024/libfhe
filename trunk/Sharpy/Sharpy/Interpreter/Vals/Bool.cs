@@ -49,5 +49,23 @@ namespace Sharpy.Interpreter.Vals
         {
             return new Bool(!Value);
         }
+
+        [Attrs.BuiltinFunc]
+        public Bool __eq__(Bool rhs)
+        {
+            return new Bool(Value == rhs.Value);
+        }
+
+        [Attrs.BuiltinFunc]
+        public Bool __and__(Bool rhs)
+        {
+            return new Bool(Value && rhs.Value);
+        }
+
+        [Attrs.BuiltinFunc]
+        public Bool __or__(Bool rhs)
+        {
+            return new Bool(Value || rhs.Value);
+        }
     }
 }

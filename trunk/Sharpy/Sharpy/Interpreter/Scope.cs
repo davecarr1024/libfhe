@@ -18,29 +18,30 @@ namespace Sharpy.Interpreter
             Vars = new List<Var>();
         }
 
-        public IEnumerable<Var> GetAll(string name)
+        public List<Var> GetAll(string name)
         {
-            return Vars.Where(var => var.Name == name);
+            List<Var> vars = Vars.Where(var => var.Name == name).ToList();
+            if (Parent != null)
+            {
+                vars.AddRange(Parent.GetAll(name));
+            }
+            return vars;
         }
 
         public Vals.Val Get(string name)
         {
-            List<Var> vars = GetAll(name).ToList();
+            List<Var> vars = GetAll(name);
             if (vars.Count > 1)
             {
                 throw new Exception("ambiguous ref " + name);
             }
-            else if (vars.Count == 1)
+            else if (vars.Count < 1)
             {
-                return vars.First().Val;
-            }
-            else if (Parent != null)
-            {
-                return Parent.Get(name);
+                throw new Exception("unknown ref " + name);
             }
             else
             {
-                throw new Exception("unknown ref " + name);
+                return vars.First().Val;
             }
         }
 
@@ -51,17 +52,13 @@ namespace Sharpy.Interpreter
             {
                 throw new Exception("ambiguous ref " + name);
             }
-            else if (vars.Count == 1)
+            else if (vars.Count < 1)
             {
-                vars.First().Val = val;
-            }
-            else if (Parent != null)
-            {
-                Parent.Set(name, val);
+                throw new Exception("unknown ref " + name);
             }
             else
             {
-                throw new Exception("unknown ref " + name);
+                vars.First().Val = val;
             }
         }
 
@@ -75,84 +72,25 @@ namespace Sharpy.Interpreter
             Vars.Add(new Var(type, name, val));
         }
 
-        public bool CanApply(string name, List<Vals.Val> args)
+        public bool CanApply(string name, params Vals.Val[] args)
         {
-            return GetAll(name).Where(var => var.Val.CanApply(args)).Count() == 1;
+            return GetAll(name).Where(var => var.Val.CanApply(args.Select(arg => arg.Type).ToArray())).Count() == 1;
         }
 
-        public Vals.Val Apply(string name, List<Vals.Val> args)
+        public Vals.Val Apply(string name, params Vals.Val[] args)
         {
-            List<Vals.Val> argTypes = args.Select(arg => arg.Type).ToList();
-            List<Var> vars = GetAll(name).Where(var => var.Val.CanApply(argTypes)).ToList();
+            List<Var> vars = GetAll(name).Where(var => var.Val.CanApply(args.Select(arg => arg.Type).ToArray())).ToList();
             if (vars.Count > 1)
             {
                 throw new Exception("ambiguous call to " + name + " with args [" + string.Join(", ", args.Select(arg => arg.ToString()).ToArray()));
             }
-            else if (vars.Count == 1)
-            {
-                return vars.First().Val.Apply(args);
-            }
-            else if (Parent != null)
-            {
-                return Parent.Apply(name, args);
-            }
-            else
+            else if (vars.Count < 1)
             {
                 throw new Exception("unknown call to " + name + " with args [" + string.Join(", ", args.Select(arg => arg.ToString()).ToArray()) + "]");
             }
-        }
-
-        public bool CanSystemApply(string name)
-        {
-            return GetAll(name).Where(var => var.Val.CanSystemApply()).Count() == 1;
-        }
-
-        public Vals.Val SystemApply(string name, List<Exprs.Expr> exprs, Scope scope)
-        {
-            Vals.Val ret;
-            if (TrySystemApply(name, exprs, scope, out ret))
-            {
-                return ret;
-            }
             else
             {
-                throw new Exception("failed system apply " + name);
-            }
-        }
-
-        private bool TrySystemApply(string name, List<Exprs.Expr> exprs, Scope scope, out Vals.Val ret)
-        {
-            List<Var> vars = GetAll(name).Where(var => var.Val.CanSystemApply()).ToList();
-            if ( vars.Count > 1 )
-            {
-                throw new Exception("ambiguous system call " + name);
-            }
-            else if ( vars.Count == 1 )
-            {
-                ret = vars.First().Val.SystemApply(exprs,scope);
-                return true;
-            }
-            else if ( Parent != null )
-            {
-                return Parent.TrySystemApply(name,exprs,scope,out ret);
-            }
-            else
-            {
-                ret = null;
-                return false;
-            }
-        }
-
-        public Vals.Val Apply(string name, List<Exprs.Expr> exprs, Scope scope)
-        {
-            Vals.Val ret;
-            if (TrySystemApply(name, exprs, scope, out ret))
-            {
-                return ret;
-            }
-            else
-            {
-                return Apply(name, exprs.Select(expr => expr.Eval(scope)).ToList());
+                return vars.First().Val.Apply(args);
             }
         }
     }

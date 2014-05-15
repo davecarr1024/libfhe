@@ -20,7 +20,7 @@ namespace Sharpy.Interpreter.Exprs
 
         public Vals.Val Eval(Scope scope)
         {
-            return Obj.Resolve(scope).Apply(Obj.Ids.Last(), Args, scope);
+            return Obj.Resolve(scope).Apply(Obj.Ids.Last(), Args.Select(arg => arg.Eval(scope)).ToArray());
         }
 
         public override string ToString()

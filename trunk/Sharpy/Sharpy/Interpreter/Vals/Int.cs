@@ -12,7 +12,7 @@ namespace Sharpy.Interpreter.Vals
         public int Value { get; private set; }
 
         public Int(int value)
-            :base(BuiltinClass.Bind(typeof(Int)))
+            : base(BuiltinClass.Bind(typeof(Int)))
         {
             Value = value;
         }
@@ -62,6 +62,48 @@ namespace Sharpy.Interpreter.Vals
         {
             --Value;
             return new Int(Value);
+        }
+
+        [Attrs.BuiltinFunc]
+        public Bool __eq__(Int rhs)
+        {
+            return new Bool(Value == rhs.Value);
+        }
+
+        [Attrs.BuiltinFunc]
+        public Int __add__(Int rhs)
+        {
+            return new Int(Value + rhs.Value);
+        }
+
+        [Attrs.BuiltinFunc]
+        public Int __sub__(Int rhs)
+        {
+            return new Int(Value - rhs.Value);
+        }
+
+        [Attrs.BuiltinFunc]
+        public Int __mul__(Int rhs)
+        {
+            return new Int(Value * rhs.Value);
+        }
+
+        [Attrs.BuiltinFunc]
+        public Int __div__(Int rhs)
+        {
+            return new Int(Value / rhs.Value);
+        }
+
+        [Attrs.BuiltinFunc]
+        public Bool __lt__(Int rhs)
+        {
+            return new Bool(Value < rhs.Value);
+        }
+
+        [Attrs.BuiltinFunc]
+        public Bool __gt__(Int rhs)
+        {
+            return new Bool(Value > rhs.Value);
         }
     }
 }

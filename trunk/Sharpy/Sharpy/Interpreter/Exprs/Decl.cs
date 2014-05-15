@@ -30,7 +30,7 @@ namespace Sharpy.Interpreter.Exprs
             Vals.Val val;
             if (Args != null)
             {
-                val = type.Apply(Args.Select(arg => arg.Eval(scope)).ToList());
+                val = type.Apply(Args.Select(arg => arg.Eval(scope)).ToArray());
             }
             else if (Val != null)
             {
@@ -38,7 +38,7 @@ namespace Sharpy.Interpreter.Exprs
             }
             else
             {
-                val = type.Apply(new List<Vals.Val>());
+                val = type.Apply();
             }
             scope.Add(type, Name, val);
             return val;

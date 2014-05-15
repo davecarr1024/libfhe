@@ -14,16 +14,12 @@ namespace Sharpy.Interpreter.Vals
         {
         }
 
-        [Attrs.BuiltinFunc(true)]
-        public static void Assert(List<Exprs.Expr> exprs, Scope scope)
+        [Attrs.BuiltinFunc]
+        public static void Assert(Bool val)
         {
-            foreach (Exprs.Expr expr in exprs)
+            if (!val.Value)
             {
-                Val val = expr.Eval(scope);
-                if (!(BuiltinClass.Bind(typeof(Bool)).Apply(new List<Val>() { val }) as Bool).Value)
-                {
-                    throw new Exceptions.AssertException(expr.ToString());
-                }
+                throw new Exceptions.AssertException();
             }
         }
     }
