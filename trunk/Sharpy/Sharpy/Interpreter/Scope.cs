@@ -58,7 +58,7 @@ namespace Sharpy.Interpreter
             }
             else
             {
-                vars.First().Val = val;
+                vars.First().Val = Interpreter.Convert(val, vars.First().Type);
             }
         }
 

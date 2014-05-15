@@ -17,7 +17,7 @@ namespace Sharpy.Interpreter.Exprs
 
         public Vals.Val Eval(Scope scope)
         {
-            Vals.Val val = Value.Eval(scope);
+            Vals.Val val = Value == null ? new Vals.NoneType() : Value.Eval(scope);
             val.IsReturn = true;
             return val;
         }

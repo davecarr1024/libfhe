@@ -63,7 +63,10 @@ namespace Sharpy.Parser
                 Root = root;
             }
 
-            Lexer.Rules.AddRange(lexerRules.Values.Where(lr => !Lexer.Rules.Contains(lr)));
+            foreach (Lexer.Rule rule in lexerRules.Values.Where(lr => !Lexer.Rules.Contains(lr)))
+            {
+                Lexer.Rules.Insert(0, rule);
+            }
         }
 
         public Parser(string grammar)
