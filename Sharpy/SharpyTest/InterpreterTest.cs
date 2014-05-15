@@ -41,7 +41,7 @@ namespace Sharpy
             Assert.AreEqual(new Interpreter.Vals.Int(12), Interpreter.Interpreter.Eval("return 12;"));
             Assert.AreEqual(new Interpreter.Vals.Int(14), Interpreter.Interpreter.Eval("return int(14);"));
             Assert.AreEqual(new Interpreter.Vals.Str("foo"), Interpreter.Interpreter.Eval("return \"foo\";"));
-            Assert.AreEqual(new Interpreter.Vals.Str("bar"), Interpreter.Interpreter.Eval("return Str(\"bar\");"));
+            Assert.AreEqual(new Interpreter.Vals.Str("bar"), Interpreter.Interpreter.Eval("return str(\"bar\");"));
         }
 
         [TestMethod]
@@ -173,7 +173,7 @@ namespace Sharpy
                     {
                         j = ( i * k );
                     }
-                    public Int mul( int m )
+                    public int mul( int m )
                     {
                         return j * m;
                     }

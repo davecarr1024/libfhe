@@ -47,14 +47,7 @@ namespace Sharpy.Interpreter
             foreach (Type type in Assembly.GetExecutingAssembly().GetTypes().Where(t => t.GetCustomAttributes().OfType<Attrs.BuiltinClass>().Any()))
             {
                 Vals.BuiltinClass c = Vals.BuiltinClass.Bind(type);
-                scope.Add(type.Name, c);
-                foreach (Attrs.BuiltinClass attr in type.GetCustomAttributes().OfType<Attrs.BuiltinClass>())
-                {
-                    foreach (string name in attr.Names)
-                    {
-                        scope.Add(name, c);
-                    }
-                }
+                scope.Add(c.Name, c);
             }
 
             return Eval(scope, parser.Apply(input).Children.Select(child => Parse(child)).ToArray());
