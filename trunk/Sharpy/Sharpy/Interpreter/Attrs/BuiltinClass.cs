@@ -8,11 +8,16 @@ namespace Sharpy.Interpreter.Attrs
 {
     public class BuiltinClass : Attribute
     {
-        public List<string> Names { get; private set; }
+        public string Name { get; private set; }
 
-        public BuiltinClass(params string[] names)
+        public BuiltinClass(string name)
         {
-            Names = names.ToList();
+            Name = name;
+        }
+
+        public BuiltinClass()
+            : this(null)
+        {
         }
     }
 }

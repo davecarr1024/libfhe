@@ -34,7 +34,7 @@ namespace Sharpy.Interpreter.Vals
 
         public Type BuiltinType { get; private set; }
 
-        public BuiltinClass()
+        private BuiltinClass()
         {
             IsReturn = false;
         }
@@ -42,7 +42,15 @@ namespace Sharpy.Interpreter.Vals
         private void Init(Type type)
         {
             BuiltinType = type;
-            Name = type.Name;
+            Attrs.BuiltinClass attr = type.GetCustomAttributes().OfType<Attrs.BuiltinClass>().FirstOrDefault();
+            if (attr != null && !string.IsNullOrEmpty(attr.Name))
+            {
+                Name = attr.Name;
+            }
+            else
+            {
+                Name = type.Name;
+            }
             Scope = new Scope(null);
             Body = new List<Exprs.Expr>();
             foreach (MethodInfo method in BuiltinType.GetMethods().Where(m => m.GetCustomAttributes().OfType<Attrs.BuiltinFunc>().Any()))
