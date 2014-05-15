@@ -9,11 +9,6 @@ namespace Sharpy.Interpreter
 {
     public static class Interpreter
     {
-        public static bool CanConvert(Vals.Val fromType, Vals.Val toType)
-        {
-            return fromType == toType;
-        }
-
         public static Vals.Val Eval(string input)
         {
             Parser.Parser parser = new Parser.Parser(@"
@@ -22,7 +17,7 @@ namespace Sharpy.Interpreter
                 str = '"".*?""';
                 ws ~= '\s+';
                 program => statement+;
-                statement => varCtorDecl | varDecl | exprStatement;
+                statement => funcDecl | returnStatement | varCtorDecl | varDecl | exprStatement;
                 varCtorDecl => id id '\(' ( expr ( ',' expr )* )? '\)' ';';
                 varDecl => id id ( '=' expr )? ';';
                 exprStatement => expr ';';
@@ -33,6 +28,8 @@ namespace Sharpy.Interpreter
                 binaryOperation => operand ( '\+' | '\-' | '\*' | '\/' | '=' | '==' | '!=' | '<' | '<=' | '>' | '>=' | '\+=' | '\-=' | '\*=' | '\/=' | '\|\|' | '&&' ) operand;
                 operand => parenExpr | unaryOperation | call | ref | int | str;
                 parenExpr => '\(' expr '\)';
+                funcDecl => ref id '\(' ( ref id ( ',' ref id )* )? '\)' '{' statement* '}';
+                returnStatement => 'return' expr? ';';
             ");
 
             Scope scope = new Scope(null);
@@ -45,7 +42,20 @@ namespace Sharpy.Interpreter
                 scope.Add(type.Name, Vals.BuiltinClass.Bind(type));
             }
 
-            return parser.Apply(input).Children.Select(child => Parse(child).Eval(scope)).Last();
+            return Eval(scope, parser.Apply(input).Children.Select(child => Parse(child)).ToArray());
+        }
+
+        public static Vals.Val Eval(Scope scope, params Exprs.Expr[] exprs)
+        {
+            foreach (Exprs.Expr expr in exprs)
+            {
+                Vals.Val val = expr.Eval(scope);
+                if (val.IsReturn)
+                {
+                    return val;
+                }
+            }
+            return new Vals.NoneType();
         }
 
         public static bool CanApply(Vals.Val obj, string func, params Vals.Val[] args)
@@ -127,8 +137,51 @@ namespace Sharpy.Interpreter
                 case "binaryOperation":
                     //binaryOperation => operand ( '\+' | '\-' | '\*' | '\/' | '=' | '==' | '!=' | '<' | '<=' | '>' | '>=' | '\+=' | '\-=' | '\*=' | '\/=' ) operand;
                     return new Exprs.BinaryOperation(Parse(result[0]), result[1][0].Value, Parse(result[2]));
+                case "returnStatement":
+                    //returnStatement => 'return' expr? ';';
+                    if (result[1].Children.Any())
+                    {
+                        return new Exprs.ReturnStatement(Parse(result[1][0]));
+                    }
+                    else
+                    {
+                        return new Exprs.ReturnStatement(null);
+                    }
+                case "funcDecl":
+                    //funcDecl => ref id '\(' ( ref id ( ',' ref id )* )? '\)' '{' statement* '}';
+                    {
+                        List<Exprs.Param> paramList = new List<Exprs.Param>();
+                        if (result[3].Children.Any())
+                        {
+                            Parser.Result paramResult = result[3][0];
+                            paramList.Add(new Exprs.Param(Parse(paramResult[0]), paramResult[1].Value));
+                            paramList.AddRange(paramResult[2].Children.Select(child => new Exprs.Param(Parse(child[1]), child[2].Value)));
+                        }
+                        return new Exprs.Func(result[1].Value, paramList, Parse(result[0]), result[6].Children.Select(child => Parse(child)).ToList());
+                    }
                 default:
                     throw new NotImplementedException(result.Type);
+            }
+        }
+
+        public static bool CanConvert(Vals.Val fromType, Vals.Val toType)
+        {
+            return fromType == toType || toType.CanApply(fromType);
+        }
+
+        public static Vals.Val Convert(Vals.Val val, Vals.Val toType)
+        {
+            if (val.Type == toType)
+            {
+                return val;
+            }
+            else if (toType.CanApply(val.Type))
+            {
+                return toType.Apply(val);
+            }
+            else
+            {
+                throw new Exception("unable to convert val " + val + " to type " + toType);
             }
         }
     }

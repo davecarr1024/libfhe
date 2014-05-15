@@ -32,16 +32,16 @@ namespace Sharpy
         [TestMethod]
         public void BuiltinCtors()
         {
-            Assert.AreEqual(new Interpreter.Vals.NoneType(), Interpreter.Interpreter.Eval("None;"));
-            Assert.AreEqual(new Interpreter.Vals.NoneType(), Interpreter.Interpreter.Eval("NoneType();"));
-            Assert.AreEqual(new Interpreter.Vals.Bool(false), Interpreter.Interpreter.Eval("False;"));
-            Assert.AreEqual(new Interpreter.Vals.Bool(true), Interpreter.Interpreter.Eval("True;"));
-            Assert.AreEqual(new Interpreter.Vals.Bool(false), Interpreter.Interpreter.Eval("Bool(False);"));
-            Assert.AreEqual(new Interpreter.Vals.Bool(true), Interpreter.Interpreter.Eval("Bool(True);"));
-            Assert.AreEqual(new Interpreter.Vals.Int(12), Interpreter.Interpreter.Eval("12;"));
-            Assert.AreEqual(new Interpreter.Vals.Int(14), Interpreter.Interpreter.Eval("Int(14);"));
-            Assert.AreEqual(new Interpreter.Vals.Str("foo"), Interpreter.Interpreter.Eval("\"foo\";"));
-            Assert.AreEqual(new Interpreter.Vals.Str("bar"), Interpreter.Interpreter.Eval("Str(\"bar\");"));
+            Assert.AreEqual(new Interpreter.Vals.NoneType(), Interpreter.Interpreter.Eval("return None;"));
+            Assert.AreEqual(new Interpreter.Vals.NoneType(), Interpreter.Interpreter.Eval("return NoneType();"));
+            Assert.AreEqual(new Interpreter.Vals.Bool(false), Interpreter.Interpreter.Eval("return False;"));
+            Assert.AreEqual(new Interpreter.Vals.Bool(true), Interpreter.Interpreter.Eval("return True;"));
+            Assert.AreEqual(new Interpreter.Vals.Bool(false), Interpreter.Interpreter.Eval("return Bool(False);"));
+            Assert.AreEqual(new Interpreter.Vals.Bool(true), Interpreter.Interpreter.Eval("return Bool(True);"));
+            Assert.AreEqual(new Interpreter.Vals.Int(12), Interpreter.Interpreter.Eval("return 12;"));
+            Assert.AreEqual(new Interpreter.Vals.Int(14), Interpreter.Interpreter.Eval("return Int(14);"));
+            Assert.AreEqual(new Interpreter.Vals.Str("foo"), Interpreter.Interpreter.Eval("return \"foo\";"));
+            Assert.AreEqual(new Interpreter.Vals.Str("bar"), Interpreter.Interpreter.Eval("return Str(\"bar\");"));
         }
 
         [TestMethod]
@@ -58,24 +58,24 @@ namespace Sharpy
         [TestMethod]
         public void Declaration()
         {
-            Assert.AreEqual(new Interpreter.Vals.Bool(false), Interpreter.Interpreter.Eval("Bool b; b;"));
-            Assert.AreEqual(new Interpreter.Vals.Bool(true), Interpreter.Interpreter.Eval("Bool b = True; b;"));
-            Assert.AreEqual(new Interpreter.Vals.Bool(true), Interpreter.Interpreter.Eval("Bool b( True ); b;"));
-            Assert.AreEqual(new Interpreter.Vals.Int(0), Interpreter.Interpreter.Eval("Int i; i;"));
-            Assert.AreEqual(new Interpreter.Vals.Int(2), Interpreter.Interpreter.Eval("Int i = 2; i;"));
-            Assert.AreEqual(new Interpreter.Vals.Int(3), Interpreter.Interpreter.Eval("Int i(3); i;"));
-            Assert.AreEqual(new Interpreter.Vals.Str(""), Interpreter.Interpreter.Eval("Str s; s;"));
-            Assert.AreEqual(new Interpreter.Vals.Str("foo"), Interpreter.Interpreter.Eval("Str s = \"foo\"; s;"));
-            Assert.AreEqual(new Interpreter.Vals.Str("bar"), Interpreter.Interpreter.Eval("Str s(\"bar\"); s;"));
+            Assert.AreEqual(new Interpreter.Vals.Bool(false), Interpreter.Interpreter.Eval("Bool b; return b;"));
+            Assert.AreEqual(new Interpreter.Vals.Bool(true), Interpreter.Interpreter.Eval("Bool b = True; return b;"));
+            Assert.AreEqual(new Interpreter.Vals.Bool(true), Interpreter.Interpreter.Eval("Bool b( True ); return b;"));
+            Assert.AreEqual(new Interpreter.Vals.Int(0), Interpreter.Interpreter.Eval("Int i; return i;"));
+            Assert.AreEqual(new Interpreter.Vals.Int(2), Interpreter.Interpreter.Eval("Int i = 2; return i;"));
+            Assert.AreEqual(new Interpreter.Vals.Int(3), Interpreter.Interpreter.Eval("Int i(3); return i;"));
+            Assert.AreEqual(new Interpreter.Vals.Str(""), Interpreter.Interpreter.Eval("Str s; return s;"));
+            Assert.AreEqual(new Interpreter.Vals.Str("foo"), Interpreter.Interpreter.Eval("Str s = \"foo\"; return s;"));
+            Assert.AreEqual(new Interpreter.Vals.Str("bar"), Interpreter.Interpreter.Eval("Str s(\"bar\"); return s;"));
         }
 
         [TestMethod]
         public void UnaryOperators()
         {
-            Assert.AreEqual(new Interpreter.Vals.Bool(false), Interpreter.Interpreter.Eval("!True;"));
-            Assert.AreEqual(new Interpreter.Vals.Int(-1), Interpreter.Interpreter.Eval("-1;"));
-            Assert.AreEqual(new Interpreter.Vals.Int(1), Interpreter.Interpreter.Eval("Int a = 0; ++a; a;"));
-            Assert.AreEqual(new Interpreter.Vals.Int(-1), Interpreter.Interpreter.Eval("Int a = 0; --a; a;"));
+            Assert.AreEqual(new Interpreter.Vals.Bool(false), Interpreter.Interpreter.Eval("return !True;"));
+            Assert.AreEqual(new Interpreter.Vals.Int(-1), Interpreter.Interpreter.Eval("return -1;"));
+            Assert.AreEqual(new Interpreter.Vals.Int(1), Interpreter.Interpreter.Eval("Int a = 0; ++a; return a;"));
+            Assert.AreEqual(new Interpreter.Vals.Int(-1), Interpreter.Interpreter.Eval("Int a = 0; --a; return a;"));
         }
 
         [TestMethod]
@@ -118,6 +118,19 @@ namespace Sharpy
                 System.Assert( 2 <= 2 );
                 System.Assert( 2 > 1 );
                 System.Assert( 2 >= 2 );
+            ");
+        }
+
+        [TestMethod]
+        public void Func()
+        {
+            Interpreter.Interpreter.Eval(@"
+                Int sq( Int i )
+                {
+                    return i * i;
+                }
+                System.Assert( sq( 2 ) == 4 );
+                System.Assert( sq( 3 ) == 9 );
             ");
         }
     }
