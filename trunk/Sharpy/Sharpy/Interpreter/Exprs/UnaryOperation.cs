@@ -16,6 +16,8 @@ namespace Sharpy.Interpreter.Exprs
             Dec,
         }
 
+        public Mods Mods { get { return new Mods(); } }
+
         public Operators Operator { get; private set; }
 
         public Expr Arg { get; private set; }

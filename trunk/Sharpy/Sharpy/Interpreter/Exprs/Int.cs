@@ -8,6 +8,8 @@ namespace Sharpy.Interpreter.Exprs
 {
     public class Int : Expr
     {
+        public Mods Mods { get { return new Mods(); } }
+
         public int Value { get; private set; }
 
         public Int(int value)

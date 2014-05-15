@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Sharpy.Interpreter.Exprs
 {
-    public class Func : Expr
+    public class Ctor : Expr
     {
         public Mods Mods { get; private set; }
 
@@ -14,24 +14,24 @@ namespace Sharpy.Interpreter.Exprs
 
         public List<Param> Params { get; private set; }
 
-        public Expr ReturnType { get; private set; }
-
         public List<Expr> Body { get; private set; }
 
-        public Func(Mods mods, string name, List<Param> paramList, Expr returnType, List<Expr> body)
+        public Ctor(Mods mods, string name, List<Param> paramList, List<Expr> body)
         {
             Mods = mods;
             Name = name;
             Params = paramList;
-            ReturnType = returnType;
             Body = body;
         }
 
         public Vals.Val Eval(Scope scope)
         {
-            Vals.Func func = new Vals.Func(Name, Params.Select(p => p.Eval(scope)).ToList(), ReturnType.Eval(scope), Body, scope);
-            scope.Add(func.Name, func);
-            return func;
+            return new Func(Mods, "__init__", Params, new Ref("NoneType"), Body).Eval(scope);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0}({1})", Name, string.Join(", ", Params.Select(p => p.ToString()).ToArray()));
         }
     }
 }

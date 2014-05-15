@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Sharpy.Interpreter.Vals
 {
-    [Attrs.BuiltinClass]
+    [Attrs.BuiltinClass("bool")]
     public class Bool : Object
     {
         public bool Value { get; private set; }

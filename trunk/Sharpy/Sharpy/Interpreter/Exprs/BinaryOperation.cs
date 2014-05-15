@@ -29,6 +29,8 @@ namespace Sharpy.Interpreter.Exprs
             Or,
         }
 
+        public Mods Mods { get { return new Mods(); } }
+
         public Ops Op { get; private set; }
 
         public Expr Lhs { get; private set; }
@@ -141,7 +143,7 @@ namespace Sharpy.Interpreter.Exprs
                 Vals.Val lhs = Lhs.Eval(scope);
                 Vals.Val rhs = Rhs.Eval(scope);
                 Func<Vals.Val, Vals.Val, Vals.Val> fallback;
-                if (Interpreter.CanApply(lhs, func, rhs))
+                if (Interpreter.CanApply(lhs, func, rhs.Type))
                 {
                     return Interpreter.Apply(lhs, func, rhs);
                 }
