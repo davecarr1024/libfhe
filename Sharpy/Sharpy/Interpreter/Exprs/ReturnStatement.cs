@@ -8,8 +8,6 @@ namespace Sharpy.Interpreter.Exprs
 {
     public class ReturnStatement : Expr
     {
-        public Mods Mods { get { return new Mods(); } }
-
         public Expr Value { get; private set; }
 
         public ReturnStatement(Expr value)
@@ -17,7 +15,7 @@ namespace Sharpy.Interpreter.Exprs
             Value = value;
         }
 
-        public Vals.Val Eval(Scope scope)
+        public override Vals.Val Eval(Scope scope)
         {
             Vals.Val val = Value == null ? new Vals.NoneType() : Value.Eval(scope);
             val.IsReturn = true;

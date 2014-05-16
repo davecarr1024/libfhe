@@ -24,19 +24,14 @@ namespace Sharpy.Interpreter.Vals
 
         public string Name { get; private set; }
 
-        public List<Exprs.Expr> Body { get; private set; }
+        public override List<Exprs.Expr> Body { get; protected set; }
 
-        public Scope Scope { get; private set; }
-
-        public Val Type { get { return BuiltinClass.Bind(GetType()); } }
-
-        public bool IsReturn { get; set; }
+        public override Scope Scope { get; protected set; }
 
         public Type BuiltinType { get; private set; }
 
         private BuiltinClass()
         {
-            IsReturn = false;
         }
 
         private void Init(Type type)
@@ -66,14 +61,14 @@ namespace Sharpy.Interpreter.Vals
             }
         }
 
-        public bool CanApply(params Val[] argTypes)
+        public override bool CanApply(params Val[] args)
         {
-            return BuiltinType.GetConstructors().Any(ctor => BuiltinFunc.CanMethodApply(ctor, argTypes));
+            return BuiltinType.GetConstructors().Any(ctor => BuiltinFunc.CanMethodApply(ctor, args));
         }
 
-        public Val Apply(params Val[] args)
+        public override Val Apply(params Val[] args)
         {
-            List<ConstructorInfo> ctors = BuiltinType.GetConstructors().Where(ctor => BuiltinFunc.CanMethodApply(ctor, args.Select(arg => arg.Type).ToArray())).ToList();
+            List<ConstructorInfo> ctors = BuiltinType.GetConstructors().Where(ctor => BuiltinFunc.CanMethodApply(ctor, args)).ToList();
             if (ctors.Count > 1)
             {
                 throw new Exception("ambiguous ctor for type " + Name + " with args [" + string.Join(", ", args.Select(arg => arg.ToString()).ToArray()) + "]");

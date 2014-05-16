@@ -10,7 +10,7 @@ namespace Sharpy.Interpreter.Exprs
     {
         public Expr Type { get; private set; }
 
-        public Mods Mods { get; private set; }
+        public override Mods Mods { get; protected set; }
 
         public string Name { get; private set; }
 
@@ -27,7 +27,7 @@ namespace Sharpy.Interpreter.Exprs
             Args = args;
         }
 
-        public Vals.Val Eval(Scope scope)
+        public override Vals.Val Eval(Scope scope)
         {
             Vals.Val type = Type.Eval(scope);
             Vals.Val val;
@@ -37,7 +37,7 @@ namespace Sharpy.Interpreter.Exprs
             }
             else if (Val != null)
             {
-                val = Interpreter.Convert(Val.Eval(scope), type);
+                val = Val.Eval(scope).Convert(type);
             }
             else
             {

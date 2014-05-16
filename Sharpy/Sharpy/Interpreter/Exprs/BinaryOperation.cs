@@ -29,8 +29,6 @@ namespace Sharpy.Interpreter.Exprs
             Or,
         }
 
-        public Mods Mods { get { return new Mods(); } }
-
         public Ops Op { get; private set; }
 
         public Expr Lhs { get; private set; }
@@ -101,9 +99,9 @@ namespace Sharpy.Interpreter.Exprs
 
         private static Dictionary<Ops, Func<Vals.Val, Vals.Val, Vals.Val>> Fallbacks = new Dictionary<Ops, Func<Vals.Val, Vals.Val, Vals.Val>>()
         {
-            { Ops.NotEqual, ( lhs, rhs ) => Interpreter.Apply(Interpreter.Apply(lhs,"__eq__",rhs),"__not__") },
-            { Ops.Lte, ( lhs, rhs ) => Interpreter.Apply( Interpreter.Apply( lhs, "__lt__", rhs ), "__or__", Interpreter.Apply( lhs, "__eq__", rhs ) ) },
-            { Ops.Gte, ( lhs, rhs ) => Interpreter.Apply( Interpreter.Apply( lhs, "__gt__", rhs ), "__or__", Interpreter.Apply( lhs, "__eq__", rhs ) ) },
+            { Ops.NotEqual, ( lhs, rhs ) => lhs.Apply("__eq__",rhs).Apply("__not__") },
+            { Ops.Lte, ( lhs, rhs ) => lhs.Apply("__lt__",rhs).Apply("__or__",lhs.Apply("__eq__",rhs)) },
+            { Ops.Gte, ( lhs, rhs ) => lhs.Apply("__gt__",rhs).Apply("__or__",lhs.Apply("__eq__",rhs)) },
         };
 
         public BinaryOperation(Expr lhs, string opStr, Expr rhs)
@@ -121,7 +119,7 @@ namespace Sharpy.Interpreter.Exprs
             }
         }
 
-        public Vals.Val Eval(Scope scope)
+        public override Vals.Val Eval(Scope scope)
         {
             if (Op == Ops.Assign)
             {
@@ -143,9 +141,9 @@ namespace Sharpy.Interpreter.Exprs
                 Vals.Val lhs = Lhs.Eval(scope);
                 Vals.Val rhs = Rhs.Eval(scope);
                 Func<Vals.Val, Vals.Val, Vals.Val> fallback;
-                if (Interpreter.CanApply(lhs, func, rhs.Type))
+                if (lhs.CanApply(func, rhs))
                 {
-                    return Interpreter.Apply(lhs, func, rhs);
+                    return lhs.Apply(func, rhs);
                 }
                 else if (Fallbacks.TryGetValue(Op, out fallback))
                 {

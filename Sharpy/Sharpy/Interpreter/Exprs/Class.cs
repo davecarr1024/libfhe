@@ -8,7 +8,7 @@ namespace Sharpy.Interpreter.Exprs
 {
     public class Class : Expr
     {
-        public Mods Mods { get; private set; }
+        public override Mods Mods { get; protected set; }
 
         public string Name { get; private set; }
 
@@ -21,7 +21,7 @@ namespace Sharpy.Interpreter.Exprs
             Body = body;
         }
 
-        public Vals.Val Eval(Scope scope)
+        public override Vals.Val Eval(Scope scope)
         {
             Scope classScope = new Scope(scope);
             List<Expr> classBody = new List<Expr>();

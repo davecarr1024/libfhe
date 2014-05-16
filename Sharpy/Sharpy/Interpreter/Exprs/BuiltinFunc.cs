@@ -9,8 +9,6 @@ namespace Sharpy.Interpreter.Exprs
 {
     public class BuiltinFunc : Expr
     {
-        public Mods Mods { get { return new Mods(); } }
-
         public MethodInfo Method { get; private set; }
 
         public BuiltinFunc(MethodInfo method)
@@ -18,7 +16,7 @@ namespace Sharpy.Interpreter.Exprs
             Method = method;
         }
 
-        public Vals.Val Eval(Scope scope)
+        public override Vals.Val Eval(Scope scope)
         {
             Vals.Val val = new Vals.BuiltinFunc(Method, scope.Get("this"));
             scope.Add(Method.Name, val);

@@ -16,8 +16,6 @@ namespace Sharpy.Interpreter.Exprs
             Dec,
         }
 
-        public Mods Mods { get { return new Mods(); } }
-
         public Operators Operator { get; private set; }
 
         public Expr Arg { get; private set; }
@@ -60,7 +58,7 @@ namespace Sharpy.Interpreter.Exprs
             Arg = arg;
         }
 
-        public Vals.Val Eval(Scope scope)
+        public override Vals.Val Eval(Scope scope)
         {
             Vals.Val arg = Arg.Eval(scope);
             string func = OpToFunc[Operator];

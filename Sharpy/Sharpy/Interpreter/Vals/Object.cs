@@ -8,17 +8,12 @@ namespace Sharpy.Interpreter.Vals
 {
     public class Object : Val
     {
-        public Val Type { get; private set; }
+        public override Val Type { get; protected set; }
 
-        public Scope Scope { get; private set; }
-
-        public List<Exprs.Expr> Body { get { return null; } }
-
-        public bool IsReturn { get; set; }
+        public override Scope Scope { get; protected set; }
 
         public Object(Val type)
         {
-            IsReturn = false;
             Type = type;
             Scope = new Scope(Type.Scope);
             Scope.Add("this", this);
@@ -31,14 +26,14 @@ namespace Sharpy.Interpreter.Vals
             }
         }
 
-        public bool CanApply(params Val[] argTypes)
+        public override bool CanApply(params Val[] args)
         {
-            return Scope.CanApply("__call__", argTypes);
+            return CanApply("__call__", args);
         }
 
-        public Val Apply(params Val[] args)
+        public override Val Apply(params Val[] args)
         {
-            return Scope.Apply("__call__", args);
+            return Apply("__call__", args);
         }
 
         public override string ToString()

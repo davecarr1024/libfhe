@@ -8,8 +8,6 @@ namespace Sharpy.Interpreter.Exprs
 {
     public class Ref : Expr
     {
-        public Mods Mods { get { return new Mods(); } }
-
         public List<string> Ids { get; private set; }
 
         public Ref(string id, params string[] ids)
@@ -35,7 +33,7 @@ namespace Sharpy.Interpreter.Exprs
             return scope;
         }
 
-        public Vals.Val Eval(Scope scope)
+        public override Vals.Val Eval(Scope scope)
         {
             return Resolve(scope).Get(Ids.Last());
         }

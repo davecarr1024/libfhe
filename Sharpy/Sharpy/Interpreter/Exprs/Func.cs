@@ -8,7 +8,7 @@ namespace Sharpy.Interpreter.Exprs
 {
     public class Func : Expr
     {
-        public Mods Mods { get; private set; }
+        public override Mods Mods { get; protected set; }
 
         public string Name { get; private set; }
 
@@ -27,7 +27,7 @@ namespace Sharpy.Interpreter.Exprs
             Body = body;
         }
 
-        public Vals.Val Eval(Scope scope)
+        public override Vals.Val Eval(Scope scope)
         {
             Vals.Func func = new Vals.Func(Name, Params.Select(p => p.Eval(scope)).ToList(), ReturnType.Eval(scope), Body, scope);
             scope.Add(func.Name, func);

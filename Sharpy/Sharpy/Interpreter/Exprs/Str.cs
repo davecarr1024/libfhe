@@ -8,8 +8,6 @@ namespace Sharpy.Interpreter.Exprs
 {
     public class Str : Expr
     {
-        public Mods Mods { get { return new Mods(); } }
-
         public string Value { get; private set; }
 
         public Str(string value)
@@ -17,7 +15,7 @@ namespace Sharpy.Interpreter.Exprs
             Value = value;
         }
 
-        public Vals.Val Eval(Scope scope)
+        public override Vals.Val Eval(Scope scope)
         {
             return new Vals.Str(Value);
         }
