@@ -4,20 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sharpy.Interpreter.Attrs
+namespace Sharpy.Interpreter
 {
-    public class BuiltinClass : Attribute
+    public class Param
     {
+        public Vals.Val Type { get; private set; }
+
         public string Name { get; private set; }
 
-        public BuiltinClass(string name)
+        public Param(Vals.Val type, string name)
         {
+            Type = type;
             Name = name;
-        }
-
-        public BuiltinClass()
-            : this(null)
-        {
         }
     }
 }

@@ -8,54 +8,44 @@ namespace Sharpy.Interpreter.Vals
 {
     public abstract class Val
     {
-        public virtual Val Type { get { return BuiltinClass.Bind(GetType()); } protected set { } }
+        public virtual Val Type { get { return BuiltinClass.Bind(GetType()); } }
+
+        public virtual List<Sig> Sigs { get { return null; } protected set { } }
+
+        public virtual List<Sig> InterfaceSigs { get { return null; } protected set { } }
 
         public virtual Scope Scope { get { return null; } protected set { } }
 
         public virtual List<Exprs.Expr> Body { get { return null; } protected set { } }
-
-        public virtual bool IsReturn { get; set; }
-
-        public Val()
-        {
-            IsReturn = false;
-        }
-
-        public virtual bool CanApply(params Val[] args)
-        {
-            return false;
-        }
 
         public virtual Val Apply(params Val[] args)
         {
             throw new NotImplementedException();
         }
 
-        public bool CanApply(string name, params Val[] argTypes)
+        public bool CanApply(params Val[] args)
         {
-            return Scope != null && Scope.CanApply(name, argTypes);
+            return Sigs != null && Sigs.Any(sig => sig != null && sig.CanApply(args));
+        }
+
+        public bool CanApply(string name, params Val[] args)
+        {
+            return Scope != null && Scope.CanApply(name, args);
         }
 
         public Val Apply(string name, params Val[] args)
         {
-            if (Scope == null)
-            {
-                throw new Exception("obj " + this + " of type " + Type + " can't apply func " + name + ": no scope");
-            }
-            else if (!Scope.CanApply(name, args))
-            {
-                throw new Exception("obj " + this + " of type " + Type + " can't apply func " + name + " with args [" + string.Join(", ", args.Select(arg => arg.ToString()).ToArray()) + "]");
-            }
-            else
-            {
-                return Scope.Apply(name, args);
-            }
+            return Scope.Apply(name, args);
         }
 
+        public bool CanInterfaceApply(params Val[] args)
+        {
+            return InterfaceSigs != null && InterfaceSigs.Any(sig => sig != null && sig.CanApply(args));
+        }
 
         public bool CanConvert(Val toType)
         {
-            return Type == toType || toType.CanApply(Type);
+            return Type == toType || toType.CanApply(this);
         }
 
         public Val Convert(Val toType)
@@ -64,13 +54,13 @@ namespace Sharpy.Interpreter.Vals
             {
                 return this;
             }
-            else if (toType.CanApply(Type))
+            else if (toType.CanApply(this))
             {
                 return toType.Apply(this);
             }
             else
             {
-                throw new Exception("unable to convert val " + this + " to type " + toType);
+                throw new Exception("unable to convert " + Type + " to " + toType);
             }
         }
     }
