@@ -8,14 +8,29 @@ namespace Sharpy.Interpreter
 {
     public class Scope
     {
-        public List<Var> Vars { get; private set; }
-
         public Scope Parent { get; private set; }
+
+        public List<Var> Vars { get; private set; }
 
         public Scope(Scope parent)
         {
             Parent = parent;
             Vars = new List<Var>();
+        }
+
+        public Scope()
+            : this(null)
+        {
+        }
+
+        public void Add(Vals.Val type, string name, Vals.Val val)
+        {
+            Vars.Add(new Var(type, name, val));
+        }
+
+        public void Add(string name, Vals.Val val)
+        {
+            Add(val.Type, name, val);
         }
 
         public List<Var> GetAll(string name)
@@ -46,10 +61,17 @@ namespace Sharpy.Interpreter
 
         public void Set(string name, Vals.Val val)
         {
-            List<Var> vars = GetAll(name).Where(var => val.CanConvert(var.Type)).ToList();
+            List<Var> vars = GetAll(name);
             if (vars.Count == 1)
             {
-                vars.First().Val = val.Convert(vars.First().Type);
+                if (val.CanConvert(vars.First().Type))
+                {
+                    vars.First().Val = val.Convert(vars.First().Type);
+                }
+                else
+                {
+                    throw new Exception("unable to convert " + val.Type + " to " + vars.First().Type);
+                }
             }
             else if (vars.Count > 1)
             {
@@ -65,36 +87,21 @@ namespace Sharpy.Interpreter
             }
         }
 
-        public void Add(string name, Vals.Val val)
+        public bool CanApply(string name, params Vals.Val[] args)
         {
-            Add(val.Type, name, val);
-        }
-
-        public void Add(Vals.Val type, string name, Vals.Val val)
-        {
-            Vars.Add(new Var(type, name, val));
-        }
-
-        public bool CanApply(string name, params Vals.Val[] argTypes)
-        {
-            return GetAll(name).Where(var => var.Val.CanApply(argTypes)).Count() == 1 || (Parent != null && Parent.CanApply(name, argTypes));
+            return GetAll(name).Where(var => var.Val.CanApply(args)).Count() > 1 || (Parent != null && Parent.CanApply(name, args));
         }
 
         public Vals.Val Apply(string name, params Vals.Val[] args)
         {
-            List<Var> vars = GetAll(name);
-            if (vars.Count == 0)
-            {
-                throw new Exception("unknown ref " + name);
-            }
-            vars = GetAll(name).Where(var => var.Val.CanApply(args)).ToList();
+            List<Var> vars = GetAll(name).Where(var => var.Val.CanApply(args)).ToList();
             if (vars.Count == 1)
             {
                 return vars.First().Val.Apply(args);
             }
             else if (vars.Count > 1)
             {
-                throw new Exception("ambiguous call to " + name + " with args [" + string.Join(", ", args.Select(arg => arg.ToString()).ToArray()));
+                throw new Exception("ambiguous call " + name);
             }
             else if (Parent != null)
             {
@@ -102,7 +109,7 @@ namespace Sharpy.Interpreter
             }
             else
             {
-                throw new Exception("unknown call to " + name + " with args [" + string.Join(", ", args.Select(arg => arg.ToString()).ToArray()) + "]");
+                throw new Exception("unknown call " + name);
             }
         }
     }

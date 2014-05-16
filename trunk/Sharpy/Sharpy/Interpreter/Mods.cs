@@ -4,15 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sharpy.Interpreter.Exprs
+namespace Sharpy.Interpreter
 {
     public class Mods
     {
         public enum Perms
         {
-            Public,
             Private,
-        };
+            Public,
+        }
 
         public Perms Perm { get; private set; }
 

@@ -13,47 +13,36 @@ namespace Sharpy.Interpreter.Vals
 
         public Val Obj { get; private set; }
 
-        private Attrs.BuiltinFunc attr;
+        public override List<Sig> Sigs { get { return new List<Sig>() { MethodToSig(Method) }; } }
+
+        public static Sig MethodToSig(MethodInfo method)
+        {
+            return new Sig(BuiltinClass.Bind(method.ReturnType), method.GetParameters().Select(param => new Param(BuiltinClass.Bind(param.ParameterType), param.Name)).ToArray());
+        }
 
         public BuiltinFunc(MethodInfo method, Val obj)
         {
             Method = method;
             Obj = obj;
-            attr = Method.GetCustomAttributes().OfType<Attrs.BuiltinFunc>().FirstOrDefault();
         }
 
-        public override bool CanApply(params Val[] args)
+        public BuiltinFunc(MethodInfo method)
+            : this(method, null)
         {
-            return CanMethodApply(Method, args);
         }
 
-        public override Val Apply(params Val[] argTypes)
+        public override Val Apply(params Val[] args)
         {
-            try
+            object obj = Method.Invoke(Obj, args.ToArray());
+            if (obj is Val)
             {
-                return ConvertRet(Method.Invoke(Obj, argTypes));
+                return obj as Val;
             }
-            catch (TargetInvocationException ex)
+            else
             {
-                throw ex.InnerException;
+                //return new NoneType();
+                throw new NotImplementedException();
             }
-        }
-
-        public static bool CanMethodApply(MethodBase method, params Val[] args)
-        {
-            return
-                method.GetParameters().Length == args.Length &&
-                Enumerable.Range(0, args.Length).All(i => method.GetParameters()[i].ParameterType.IsAssignableFrom(args[i].GetType()));
-        }
-
-        public override string ToString()
-        {
-            return Method.Name;
-        }
-
-        private Val ConvertRet(object ret)
-        {
-            return ret is Val ? ret as Val : new NoneType();
         }
     }
 }
