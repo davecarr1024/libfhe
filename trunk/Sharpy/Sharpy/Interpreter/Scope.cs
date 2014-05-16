@@ -46,10 +46,10 @@ namespace Sharpy.Interpreter
 
         public void Set(string name, Vals.Val val)
         {
-            List<Var> vars = GetAll(name).Where(var => Interpreter.CanConvert(val.Type, var.Type)).ToList();
+            List<Var> vars = GetAll(name).Where(var => val.CanConvert(var.Type)).ToList();
             if (vars.Count == 1)
             {
-                vars.First().Val = Interpreter.Convert(val, vars.First().Type);
+                vars.First().Val = val.Convert(vars.First().Type);
             }
             else if (vars.Count > 1)
             {
@@ -87,7 +87,7 @@ namespace Sharpy.Interpreter
             {
                 throw new Exception("unknown ref " + name);
             }
-            vars = GetAll(name).Where(var => var.Val.CanApply(args.Select(arg => arg.Type).ToArray())).ToList();
+            vars = GetAll(name).Where(var => var.Val.CanApply(args)).ToList();
             if (vars.Count == 1)
             {
                 return vars.First().Val.Apply(args);

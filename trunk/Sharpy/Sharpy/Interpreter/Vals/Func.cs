@@ -8,19 +8,15 @@ namespace Sharpy.Interpreter.Vals
 {
     public class Func : Val
     {
-        public Val Type { get { return BuiltinClass.Bind(GetType()); } }
-
         public string Name { get; private set; }
 
         public List<Param> Params { get; private set; }
 
         public Val ReturnType { get; private set; }
 
-        public List<Exprs.Expr> Body { get; private set; }
+        public override List<Exprs.Expr> Body { get; protected set; }
 
-        public Scope Scope { get; private set; }
-
-        public bool IsReturn { get; set; }
+        public override Scope Scope { get; protected set; }
 
         public Func(string name, List<Param> paramList, Val returnType, List<Exprs.Expr> body, Scope scope)
         {
@@ -29,19 +25,18 @@ namespace Sharpy.Interpreter.Vals
             ReturnType = returnType;
             Body = body;
             Scope = scope;
-            IsReturn = false;
         }
 
-        public bool CanApply(params Val[] argTypes)
+        public override bool CanApply(params Val[] args)
         {
             return
-                Params.Count == argTypes.Length &&
-                Enumerable.Range(0, Params.Count).All(i => Interpreter.CanConvert(argTypes[i], Params[i].Type));
+                Params.Count == args.Length &&
+                Enumerable.Range(0, Params.Count).All(i => args[i].CanConvert(Params[i].Type));
         }
 
-        public Val Apply(params Val[] args)
+        public override Val Apply(params Val[] args)
         {
-            if (CanApply(args.Select(arg => arg.Type).ToArray()))
+            if (CanApply(args))
             {
                 Scope scope = new Scope(Scope);
                 for (int i = 0; i < args.Length; ++i)
@@ -49,9 +44,9 @@ namespace Sharpy.Interpreter.Vals
                     scope.Add(Params[i].Type, Params[i].Name, args[i]);
                 }
                 Val ret = Interpreter.Eval(scope, Body.ToArray());
-                if (Interpreter.CanConvert(ret.Type, ReturnType))
+                if (ret.CanConvert(ReturnType))
                 {
-                    return Interpreter.Convert(ret, ReturnType);
+                    return ret.Convert(ReturnType);
                 }
                 else
                 {

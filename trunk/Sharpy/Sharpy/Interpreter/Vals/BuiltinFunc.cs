@@ -13,30 +13,21 @@ namespace Sharpy.Interpreter.Vals
 
         public Val Obj { get; private set; }
 
-        public List<Exprs.Expr> Body { get { return null; } }
-
-        public Val Type { get { return BuiltinClass.Bind(GetType()); } }
-
-        public Scope Scope { get { return null; } }
-
-        public bool IsReturn { get; set; }
-
         private Attrs.BuiltinFunc attr;
 
         public BuiltinFunc(MethodInfo method, Val obj)
         {
-            IsReturn = false;
             Method = method;
             Obj = obj;
             attr = Method.GetCustomAttributes().OfType<Attrs.BuiltinFunc>().FirstOrDefault();
         }
 
-        public bool CanApply(params Val[] argTypes)
+        public override bool CanApply(params Val[] args)
         {
-            return CanMethodApply(Method, argTypes);
+            return CanMethodApply(Method, args);
         }
 
-        public Val Apply(params Val[] argTypes)
+        public override Val Apply(params Val[] argTypes)
         {
             try
             {
@@ -48,12 +39,11 @@ namespace Sharpy.Interpreter.Vals
             }
         }
 
-        public static bool CanMethodApply(MethodBase method, params Val[] argTypes)
+        public static bool CanMethodApply(MethodBase method, params Val[] args)
         {
             return
-                argTypes.All(argType => argType is BuiltinClass) &&
-                method.GetParameters().Length == argTypes.Length &&
-                Enumerable.Range(0, argTypes.Length).All(i => method.GetParameters()[i].ParameterType.IsAssignableFrom((argTypes[i] as BuiltinClass).BuiltinType));
+                method.GetParameters().Length == args.Length &&
+                Enumerable.Range(0, args.Length).All(i => method.GetParameters()[i].ParameterType.IsAssignableFrom(args[i].GetType()));
         }
 
         public override string ToString()

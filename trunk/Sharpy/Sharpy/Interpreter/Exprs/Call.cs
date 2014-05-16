@@ -8,8 +8,6 @@ namespace Sharpy.Interpreter.Exprs
 {
     public class Call : Expr
     {
-        public Mods Mods { get { return new Mods(); } }
-
         public Expr Obj { get; private set; }
 
         public List<Expr> Args { get; private set; }
@@ -20,7 +18,7 @@ namespace Sharpy.Interpreter.Exprs
             Args = args;
         }
 
-        public Vals.Val Eval(Scope scope)
+        public override Vals.Val Eval(Scope scope)
         {
             if (Obj is Ref)
             {
