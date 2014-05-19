@@ -8,12 +8,15 @@ namespace Sharpy.Interpreter
 {
     public class Sig
     {
+        public string Name { get; private set; }
+
         public Vals.Val RetType { get; private set; }
 
         public List<Param> Params { get; private set; }
 
-        public Sig(Vals.Val retType, params Param[] paramList)
+        public Sig(string name, Vals.Val retType, params Param[] paramList)
         {
+            Name = name;
             RetType = retType;
             Params = paramList.ToList();
         }
@@ -21,6 +24,14 @@ namespace Sharpy.Interpreter
         public bool CanApply(params Vals.Val[] args)
         {
             return
+                Params.Count == args.Length &&
+                Enumerable.Range(0, Params.Count).All(i => args[i].CanConvert(Params[i].Type));
+        }
+
+        public bool CanApply(string name, params Vals.Val[] args)
+        {
+            return
+                Name == name &&
                 Params.Count == args.Length &&
                 Enumerable.Range(0, Params.Count).All(i => args[i].CanConvert(Params[i].Type));
         }

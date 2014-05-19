@@ -11,8 +11,6 @@ namespace Sharpy.Interpreter.Exprs
     {
         public MethodInfo Method { get; private set; }
 
-        public string Name { get { return Method.Name; } }
-
         public Sig Sig { get { return Vals.BuiltinFunc.MethodToSig(Method); } }
 
         public BuiltinFunc(MethodInfo method)
@@ -22,7 +20,9 @@ namespace Sharpy.Interpreter.Exprs
 
         public override Vals.Val Eval(Scope scope)
         {
-            return new Vals.BuiltinFunc(Method, scope.Get("this"));
+            Vals.BuiltinFunc val = new Vals.BuiltinFunc(Method, scope.Get("this"));
+            scope.AddOverload(Method.Name, val);
+            return val;
         }
     }
 }

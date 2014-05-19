@@ -17,7 +17,7 @@ namespace Sharpy.Interpreter.Vals
 
         public static Sig MethodToSig(MethodInfo method)
         {
-            return new Sig(BuiltinClass.Bind(method.ReturnType), method.GetParameters().Select(param => new Param(BuiltinClass.Bind(param.ParameterType), param.Name)).ToArray());
+            return new Sig(method.Name, BuiltinClass.Bind(method.ReturnType), method.GetParameters().Select(param => new Param(BuiltinClass.Bind(param.ParameterType), param.Name)).ToArray());
         }
 
         public BuiltinFunc(MethodInfo method, Val obj)
@@ -40,8 +40,7 @@ namespace Sharpy.Interpreter.Vals
             }
             else
             {
-                //return new NoneType();
-                throw new NotImplementedException();
+                return new NoneType();
             }
         }
     }

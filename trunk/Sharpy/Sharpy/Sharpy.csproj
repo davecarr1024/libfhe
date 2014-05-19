@@ -39,13 +39,32 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Interpreter\Attrs\BuiltinClass.cs" />
+    <Compile Include="Interpreter\Attrs\BuiltinFunc.cs" />
+    <Compile Include="Interpreter\Exprs\BinaryOperation.cs" />
+    <Compile Include="Interpreter\Exprs\BuiltinCtor.cs" />
+    <Compile Include="Interpreter\Exprs\BuiltinFunc.cs" />
+    <Compile Include="Interpreter\Exprs\Call.cs" />
+    <Compile Include="Interpreter\Exprs\Decl.cs" />
     <Compile Include="Interpreter\Exprs\Expr.cs" />
+    <Compile Include="Interpreter\Exprs\Int.cs" />
+    <Compile Include="Interpreter\Exprs\Ref.cs" />
+    <Compile Include="Interpreter\Exprs\Return.cs" />
+    <Compile Include="Interpreter\Exprs\Str.cs" />
+    <Compile Include="Interpreter\Interpreter.cs" />
     <Compile Include="Interpreter\Mods.cs" />
     <Compile Include="Interpreter\Param.cs" />
     <Compile Include="Interpreter\Scope.cs" />
     <Compile Include="Interpreter\Sig.cs" />
+    <Compile Include="Interpreter\Vals\Bool.cs" />
     <Compile Include="Interpreter\Vals\BuiltinClass.cs" />
+    <Compile Include="Interpreter\Vals\BuiltinCtor.cs" />
     <Compile Include="Interpreter\Vals\BuiltinFunc.cs" />
+    <Compile Include="Interpreter\Vals\Int.cs" />
+    <Compile Include="Interpreter\Vals\NoneType.cs" />
+    <Compile Include="Interpreter\Vals\Object.cs" />
+    <Compile Include="Interpreter\Vals\Str.cs" />
+    <Compile Include="Interpreter\Vals\System.cs" />
     <Compile Include="Interpreter\Vals\Val.cs" />
     <Compile Include="Interpreter\Var.cs" />
     <Compile Include="Lexer\Lexer.cs" />
