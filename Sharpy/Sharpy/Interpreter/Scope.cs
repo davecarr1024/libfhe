@@ -23,9 +23,26 @@ namespace Sharpy.Interpreter
         {
         }
 
-        public void Add(Vals.Val type, string name, Vals.Val val)
+        public void AddOverload(Vals.Val type, string name, Vals.Val val)
         {
             Vars.Add(new Var(type, name, val));
+        }
+
+        public void AddOverload(string name, Vals.Val val)
+        {
+            AddOverload(val.Type, name, val);
+        }
+
+        public void Add(Vals.Val type, string name, Vals.Val val)
+        {
+            if (Vars.Any(var => var.Name == name))
+            {
+                throw new Exception("duplicate var " + name);
+            }
+            else
+            {
+                Vars.Add(new Var(type, name, val));
+            }
         }
 
         public void Add(string name, Vals.Val val)
@@ -57,6 +74,11 @@ namespace Sharpy.Interpreter
             {
                 throw new Exception("unknown ref " + name);
             }
+        }
+
+        public bool Has(string name)
+        {
+            return GetAll(name).Count == 1;
         }
 
         public void Set(string name, Vals.Val val)
@@ -101,7 +123,7 @@ namespace Sharpy.Interpreter
             }
             else if (vars.Count > 1)
             {
-                throw new Exception("ambiguous call " + name);
+                throw new Exception("ambiguous call " + name + " with args [" + string.Join(", ", args.Select(arg => arg.ToString()).ToArray()) + "]");
             }
             else if (Parent != null)
             {
@@ -109,7 +131,7 @@ namespace Sharpy.Interpreter
             }
             else
             {
-                throw new Exception("unknown call " + name);
+                throw new Exception("unknown call " + name + " with args [" + string.Join(", ", args.Select(arg => arg.ToString()).ToArray()) + "]");
             }
         }
     }

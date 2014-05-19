@@ -15,11 +15,7 @@ namespace Sharpy.Interpreter.Vals
 
         public override List<Exprs.Expr> Body { get; protected set; }
 
-        public override List<Sig> InterfaceSigs { get { return unboundFuncs.Select(func => func.Sig).ToList(); } }
-
-        public override List<Sig> Sigs { get { return unboundFuncs.Where(func => func.Name == "__init__").Select(func => func.Sig).ToList(); } }
-
-        private List<Exprs.BuiltinFunc> unboundFuncs = new List<Exprs.BuiltinFunc>();
+        public override List<Sig> Sigs { get { return InterfaceSigs.Where(sig => sig.Name == "__init__").ToList(); } }
 
         private static Dictionary<Type, BuiltinClass> Builtins = new Dictionary<Type, BuiltinClass>();
 
@@ -46,16 +42,31 @@ namespace Sharpy.Interpreter.Vals
                 }
                 else
                 {
-                    Exprs.BuiltinFunc func = new Exprs.BuiltinFunc(method);
-                    Body.Add(func);
-                    unboundFuncs.Add(func);
+                    Body.Add(new Exprs.BuiltinFunc(method));
                 }
+            }
+            foreach (ConstructorInfo ctor in BuiltinType.GetConstructors().Where(c => c.GetCustomAttributes().OfType<Attrs.BuiltinFunc>().Any()))
+            {
+                Body.Add(new Exprs.BuiltinCtor(ctor));
             }
         }
 
         public override Val Apply(params Val[] args)
         {
-            throw new NotImplementedException();
+            List<Exprs.BuiltinCtor> ctors = Body.OfType<Exprs.BuiltinCtor>().Where(ctor => ctor.CanApply(args)).ToList();
+            if (ctors.Count == 1)
+            {
+                return ctors.First().Eval(Scope).Apply(args);
+            }
+            else
+            {
+                throw new Exception("unable to construct builtin class " + this + " with args [" + string.Join(", ", args.Select(arg => arg.ToString()).ToArray()) + "]");
+            }
+        }
+
+        public override string ToString()
+        {
+            return BuiltinType.Name;
         }
     }
 }
